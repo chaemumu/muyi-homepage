@@ -98,11 +98,14 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 .pnl.open{pointer-events:auto}
 
 /* HERO */
-#p-hero{flex-direction:column;text-align:left;padding:0 clamp(3rem,8vw,10rem);align-items:flex-start}
+#p-hero{flex-direction:column;text-align:left;padding:0 clamp(3rem,8vw,10rem);align-items:flex-start;perspective:1600px;overflow:visible}
 .h-eye{font-size:.85rem;letter-spacing:.22em;text-transform:uppercase;color:var(--c-accent);margin-bottom:1.6rem;font-weight:700;opacity:0;transform:translateY(8px)}
-.h-title{font-family:'Syne',sans-serif;font-size:clamp(4.8rem,11vw,11rem);font-weight:800;line-height:.88;letter-spacing:-.05em;margin-bottom:2.2rem;color:var(--c-white);position:relative}
-.h-line{display:block;overflow:hidden}
-.h-line-in{display:block;transform:translateY(110%)}
+.h-title{font-family:'Syne',sans-serif;font-size:clamp(4.8rem,11vw,11rem);font-weight:800;line-height:1.02;letter-spacing:-.05em;margin-bottom:2.2rem;color:var(--c-white);position:relative;padding:.12em 0 .2em;overflow:visible;filter:drop-shadow(0 24px 36px rgba(6,6,18,.45))}
+.h-line{display:block;overflow:visible;padding:.03em 0 .12em}
+.h-line-in{display:inline-block;position:relative;transform:translateY(110%) rotateX(18deg) translateZ(0);transform-style:preserve-3d;text-shadow:0 .02em 0 rgba(255,255,255,.45),0 .06em .14em rgba(72,50,255,.28),0 .16em .32em rgba(3,3,12,.45)}
+.h-line-in::before,.h-line-in::after{content:attr(data-text);position:absolute;left:0;top:0;pointer-events:none;white-space:nowrap}
+.h-line-in::before{color:rgba(168,155,255,.42);z-index:-1;transform:translate3d(.018em,.085em,-1px);filter:blur(1px)}
+.h-line-in::after{color:rgba(255,255,255,.16);z-index:-2;transform:translate3d(.04em,.16em,-2px);filter:blur(2px)}
 .h-title-grad{background:linear-gradient(135deg,#fff 0%,#c4b8ff 40%,var(--c-muted) 70%,var(--c-brand) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .h-sub{font-size:clamp(1.1rem,1.6vw,1.3rem);color:var(--c-text);font-weight:400;max-width:520px;line-height:1.75;margin:0 0 2.4rem;opacity:0;font-family:'Noto Sans KR','DM Sans',sans-serif;letter-spacing:.01em}
 .h-enter{display:inline-flex;align-items:center;gap:1.2rem;font-size:1.15rem;letter-spacing:.06em;text-transform:none;color:var(--c-white);cursor:pointer;pointer-events:auto;font-weight:700;background:var(--c-brand);border:none;border-radius:3rem;padding:1.4rem 3.6rem;font-family:inherit;opacity:0;transition:all var(--dur-mid);box-shadow:0 4px 24px var(--c-brand-glow),0 0 60px rgba(30,16,199,.2)}
@@ -134,9 +137,10 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 #p-orbit{flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:4rem;gap:2.5rem}
 .o-hint{font-size:.92rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:500;opacity:0}
 .orbit-nav{display:flex;gap:1.8rem;flex-wrap:wrap;justify-content:center;opacity:0}
-.orbit-btn{position:relative;display:flex;flex-direction:column;align-items:center;gap:.8rem;padding:2.2rem 3rem;border:1px solid var(--c-border);border-radius:1.4rem;background:rgba(4,4,14,.65);backdrop-filter:blur(16px);cursor:pointer;transition:all var(--dur-mid) var(--ease-out);pointer-events:auto;text-align:center;min-width:230px;overflow:hidden}
+.orbit-btn{position:relative;display:flex;flex-direction:column;align-items:center;gap:.8rem;padding:2.2rem 3rem;border:1px solid var(--c-border);border-radius:1.4rem;background:linear-gradient(180deg,rgba(12,12,28,.82) 0%,rgba(4,4,14,.7) 100%);backdrop-filter:blur(16px);cursor:pointer;transition:all var(--dur-mid) var(--ease-out);pointer-events:auto;text-align:center;min-width:230px;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 20px 60px rgba(0,0,0,.28)}
 .orbit-btn::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,var(--glow-color,.1),transparent 70%);opacity:0;transition:opacity .4s}
-.orbit-btn:hover{border-color:rgba(255,255,255,.3);transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.orbit-btn::after{content:'';position:absolute;inset:1px;border-radius:inherit;border:1px solid rgba(255,255,255,.04);pointer-events:none}
+.orbit-btn:hover{border-color:rgba(255,255,255,.3);transform:translateY(-10px) scale(1.02);box-shadow:0 18px 50px rgba(0,0,0,.34),0 0 30px var(--glow-color,rgba(255,255,255,.08))}
 .orbit-btn:hover::before{opacity:1}
 .orbit-btn:nth-child(1){--glow-color:rgba(30,16,199,.3)}
 .orbit-btn:nth-child(2){--glow-color:rgba(104,88,255,.3)}
@@ -166,7 +170,7 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 /* NODE PANELS */
 .npnl{justify-content:flex-end;padding-right:6%;padding-left:50%}
 .npnl.lft{justify-content:flex-start;padding-left:6%;padding-right:50%}
-.nc{max-width:580px;opacity:0;transform:translateX(30px)}
+.nc{max-width:580px;opacity:0;transform:translateX(30px);padding:2.2rem 2.4rem;border:1px solid rgba(255,255,255,.08);border-radius:2rem;background:linear-gradient(180deg,rgba(10,10,24,.78) 0%,rgba(4,4,14,.62) 100%);backdrop-filter:blur(14px);box-shadow:0 24px 60px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.04)}
 .npnl.lft .nc{transform:translateX(-30px)}
 .nc-tag{font-size:.92rem;letter-spacing:.22em;text-transform:uppercase;margin-bottom:1.2rem;font-weight:700}
 .nc-tag.theme-core{color:var(--c-brand)}
@@ -335,8 +339,9 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
   .logo-img{height:32px;margin:0}
   .nav-cta{font-size:.8rem;padding:.6rem 1.4rem}
   .nav-r .nav-lnk{display:none}
-  #p-hero{text-align:left;padding:0 1.5rem;align-items:flex-start}
-  .h-title{font-size:clamp(3.2rem,11vw,5.5rem)}
+#p-hero{text-align:left;padding:0 1.5rem;align-items:flex-start}
+.h-title{font-size:clamp(3.2rem,11vw,5.5rem);line-height:1.04;padding:.1em 0 .18em}
+.h-line{padding:.02em 0 .09em}
   .h-sub{font-size:clamp(1rem,3.5vw,1.15rem)}
   .scroll-hint{left:50%;transform:translateX(-50%)}
   #orbit-tooltip{display:none}
@@ -841,7 +846,7 @@ function hoverOn(){document.body.classList.add('on-hover')}
 function hoverOff(){document.body.classList.remove('on-hover')}
 
 // ── STATE ──
-var SCROLL_MODE=true;
+var SCROLL_MODE=false;
 var S={HERO:'hero',PROB:'prob',ORBIT:'orbit',CORE:'core',MOM:'mom',ORB:'orb',SVC:'svc',S0:'s0',S1:'s1',S2:'s2',S3:'s3',CLI:'cli',CT:'ct'};
 var cur=S.HERO,hist=[];
 
@@ -970,9 +975,12 @@ function openPanel(id,state){
 function animHero(){
   // CSS transition-based reveals with stronger stagger
   var lines=document.querySelectorAll('.h-line-in');
+  lines.forEach(function(l){
+    if(!l.dataset.text){l.dataset.text=l.textContent.trim();}
+  });
   lines.forEach(function(l,i){
-    l.style.transition='none';l.style.transform='translateY(110%)';
-    setTimeout(function(){l.style.transition='transform 1.2s cubic-bezier(.16,1,.3,1)';l.style.transform='translateY(0)';},300+i*180);
+    l.style.transition='none';l.style.transform='translateY(110%) rotateX(18deg)';
+    setTimeout(function(){l.style.transition='transform 1.2s cubic-bezier(.16,1,.3,1)';l.style.transform='translateY(0) rotateX(0deg)';},300+i*180);
   });
   var eye=document.querySelector('.h-eye');
   if(eye){eye.style.opacity='0';eye.style.transform='translateY(12px)';setTimeout(function(){eye.style.transition='opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)';eye.style.opacity='1';eye.style.transform='translateY(0)';},100);}
@@ -1194,8 +1202,16 @@ orbitGrp.visible=false;
 
 var nodeMeshes=[];
 var coreMesh,momMesh,orbMesh;
+var ringMeshes=[],pulseShells=[],linkLines=[];
 
 (function(){
+  function makeLink(color,opacity){
+    var g=new THREE.BufferGeometry();
+    g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(6),3));
+    var l=new THREE.Line(g,new THREE.LineBasicMaterial({color:color,transparent:true,opacity:opacity,blending:THREE.AdditiveBlending}));
+    orbitGrp.add(l);
+    linkLines.push(l);
+  }
   // Core sphere
   coreMesh=new THREE.Mesh(
     new THREE.SphereGeometry(.5,32,32),
@@ -1210,21 +1226,27 @@ var coreMesh,momMesh,orbMesh;
 
   // Ring 1
   var r1=new THREE.Mesh(new THREE.TorusGeometry(2.2,.005,8,120),new THREE.MeshBasicMaterial({color:0x2918e8,transparent:true,opacity:.35,blending:THREE.AdditiveBlending}));
-  r1.rotation.x=Math.PI*.16; r1.rotation.z=Math.PI*.04; orbitGrp.add(r1);
+  r1.rotation.x=Math.PI*.16; r1.rotation.z=Math.PI*.04; orbitGrp.add(r1); ringMeshes.push(r1);
 
   // Momentum sphere
   momMesh=new THREE.Mesh(new THREE.SphereGeometry(.28,20,20),new THREE.MeshBasicMaterial({color:0x6858ff,transparent:true,opacity:.95,blending:THREE.AdditiveBlending}));
   momMesh._id='mom';momMesh._label='Momentum';momMesh._desc='실행 엔진 가동'; momMesh._r=2.2; momMesh._a=.8; momMesh._tilt=Math.PI*.16; momMesh._spd=.65;
   orbitGrp.add(momMesh); nodeMeshes.push(momMesh);
+  var momShell=new THREE.Mesh(new THREE.SphereGeometry(.48,18,18),new THREE.MeshBasicMaterial({color:0x6858ff,transparent:true,opacity:.14,blending:THREE.AdditiveBlending}));
+  orbitGrp.add(momShell); pulseShells.push({mesh:momShell,target:momMesh,base:.95,amp:.18,spd:3.2});
 
   // Ring 2
   var r2=new THREE.Mesh(new THREE.TorusGeometry(3.8,.005,8,120),new THREE.MeshBasicMaterial({color:0x3d2ef5,transparent:true,opacity:.18,blending:THREE.AdditiveBlending}));
-  r2.rotation.x=Math.PI*.24; r2.rotation.z=-Math.PI*.07; orbitGrp.add(r2);
+  r2.rotation.x=Math.PI*.24; r2.rotation.z=-Math.PI*.07; orbitGrp.add(r2); ringMeshes.push(r2);
 
   // Orbit sphere
   orbMesh=new THREE.Mesh(new THREE.SphereGeometry(.25,20,20),new THREE.MeshBasicMaterial({color:0xEE4E00,transparent:true,opacity:.9,blending:THREE.AdditiveBlending}));
   orbMesh._id='orb';orbMesh._label='Orbit';orbMesh._desc='성장 궤도 진입'; orbMesh._r=3.8; orbMesh._a=2.5; orbMesh._tilt=Math.PI*.24; orbMesh._spd=.32;
   orbitGrp.add(orbMesh); nodeMeshes.push(orbMesh);
+  var orbShell=new THREE.Mesh(new THREE.SphereGeometry(.42,18,18),new THREE.MeshBasicMaterial({color:0xEE4E00,transparent:true,opacity:.11,blending:THREE.AdditiveBlending}));
+  orbitGrp.add(orbShell); pulseShells.push({mesh:orbShell,target:orbMesh,base:.9,amp:.16,spd:2.6});
+  makeLink(0x6858ff,.22);
+  makeLink(0xEE4E00,.18);
 
   // Mini dots ring 1
   for(var i=0;i<5;i++){
@@ -1311,8 +1333,30 @@ function animate(){
       m.position.set(m._r*Math.cos(a),m._r*Math.sin(a)*Math.cos(tl),m._r*Math.sin(a)*Math.sin(tl));
     }
     orbNode(momMesh); orbNode(orbMesh);
+    if(linkLines[0]){
+      var p=linkLines[0].geometry.attributes.position.array;
+      p[0]=coreMesh.position.x;p[1]=coreMesh.position.y;p[2]=coreMesh.position.z;
+      p[3]=momMesh.position.x;p[4]=momMesh.position.y;p[5]=momMesh.position.z;
+      linkLines[0].geometry.attributes.position.needsUpdate=true;
+    }
+    if(linkLines[1]){
+      var p2=linkLines[1].geometry.attributes.position.array;
+      p2[0]=coreMesh.position.x;p2[1]=coreMesh.position.y;p2[2]=coreMesh.position.z;
+      p2[3]=orbMesh.position.x;p2[4]=orbMesh.position.y;p2[5]=orbMesh.position.z;
+      linkLines[1].geometry.attributes.position.needsUpdate=true;
+    }
     // Mini dots
     orbitGrp.children.forEach(function(c){if(c._gw)orbNode(c);});
+    ringMeshes.forEach(function(r,i){
+      r.rotation.z+=(i===0?.0018:-.0012);
+      r.material.opacity=i===0?.28+.06*Math.sin(t*2.1):.14+.05*Math.sin(t*1.6);
+    });
+    pulseShells.forEach(function(s){
+      s.mesh.position.copy(s.target.position);
+      var scale=s.base+s.amp*Math.sin(t*s.spd);
+      s.mesh.scale.setScalar(scale);
+      s.mesh.material.opacity=.08+.05*Math.sin(t*s.spd);
+    });
     // Hover pulse — strong interaction + enlarge for easy click
     nodeMeshes.forEach(function(n){
       if(n===hovN){
