@@ -147,10 +147,10 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 @keyframes scrollBounce{0%,100%{transform:rotate(45deg) translateY(0)}50%{transform:rotate(45deg) translateY(10px)}}
 
 /* ORBIT HINT & NAV */
-#p-orbit{flex-direction:column;align-items:center;justify-content:flex-end;padding:0 0 3rem;gap:.8rem}
-.o-hint{font-size:.92rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.68);font-weight:600;opacity:0;margin-top:auto}
-.orbit-nav{display:flex;flex-direction:column;gap:.7rem;opacity:0;width:min(600px,100% - 3rem)}
-.orbit-btn{position:relative;display:flex;flex-direction:row;align-items:center;gap:1rem;padding:1.1rem 1.6rem;border:1px solid var(--c-border);border-radius:.9rem;background:linear-gradient(180deg,rgba(12,14,36,.86) 0%,rgba(4,5,18,.74) 100%);backdrop-filter:blur(18px);cursor:pointer;transition:all var(--dur-mid) var(--ease-out);pointer-events:auto;text-align:left;width:100%;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 8px 24px rgba(0,0,0,.28)}
+#p-orbit{flex-direction:column;align-items:center;justify-content:flex-end;padding:0 0 2.5rem;gap:.7rem}
+.o-hint{font-size:.82rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:600;opacity:0;margin-top:auto;margin-bottom:.2rem}
+.orbit-nav{display:flex;flex-direction:column;gap:.55rem;opacity:0;width:min(660px,100% - 3rem)}
+.orbit-btn{position:relative;display:flex;flex-direction:row;align-items:center;gap:1.2rem;padding:1.45rem 2rem;border:1px solid var(--c-border);border-radius:1rem;background:linear-gradient(180deg,rgba(12,14,36,.88) 0%,rgba(4,5,18,.78) 100%);backdrop-filter:blur(18px);cursor:pointer;transition:all var(--dur-mid) var(--ease-out);pointer-events:auto;text-align:left;width:100%;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 8px 24px rgba(0,0,0,.32)}
 .orbit-btn::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,var(--glow-color,.1),transparent 70%);opacity:0;transition:opacity .4s}
 .orbit-btn::after{content:'';position:absolute;inset:1px;border-radius:inherit;border:1px solid rgba(255,255,255,.04);pointer-events:none}
 .orbit-btn:hover,.orbit-btn.is-hover{border-color:rgba(140,162,255,.42);transform:translateY(-10px) scale(1.02);box-shadow:0 18px 50px rgba(0,0,0,.34),0 0 30px var(--glow-color,rgba(255,255,255,.08))}
@@ -158,20 +158,17 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 .orbit-btn:nth-child(1){--glow-color:rgba(30,16,199,.3)}
 .orbit-btn:nth-child(2){--glow-color:rgba(104,88,255,.3)}
 .orbit-btn:nth-child(3){--glow-color:rgba(140,162,255,.24)}
-.orbit-btn-icon{width:16px;height:16px;border-radius:50%;flex-shrink:0;box-shadow:0 0 16px var(--glow-color,rgba(255,255,255,.1));transition:box-shadow .4s}
-.orbit-btn:hover .orbit-btn-icon,.orbit-btn.is-hover .orbit-btn-icon{box-shadow:0 0 28px var(--glow-color,rgba(255,255,255,.3))}
-.orbit-btn-icon.blue{background:#1E10C7}
-.orbit-btn-icon.purple{background:#6858ff}
-.orbit-btn-icon.orange{background:#EE4E00}
-.orbit-btn-name{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--c-white);letter-spacing:-.01em;position:relative;min-width:90px}
-.orbit-btn-index{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.34);font-weight:700;flex-shrink:0;min-width:24px}
-.orbit-btn-problem{font-size:.82rem;color:rgba(255,255,255,.55);font-weight:400;position:relative;letter-spacing:-.01em;font-family:'Noto Sans KR','DM Sans',sans-serif;flex:1}
-.orbit-btn:nth-child(1) .orbit-btn-problem{color:#7a8fff}
-.orbit-btn:nth-child(2) .orbit-btn-problem{color:var(--c-muted)}
-.orbit-btn:nth-child(3) .orbit-btn-problem{color:var(--c-accent)}
+.orbit-btn-icon{width:20px;height:20px;border-radius:50%;flex-shrink:0;box-shadow:0 0 14px var(--glow-color,rgba(255,255,255,.1));transition:box-shadow .4s}
+.orbit-btn:hover .orbit-btn-icon,.orbit-btn.is-hover .orbit-btn-icon{box-shadow:0 0 26px var(--glow-color,rgba(255,255,255,.3))}
+.orbit-btn-icon.blue{background:radial-gradient(circle at 35% 32%,#6677ff 0%,#2a18e8 45%,#0c0880 100%);box-shadow:0 2px 10px rgba(30,16,199,.5)}
+.orbit-btn-icon.purple{background:radial-gradient(circle at 35% 32%,#aa99ff 0%,#7868ff 45%,#3020bb 100%);box-shadow:0 2px 10px rgba(104,88,255,.5)}
+.orbit-btn-icon.orange{background:radial-gradient(circle at 35% 32%,#ff8855 0%,#ee4e00 45%,#aa2200 100%);box-shadow:0 2px 10px rgba(238,78,0,.5)}
+.orbit-btn-name{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--c-white);letter-spacing:-.01em;position:relative;min-width:100px}
+.orbit-btn-index{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.28);font-weight:700;flex-shrink:0;min-width:24px}
+.orbit-btn-problem{font-size:.82rem;color:rgba(255,255,255,.45);font-weight:400;position:relative;letter-spacing:-.01em;font-family:'Noto Sans KR','DM Sans',sans-serif;flex:1}
 .orbit-btn-desc{display:none}
-.orbit-btn-kpi{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .65rem;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);font-size:.72rem;letter-spacing:.04em;text-transform:none;color:rgba(255,255,255,.6);font-weight:600;position:relative;z-index:1;white-space:nowrap}
-.orbit-btn-kpi::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.9}
+.orbit-btn-kpi{display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .8rem;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:.76rem;letter-spacing:.02em;text-transform:none;color:rgba(255,255,255,.7);font-weight:600;position:relative;z-index:1;white-space:nowrap;min-width:115px;justify-content:flex-start}
+.orbit-btn-kpi::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.8;flex-shrink:0}
 .orbit-skip{font-size:.92rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);cursor:pointer;background:none;border:none;font-family:inherit;font-weight:500;transition:color .3s;pointer-events:auto;display:inline-flex;align-items:center;gap:.8rem;opacity:0;margin-top:.35rem}
 .orbit-skip:hover{color:#fff}
 .orbit-skip::after{content:'→';font-size:1.1rem;transition:transform .3s}
@@ -999,6 +996,12 @@ var SC = new THREE.Scene();
 var CAM = new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,500);
 CAM.position.set(0,0,16);
 
+// ── LIGHTS (for 3D sphere shading) ──
+var ambLight=new THREE.AmbientLight(0x1a1840,1.6);SC.add(ambLight);
+var keyLight=new THREE.PointLight(0x6688ff,4.5,35);keyLight.position.set(5,6,12);SC.add(keyLight);
+var rimLight=new THREE.PointLight(0xffffff,.7,22);rimLight.position.set(-5,-3,5);SC.add(rimLight);
+var fillLight=new THREE.PointLight(0x3322dd,1.2,18);fillLight.position.set(0,4,7);SC.add(fillLight);
+
 var camTgt = {x:0,y:0,z:0};
 var parOff = {x:0,y:0};
 var parMouse = {x:0,y:0};
@@ -1407,27 +1410,29 @@ var ringMeshes=[],pulseShells=[],linkLines=[];
     orbitGrp.add(l);
     linkLines.push(l);
   }
-  // Core sphere
+  // Core sphere — Phong for 3D shading
   coreMesh=new THREE.Mesh(
-    new THREE.SphereGeometry(.5,32,32),
-    new THREE.MeshBasicMaterial({color:0x1E10C7,transparent:true,opacity:.95,blending:THREE.AdditiveBlending})
+    new THREE.SphereGeometry(.5,48,48),
+    new THREE.MeshPhongMaterial({color:0x2a18e8,emissive:0x0c0880,shininess:110,specular:0x88aaff})
   );
   coreMesh._id='core';coreMesh._label='Core';coreMesh._desc='브랜드 기준점과 메시지를 다시 세웁니다'; orbitGrp.add(coreMesh); nodeMeshes.push(coreMesh);
 
-  // Core glow
-  orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(1.0,16,16),new THREE.MeshBasicMaterial({color:0x1E10C7,transparent:true,opacity:.1,blending:THREE.AdditiveBlending})));
+  // Core inner glow
+  orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(.65,16,16),new THREE.MeshBasicMaterial({color:0x2a18e8,transparent:true,opacity:.18,blending:THREE.AdditiveBlending,depthWrite:false})));
+  // Core mid glow
+  orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(1.1,16,16),new THREE.MeshBasicMaterial({color:0x1E10C7,transparent:true,opacity:.08,blending:THREE.AdditiveBlending,depthWrite:false})));
   // Core outer glow
-  orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(1.5,12,12),new THREE.MeshBasicMaterial({color:0x1E10C7,transparent:true,opacity:.04,blending:THREE.AdditiveBlending})));
+  orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(1.7,12,12),new THREE.MeshBasicMaterial({color:0x1E10C7,transparent:true,opacity:.03,blending:THREE.AdditiveBlending,depthWrite:false})));
 
   // Ring 1
   var r1=new THREE.Mesh(new THREE.TorusGeometry(2.2,.005,8,120),new THREE.MeshBasicMaterial({color:0x2918e8,transparent:true,opacity:.35,blending:THREE.AdditiveBlending}));
   r1.rotation.x=Math.PI*.16; r1.rotation.z=Math.PI*.04; r1._baseZ=Math.PI*.04; r1._spd=.18; orbitGrp.add(r1); ringMeshes.push(r1);
 
-  // Momentum sphere
-  momMesh=new THREE.Mesh(new THREE.SphereGeometry(.28,20,20),new THREE.MeshBasicMaterial({color:0x6858ff,transparent:true,opacity:.95,blending:THREE.AdditiveBlending}));
+  // Momentum sphere — Phong for 3D shading
+  momMesh=new THREE.Mesh(new THREE.SphereGeometry(.28,36,36),new THREE.MeshPhongMaterial({color:0x8068ff,emissive:0x2818bb,shininess:100,specular:0xbbaaff}));
   momMesh._id='mom';momMesh._label='Momentum';momMesh._desc='광고와 콘텐츠 성과를 실제 매출로 연결합니다'; momMesh._r=2.2; momMesh._a=.8; momMesh._tilt=Math.PI*.16; momMesh._spd=.65;
   orbitGrp.add(momMesh); nodeMeshes.push(momMesh);
-  var momShell=new THREE.Mesh(new THREE.SphereGeometry(.48,18,18),new THREE.MeshBasicMaterial({color:0x6858ff,transparent:true,opacity:.14,blending:THREE.AdditiveBlending}));
+  var momShell=new THREE.Mesh(new THREE.SphereGeometry(.44,18,18),new THREE.MeshBasicMaterial({color:0x6858ff,transparent:true,opacity:.16,blending:THREE.AdditiveBlending,depthWrite:false}));
   orbitGrp.add(momShell); pulseShells.push({mesh:momShell,target:momMesh,base:.95,amp:.18,spd:3.2});
 
   // Ring 2
@@ -1436,11 +1441,11 @@ var ringMeshes=[],pulseShells=[],linkLines=[];
   var r3=new THREE.Mesh(new THREE.TorusGeometry(4.75,.004,8,160),new THREE.MeshBasicMaterial({color:0x8CA2FF,transparent:true,opacity:.09,blending:THREE.AdditiveBlending}));
   r3.rotation.x=Math.PI*.31; r3.rotation.z=Math.PI*.11; r3._baseZ=Math.PI*.11; r3._spd=.09; orbitGrp.add(r3); ringMeshes.push(r3);
 
-  // Orbit sphere
-  orbMesh=new THREE.Mesh(new THREE.SphereGeometry(.25,20,20),new THREE.MeshBasicMaterial({color:0xEE4E00,transparent:true,opacity:.9,blending:THREE.AdditiveBlending}));
+  // Orbit sphere — Phong for 3D shading
+  orbMesh=new THREE.Mesh(new THREE.SphereGeometry(.25,36,36),new THREE.MeshPhongMaterial({color:0xEE4E00,emissive:0xaa2200,shininess:85,specular:0xff9966}));
   orbMesh._id='orb';orbMesh._label='Orbit';orbMesh._desc='유입, 전환, 재방문이 이어지는 성장 궤도를 만듭니다'; orbMesh._r=3.8; orbMesh._a=2.5; orbMesh._tilt=Math.PI*.24; orbMesh._spd=.32;
   orbitGrp.add(orbMesh); nodeMeshes.push(orbMesh);
-  var orbShell=new THREE.Mesh(new THREE.SphereGeometry(.42,18,18),new THREE.MeshBasicMaterial({color:0xEE4E00,transparent:true,opacity:.11,blending:THREE.AdditiveBlending}));
+  var orbShell=new THREE.Mesh(new THREE.SphereGeometry(.4,18,18),new THREE.MeshBasicMaterial({color:0xEE4E00,transparent:true,opacity:.14,blending:THREE.AdditiveBlending,depthWrite:false}));
   orbitGrp.add(orbShell); pulseShells.push({mesh:orbShell,target:orbMesh,base:.9,amp:.16,spd:2.6});
   makeLink(0x6858ff,.22);
   makeLink(0xEE4E00,.18);
