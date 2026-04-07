@@ -1417,27 +1417,14 @@ var ringMeshes=[],pulseShells=[],linkLines=[];
   );
   coreMesh._id='core';coreMesh._label='Core';coreMesh._desc='브랜드 기준점과 메시지를 다시 세웁니다'; orbitGrp.add(coreMesh); nodeMeshes.push(coreMesh);
 
-  // Core — Saturn-style ring
-  var coreRing=new THREE.Mesh(
-    new THREE.TorusGeometry(.88,.055,2,100),
-    new THREE.MeshBasicMaterial({color:0x5544ff,transparent:true,opacity:.38,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false})
-  );
-  coreRing.rotation.x=Math.PI*.32;
-  coreMesh.add(coreRing);
-  // Core ring outer (faint halo)
-  var coreRing2=new THREE.Mesh(
-    new THREE.TorusGeometry(1.08,.028,2,100),
-    new THREE.MeshBasicMaterial({color:0x3322cc,transparent:true,opacity:.16,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false})
-  );
-  coreRing2.rotation.x=Math.PI*.32;
-  coreMesh.add(coreRing2);
+  // Core — no Saturn ring
 
   // Core atmosphere glow
   orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(.75,16,16),new THREE.MeshBasicMaterial({color:0x2820ee,transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false})));
   orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(1.2,12,12),new THREE.MeshBasicMaterial({color:0x1E10C7,transparent:true,opacity:.05,blending:THREE.AdditiveBlending,depthWrite:false})));
 
   // Ring 1
-  var r1=new THREE.Mesh(new THREE.TorusGeometry(2.2,.005,8,120),new THREE.MeshBasicMaterial({color:0x2918e8,transparent:true,opacity:.35,blending:THREE.AdditiveBlending}));
+  var r1=new THREE.Mesh(new THREE.TorusGeometry(2.2,.014,8,120),new THREE.MeshBasicMaterial({color:0x2918e8,transparent:true,opacity:.35,blending:THREE.AdditiveBlending}));
   r1.rotation.x=Math.PI*.16; r1.rotation.z=Math.PI*.04; r1._baseZ=Math.PI*.04; r1._spd=.18; orbitGrp.add(r1); ringMeshes.push(r1);
 
   // Momentum sphere — Lambert (matte planet)
@@ -1448,15 +1435,28 @@ var ringMeshes=[],pulseShells=[],linkLines=[];
   orbitGrp.add(momShell); pulseShells.push({mesh:momShell,target:momMesh,base:.95,amp:.15,spd:3.2});
 
   // Ring 2
-  var r2=new THREE.Mesh(new THREE.TorusGeometry(3.8,.005,8,120),new THREE.MeshBasicMaterial({color:0x3d2ef5,transparent:true,opacity:.18,blending:THREE.AdditiveBlending}));
+  var r2=new THREE.Mesh(new THREE.TorusGeometry(3.8,.010,8,120),new THREE.MeshBasicMaterial({color:0x3d2ef5,transparent:true,opacity:.18,blending:THREE.AdditiveBlending}));
   r2.rotation.x=Math.PI*.24; r2.rotation.z=-Math.PI*.07; r2._baseZ=-Math.PI*.07; r2._spd=-.12; orbitGrp.add(r2); ringMeshes.push(r2);
-  var r3=new THREE.Mesh(new THREE.TorusGeometry(4.75,.004,8,160),new THREE.MeshBasicMaterial({color:0x8CA2FF,transparent:true,opacity:.09,blending:THREE.AdditiveBlending}));
+  var r3=new THREE.Mesh(new THREE.TorusGeometry(4.75,.007,8,160),new THREE.MeshBasicMaterial({color:0x8CA2FF,transparent:true,opacity:.09,blending:THREE.AdditiveBlending}));
   r3.rotation.x=Math.PI*.31; r3.rotation.z=Math.PI*.11; r3._baseZ=Math.PI*.11; r3._spd=.09; orbitGrp.add(r3); ringMeshes.push(r3);
 
   // Orbit sphere — Lambert (matte planet, warm orange)
   orbMesh=new THREE.Mesh(new THREE.SphereGeometry(.25,36,36),new THREE.MeshLambertMaterial({color:0xEE4E00,emissive:0x7a1a00}));
   orbMesh._id='orb';orbMesh._label='Orbit';orbMesh._desc='유입, 전환, 재방문이 이어지는 성장 궤도를 만듭니다'; orbMesh._r=3.8; orbMesh._a=2.5; orbMesh._tilt=Math.PI*.24; orbMesh._spd=.32;
   orbitGrp.add(orbMesh); nodeMeshes.push(orbMesh);
+  // Saturn ring on orange Orbit sphere
+  var orbRing=new THREE.Mesh(
+    new THREE.TorusGeometry(.62,.065,2,80),
+    new THREE.MeshBasicMaterial({color:0xff7722,transparent:true,opacity:.55,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false})
+  );
+  orbRing.rotation.x=Math.PI*.3;
+  orbMesh.add(orbRing);
+  var orbRing2=new THREE.Mesh(
+    new THREE.TorusGeometry(.8,.028,2,80),
+    new THREE.MeshBasicMaterial({color:0xEE4E00,transparent:true,opacity:.25,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false})
+  );
+  orbRing2.rotation.x=Math.PI*.3;
+  orbMesh.add(orbRing2);
   var orbShell=new THREE.Mesh(new THREE.SphereGeometry(.38,18,18),new THREE.MeshBasicMaterial({color:0xEE4E00,transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false}));
   orbitGrp.add(orbShell); pulseShells.push({mesh:orbShell,target:orbMesh,base:.9,amp:.14,spd:2.6});
   makeLink(0x6858ff,.22);
@@ -1492,7 +1492,9 @@ document.getElementById('c').addEventListener('mousemove',function(e){
   RC.setFromCamera(m2,CAM);
   var hits=RC.intersectObjects(nodeMeshes);
   if(hits.length){
-    hovN=hits[0].object;
+    var newHov=hits[0].object;
+    if(newHov!==hovN){newHov._frozenT=CLK.getElapsedTime();}
+    hovN=newHov;
     hoverOn();
     document.getElementById('c').style.cursor='pointer';
     // Show tooltip
@@ -1502,6 +1504,7 @@ document.getElementById('c').addEventListener('mousemove',function(e){
     tooltip.style.top=e.clientY+'px';
     tooltip.style.opacity='1';
   } else {
+    if(hovN&&hovN!==orbitButtonHover){hovN._frozenT=undefined;}
     hovN=orbitButtonHover;
     document.querySelectorAll('.orbit-btn').forEach(function(btn){btn.classList.toggle('is-hover',btn===orbitButtonHoverEl);});
     if(!orbitButtonHover)hoverOff();
@@ -1518,6 +1521,8 @@ document.getElementById('c').addEventListener('click',function(e){
   var hits=RC.intersectObjects(nodeMeshes);
   if(hits.length){
     activeN=hits[0].object;
+    activeN._frozenT=CLK.getElapsedTime();
+    hovN=activeN;
     var id=activeN._id;
     tooltip.style.opacity='0';
     goto(id==='core'?S.CORE:id==='mom'?S.MOM:S.ORB);
@@ -1526,7 +1531,6 @@ document.getElementById('c').addEventListener('click',function(e){
 
 // ── ANIM LOOP ──
 var CLK=new THREE.Clock();
-var orbitPauseT=0;
 function animate(){
   requestAnimationFrame(animate);
   var t=CLK.getElapsedTime();
@@ -1536,17 +1540,12 @@ function animate(){
   nebPts.rotation.y=t*.018;
 
   if(orbitGrp.visible){
-    // Pause orbit when hovering a planet
-    if(!hovN){
-      orbitPauseT=t;
-      orbitGrp.rotation.y=t*.055;
-    } else {
-      // Keep rotation frozen at pause point
-      orbitGrp.rotation.y=orbitPauseT*.055;
-    }
-    // Orbiting nodes — freeze positions on hover
-    var ot=hovN?orbitPauseT:t;
+    // Orbit group ALWAYS rotates — per-planet freeze via _frozenT
+    orbitGrp.rotation.y=t*.055;
+
+    // Per-planet orbit: only hovered planet is frozen (uses its own _frozenT)
     function orbNode(m){
+      var ot=(m===hovN&&m._frozenT!==undefined)?m._frozenT:t;
       var a=m._a+ot*m._spd,tl=m._tilt;
       m.position.set(m._r*Math.cos(a),m._r*Math.sin(a)*Math.cos(tl),m._r*Math.sin(a)*Math.sin(tl));
     }
@@ -1563,11 +1562,12 @@ function animate(){
       p2[3]=orbMesh.position.x;p2[4]=orbMesh.position.y;p2[5]=orbMesh.position.z;
       linkLines[1].geometry.attributes.position.needsUpdate=true;
     }
-    // Mini dots
+    // Mini dots — always live (never hovered, so always use t)
     orbitGrp.children.forEach(function(c){if(c._gw)orbNode(c);});
+    // Orbit rings — always live
     ringMeshes.forEach(function(r,i){
-      r.rotation.z=r._baseZ+ot*r._spd;
-      r.material.opacity=i===0?.28+.06*Math.sin(t*2.1):i===1?.14+.05*Math.sin(t*1.6):.11+.04*Math.sin(t*1.2);
+      r.rotation.z=r._baseZ+t*r._spd;
+      r.material.opacity=i===0?.34+.06*Math.sin(t*2.1):i===1?.20+.05*Math.sin(t*1.6):.14+.04*Math.sin(t*1.2);
     });
     pulseShells.forEach(function(s){
       s.mesh.position.copy(s.target.position);
@@ -1575,7 +1575,7 @@ function animate(){
       s.mesh.scale.setScalar(scale);
       s.mesh.material.opacity=.08+.05*Math.sin(t*s.spd);
     });
-    // Hover pulse — subtle scale, no aggressive enlargement
+    // Scale: subtle pulse, hover slightly larger
     nodeMeshes.forEach(function(n){
       if(n===hovN){
         var s=1.32+.06*Math.sin(t*3.5);
@@ -1634,6 +1634,7 @@ document.querySelectorAll('.orbit-btn[data-node]').forEach(function(el){
     orbitButtonHoverEl=this;
     document.querySelectorAll('.orbit-btn').forEach(function(btn){btn.classList.toggle('is-hover',btn===el);});
     orbitButtonHover=node==='core'?coreMesh:node==='mom'?momMesh:orbMesh;
+    if(orbitButtonHover._frozenT===undefined){orbitButtonHover._frozenT=CLK.getElapsedTime();}
     hovN=orbitButtonHover;
     ttName.textContent=orbitButtonHover._label||'';
     ttDesc.textContent=orbitButtonHover._desc||'';
@@ -1645,6 +1646,7 @@ document.querySelectorAll('.orbit-btn[data-node]').forEach(function(el){
   });
   el.addEventListener('mouseleave',function(){
     this.classList.remove('is-hover');
+    if(orbitButtonHover){orbitButtonHover._frozenT=undefined;}
     orbitButtonHoverEl=null;
     orbitButtonHover=null;
     hovN=null;
