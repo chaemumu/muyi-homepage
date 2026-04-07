@@ -163,8 +163,8 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 .orbit-btn-icon.blue{background:radial-gradient(circle at 35% 32%,#6677ff 0%,#2a18e8 45%,#0c0880 100%);box-shadow:0 2px 10px rgba(30,16,199,.5)}
 .orbit-btn-icon.purple{background:radial-gradient(circle at 35% 32%,#aa99ff 0%,#7868ff 45%,#3020bb 100%);box-shadow:0 2px 10px rgba(104,88,255,.5)}
 .orbit-btn-icon.orange{background:radial-gradient(circle at 35% 32%,#ff8855 0%,#ee4e00 45%,#aa2200 100%);box-shadow:0 2px 10px rgba(238,78,0,.5)}
-.orbit-btn-name{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--c-white);letter-spacing:-.01em;position:relative;min-width:100px}
-.orbit-btn-index{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.28);font-weight:700;flex-shrink:0;min-width:24px}
+.orbit-btn-name{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--c-white);letter-spacing:-.01em;position:relative;min-width:130px;flex-shrink:0}
+.orbit-btn-index{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.28);font-weight:700;flex-shrink:0;width:28px;text-align:center}
 .orbit-btn-problem{font-size:.82rem;color:rgba(255,255,255,.45);font-weight:400;position:relative;letter-spacing:-.01em;font-family:'Noto Sans KR','DM Sans',sans-serif;flex:1}
 .orbit-btn-desc{display:none}
 .orbit-btn-kpi{display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .8rem;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:.76rem;letter-spacing:.02em;text-transform:none;color:rgba(255,255,255,.7);font-weight:600;position:relative;z-index:1;white-space:nowrap;min-width:115px;justify-content:flex-start}
@@ -1410,30 +1410,42 @@ var ringMeshes=[],pulseShells=[],linkLines=[];
     orbitGrp.add(l);
     linkLines.push(l);
   }
-  // Core sphere — Phong for 3D shading
+  // Core sphere — Lambert (matte planet, no specular dots)
   coreMesh=new THREE.Mesh(
     new THREE.SphereGeometry(.5,48,48),
-    new THREE.MeshPhongMaterial({color:0x2a18e8,emissive:0x0c0880,shininess:110,specular:0x88aaff})
+    new THREE.MeshLambertMaterial({color:0x2820ee,emissive:0x080660})
   );
   coreMesh._id='core';coreMesh._label='Core';coreMesh._desc='브랜드 기준점과 메시지를 다시 세웁니다'; orbitGrp.add(coreMesh); nodeMeshes.push(coreMesh);
 
-  // Core inner glow
-  orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(.65,16,16),new THREE.MeshBasicMaterial({color:0x2a18e8,transparent:true,opacity:.18,blending:THREE.AdditiveBlending,depthWrite:false})));
-  // Core mid glow
-  orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(1.1,16,16),new THREE.MeshBasicMaterial({color:0x1E10C7,transparent:true,opacity:.08,blending:THREE.AdditiveBlending,depthWrite:false})));
-  // Core outer glow
-  orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(1.7,12,12),new THREE.MeshBasicMaterial({color:0x1E10C7,transparent:true,opacity:.03,blending:THREE.AdditiveBlending,depthWrite:false})));
+  // Core — Saturn-style ring
+  var coreRing=new THREE.Mesh(
+    new THREE.TorusGeometry(.88,.055,2,100),
+    new THREE.MeshBasicMaterial({color:0x5544ff,transparent:true,opacity:.38,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false})
+  );
+  coreRing.rotation.x=Math.PI*.32;
+  coreMesh.add(coreRing);
+  // Core ring outer (faint halo)
+  var coreRing2=new THREE.Mesh(
+    new THREE.TorusGeometry(1.08,.028,2,100),
+    new THREE.MeshBasicMaterial({color:0x3322cc,transparent:true,opacity:.16,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false})
+  );
+  coreRing2.rotation.x=Math.PI*.32;
+  coreMesh.add(coreRing2);
+
+  // Core atmosphere glow
+  orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(.75,16,16),new THREE.MeshBasicMaterial({color:0x2820ee,transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false})));
+  orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(1.2,12,12),new THREE.MeshBasicMaterial({color:0x1E10C7,transparent:true,opacity:.05,blending:THREE.AdditiveBlending,depthWrite:false})));
 
   // Ring 1
   var r1=new THREE.Mesh(new THREE.TorusGeometry(2.2,.005,8,120),new THREE.MeshBasicMaterial({color:0x2918e8,transparent:true,opacity:.35,blending:THREE.AdditiveBlending}));
   r1.rotation.x=Math.PI*.16; r1.rotation.z=Math.PI*.04; r1._baseZ=Math.PI*.04; r1._spd=.18; orbitGrp.add(r1); ringMeshes.push(r1);
 
-  // Momentum sphere — Phong for 3D shading
-  momMesh=new THREE.Mesh(new THREE.SphereGeometry(.28,36,36),new THREE.MeshPhongMaterial({color:0x8068ff,emissive:0x2818bb,shininess:100,specular:0xbbaaff}));
+  // Momentum sphere — Lambert (matte planet)
+  momMesh=new THREE.Mesh(new THREE.SphereGeometry(.28,36,36),new THREE.MeshLambertMaterial({color:0x8068ff,emissive:0x1a0888}));
   momMesh._id='mom';momMesh._label='Momentum';momMesh._desc='광고와 콘텐츠 성과를 실제 매출로 연결합니다'; momMesh._r=2.2; momMesh._a=.8; momMesh._tilt=Math.PI*.16; momMesh._spd=.65;
   orbitGrp.add(momMesh); nodeMeshes.push(momMesh);
-  var momShell=new THREE.Mesh(new THREE.SphereGeometry(.44,18,18),new THREE.MeshBasicMaterial({color:0x6858ff,transparent:true,opacity:.16,blending:THREE.AdditiveBlending,depthWrite:false}));
-  orbitGrp.add(momShell); pulseShells.push({mesh:momShell,target:momMesh,base:.95,amp:.18,spd:3.2});
+  var momShell=new THREE.Mesh(new THREE.SphereGeometry(.42,18,18),new THREE.MeshBasicMaterial({color:0x6858ff,transparent:true,opacity:.14,blending:THREE.AdditiveBlending,depthWrite:false}));
+  orbitGrp.add(momShell); pulseShells.push({mesh:momShell,target:momMesh,base:.95,amp:.15,spd:3.2});
 
   // Ring 2
   var r2=new THREE.Mesh(new THREE.TorusGeometry(3.8,.005,8,120),new THREE.MeshBasicMaterial({color:0x3d2ef5,transparent:true,opacity:.18,blending:THREE.AdditiveBlending}));
@@ -1441,12 +1453,12 @@ var ringMeshes=[],pulseShells=[],linkLines=[];
   var r3=new THREE.Mesh(new THREE.TorusGeometry(4.75,.004,8,160),new THREE.MeshBasicMaterial({color:0x8CA2FF,transparent:true,opacity:.09,blending:THREE.AdditiveBlending}));
   r3.rotation.x=Math.PI*.31; r3.rotation.z=Math.PI*.11; r3._baseZ=Math.PI*.11; r3._spd=.09; orbitGrp.add(r3); ringMeshes.push(r3);
 
-  // Orbit sphere — Phong for 3D shading
-  orbMesh=new THREE.Mesh(new THREE.SphereGeometry(.25,36,36),new THREE.MeshPhongMaterial({color:0xEE4E00,emissive:0xaa2200,shininess:85,specular:0xff9966}));
+  // Orbit sphere — Lambert (matte planet, warm orange)
+  orbMesh=new THREE.Mesh(new THREE.SphereGeometry(.25,36,36),new THREE.MeshLambertMaterial({color:0xEE4E00,emissive:0x7a1a00}));
   orbMesh._id='orb';orbMesh._label='Orbit';orbMesh._desc='유입, 전환, 재방문이 이어지는 성장 궤도를 만듭니다'; orbMesh._r=3.8; orbMesh._a=2.5; orbMesh._tilt=Math.PI*.24; orbMesh._spd=.32;
   orbitGrp.add(orbMesh); nodeMeshes.push(orbMesh);
-  var orbShell=new THREE.Mesh(new THREE.SphereGeometry(.4,18,18),new THREE.MeshBasicMaterial({color:0xEE4E00,transparent:true,opacity:.14,blending:THREE.AdditiveBlending,depthWrite:false}));
-  orbitGrp.add(orbShell); pulseShells.push({mesh:orbShell,target:orbMesh,base:.9,amp:.16,spd:2.6});
+  var orbShell=new THREE.Mesh(new THREE.SphereGeometry(.38,18,18),new THREE.MeshBasicMaterial({color:0xEE4E00,transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false}));
+  orbitGrp.add(orbShell); pulseShells.push({mesh:orbShell,target:orbMesh,base:.9,amp:.14,spd:2.6});
   makeLink(0x6858ff,.22);
   makeLink(0xEE4E00,.18);
 
@@ -1563,21 +1575,18 @@ function animate(){
       s.mesh.scale.setScalar(scale);
       s.mesh.material.opacity=.08+.05*Math.sin(t*s.spd);
     });
-    // Hover pulse — strong interaction + enlarge for easy click
+    // Hover pulse — subtle scale, no aggressive enlargement
     nodeMeshes.forEach(function(n){
       if(n===hovN){
-        var s=2.95+.42*Math.sin(t*4);
+        var s=1.32+.06*Math.sin(t*3.5);
         n.scale.setScalar(s);
-        n.material.opacity=1;
       } else if(n===activeN){
-        var s=2.2+.3*Math.sin(t*3);
+        var s=1.18+.04*Math.sin(t*3);
         n.scale.setScalar(s);
-        n.material.opacity=.95+.05*Math.sin(t*2.5);
       } else {
-        var base=n===coreMesh?1.15:1.0;
-        var pulse=n===coreMesh?.08*Math.sin(t*2.2):.06*Math.sin(t*1.8);
+        var base=n===coreMesh?1.12:1.0;
+        var pulse=n===coreMesh?.06*Math.sin(t*2.2):.04*Math.sin(t*1.8);
         n.scale.setScalar(base+pulse);
-        n.material.opacity=n===coreMesh?.8+Math.sin(t*2.2)*.15:.88;
       }
     });
   }
