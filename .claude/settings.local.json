@@ -28,7 +28,9 @@
       "Bash(py --version)",
       "Bash(/c/Windows/py.exe --version)",
       "Bash(ls /c/Python*)",
-      "Bash(find /c/Users/이채원 -name python.exe -not -path */WindowsApps/*)"
+      "Bash(find /c/Users/이채원 -name python.exe -not -path */WindowsApps/*)",
+      "Bash(command -v node)",
+      "Read(//c/Users/K/AppData/Roaming/**)"
     ]
   }
 }
