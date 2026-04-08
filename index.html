@@ -160,9 +160,9 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 .orbit-btn:nth-child(3){--glow-color:rgba(140,162,255,.24)}
 .orbit-btn-icon{width:20px;height:20px;border-radius:50%;flex-shrink:0;box-shadow:0 0 14px var(--glow-color,rgba(255,255,255,.1));transition:box-shadow .4s}
 .orbit-btn:hover .orbit-btn-icon,.orbit-btn.is-hover .orbit-btn-icon{box-shadow:0 0 26px var(--glow-color,rgba(255,255,255,.3))}
-.orbit-btn-icon.blue{background:radial-gradient(circle at 35% 32%,#6677ff 0%,#2a18e8 45%,#0c0880 100%);box-shadow:0 2px 10px rgba(30,16,199,.5)}
-.orbit-btn-icon.purple{background:radial-gradient(circle at 35% 32%,#aa99ff 0%,#7868ff 45%,#3020bb 100%);box-shadow:0 2px 10px rgba(104,88,255,.5)}
-.orbit-btn-icon.orange{background:radial-gradient(circle at 35% 32%,#ff8855 0%,#ee4e00 45%,#aa2200 100%);box-shadow:0 2px 10px rgba(238,78,0,.5)}
+.orbit-btn-icon.blue{background:#2a18e8;box-shadow:0 2px 10px rgba(30,16,199,.5)}
+.orbit-btn-icon.purple{background:#7868ff;box-shadow:0 2px 10px rgba(104,88,255,.5)}
+.orbit-btn-icon.orange{background:#ee4e00;box-shadow:0 2px 10px rgba(238,78,0,.5)}
 .orbit-btn-name{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--c-white);letter-spacing:-.01em;position:relative;min-width:130px;flex-shrink:0}
 .orbit-btn-index{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.28);font-weight:700;flex-shrink:0;width:28px;text-align:center}
 .orbit-btn-problem{font-size:.82rem;color:rgba(255,255,255,.45);font-weight:400;position:relative;letter-spacing:-.01em;font-family:'Noto Sans KR','DM Sans',sans-serif;flex:1}
@@ -296,48 +296,39 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 .cli-skip::after{content:'→';font-size:1rem;transition:transform .3s}
 .cli-skip:hover::after{transform:translateX(4px)}
 
-/* CASE STUDIES */
-#p-case{flex-direction:column;align-items:stretch;justify-content:flex-start;padding:5rem clamp(2rem,6vw,5rem);background:
-linear-gradient(180deg,rgba(4,4,14,.92) 0%,rgba(10,10,28,.96) 100%);
-overflow-y:auto}
-.case-head{max-width:1120px;margin:0 auto 3rem;width:100%;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:2rem;align-items:end}
-.case-ey{display:block;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;color:#EE4E00;margin-bottom:1rem;font-weight:700}
-.case-ti{font-family:'Syne',sans-serif;font-size:clamp(2.8rem,5.5vw,4.8rem);font-weight:800;color:#fff;letter-spacing:-.04em;line-height:.95}
-.case-ti em{color:var(--c-brand);font-style:normal}
-.case-sub{margin-top:1rem;font-size:1.02rem;line-height:1.8;color:rgba(255,255,255,.68);max-width:56ch}
-.case-head-side{justify-self:end;max-width:380px;padding:1.5rem;border:1px solid rgba(255,255,255,.08);border-radius:1.4rem;background:linear-gradient(180deg,rgba(12,14,36,.74) 0%,rgba(6,7,18,.64) 100%);backdrop-filter:blur(16px);box-shadow:0 20px 44px rgba(0,0,0,.2)}
-.case-head-side strong{display:block;font-family:'Syne',sans-serif;font-size:1.5rem;color:#fff;letter-spacing:-.02em}
-.case-head-side p{margin-top:.75rem;font-size:.95rem;line-height:1.7;color:rgba(255,255,255,.64)}
-.case-head-side span{display:inline-flex;margin-top:1rem;padding:.48rem .82rem;border-radius:999px;border:1px solid rgba(255,255,255,.1);font-size:.78rem;color:var(--c-accent);letter-spacing:.1em;text-transform:uppercase;font-weight:700}
-.case-deck{display:flex;flex-direction:column;gap:1.5rem;max-width:1120px;margin:0 auto;width:100%}
-.case-story{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(0,1.1fr);gap:2rem;padding:2rem;border:1px solid rgba(255,255,255,.08);border-radius:1.8rem;background:linear-gradient(180deg,rgba(12,14,36,.82) 0%,rgba(6,7,18,.72) 100%);backdrop-filter:blur(16px);position:relative;overflow:hidden;box-shadow:0 24px 50px rgba(0,0,0,.22);transition:transform .35s var(--ease-out),border-color .35s var(--ease-out),box-shadow .35s var(--ease-out)}
-.case-story::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at top left,rgba(110,96,255,.18) 0%,transparent 42%);opacity:.9;pointer-events:none}
-.case-story:hover{transform:translateY(-8px);border-color:rgba(140,162,255,.3);box-shadow:0 28px 60px rgba(0,0,0,.28)}
-.case-visual{position:relative;min-height:320px;border-radius:1.35rem;border:1px solid rgba(255,255,255,.08);background:
-radial-gradient(circle at 20% 20%,rgba(140,162,255,.22),transparent 32%),
-linear-gradient(180deg,rgba(11,12,34,.92) 0%,rgba(5,6,16,.84) 100%);
-overflow:hidden}
-.case-visual::before{content:'';position:absolute;inset:1rem;border:1px dashed rgba(255,255,255,.18);border-radius:1rem}
-.case-visual::after{content:'';position:absolute;inset:auto 8% 12% 8%;height:1px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(140,162,255,.55),rgba(255,255,255,0));box-shadow:0 0 30px rgba(140,162,255,.35)}
-.case-visual-copy{position:absolute;left:1.4rem;right:1.4rem;bottom:1.4rem;display:flex;flex-direction:column;gap:.55rem}
-.case-visual-label{display:inline-flex;align-self:flex-start;padding:.42rem .72rem;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--c-accent);font-weight:700}
-.case-visual-title{font-family:'Syne',sans-serif;font-size:1.5rem;line-height:1;color:#fff;letter-spacing:-.03em}
-.case-visual-sub{font-size:.95rem;line-height:1.6;color:rgba(255,255,255,.6)}
-.case-body{display:flex;flex-direction:column}
-.case-top{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1rem}
-.case-name{font-family:'Syne',sans-serif;font-size:2rem;line-height:.98;color:#fff;letter-spacing:-.03em}
-.case-tag{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--c-accent);font-weight:700;white-space:nowrap;padding:.45rem .7rem;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
-.case-desc{font-size:1rem;line-height:1.75;color:rgba(255,255,255,.78);margin-bottom:1.2rem;max-width:58ch}
-.case-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem;margin-bottom:1.2rem}
-.case-metric{padding:1rem;border-radius:1rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
-.case-metric strong{display:block;font-family:'Syne',sans-serif;font-size:1.1rem;color:#fff;letter-spacing:-.02em}
-.case-metric span{display:block;margin-top:.25rem;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.46)}
-.case-meta{display:flex;flex-wrap:wrap;gap:.55rem;margin-bottom:1.2rem}
-.case-meta span{padding:.45rem .85rem;border-radius:999px;border:1px solid rgba(255,255,255,.12);font-size:.8rem;color:rgba(255,255,255,.72)}
-.case-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}
-.case-step{padding:1rem 1rem 1rem 2.2rem;border-radius:1rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);font-size:.96rem;line-height:1.65;color:rgba(255,255,255,.74);position:relative}
-.case-step::before{content:attr(data-step);position:absolute;left:.9rem;top:1rem;font-family:'Syne',sans-serif;font-size:.8rem;color:var(--c-accent);letter-spacing:.12em}
-.case-note{max-width:1120px;margin:1.2rem auto 0;color:rgba(255,255,255,.42);font-size:.82rem;letter-spacing:.02em}
+/* CASE STUDIES CAROUSEL */
+#p-case{align-items:stretch;justify-content:stretch;padding:0;background:#04040e;overflow:hidden}
+.cs-wrap{position:relative;width:100%;height:100%;overflow:hidden}
+.cs-track{display:flex;height:100%;transition:transform .7s cubic-bezier(.77,0,.175,1);will-change:transform}
+.cs-slide{position:relative;min-width:100%;height:100%;flex-shrink:0;overflow:hidden;display:flex;align-items:flex-end}
+.cs-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .7s cubic-bezier(.77,0,.175,1)}
+.cs-slide.active .cs-bg{transform:scale(1.03)}
+.cs-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,4,14,.92) 0%,rgba(4,4,14,.7) 42%,rgba(4,4,14,.18) 100%)}
+.cs-content{position:relative;z-index:2;padding:clamp(2.5rem,5vw,5rem) clamp(2.5rem,6vw,6rem);max-width:660px;display:flex;flex-direction:column;gap:1.2rem}
+.cs-index{font-size:.76rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:700}
+.cs-tag{display:inline-flex;align-self:flex-start;padding:.42rem .9rem;border-radius:999px;background:rgba(238,78,0,.15);border:1px solid rgba(238,78,0,.4);font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:#EE4E00;font-weight:700}
+.cs-name{font-family:'Syne',sans-serif;font-size:clamp(2.4rem,4.5vw,4.2rem);font-weight:800;color:#fff;letter-spacing:-.04em;line-height:.96}
+.cs-desc{font-size:clamp(.9rem,1.1vw,1.05rem);line-height:1.85;color:rgba(255,255,255,.72);font-family:'Noto Sans KR','DM Sans',sans-serif;max-width:52ch}
+.cs-channels{display:flex;flex-wrap:wrap;gap:.5rem}
+.cs-ch{padding:.4rem .85rem;border-radius:999px;border:1px solid rgba(255,255,255,.15);font-size:.78rem;color:rgba(255,255,255,.65);letter-spacing:.06em}
+.cs-steps{display:flex;flex-direction:column;gap:.55rem;margin-top:.2rem}
+.cs-step{display:flex;align-items:flex-start;gap:.8rem;font-size:.9rem;line-height:1.6;color:rgba(255,255,255,.68);font-family:'Noto Sans KR','DM Sans',sans-serif}
+.cs-step-num{font-family:'Syne',sans-serif;font-size:.72rem;color:#EE4E00;font-weight:700;letter-spacing:.1em;flex-shrink:0;margin-top:.22rem}
+/* Prev / Next */
+.cs-prev,.cs-next{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;backdrop-filter:blur(8px)}
+.cs-prev{left:2rem}
+.cs-next{right:2rem}
+.cs-prev:hover,.cs-next:hover{background:rgba(238,78,0,.3);border-color:rgba(238,78,0,.5);transform:translateY(-50%) scale(1.08)}
+/* Dots */
+.cs-dots{position:absolute;bottom:2.2rem;left:clamp(2.5rem,6vw,6rem);z-index:10;display:flex;gap:.5rem;align-items:center}
+.cs-dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.25);cursor:pointer;transition:all .4s}
+.cs-dot.on{width:28px;background:#EE4E00}
+/* Drag hint */
+.cs-drag-hint{position:absolute;bottom:2.4rem;right:2.5rem;z-index:10;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.3);font-weight:600;display:flex;align-items:center;gap:.5rem}
+.cs-drag-hint::before{content:'';width:28px;height:1px;background:rgba(255,255,255,.25);display:block}
+/* Slide-in animation */
+.cs-slide .cs-content{opacity:0;transform:translateX(-30px);transition:opacity .6s .2s,transform .6s .2s cubic-bezier(.16,1,.3,1)}
+.cs-slide.active .cs-content{opacity:1;transform:translateX(0)}
 
 /* CONTACT */
 #p-ct{grid-template-columns:1.1fr .9fr;gap:5rem;align-items:center;padding:0 clamp(2rem,7vw,8rem);max-width:1300px;margin:0 auto;width:100%}
@@ -737,152 +728,107 @@ overflow:hidden}
   </div>
 </div>
 
-<!-- CASE STUDIES -->
+<!-- CASE STUDIES CAROUSEL -->
 <div class="pnl" id="p-case">
-  <div class="case-head">
-    <div>
-      <span class="case-ey">Case Studies</span>
-      <h2 class="case-ti">실제 브랜드를<br><em>궤도에 올린 방식</em></h2>
-      <p class="case-sub">회사소개서에 수록된 프로젝트를 랜딩용 케이스 스터디 구조로 다시 정리했습니다. 공통점은 채널 하나를 잘하는 것이 아니라, 브랜드별 병목을 찾아 유입과 전환 흐름을 다시 설계했다는 점입니다.</p>
+  <div class="cs-wrap">
+    <div class="cs-track" id="csTrack">
+      <!-- Slide 1 -->
+      <div class="cs-slide active">
+        <div class="cs-bg" style="background-image:url('cases/30.png')"></div>
+        <div class="cs-overlay"></div>
+        <div class="cs-content">
+          <span class="cs-index">01 / 04</span>
+          <span class="cs-tag">방문 수요 확장</span>
+          <h2 class="cs-name">행담도 휴게소</h2>
+          <p class="cs-desc">CJ프레시웨이가 운영하는 행담도 휴게소의 과제는 단순 노출이 아니라 실제 방문 수요 확대였습니다. 검색, SNS, 커뮤니티를 한 흐름으로 묶어 방문 동기를 만들었습니다.</p>
+          <div class="cs-channels">
+            <span class="cs-ch">Naver</span>
+            <span class="cs-ch">Instagram</span>
+            <span class="cs-ch">Community</span>
+          </div>
+          <div class="cs-steps">
+            <div class="cs-step"><span class="cs-step-num">01</span>네이버 채널 운영으로 검색 노출 기반을 정비했습니다.</div>
+            <div class="cs-step"><span class="cs-step-num">02</span>인스타그램 릴스 콘텐츠와 계정 운영 구조를 구축했습니다.</div>
+            <div class="cs-step"><span class="cs-step-num">03</span>커뮤니티 바이럴을 실제 방문 유입으로 연결했습니다.</div>
+          </div>
+        </div>
+      </div>
+      <!-- Slide 2 -->
+      <div class="cs-slide">
+        <div class="cs-bg" style="background-image:url('cases/33.png')"></div>
+        <div class="cs-overlay"></div>
+        <div class="cs-content">
+          <span class="cs-index">02 / 04</span>
+          <span class="cs-tag">런칭 수요 설계</span>
+          <h2 class="cs-name">플래시백: 계림</h2>
+          <p class="cs-desc">Dexter Studios의 VFX 기반 미디어아트 전시는 런칭 초기 인지도와 방문 전환을 동시에 잡아야 했습니다. 콘텐츠 제작부터 채널 확산까지 통합 운영해 노출을 현장 방문으로 연결했습니다.</p>
+          <div class="cs-channels">
+            <span class="cs-ch">Instagram</span>
+            <span class="cs-ch">Search</span>
+            <span class="cs-ch">Community</span>
+            <span class="cs-ch">Paid Media</span>
+          </div>
+          <div class="cs-steps">
+            <div class="cs-step"><span class="cs-step-num">01</span>콘텐츠 제작부터 프로모션까지 런칭 구간을 통합 운영했습니다.</div>
+            <div class="cs-step"><span class="cs-step-num">02</span>SNS와 검색 채널 중심으로 방문 수요 확산 구조를 만들었습니다.</div>
+            <div class="cs-step"><span class="cs-step-num">03</span>광고 노출이 실제 예매와 방문 행동으로 이어지게 흐름을 설계했습니다.</div>
+          </div>
+        </div>
+      </div>
+      <!-- Slide 3 -->
+      <div class="cs-slide">
+        <div class="cs-bg" style="background-image:url('cases/36.png')"></div>
+        <div class="cs-overlay"></div>
+        <div class="cs-content">
+          <span class="cs-index">03 / 04</span>
+          <span class="cs-tag">전시 퍼널 구축</span>
+          <h2 class="cs-name">IFS 프랜차이즈 박람회</h2>
+          <p class="cs-desc">RX코리아의 대형 박람회는 참가사와 참관객 두 집단을 동시에 설득해야 하는 구조였습니다. 릴스와 커뮤니티, 프로그램 설계를 묶어 전시 참여와 상담 흐름까지 연결했습니다.</p>
+          <div class="cs-channels">
+            <span class="cs-ch">Instagram Reels</span>
+            <span class="cs-ch">Community</span>
+            <span class="cs-ch">Paid Media</span>
+          </div>
+          <div class="cs-steps">
+            <div class="cs-step"><span class="cs-step-num">01</span>릴스 중심으로 채널을 재정비해 전시 도달 구조를 설계했습니다.</div>
+            <div class="cs-step"><span class="cs-step-num">02</span>참가사에는 무료 마케팅, 참관객에는 무료 컨설팅을 운영했습니다.</div>
+            <div class="cs-step"><span class="cs-step-num">03</span>콘텐츠 노출이 전시 참여와 상담 흐름으로 이어지게 만들었습니다.</div>
+          </div>
+        </div>
+      </div>
+      <!-- Slide 4 -->
+      <div class="cs-slide">
+        <div class="cs-bg" style="background-image:url('cases/39.png')"></div>
+        <div class="cs-overlay"></div>
+        <div class="cs-content">
+          <span class="cs-index">04 / 04</span>
+          <span class="cs-tag">콘텐츠 자산 구축</span>
+          <h2 class="cs-name">Secta9ine 올닷</h2>
+          <p class="cs-desc">SPC그룹 IT 계열사 섹타나인의 창업 플랫폼에서는 신뢰도 있는 콘텐츠 자산이 중요했습니다. 마케팅 전문가 파트너로 참여해 지속적으로 읽히는 플랫폼 콘텐츠 구조를 만들었습니다.</p>
+          <div class="cs-channels">
+            <span class="cs-ch">Marketing Column</span>
+            <span class="cs-ch">Expert Partner</span>
+            <span class="cs-ch">Platform Content</span>
+          </div>
+          <div class="cs-steps">
+            <div class="cs-step"><span class="cs-step-num">01</span>소상공인과 예비 창업자를 위한 마케팅 칼럼을 기획했습니다.</div>
+            <div class="cs-step"><span class="cs-step-num">02</span>플랫폼 안에서 지속적으로 읽히는 콘텐츠 시리즈를 연재했습니다.</div>
+            <div class="cs-step"><span class="cs-step-num">03</span>단기 광고 대신 신뢰도 기반의 유입 자산을 쌓는 구조를 만들었습니다.</div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="case-head-side">
-      <strong>독립 페이지형 케이스 섹션</strong>
-      <p>지금은 이미지 없이도 읽히는 구조로 먼저 잡았습니다. 다음 단계에서 회사소개서 이미지를 그대로 넣으면 비주얼 완성도를 바로 끌어올릴 수 있습니다.</p>
-      <span>PDF Asset Ready</span>
+    <!-- Controls -->
+    <button class="cs-prev" id="csPrev" aria-label="Previous">&#8592;</button>
+    <button class="cs-next" id="csNext" aria-label="Next">&#8594;</button>
+    <div class="cs-dots" id="csDots">
+      <span class="cs-dot on"></span>
+      <span class="cs-dot"></span>
+      <span class="cs-dot"></span>
+      <span class="cs-dot"></span>
     </div>
+    <div class="cs-drag-hint">Drag to explore</div>
   </div>
-  <div class="case-deck">
-    <article class="case-story">
-      <div class="case-visual">
-        <div class="case-visual-copy">
-          <span class="case-visual-label">Visit Demand</span>
-          <strong class="case-visual-title">행담도 휴게소</strong>
-          <p class="case-visual-sub">검색 노출과 SNS 수요를 실제 방문 흐름으로 연결한 프로젝트</p>
-        </div>
-      </div>
-      <div class="case-body">
-        <div class="case-top">
-          <h3 class="case-name">행담도 휴게소</h3>
-          <span class="case-tag">방문 수요 확장</span>
-        </div>
-        <p class="case-desc">CJ프레시웨이가 운영하는 행담도 휴게소의 과제는 단순 노출이 아니라 실제 방문 수요 확대였습니다. 검색 기반, SNS 콘텐츠, 커뮤니티 확산을 한 흐름으로 묶어 방문 동기를 만들었습니다.</p>
-        <div class="case-metrics">
-          <div class="case-metric"><strong>검색 기반 정비</strong><span>네이버 노출 구조</span></div>
-          <div class="case-metric"><strong>릴스 운영 체계화</strong><span>콘텐츠 반복 자산</span></div>
-          <div class="case-metric"><strong>여행 수요 연결</strong><span>커뮤니티 전환 흐름</span></div>
-        </div>
-        <div class="case-meta">
-          <span>Naver</span>
-          <span>Instagram</span>
-          <span>Community</span>
-        </div>
-        <div class="case-steps">
-          <div class="case-step" data-step="01">네이버 채널 운영으로 검색 노출 기반을 먼저 정비했습니다.</div>
-          <div class="case-step" data-step="02">인스타그램 릴스 콘텐츠와 계정 운영 구조를 구축했습니다.</div>
-          <div class="case-step" data-step="03">커뮤니티 바이럴을 여행 수요와 실제 방문 유입으로 연결했습니다.</div>
-          <div class="case-step" data-step="04">단발 이벤트가 아니라 지속적으로 찾게 되는 방문 흐름을 설계했습니다.</div>
-        </div>
-      </div>
-    </article>
-    <article class="case-story">
-      <div class="case-visual">
-        <div class="case-visual-copy">
-          <span class="case-visual-label">Launch Project</span>
-          <strong class="case-visual-title">플래시백: 계림</strong>
-          <p class="case-visual-sub">전시 런칭 초기 인지도와 방문 수요를 함께 만든 프로젝트</p>
-        </div>
-      </div>
-      <div class="case-body">
-        <div class="case-top">
-          <h3 class="case-name">플래시백: 계림</h3>
-          <span class="case-tag">런칭 수요 설계</span>
-        </div>
-        <p class="case-desc">Dexter Studios의 VFX 기반 미디어아트 전시는 런칭 초기에 인지도 확보와 방문 전환을 동시에 잡아야 했습니다. 콘텐츠 제작부터 채널 확산까지 통합 운영해 노출을 현장 방문으로 연결했습니다.</p>
-        <div class="case-metrics">
-          <div class="case-metric"><strong>런칭 메시지 정리</strong><span>콘셉트 전달력 강화</span></div>
-          <div class="case-metric"><strong>프로모션 통합 운영</strong><span>SNS · 검색 · 광고</span></div>
-          <div class="case-metric"><strong>방문 전환 설계</strong><span>인지에서 액션까지</span></div>
-        </div>
-        <div class="case-meta">
-          <span>Instagram</span>
-          <span>Search</span>
-          <span>Community</span>
-          <span>Paid Media</span>
-        </div>
-        <div class="case-steps">
-          <div class="case-step" data-step="01">콘텐츠 제작부터 프로모션까지 런칭 구간을 통합 운영했습니다.</div>
-          <div class="case-step" data-step="02">SNS와 검색 채널 중심으로 방문 수요 확산 구조를 만들었습니다.</div>
-          <div class="case-step" data-step="03">광고 노출이 실제 예매와 방문 행동으로 이어지게 흐름을 설계했습니다.</div>
-          <div class="case-step" data-step="04">전시 특성에 맞는 몰입형 톤앤매너를 채널 전반에 일관되게 적용했습니다.</div>
-        </div>
-      </div>
-    </article>
-    <article class="case-story">
-      <div class="case-visual">
-        <div class="case-visual-copy">
-          <span class="case-visual-label">Exhibition Funnel</span>
-          <strong class="case-visual-title">IFS 프랜차이즈 박람회</strong>
-          <p class="case-visual-sub">참가사와 참관객 유입을 하나의 확산 구조로 묶은 프로젝트</p>
-        </div>
-      </div>
-      <div class="case-body">
-        <div class="case-top">
-          <h3 class="case-name">IFS 프랜차이즈 박람회</h3>
-          <span class="case-tag">전시 퍼널 구축</span>
-        </div>
-        <p class="case-desc">RX코리아의 대형 박람회는 참가사와 참관객 두 집단을 동시에 설득해야 하는 구조였습니다. 릴스와 커뮤니티, 프로그램 설계를 묶어 전시 참여와 상담 흐름까지 연결했습니다.</p>
-        <div class="case-metrics">
-          <div class="case-metric"><strong>릴스 중심 재정비</strong><span>도달 구조 개선</span></div>
-          <div class="case-metric"><strong>참가사 프로그램</strong><span>무료 마케팅 제안</span></div>
-          <div class="case-metric"><strong>참관객 프로그램</strong><span>무료 컨설팅 운영</span></div>
-        </div>
-        <div class="case-meta">
-          <span>Instagram Reels</span>
-          <span>Community</span>
-          <span>Paid Media</span>
-        </div>
-        <div class="case-steps">
-          <div class="case-step" data-step="01">릴스 중심으로 채널을 재정비해 전시 도달 구조를 다시 설계했습니다.</div>
-          <div class="case-step" data-step="02">참가사에는 무료 마케팅, 참관객에는 무료 컨설팅 프로그램을 운영했습니다.</div>
-          <div class="case-step" data-step="03">콘텐츠 노출이 전시 참여와 상담 흐름으로 이어지게 만들었습니다.</div>
-          <div class="case-step" data-step="04">양쪽 타깃을 분리하지 않고 하나의 디지털 확산 구조로 묶었습니다.</div>
-        </div>
-      </div>
-    </article>
-    <article class="case-story">
-      <div class="case-visual">
-        <div class="case-visual-copy">
-          <span class="case-visual-label">Content Authority</span>
-          <strong class="case-visual-title">Secta9ine 올닷</strong>
-          <p class="case-visual-sub">단기 광고보다 신뢰 기반 유입 자산을 쌓은 프로젝트</p>
-        </div>
-      </div>
-      <div class="case-body">
-        <div class="case-top">
-          <h3 class="case-name">Secta9ine 올닷</h3>
-          <span class="case-tag">콘텐츠 자산 구축</span>
-        </div>
-        <p class="case-desc">SPC그룹 IT 계열사 섹타나인의 창업 플랫폼 올닷에서는 일회성 노출보다 신뢰도 있는 콘텐츠 자산이 중요했습니다. 마케팅 전문가 파트너로 참여해 지속적으로 읽히는 플랫폼 콘텐츠 구조를 만들었습니다.</p>
-        <div class="case-metrics">
-          <div class="case-metric"><strong>전문가 파트너 참여</strong><span>브랜드 신뢰도 강화</span></div>
-          <div class="case-metric"><strong>칼럼 시리즈 기획</strong><span>지속 노출 자산</span></div>
-          <div class="case-metric"><strong>플랫폼 체류 확대</strong><span>읽히는 구조 설계</span></div>
-        </div>
-        <div class="case-meta">
-          <span>Marketing Column</span>
-          <span>Expert Partner</span>
-          <span>Platform Content</span>
-        </div>
-        <div class="case-steps">
-          <div class="case-step" data-step="01">소상공인과 예비 창업자를 위한 마케팅 칼럼을 기획했습니다.</div>
-          <div class="case-step" data-step="02">플랫폼 안에서 지속적으로 읽히는 콘텐츠 시리즈를 연재했습니다.</div>
-          <div class="case-step" data-step="03">단기 광고 대신 신뢰도 기반의 유입 자산을 쌓는 구조를 만들었습니다.</div>
-          <div class="case-step" data-step="04">플랫폼 안에서 브랜드 전문성을 축적하는 방향으로 설계했습니다.</div>
-        </div>
-      </div>
-    </article>
-  </div>
-  <p class="case-note">출처: 2026년 무이코퍼레이션 회사소개서 수록 프로젝트 소개 내용을 랜딩용 케이스 카드로 재구성.</p>
 </div>
 
 <!-- CLIENTS -->
@@ -1410,29 +1356,27 @@ var ringMeshes=[],pulseShells=[],linkLines=[];
     orbitGrp.add(l);
     linkLines.push(l);
   }
-  // Core sphere — Lambert (matte planet, no specular dots)
+  // Core sphere — flat (no shading)
   coreMesh=new THREE.Mesh(
-    new THREE.SphereGeometry(.5,48,48),
-    new THREE.MeshLambertMaterial({color:0x2820ee,emissive:0x080660})
+    new THREE.SphereGeometry(.35,48,48),
+    new THREE.MeshBasicMaterial({color:0x2820ee})
   );
   coreMesh._id='core';coreMesh._label='Core';coreMesh._desc='브랜드 기준점과 메시지를 다시 세웁니다'; orbitGrp.add(coreMesh); nodeMeshes.push(coreMesh);
 
-  // Core — no Saturn ring
-
   // Core atmosphere glow
-  orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(.75,16,16),new THREE.MeshBasicMaterial({color:0x2820ee,transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false})));
-  orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(1.2,12,12),new THREE.MeshBasicMaterial({color:0x1E10C7,transparent:true,opacity:.05,blending:THREE.AdditiveBlending,depthWrite:false})));
+  orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(.52,16,16),new THREE.MeshBasicMaterial({color:0x2820ee,transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false})));
+  orbitGrp.add(new THREE.Mesh(new THREE.SphereGeometry(.84,12,12),new THREE.MeshBasicMaterial({color:0x1E10C7,transparent:true,opacity:.05,blending:THREE.AdditiveBlending,depthWrite:false})));
 
   // Ring 1
   var r1=new THREE.Mesh(new THREE.TorusGeometry(2.2,.014,8,120),new THREE.MeshBasicMaterial({color:0x2918e8,transparent:true,opacity:.35,blending:THREE.AdditiveBlending}));
   r1.rotation.x=Math.PI*.16; r1.rotation.z=Math.PI*.04; r1._baseZ=Math.PI*.04; r1._spd=.18; orbitGrp.add(r1); ringMeshes.push(r1);
 
-  // Momentum sphere — Lambert (matte planet)
-  momMesh=new THREE.Mesh(new THREE.SphereGeometry(.28,36,36),new THREE.MeshLambertMaterial({color:0x8068ff,emissive:0x1a0888}));
+  // Momentum sphere — flat (no shading)
+  momMesh=new THREE.Mesh(new THREE.SphereGeometry(.196,36,36),new THREE.MeshBasicMaterial({color:0x8068ff}));
   momMesh._id='mom';momMesh._label='Momentum';momMesh._desc='광고와 콘텐츠 성과를 실제 매출로 연결합니다'; momMesh._r=2.2; momMesh._a=.8; momMesh._tilt=Math.PI*.16; momMesh._spd=.65;
   orbitGrp.add(momMesh); nodeMeshes.push(momMesh);
-  var momShell=new THREE.Mesh(new THREE.SphereGeometry(.42,18,18),new THREE.MeshBasicMaterial({color:0x6858ff,transparent:true,opacity:.14,blending:THREE.AdditiveBlending,depthWrite:false}));
-  orbitGrp.add(momShell); pulseShells.push({mesh:momShell,target:momMesh,base:.95,amp:.15,spd:3.2});
+  var momShell=new THREE.Mesh(new THREE.SphereGeometry(.294,18,18),new THREE.MeshBasicMaterial({color:0x6858ff,transparent:true,opacity:.14,blending:THREE.AdditiveBlending,depthWrite:false}));
+  orbitGrp.add(momShell); pulseShells.push({mesh:momShell,target:momMesh,base:1,amp:0,spd:1});
 
   // Ring 2
   var r2=new THREE.Mesh(new THREE.TorusGeometry(3.8,.010,8,120),new THREE.MeshBasicMaterial({color:0x3d2ef5,transparent:true,opacity:.18,blending:THREE.AdditiveBlending}));
@@ -1440,27 +1384,13 @@ var ringMeshes=[],pulseShells=[],linkLines=[];
   var r3=new THREE.Mesh(new THREE.TorusGeometry(4.75,.007,8,160),new THREE.MeshBasicMaterial({color:0x8CA2FF,transparent:true,opacity:.09,blending:THREE.AdditiveBlending}));
   r3.rotation.x=Math.PI*.31; r3.rotation.z=Math.PI*.11; r3._baseZ=Math.PI*.11; r3._spd=.09; orbitGrp.add(r3); ringMeshes.push(r3);
 
-  // Orbit sphere — Lambert (matte planet, warm orange)
-  orbMesh=new THREE.Mesh(new THREE.SphereGeometry(.25,36,36),new THREE.MeshLambertMaterial({color:0xEE4E00,emissive:0x7a1a00}));
+  // Orbit sphere — flat (no shading)
+  orbMesh=new THREE.Mesh(new THREE.SphereGeometry(.175,36,36),new THREE.MeshBasicMaterial({color:0xEE4E00}));
   orbMesh._id='orb';orbMesh._label='Orbit';orbMesh._desc='유입, 전환, 재방문이 이어지는 성장 궤도를 만듭니다'; orbMesh._r=3.8; orbMesh._a=2.5; orbMesh._tilt=Math.PI*.24; orbMesh._spd=.32;
   orbitGrp.add(orbMesh); nodeMeshes.push(orbMesh);
-  // Saturn ring on orange Orbit sphere
-  var orbRing=new THREE.Mesh(
-    new THREE.TorusGeometry(.62,.065,2,80),
-    new THREE.MeshBasicMaterial({color:0xff7722,transparent:true,opacity:.55,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false})
-  );
-  orbRing.rotation.x=Math.PI*.3;
-  orbMesh.add(orbRing);
-  var orbRing2=new THREE.Mesh(
-    new THREE.TorusGeometry(.8,.028,2,80),
-    new THREE.MeshBasicMaterial({color:0xEE4E00,transparent:true,opacity:.25,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false})
-  );
-  orbRing2.rotation.x=Math.PI*.3;
-  orbMesh.add(orbRing2);
-  var orbShell=new THREE.Mesh(new THREE.SphereGeometry(.38,18,18),new THREE.MeshBasicMaterial({color:0xEE4E00,transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false}));
-  orbitGrp.add(orbShell); pulseShells.push({mesh:orbShell,target:orbMesh,base:.9,amp:.14,spd:2.6});
-  makeLink(0x6858ff,.22);
-  makeLink(0xEE4E00,.18);
+  var orbShell=new THREE.Mesh(new THREE.SphereGeometry(.263,18,18),new THREE.MeshBasicMaterial({color:0xEE4E00,transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false}));
+  orbitGrp.add(orbShell); pulseShells.push({mesh:orbShell,target:orbMesh,base:1,amp:0,spd:1});
+  // no link lines
 
   // Mini dots ring 1
   for(var i=0;i<5;i++){
@@ -1504,7 +1434,7 @@ document.getElementById('c').addEventListener('mousemove',function(e){
     tooltip.style.top=e.clientY+'px';
     tooltip.style.opacity='1';
   } else {
-    if(hovN&&hovN!==orbitButtonHover){hovN._frozenT=undefined;}
+    if(hovN&&hovN!==orbitButtonHover){unfreezeNode(hovN);}
     hovN=orbitButtonHover;
     document.querySelectorAll('.orbit-btn').forEach(function(btn){btn.classList.toggle('is-hover',btn===orbitButtonHoverEl);});
     if(!orbitButtonHover)hoverOff();
@@ -1531,6 +1461,13 @@ document.getElementById('c').addEventListener('click',function(e){
 
 // ── ANIM LOOP ──
 var CLK=new THREE.Clock();
+function unfreezeNode(m){
+  if(!m||m._frozenT===undefined)return;
+  // Adjust _a so planet resumes from frozen position
+  var t=CLK.getElapsedTime();
+  m._a=m._a+(m._frozenT-t)*m._spd;
+  m._frozenT=undefined;
+}
 function animate(){
   requestAnimationFrame(animate);
   var t=CLK.getElapsedTime();
@@ -1550,18 +1487,6 @@ function animate(){
       m.position.set(m._r*Math.cos(a),m._r*Math.sin(a)*Math.cos(tl),m._r*Math.sin(a)*Math.sin(tl));
     }
     orbNode(momMesh); orbNode(orbMesh);
-    if(linkLines[0]){
-      var p=linkLines[0].geometry.attributes.position.array;
-      p[0]=coreMesh.position.x;p[1]=coreMesh.position.y;p[2]=coreMesh.position.z;
-      p[3]=momMesh.position.x;p[4]=momMesh.position.y;p[5]=momMesh.position.z;
-      linkLines[0].geometry.attributes.position.needsUpdate=true;
-    }
-    if(linkLines[1]){
-      var p2=linkLines[1].geometry.attributes.position.array;
-      p2[0]=coreMesh.position.x;p2[1]=coreMesh.position.y;p2[2]=coreMesh.position.z;
-      p2[3]=orbMesh.position.x;p2[4]=orbMesh.position.y;p2[5]=orbMesh.position.z;
-      linkLines[1].geometry.attributes.position.needsUpdate=true;
-    }
     // Mini dots — always live (never hovered, so always use t)
     orbitGrp.children.forEach(function(c){if(c._gw)orbNode(c);});
     // Orbit rings — always live
@@ -1575,18 +1500,12 @@ function animate(){
       s.mesh.scale.setScalar(scale);
       s.mesh.material.opacity=.08+.05*Math.sin(t*s.spd);
     });
-    // Scale: subtle pulse, hover slightly larger
+    // Scale: hover larger, no pulse
     nodeMeshes.forEach(function(n){
-      if(n===hovN){
-        var s=1.32+.06*Math.sin(t*3.5);
-        n.scale.setScalar(s);
-      } else if(n===activeN){
-        var s=1.18+.04*Math.sin(t*3);
-        n.scale.setScalar(s);
+      if(n===hovN||n===activeN){
+        n.scale.setScalar(1.3);
       } else {
-        var base=n===coreMesh?1.12:1.0;
-        var pulse=n===coreMesh?.06*Math.sin(t*2.2):.04*Math.sin(t*1.8);
-        n.scale.setScalar(base+pulse);
+        n.scale.setScalar(1);
       }
     });
   }
@@ -1646,7 +1565,7 @@ document.querySelectorAll('.orbit-btn[data-node]').forEach(function(el){
   });
   el.addEventListener('mouseleave',function(){
     this.classList.remove('is-hover');
-    if(orbitButtonHover){orbitButtonHover._frozenT=undefined;}
+    if(orbitButtonHover){unfreezeNode(orbitButtonHover);}
     orbitButtonHoverEl=null;
     orbitButtonHover=null;
     hovN=null;
@@ -1761,6 +1680,49 @@ document.addEventListener('keydown',function(e){
       },650);
     }
   },1700);
+})();
+
+// ── CASE CAROUSEL ──
+(function(){
+  var track=document.getElementById('csTrack');
+  var slides=track?track.querySelectorAll('.cs-slide'):[];
+  var dots=document.querySelectorAll('#csDots .cs-dot');
+  var total=slides.length;
+  var cur=0;
+  function go(n){
+    slides[cur].classList.remove('active');
+    dots[cur].classList.remove('on');
+    cur=(n+total)%total;
+    slides[cur].classList.add('active');
+    dots[cur].classList.add('on');
+    track.style.transform='translateX(-'+cur*100+'%)';
+  }
+  var prev=document.getElementById('csPrev');
+  var next=document.getElementById('csNext');
+  if(prev)prev.addEventListener('click',function(){go(cur-1);});
+  if(next)next.addEventListener('click',function(){go(cur+1);});
+  dots.forEach(function(d,i){d.addEventListener('click',function(){go(i);});});
+  // Touch/drag
+  var sx=0,dragging=false;
+  if(track){
+    track.addEventListener('pointerdown',function(e){sx=e.clientX;dragging=true;});
+    track.addEventListener('pointerup',function(e){
+      if(!dragging)return;dragging=false;
+      var dx=e.clientX-sx;
+      if(Math.abs(dx)>50)go(dx<0?cur+1:cur-1);
+    });
+    track.addEventListener('pointercancel',function(){dragging=false;});
+  }
+  // Auto-advance every 6s when panel is visible
+  var autoTimer=null;
+  function startAuto(){autoTimer=setInterval(function(){go(cur+1);},6000);}
+  function stopAuto(){clearInterval(autoTimer);}
+  var panel=document.getElementById('p-case');
+  if(panel&&window.IntersectionObserver){
+    new IntersectionObserver(function(es){
+      es[0].isIntersecting?startAuto():stopAuto();
+    },{threshold:.5}).observe(panel);
+  }
 })();
 
 // ── FORM ──
