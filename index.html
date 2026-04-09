@@ -128,14 +128,14 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 .h-text-link:hover{color:#0a0a1a}
 .h-text-link:hover .h-link-arr{transform:translateY(4px)}
 .h-link-arr{display:inline-block;transition:transform var(--dur-fast);font-size:1.1rem}
-.h-stats{display:flex;gap:0;margin-top:3rem;justify-content:flex-start;background:#0a0a1a;border-radius:1.2rem;padding:1.8rem 2.2rem;box-shadow:0 8px 40px rgba(10,10,26,.18)}
-.h-stat{padding:0 2.4rem;text-align:center}
+.h-stats{display:flex;gap:0;margin-top:3rem;justify-content:flex-start;opacity:0}
+.h-stat{padding:0 2.8rem;text-align:center}
 .h-stat:first-child{padding-left:0}
-.h-stat+.h-stat{border-left:1px solid rgba(255,255,255,.12)}
-.h-stat-n{font-family:'Syne','DM Sans',sans-serif;font-size:clamp(3.2rem,5vw,4.5rem);font-weight:800;color:#ffffff;letter-spacing:-.03em;line-height:1.1;display:flex;align-items:baseline;gap:.05em}
-.h-stat-n em{color:#8CA2FF;font-style:normal;font-size:.72em;letter-spacing:-.02em}
-.h-stat-l{font-size:clamp(.82rem,1.1vw,1rem);letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-top:.5rem;font-weight:700}
-.h-stat-ctx{font-size:clamp(.75rem,.95vw,.9rem);color:rgba(255,255,255,.38);margin-top:.3rem;letter-spacing:.02em;font-family:'Noto Sans KR','DM Sans',sans-serif;opacity:1}
+.h-stat+.h-stat{border-left:1px solid rgba(10,10,26,.1)}
+.h-stat-n{font-family:'Syne','DM Sans',sans-serif;font-size:clamp(3.2rem,5vw,4.5rem);font-weight:800;color:#0a0a1a;letter-spacing:-.03em;line-height:1.1;display:flex;align-items:baseline;gap:.05em}
+.h-stat-n em{color:#1E10C7;font-style:normal;font-size:.72em;letter-spacing:-.02em}
+.h-stat-l{font-size:clamp(.82rem,1.1vw,1rem);letter-spacing:.06em;text-transform:uppercase;color:rgba(10,10,26,.75);margin-top:.5rem;font-weight:700}
+.h-stat-ctx{font-size:clamp(.75rem,.95vw,.9rem);color:rgba(10,10,26,.45);margin-top:.3rem;letter-spacing:.02em;font-family:'Noto Sans KR','DM Sans',sans-serif;opacity:1}
 
 /* SCROLL DOWN INDICATOR */
 .scroll-hint{position:absolute;bottom:1.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4rem;cursor:pointer;pointer-events:auto;opacity:0}
@@ -345,7 +345,7 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 /* Map section — row 2 spanning full width */
 .ct-map-bg{grid-column:1/-1;grid-row:2;width:100%;border-radius:1.4rem;overflow:hidden;opacity:0;transition:opacity 1.2s ease;height:clamp(280px,30vw,400px);position:relative}
 .ct-map-bg.is-vis{opacity:1;transition-delay:.5s}
-.ct-map-fade{position:absolute;left:0;top:0;bottom:0;width:80px;background:linear-gradient(90deg,#09091e,transparent);z-index:2;pointer-events:none}
+.ct-map-fade{position:absolute;left:0;top:0;bottom:0;width:80px;background:linear-gradient(90deg,#f4f6ff,transparent);z-index:2;pointer-events:none}
 .ct-map-bg svg{width:100%;height:100%;display:block}
 .ct-col{position:relative;z-index:1}
 .ct-col:first-of-type{grid-column:1;grid-row:1}
@@ -971,73 +971,68 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#111}
         </linearGradient>
       </defs>
 
-      <!-- Dark background -->
-      <rect x="1200" y="0" width="1360" height="1440" fill="#09091e"/>
+      <!-- Light background -->
+      <rect x="1200" y="0" width="1360" height="1440" fill="#f4f6ff"/>
 
       <!-- Road area block (Vector 1) -->
-      <rect x="1252" y="172" width="783" height="452" fill="rgba(255,255,255,0.015)" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <rect x="1252" y="172" width="783" height="452" fill="rgba(30,16,199,0.03)" stroke="rgba(30,16,199,0.08)" stroke-width="1"/>
 
       <!-- Main diagonal boulevards -->
-      <!-- Line 19: angle 58.42° from (1785,39) -->
-      <line x1="1785" y1="39" x2="2544" y2="1273" stroke="rgba(255,255,255,0.22)" stroke-width="2.2"/>
-      <!-- Line 16: angle 71.96° from (1695,82) -->
-      <line x1="1695" y1="82" x2="2142" y2="1460" stroke="rgba(255,255,255,0.22)" stroke-width="2.2"/>
-      <!-- Line 17: angle 159.53° from (1384,575) -->
-      <line x1="1384" y1="575" x2="247" y2="1002" stroke="rgba(255,255,255,0.14)" stroke-width="1.4"/>
-      <!-- Line 18: angle 149.13° from (2026,772) -->
-      <line x1="2026" y1="772" x2="1491" y2="1093" stroke="rgba(255,255,255,0.14)" stroke-width="1.4"/>
+      <line x1="1785" y1="39" x2="2544" y2="1273" stroke="rgba(10,10,26,0.18)" stroke-width="2.2"/>
+      <line x1="1695" y1="82" x2="2142" y2="1460" stroke="rgba(10,10,26,0.18)" stroke-width="2.2"/>
+      <line x1="1384" y1="575" x2="247" y2="1002" stroke="rgba(10,10,26,0.1)" stroke-width="1.4"/>
+      <line x1="2026" y1="772" x2="1491" y2="1093" stroke="rgba(10,10,26,0.1)" stroke-width="1.4"/>
 
-      <!-- Subtle implied streets (faint grid) -->
-      <line x1="1200" y1="414" x2="2560" y2="414" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-      <line x1="1200" y1="720" x2="2560" y2="720" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-      <line x1="1200" y1="1050" x2="2560" y2="1050" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-      <line x1="1800" y1="0" x2="1800" y2="1440" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
-      <line x1="2100" y1="0" x2="2100" y2="1440" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <!-- Subtle implied streets -->
+      <line x1="1200" y1="414" x2="2560" y2="414" stroke="rgba(10,10,26,0.05)" stroke-width="1"/>
+      <line x1="1200" y1="720" x2="2560" y2="720" stroke="rgba(10,10,26,0.05)" stroke-width="1"/>
+      <line x1="1200" y1="1050" x2="2560" y2="1050" stroke="rgba(10,10,26,0.05)" stroke-width="1"/>
+      <line x1="1800" y1="0" x2="1800" y2="1440" stroke="rgba(10,10,26,0.04)" stroke-width="1"/>
+      <line x1="2100" y1="0" x2="2100" y2="1440" stroke="rgba(10,10,26,0.04)" stroke-width="1"/>
 
-      <!-- Station dot (Ellipse 28: gradient at 1794,414) -->
+      <!-- Station dot (Ellipse 28: gradient) -->
       <circle cx="1797" cy="417" r="11" fill="url(#sg)" filter="url(#gw)"/>
 
-      <!-- MUYI Location Pin (Vector #1E10C7 at ~2039,740 51×68) -->
+      <!-- MUYI Location Pin -->
       <rect x="2039" y="760" width="50" height="65" rx="6" ry="6" fill="url(#pg)" filter="url(#gb)" opacity="0.95"/>
-      <!-- Pin notch bottom -->
       <polygon points="2064,825 2072,840 2056,840" fill="#1E10C7" opacity="0.95"/>
 
-      <!-- MUYI logo marker (circle + text at 2106,822) -->
+      <!-- MUYI logo marker -->
       <circle cx="2153" cy="869" r="47" fill="#1E10C7" filter="url(#gb)" opacity="0.92"/>
-      <circle cx="2153" cy="869" r="47" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+      <circle cx="2153" cy="869" r="47" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
       <text x="2153" y="876" font-family="'Syne','DM Sans',sans-serif" font-size="20" font-weight="800" fill="white" text-anchor="middle" letter-spacing="2">MUYI</text>
 
-      <!-- Glowing white dots (Ellipse 20–31) -->
-      <circle cx="2288" cy="725" r="3.3" fill="#fff" filter="url(#gw)"/>
-      <circle cx="1993" cy="539" r="3.3" fill="#fff" filter="url(#gw)"/>
-      <circle cx="1918" cy="528" r="3.3" fill="#fff" filter="url(#gw)"/>
-      <circle cx="1803" cy="618" r="3.3" fill="#fff" filter="url(#gw)"/>
-      <circle cx="2109" cy="1120" r="3.3" fill="#fff" filter="url(#gw)"/>
-      <circle cx="2348" cy="1052" r="3.3" fill="#fff" filter="url(#gw)"/>
-      <circle cx="1853" cy="787" r="3.3" fill="#fff" filter="url(#gw)"/>
-      <circle cx="1996" cy="1208" r="3.3" fill="#fff" filter="url(#gw)"/>
-      <circle cx="2128" cy="688" r="3.3" fill="#fff" filter="url(#gw)"/>
-      <circle cx="2209" cy="490" r="3.3" fill="#fff" filter="url(#gw)"/>
+      <!-- Dots (dark on light bg) -->
+      <circle cx="2288" cy="725" r="3.3" fill="#1E10C7" opacity="0.5"/>
+      <circle cx="1993" cy="539" r="3.3" fill="#1E10C7" opacity="0.5"/>
+      <circle cx="1918" cy="528" r="3.3" fill="#1E10C7" opacity="0.5"/>
+      <circle cx="1803" cy="618" r="3.3" fill="#1E10C7" opacity="0.5"/>
+      <circle cx="2109" cy="1120" r="3.3" fill="#1E10C7" opacity="0.5"/>
+      <circle cx="2348" cy="1052" r="3.3" fill="#1E10C7" opacity="0.5"/>
+      <circle cx="1853" cy="787" r="3.3" fill="#1E10C7" opacity="0.5"/>
+      <circle cx="1996" cy="1208" r="3.3" fill="#1E10C7" opacity="0.5"/>
+      <circle cx="2128" cy="688" r="3.3" fill="#1E10C7" opacity="0.5"/>
+      <circle cx="2209" cy="490" r="3.3" fill="#1E10C7" opacity="0.5"/>
 
       <!-- Landmark labels -->
-      <text x="1719" y="404" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="14.5" font-weight="500" fill="rgba(255,255,255,0.88)" text-anchor="middle">가산디지털단지역</text>
-      <text x="1719" y="421" font-family="'DM Sans',sans-serif" font-size="11" font-weight="400" fill="rgba(255,255,255,0.45)" text-anchor="middle">1 · 7 Line</text>
-      <text x="2007" y="558" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.72)" text-anchor="middle">서울디지털 산업2단지</text>
-      <text x="1900" y="510" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.65)" text-anchor="start">SJ테크노빌</text>
-      <text x="1770" y="600" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.7)" text-anchor="middle">대륭테크노타운 22차</text>
-      <text x="1800" y="790" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.62)" text-anchor="start">우리은행</text>
-      <text x="2000" y="1238" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.62)" text-anchor="middle">한국후지필름 2공장</text>
-      <text x="2135" y="1122" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.62)" text-anchor="start">온누리아파트</text>
-      <text x="2330" y="1080" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.62)" text-anchor="middle">베스트연 내과의원</text>
-      <text x="2310" y="728" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.7)" text-anchor="start">현대아울렛 가산점</text>
-      <text x="2240" y="493" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.62)" text-anchor="start">가산파출소</text>
-      <text x="2040" y="690" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.65)" text-anchor="start">마리오아울렛</text>
+      <text x="1719" y="404" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="14.5" font-weight="600" fill="rgba(10,10,26,0.85)" text-anchor="middle">가산디지털단지역</text>
+      <text x="1719" y="421" font-family="'DM Sans',sans-serif" font-size="11" font-weight="400" fill="rgba(10,10,26,0.4)" text-anchor="middle">1 · 7 Line</text>
+      <text x="2007" y="558" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(10,10,26,0.65)" text-anchor="middle">서울디지털 산업2단지</text>
+      <text x="1900" y="510" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(10,10,26,0.6)" text-anchor="start">SJ테크노빌</text>
+      <text x="1770" y="600" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(10,10,26,0.65)" text-anchor="middle">대륭테크노타운 22차</text>
+      <text x="1800" y="790" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(10,10,26,0.55)" text-anchor="start">우리은행</text>
+      <text x="2000" y="1238" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(10,10,26,0.55)" text-anchor="middle">한국후지필름 2공장</text>
+      <text x="2135" y="1122" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(10,10,26,0.55)" text-anchor="start">온누리아파트</text>
+      <text x="2330" y="1080" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(10,10,26,0.55)" text-anchor="middle">베스트연 내과의원</text>
+      <text x="2310" y="728" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(10,10,26,0.65)" text-anchor="start">현대아울렛 가산점</text>
+      <text x="2240" y="493" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(10,10,26,0.55)" text-anchor="start">가산파출소</text>
+      <text x="2040" y="690" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(10,10,26,0.6)" text-anchor="start">마리오아울렛</text>
 
-      <!-- Address callout box -->
-      <rect x="2040" y="820" width="208" height="62" rx="10" fill="rgba(10,10,30,0.75)" stroke="rgba(30,16,199,0.5)" stroke-width="1.2"/>
-      <text x="2144" y="840" font-family="'DM Sans',sans-serif" font-size="10" font-weight="700" fill="rgba(140,162,255,0.9)" text-anchor="middle" letter-spacing="1.5">MUYI CORPORATION</text>
-      <text x="2144" y="858" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="11.5" font-weight="400" fill="rgba(255,255,255,0.9)" text-anchor="middle">금천구 디지털로 178 B1313</text>
-      <text x="2144" y="874" font-family="'DM Sans',sans-serif" font-size="10.5" font-weight="500" fill="rgba(140,162,255,0.7)" text-anchor="middle">Seoul Geumcheon-gu</text>
+      <!-- Address callout box (light themed) -->
+      <rect x="2040" y="820" width="212" height="62" rx="10" fill="rgba(255,255,255,0.92)" stroke="rgba(30,16,199,0.2)" stroke-width="1.2"/>
+      <text x="2146" y="840" font-family="'DM Sans',sans-serif" font-size="10" font-weight="700" fill="rgba(30,16,199,0.8)" text-anchor="middle" letter-spacing="1.5">MUYI CORPORATION</text>
+      <text x="2146" y="858" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="11.5" font-weight="400" fill="rgba(10,10,26,0.85)" text-anchor="middle">금천구 디지털로 178 B1313</text>
+      <text x="2146" y="874" font-family="'DM Sans',sans-serif" font-size="10.5" font-weight="500" fill="rgba(10,10,26,0.45)" text-anchor="middle">Seoul Geumcheon-gu</text>
     </svg>
   </div>
   <div class="ct-col">
@@ -1276,29 +1271,30 @@ function animHero(){
   if(sh){sh.style.opacity='0';setTimeout(function(){sh.style.transition='opacity 1.2s';sh.style.opacity='1';},1600);}
   var stats=document.getElementById('h-stats');
   if(stats){
-    // Container fades in without moving — prevents border dividers from wobbling
-    stats.style.opacity='0';stats.style.transform='none';
+    // Pure opacity fade — zero movement, no layout reflow, no wobble
+    stats.style.opacity='0';
+    stats.style.transform='none';
+    stats.style.transition='none';
     setTimeout(function(){
-      stats.style.transition='opacity .6s ease';
-      stats.style.opacity='1';
-      // Each stat item slides up individually with stagger
+      // Stagger each stat's opacity only — no translateY
       document.querySelectorAll('.h-stat').forEach(function(st,i){
-        st.style.opacity='0';st.style.transform='translateY(14px)';
+        st.style.opacity='0';
+        st.style.transition='none';
         setTimeout(function(){
-          st.style.transition='opacity .7s ease,transform .7s cubic-bezier(.16,1,.3,1)';
-          st.style.opacity='1';st.style.transform='translateY(0)';
-        },i*120);
+          st.style.transition='opacity .8s ease';
+          st.style.opacity='1';
+        },i*180);
       });
-      // Counter animation starts after items are visible
+      stats.style.transition='opacity .5s ease';
+      stats.style.opacity='1';
+      // Counter — starts simultaneously
       document.querySelectorAll('.cnt').forEach(function(el){
         var target=parseInt(el.getAttribute('data-to'));
-        var frames=60;var dur=3200;
-        var start=Date.now();
+        var frames=60,dur=3200,start=Date.now();
         el.textContent='1';
         var iv=setInterval(function(){
           var p=Math.min((Date.now()-start)/dur,1);
-          var ease=1-Math.pow(1-p,4);
-          var val=Math.max(1,Math.round(ease*target));
+          var val=Math.max(1,Math.round((1-Math.pow(1-p,4))*target));
           el.textContent=val;
           if(p>=1){el.textContent=target;clearInterval(iv);}
         },1000/frames);
