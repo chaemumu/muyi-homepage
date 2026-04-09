@@ -341,7 +341,14 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 .cs-slide.active .cs-content{opacity:1;transform:translateX(0)}
 
 /* CONTACT */
-#p-ct{grid-template-columns:1.1fr .9fr;gap:5rem;align-items:center;padding:0 clamp(2rem,7vw,8rem);max-width:1300px;margin:0 auto;width:100%}
+#p-ct{grid-template-columns:1.1fr .9fr;gap:5rem;align-items:center;padding:0 clamp(2rem,7vw,8rem);max-width:1300px;margin:0 auto;width:100%;position:relative;overflow:hidden}
+/* Map background */
+.ct-map-bg{position:absolute;right:0;top:0;bottom:0;width:62%;z-index:0;overflow:hidden;opacity:0;transition:opacity 1.4s ease;pointer-events:none}
+.ct-map-bg.is-vis{opacity:1;transition-delay:.4s}
+.ct-map-fade{position:absolute;left:0;top:0;bottom:0;width:clamp(120px,18%,220px);background:linear-gradient(90deg,#ffffff 0%,rgba(255,255,255,.85) 40%,transparent 100%);z-index:2;pointer-events:none}
+.ct-map-fade-bottom{position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(0deg,#ffffff,transparent);z-index:2;pointer-events:none}
+.ct-map-bg svg{width:100%;height:100%;display:block}
+.ct-col{position:relative;z-index:1}
 .ct-eye{display:block;font-size:.78rem;letter-spacing:.28em;text-transform:uppercase;color:#1E10C7;margin-bottom:1.5rem;font-weight:700}
 .ct-ti{font-family:'Syne','Noto Sans KR',sans-serif;font-size:clamp(2rem,3.5vw,3.5rem);font-weight:800;line-height:1.05;letter-spacing:-.03em;color:#0a0a1a;margin-bottom:1.8rem;position:relative;overflow:visible;max-width:16ch}
 .ct-ti .h-line{padding:.02em 0}
@@ -936,7 +943,100 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#111}
 
 <!-- CONTACT -->
 <div class="pnl" id="p-ct">
-  <div>
+  <!-- Location Map Background -->
+  <div class="ct-map-bg" id="ctMapBg">
+    <div class="ct-map-fade"></div>
+    <div class="ct-map-fade-bottom"></div>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="1200 0 1360 1440" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <filter id="gw" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="gb" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="12" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#DBCC00"/>
+          <stop offset="100%" stop-color="#0042FF"/>
+        </linearGradient>
+        <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2A1FE0"/>
+          <stop offset="100%" stop-color="#1E10C7"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Dark background -->
+      <rect x="1200" y="0" width="1360" height="1440" fill="#09091e"/>
+
+      <!-- Road area block (Vector 1) -->
+      <rect x="1252" y="172" width="783" height="452" fill="rgba(255,255,255,0.015)" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+
+      <!-- Main diagonal boulevards -->
+      <!-- Line 19: angle 58.42° from (1785,39) -->
+      <line x1="1785" y1="39" x2="2544" y2="1273" stroke="rgba(255,255,255,0.22)" stroke-width="2.2"/>
+      <!-- Line 16: angle 71.96° from (1695,82) -->
+      <line x1="1695" y1="82" x2="2142" y2="1460" stroke="rgba(255,255,255,0.22)" stroke-width="2.2"/>
+      <!-- Line 17: angle 159.53° from (1384,575) -->
+      <line x1="1384" y1="575" x2="247" y2="1002" stroke="rgba(255,255,255,0.14)" stroke-width="1.4"/>
+      <!-- Line 18: angle 149.13° from (2026,772) -->
+      <line x1="2026" y1="772" x2="1491" y2="1093" stroke="rgba(255,255,255,0.14)" stroke-width="1.4"/>
+
+      <!-- Subtle implied streets (faint grid) -->
+      <line x1="1200" y1="414" x2="2560" y2="414" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+      <line x1="1200" y1="720" x2="2560" y2="720" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+      <line x1="1200" y1="1050" x2="2560" y2="1050" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+      <line x1="1800" y1="0" x2="1800" y2="1440" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <line x1="2100" y1="0" x2="2100" y2="1440" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+
+      <!-- Station dot (Ellipse 28: gradient at 1794,414) -->
+      <circle cx="1797" cy="417" r="11" fill="url(#sg)" filter="url(#gw)"/>
+
+      <!-- MUYI Location Pin (Vector #1E10C7 at ~2039,740 51×68) -->
+      <rect x="2039" y="760" width="50" height="65" rx="6" ry="6" fill="url(#pg)" filter="url(#gb)" opacity="0.95"/>
+      <!-- Pin notch bottom -->
+      <polygon points="2064,825 2072,840 2056,840" fill="#1E10C7" opacity="0.95"/>
+
+      <!-- MUYI logo marker (circle + text at 2106,822) -->
+      <circle cx="2153" cy="869" r="47" fill="#1E10C7" filter="url(#gb)" opacity="0.92"/>
+      <circle cx="2153" cy="869" r="47" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+      <text x="2153" y="876" font-family="'Syne','DM Sans',sans-serif" font-size="20" font-weight="800" fill="white" text-anchor="middle" letter-spacing="2">MUYI</text>
+
+      <!-- Glowing white dots (Ellipse 20–31) -->
+      <circle cx="2288" cy="725" r="3.3" fill="#fff" filter="url(#gw)"/>
+      <circle cx="1993" cy="539" r="3.3" fill="#fff" filter="url(#gw)"/>
+      <circle cx="1918" cy="528" r="3.3" fill="#fff" filter="url(#gw)"/>
+      <circle cx="1803" cy="618" r="3.3" fill="#fff" filter="url(#gw)"/>
+      <circle cx="2109" cy="1120" r="3.3" fill="#fff" filter="url(#gw)"/>
+      <circle cx="2348" cy="1052" r="3.3" fill="#fff" filter="url(#gw)"/>
+      <circle cx="1853" cy="787" r="3.3" fill="#fff" filter="url(#gw)"/>
+      <circle cx="1996" cy="1208" r="3.3" fill="#fff" filter="url(#gw)"/>
+      <circle cx="2128" cy="688" r="3.3" fill="#fff" filter="url(#gw)"/>
+      <circle cx="2209" cy="490" r="3.3" fill="#fff" filter="url(#gw)"/>
+
+      <!-- Landmark labels -->
+      <text x="1719" y="404" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="14.5" font-weight="500" fill="rgba(255,255,255,0.88)" text-anchor="middle">가산디지털단지역</text>
+      <text x="1719" y="421" font-family="'DM Sans',sans-serif" font-size="11" font-weight="400" fill="rgba(255,255,255,0.45)" text-anchor="middle">1 · 7 Line</text>
+      <text x="2007" y="558" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.72)" text-anchor="middle">서울디지털 산업2단지</text>
+      <text x="1900" y="510" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.65)" text-anchor="start">SJ테크노빌</text>
+      <text x="1770" y="600" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.7)" text-anchor="middle">대륭테크노타운 22차</text>
+      <text x="1800" y="790" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.62)" text-anchor="start">우리은행</text>
+      <text x="2000" y="1238" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.62)" text-anchor="middle">한국후지필름 2공장</text>
+      <text x="2135" y="1122" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.62)" text-anchor="start">온누리아파트</text>
+      <text x="2330" y="1080" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.62)" text-anchor="middle">베스트연 내과의원</text>
+      <text x="2310" y="728" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.7)" text-anchor="start">현대아울렛 가산점</text>
+      <text x="2240" y="493" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.62)" text-anchor="start">가산파출소</text>
+      <text x="2040" y="690" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.65)" text-anchor="start">마리오아울렛</text>
+
+      <!-- Address callout box -->
+      <rect x="2040" y="820" width="208" height="62" rx="10" fill="rgba(10,10,30,0.75)" stroke="rgba(30,16,199,0.5)" stroke-width="1.2"/>
+      <text x="2144" y="840" font-family="'DM Sans',sans-serif" font-size="10" font-weight="700" fill="rgba(140,162,255,0.9)" text-anchor="middle" letter-spacing="1.5">MUYI CORPORATION</text>
+      <text x="2144" y="858" font-family="'Noto Sans KR','DM Sans',sans-serif" font-size="11.5" font-weight="400" fill="rgba(255,255,255,0.9)" text-anchor="middle">금천구 디지털로 178 B1313</text>
+      <text x="2144" y="874" font-family="'DM Sans',sans-serif" font-size="10.5" font-weight="500" fill="rgba(140,162,255,0.7)" text-anchor="middle">Seoul Geumcheon-gu</text>
+    </svg>
+  </div>
+  <div class="ct-col">
     <span class="ct-eye">무료 진단 · 영업일 기준 24시간 내 답변</span>
     <h2 class="ct-ti">
       <span class="h-line"><span class="h-line-in h-title-grad">광고만 맡길지</span></span>
@@ -953,7 +1053,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#111}
       <div class="ct-row"><span class="ct-key">위치</span><span class="ct-val">서울시 금천구 디지털로 178 B1313</span></div>
     </div>
   </div>
-  <div>
+  <div class="ct-col">
     <form id="form" novalidate>
       <div class="fg"><label class="fl">이름</label><input class="fi" type="text" name="name" placeholder="홍길동"></div>
       <div class="fg"><label class="fl">이메일</label><input class="fi" type="email" name="email" placeholder="hello@brand.com"></div>
@@ -1310,8 +1410,10 @@ function animCli(){
 }
 
 function animCt(){
-  var l=document.querySelector('#p-ct > div:first-child');
-  var r=document.querySelector('#p-ct > div:last-child');
+  var mapBg=document.getElementById('ctMapBg');
+  if(mapBg)mapBg.classList.add('is-vis');
+  var l=document.querySelector('#p-ct .ct-col:first-of-type');
+  var r=document.querySelector('#p-ct .ct-col:last-of-type');
   document.querySelectorAll('#p-ct .h-line-in').forEach(function(line){
     if(!line.dataset.text){line.dataset.text=line.textContent.trim();}
   });
@@ -1330,16 +1432,14 @@ function animCt(){
 function update3D(s){
   if(SCROLL_MODE){
     orbitGrp.visible=false;
-    mapGrp.visible=false;
     gsap.to(bgPts.material,{opacity:.16,duration:1});
     gsap.to(nebPts.material,{opacity:.03,duration:1});
     return;
   }
   var showOrbit=[S.ORBIT,S.CORE,S.MOM,S.ORB].indexOf(s)>=0;
   orbitGrp.visible=showOrbit;
-  mapGrp.visible=(s===S.CT);
   // BG dim
-  var bgOp=s===S.HERO?.4:s===S.CT?.04:(s===S.CLI)?.1:.22;
+  var bgOp=s===S.HERO?.4:(s===S.CT||s===S.CLI)?.08:.22;
   gsap.to(bgPts.material,{opacity:bgOp,duration:1});
   var nebOp=s===S.HERO?.07:.03;
   gsap.to(nebPts.material,{opacity:nebOp,duration:1});
@@ -1384,59 +1484,6 @@ function initScrollMode(){
 }
 
 // ── THREE OBJECTS ──
-
-// Location Map Group (shown in CT panel)
-var mapGrp=new THREE.Group();
-SC.add(mapGrp);
-mapGrp.visible=false;
-(function(){
-  var roadMat=new THREE.LineBasicMaterial({color:0xccccdd,transparent:true,opacity:.55});
-  var mainMat=new THREE.LineBasicMaterial({color:0x9090bb,transparent:true,opacity:.7});
-  function makeLine(pts,mat){
-    var g=new THREE.BufferGeometry().setFromPoints(pts.map(function(p){return new THREE.Vector3(p[0],p[1],p[2]);}));
-    mapGrp.add(new THREE.Line(g,mat));
-  }
-  // Horizontal roads
-  var rows=[-4,-2.6,-1.2,0,1.2,2.6,4];
-  rows.forEach(function(y,i){
-    var mat=(i===3||i===4)?mainMat:roadMat;
-    makeLine([[-8,y,0],[8,y,0]],mat);
-  });
-  // Vertical roads
-  var cols=[-6,-3.5,-1.5,0,1.5,3.5,6];
-  cols.forEach(function(x,i){
-    var mat=(i===3||i===4)?mainMat:roadMat;
-    makeLine([[x,-6,0],[x,6,0]],mat);
-  });
-  // City blocks (filled quads as faint planes)
-  var blockMat=new THREE.MeshBasicMaterial({color:0xe8ecff,transparent:true,opacity:.18,side:THREE.DoubleSide});
-  var blocks=[[-4.75,-1.6],[-.75,-1.6],[-.75,.6],[.75,.6],[2.75,-1.6],[2.75,.6],[-4.75,.6]];
-  blocks.forEach(function(b){
-    var w=Math.abs(b[0])<1?.8:1.4,h=.8;
-    mapGrp.add(new THREE.Mesh(new THREE.PlaneGeometry(w,h),blockMat.clone())).position.set(b[0],b[1]+.4,-.02);
-  });
-  // Location pin (sphere + vertical line)
-  var pinSphere=new THREE.Mesh(new THREE.SphereGeometry(.14,16,16),new THREE.MeshBasicMaterial({color:0x1E10C7}));
-  pinSphere.position.set(.75,-.3,.1);
-  mapGrp.add(pinSphere);
-  // Pin glow halo
-  mapGrp.add(new THREE.Mesh(new THREE.SphereGeometry(.3,16,16),new THREE.MeshBasicMaterial({color:0x1E10C7,transparent:true,opacity:.08,depthWrite:false})));
-  mapGrp.children[mapGrp.children.length-1].position.copy(pinSphere.position);
-  // Pulse ring
-  var pulseMat=new THREE.MeshBasicMaterial({color:0x1E10C7,transparent:true,opacity:.18,depthWrite:false,side:THREE.DoubleSide});
-  var pulseRing=new THREE.Mesh(new THREE.RingGeometry(.2,.22,32),pulseMat);
-  pulseRing.position.set(.75,-.3,.05);
-  mapGrp.add(pulseRing);
-  pulseRing._pulse=true;
-  // Stem line
-  makeLine([[.75,-.3,.1],[.75,.2,.1]],new THREE.LineBasicMaterial({color:0x1E10C7,transparent:true,opacity:.7}));
-  // Position map: right side, slight tilt
-  mapGrp.position.set(4.5,0,-2);
-  mapGrp.rotation.x=-.18;
-  mapGrp.rotation.y=-.22;
-  mapGrp.rotation.z=.04;
-  mapGrp.scale.set(.85,.85,.85);
-})();
 
 // BG particles
 var bgPts,nebPts;
@@ -1597,12 +1644,6 @@ function animate(){
   bgPts.rotation.y=t*.012;
   bgPts.rotation.x=t*.004;
   nebPts.rotation.y=t*.018;
-
-  if(mapGrp.visible){
-    mapGrp.rotation.y=-.22+Math.sin(t*.4)*.035;
-    mapGrp.rotation.x=-.18+Math.sin(t*.3)*.02;
-    mapGrp.children.forEach(function(c){if(c._pulse){var s=1+.6*(Math.sin(t*1.8)*.5+.5);c.scale.set(s,s,1);c.material.opacity=.18*(1-(s-1)/0.6);}});
-  }
 
   if(orbitGrp.visible){
     // Orbit group ALWAYS rotates — per-planet freeze via _frozenT
