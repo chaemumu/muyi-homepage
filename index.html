@@ -1287,18 +1287,52 @@ function animHero(){
       });
       stats.style.transition='opacity .5s ease';
       stats.style.opacity='1';
-      // Counter — starts simultaneously
-      document.querySelectorAll('.cnt').forEach(function(el){
-        var target=parseInt(el.getAttribute('data-to'));
-        var frames=60,dur=3200,start=Date.now();
-        el.textContent='1';
-        var iv=setInterval(function(){
-          var p=Math.min((Date.now()-start)/dur,1);
-          var val=Math.max(1,Math.round((1-Math.pow(1-p,4))*target));
-          el.textContent=val;
-          if(p>=1){el.textContent=target;clearInterval(iv);}
-        },1000/frames);
-      });
+      // Counter — IntersectionObserver, rAF, easeOutCubic, micro-interaction on complete
+      (function(){
+        function easeOutCubic(t){return 1-Math.pow(1-t,3);}
+        function runCounter(el){
+          if(el._counted)return;
+          el._counted=true;
+          var target=parseInt(el.getAttribute('data-to'),10);
+          var hasSuffix=false; // suffix handled by sibling <em>, not textContent
+          var dur=target>=100?1600:target>=10?1400:1200;
+          var startTime=null;
+          el.textContent='0';
+          function tick(ts){
+            if(!startTime)startTime=ts;
+            var p=Math.min((ts-startTime)/dur,1);
+            var val=Math.round(easeOutCubic(p)*target);
+            el.textContent=target>=1000?val.toLocaleString():val;
+            if(p<1){requestAnimationFrame(tick);}
+            else{
+              el.textContent=target>=1000?target.toLocaleString():target;
+              // micro-interaction: scale 1 → 1.08 → 1 over 120ms
+              var stat=el.closest('.h-stat-n')||el.parentElement;
+              stat.style.transition='transform 60ms ease-out';
+              stat.style.transform='scale(1.08)';
+              setTimeout(function(){
+                stat.style.transition='transform 60ms ease-in';
+                stat.style.transform='scale(1)';
+                setTimeout(function(){stat.style.transition='';stat.style.transform='';},65);
+              },65);
+            }
+          }
+          requestAnimationFrame(tick);
+        }
+        var statsEl=document.getElementById('h-stats');
+        if(!statsEl)return;
+        var io=new IntersectionObserver(function(entries){
+          entries.forEach(function(e){
+            if(e.isIntersecting){
+              io.unobserve(e.target);
+              setTimeout(function(){
+                document.querySelectorAll('.cnt').forEach(runCounter);
+              },200);
+            }
+          });
+        },{threshold:0.4});
+        io.observe(statsEl);
+      })();
     },1400);
   }
 }
