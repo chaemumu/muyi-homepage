@@ -2073,7 +2073,7 @@ window.addEventListener('resize',function(){
 // ── BUTTON WIRING ──
 document.getElementById('logo-btn').addEventListener('click',function(){goto(S.HERO);hoverOff();});
 document.getElementById('enter-btn').addEventListener('click',function(){goto(S.CT);});
-document.getElementById('explore-btn').addEventListener('click',function(){goto(S.PROB);});
+var exploreBtn=document.getElementById('explore-btn');if(exploreBtn)exploreBtn.addEventListener('click',function(){goto(S.PROB);});
 document.getElementById('ct-nav').addEventListener('click',function(){goto(S.CT);});
 document.getElementById('back').addEventListener('click',goBack);
 document.getElementById('core-nx').addEventListener('click',function(){goto(S.MOM);});
