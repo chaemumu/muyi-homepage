@@ -30,7 +30,13 @@
       "Bash(ls /c/Python*)",
       "Bash(find /c/Users/이채원 -name python.exe -not -path */WindowsApps/*)",
       "Bash(command -v node)",
-      "Read(//c/Users/K/AppData/Roaming/**)"
+      "Read(//c/Users/K/AppData/Roaming/**)",
+      "Bash(gh repo:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(find C:/Users/K/Desktop/homepage/awesome-design-md-main -name \"README.md\" -exec grep -l \"^#\" {} \\\\;)",
+      "Bash(xargs -I{} sh -c 'echo \"=== {} ===\" && head -30 {}')"
     ]
   }
 }
