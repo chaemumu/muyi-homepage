@@ -540,7 +540,7 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 }
 
 /* CONTACT */
-#p-ct{grid-template-columns:1.1fr .9fr;grid-template-rows:1fr auto;gap:3rem 5rem;align-items:start;padding:var(--nav-h) var(--edge-pad) clamp(2rem,3vw,3rem);max-width:1300px;margin:0 auto;width:100%;position:relative;background:#ffffff}
+#p-ct{grid-template-columns:1.1fr .9fr;grid-template-rows:1fr auto;gap:3rem 5rem;align-items:start;padding:var(--nav-h) var(--edge-pad) clamp(2rem,3vw,3rem);max-width:1300px;margin:0 auto;width:100%;position:relative;background:#ffffff;box-shadow:0 0 0 100vmax #ffffff}
 /* Map section — row 2 spanning full width */
 .ct-map-bg{grid-column:1/-1;grid-row:2;width:100%;border-radius:var(--radius-lg);overflow:hidden;opacity:0;transition:opacity 1.2s ease;height:clamp(260px,28vw,360px);position:relative;background:#f0f0f0}
 .ct-map-bg.is-vis{opacity:1;transition-delay:.5s}
@@ -1845,7 +1845,8 @@ function updateNav(s){
     return;
   }
   var isHero=s===S.HERO;
-  if(nav)nav.classList.toggle('nav-dark',isHero);
+  var isDarkPage=isHero||[S.ORBIT,S.CORE,S.MOM,S.ORB].indexOf(s)>=0;
+  if(nav)nav.classList.toggle('nav-dark',isDarkPage);
   var bk=document.getElementById('back');
   if(isHero||hist.length===0){bk.classList.remove('vis');}
   else{bk.classList.add('vis');}
@@ -1954,7 +1955,7 @@ var bgPts,nebPts;
 // ── HERO SPHERE SYSTEM ──
 var heroGrp=new THREE.Group();
 SC.add(heroGrp);
-heroGrp.visible=true;
+heroGrp.visible=false;
 var heroSphere,heroGlows=[],heroRings=[],heroStreamPts;
 var heroMouseTarget={x:0,y:0},heroMouseCurrent={x:0,y:0};
 
