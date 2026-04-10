@@ -196,11 +196,14 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 #back:hover .back-inner{color:rgba(10,10,26,.8)}
 
 /* PROGRESS */
-#prog{position:fixed;bottom:1.6rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;z-index:150;opacity:0;transition:opacity .4s;pointer-events:none;background:rgba(10,10,26,.07);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:100px;padding:4px;border:1px solid rgba(10,10,26,.08)}
+#prog{position:fixed;bottom:1.6rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;z-index:150;opacity:0;transition:opacity .4s,background .6s,border-color .6s;pointer-events:none;background:rgba(10,10,26,.07);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:100px;padding:4px;border:1px solid rgba(10,10,26,.08)}
 #prog.vis{opacity:1;pointer-events:auto}
+#prog.prog-dark{background:rgba(200,210,255,.1);border-color:rgba(140,162,255,.15)}
 #prog-slider{position:absolute;top:4px;height:calc(100% - 8px);background:var(--c-brand);border-radius:100px;transition:left .32s cubic-bezier(.4,0,.2,1),width .32s cubic-bezier(.4,0,.2,1);z-index:0;pointer-events:none}
 .pt{position:relative;z-index:1;background:none;border:none;cursor:pointer;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.42rem .88rem;border-radius:100px;color:rgba(10,10,26,.45);transition:color .3s;font-family:inherit;white-space:nowrap}
 .pt.on{color:#ffffff}
+.prog-dark .pt{color:rgba(200,210,255,.45)}
+.prog-dark .pt.on{color:#ffffff}
 
 /* UI LAYER */
 #ui{position:fixed;inset:0;z-index:100;pointer-events:none}
@@ -554,6 +557,7 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .ct-ti{font-family:'Noto Sans KR','Space Grotesk',sans-serif;font-size:clamp(1.8rem,3.2vw,3rem);font-weight:700;line-height:1.08;letter-spacing:-.03em;color:#0a0a1a;margin-bottom:1.6rem;position:relative;overflow:visible;max-width:16ch}
 .ct-ti .h-line{padding:.02em 0}
 .ct-ti .h-line-in{transform-origin:center bottom}
+.ct-ti .h-title-grad{background:none;-webkit-background-clip:border-box;-webkit-text-fill-color:#0a0a1a;background-clip:border-box}
 .ct-promises{display:flex;flex-direction:column;gap:1.2rem;margin-bottom:2.8rem}
 .ct-promise{display:flex;align-items:center;gap:.8rem;font-size:var(--text-sm);color:var(--c-text);font-family:'Noto Sans KR','DM Sans',sans-serif;letter-spacing:.01em;background:#f6f7ff;border:1px solid var(--c-border);border-radius:var(--radius-full);padding:.75rem 1.4rem;backdrop-filter:blur(8px);transition:all var(--dur-mid) var(--ease-out);box-shadow:var(--shadow-sm)}
 .ct-promise:hover{background:#eef1ff;transform:translateY(-2px);box-shadow:var(--shadow-md)}
@@ -1856,6 +1860,7 @@ function updateProg(s){
   var pg=document.getElementById('prog');
   var idx=PMAIN.indexOf(s);
   pg.classList.toggle('vis',idx>=0);
+  pg.classList.toggle('prog-dark',s===S.HERO);
   var btns=document.querySelectorAll('.pt');
   btns.forEach(function(b,i){b.classList.toggle('on',i===idx);});
   var slider=document.getElementById('prog-slider');
