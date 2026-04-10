@@ -661,6 +661,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   .case-grid{grid-template-columns:1fr}
 }
 </style>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAeE_-1qO9oTxZF9LYScCq3OXQcKO0YzNo&libraries=marker"></script>
 </head>
 <body>
 <canvas id="c"></canvas>
@@ -1303,10 +1304,10 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 
 <!-- CONTACT -->
 <div class="pnl" id="p-ct">
-  <!-- Location Map — Google Maps -->
+  <!-- Location Map — Google Maps API -->
   <div class="ct-map-bg" id="ctMapBg" style="position:relative;overflow:hidden;">
     <div class="ct-map-fade"></div>
-    <iframe src="https://www.google.com/maps?q=37.49795,126.90313&output=embed&z=16" style="position:absolute;inset:0;width:100%;height:100%;border:none;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div id="mapContainer" style="position:absolute;inset:0;width:100%;height:100%;"></div>
   </div>
   <div class="ct-col">
     <span class="ct-eye">무료 진단 · 영업일 기준 24시간 내 답변</span>
@@ -1753,6 +1754,7 @@ function animCli(){
 function animCt(){
   var mapBg=document.getElementById('ctMapBg');
   if(mapBg)mapBg.classList.add('is-vis');
+  initMap();
   var l=document.querySelector('#p-ct .ct-col:first-of-type');
   var r=document.querySelector('#p-ct .ct-col:last-of-type');
   document.querySelectorAll('#p-ct .h-line-in').forEach(function(line){
@@ -2402,6 +2404,65 @@ document.querySelectorAll('.fi,.ft').forEach(function(el){
     }
   }
 })();
+
+// ── MAP INITIALIZATION ──
+var mapInstance=null;
+function initMap(){
+  if(mapInstance)return;
+  var container=document.getElementById('mapContainer');
+  if(!container)return;
+
+  // 서울시 금천구 디지털로 178 B1313
+  var muyi_loc={lat:37.4979,lng:126.9031};
+
+  mapInstance=new google.maps.Map(container,{
+    zoom:16,
+    center:muyi_loc,
+    mapTypeControl:false,
+    fullscreenControl:false,
+    streetViewControl:false,
+    zoomControl:true,
+    zoomControlOptions:{position:google.maps.ControlPosition.BOTTOM_RIGHT},
+    styles:[
+      {elementType:'geometry',stylers:[{color:'#f5f5f5'}]},
+      {elementType:'labels.icon',stylers:[{visibility:'off'}]},
+      {elementType:'labels.text.fill',stylers:[{color:'#616161'}]},
+      {elementType:'labels.text.stroke',stylers:[{color:'#f5f5f5'}]},
+      {featureType:'administrative.land_parcel',elementType:'labels',stylers:[{visibility:'off'}]},
+      {featureType:'administrative.land_parcel',elementType:'labels.text.fill',stylers:[{color:'#bdbdbd'}]},
+      {featureType:'administrative.locality',elementType:'labels.text.fill',stylers:[{color:'#757575'}]},
+      {featureType:'poi',stylers:[{visibility:'off'}]},
+      {featureType:'poi',elementType:'labels.text',stylers:[{visibility:'off'}]},
+      {featureType:'poi.business',stylers:[{visibility:'off'}]},
+      {featureType:'road',elementType:'geometry',stylers:[{color:'#ffffff'}]},
+      {featureType:'road',elementType:'geometry.stroke',stylers:[{color:'#e0e0e0'}]},
+      {featureType:'road',elementType:'labels.text.fill',stylers:[{color:'#9e9e9e'}]},
+      {featureType:'road.arterial',elementType:'geometry',stylers:[{color:'#ffffff'}]},
+      {featureType:'road.highway',elementType:'geometry',stylers:[{color:'#fdd835'}]},
+      {featureType:'road.highway',elementType:'geometry.stroke',stylers:[{color:'#e0e0e0'}]},
+      {featureType:'road.local',elementType:'geometry.fill',stylers:[{color:'#f0f0f0'}]},
+      {featureType:'transit',stylers:[{visibility:'off'}]},
+      {featureType:'water',elementType:'geometry',stylers:[{color:'#e9e9e9'}]},
+      {featureType:'water',elementType:'geometry.fill',stylers:[{color:'#e9e9e9'}]},
+      {featureType:'water',elementType:'labels.text.fill',stylers:[{color:'#9e9e9e'}]}
+    ]
+  });
+
+  // 커스텀 마커 — 주황색 (#EE4E00)
+  var marker=new google.maps.marker.AdvancedMarkerElement({
+    map:mapInstance,
+    position:muyi_loc,
+    title:'MUYI',
+    content:createMarkerContent()
+  });
+}
+
+function createMarkerContent(){
+  var svg='<svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg"><path d="M16 0C9.4 0 4 5.4 4 12c0 8 12 28 12 28s12-20 12-28c0-6.6-5.4-12-12-12z" fill="#EE4E00"/><circle cx="16" cy="12" r="4" fill="#ffffff"/></svg>';
+  var div=document.createElement('div');
+  div.innerHTML=svg;
+  return div;
+}
 </script>
 </body>
 </html>
