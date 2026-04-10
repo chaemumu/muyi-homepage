@@ -1,17 +1,26 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <title>MUYI | 브랜드를 성과가 쌓이는 궤도에 올립니다</title>
 <meta name="description" content="브랜드 기준점 정리부터 채널 운영, 퍼포먼스 최적화, 재구매 구조 설계까지. MUYI는 성과가 계속 남는 성장 궤도를 만듭니다.">
 <meta name="robots" content="index,follow">
+<meta name="theme-color" content="#1E10C7">
 <meta property="og:type" content="website">
 <meta property="og:title" content="MUYI | 브랜드를 성과가 쌓이는 궤도에 올립니다">
 <meta property="og:description" content="브랜드 기준점 정리부터 채널 운영, 퍼포먼스 최적화, 재구매 구조 설계까지. MUYI는 성과가 계속 남는 성장 궤도를 만듭니다.">
 <meta property="og:url" content="https://muyi.co.kr/">
 <meta property="og:site_name" content="MUYI">
+<meta property="og:image" content="https://muyi.co.kr/assets/case-images/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MUYI | 브랜드를 성과가 쌓이는 궤도에 올립니다">
+<meta name="twitter:description" content="브랜드 기준점 정리부터 채널 운영, 퍼포먼스 최적화, 재구매 구조 설계까지.">
 <link rel="canonical" href="https://muyi.co.kr/">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700;9..40,800&family=Jua&family=Montserrat:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&family=Noto+Sans+KR:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"MUYI","url":"https://muyi.co.kr","description":"브랜드 기준점 정리부터 채널 운영, 퍼포먼스 최적화, 재구매 구조 설계까지. MUYI는 성과가 계속 남는 성장 궤도를 만듭니다.","areaServed":"KR","serviceType":["브랜드 전략 컨설팅","퍼포먼스 마케팅","SNS 콘텐츠 마케팅","브랜드 아이덴티티"]}</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
@@ -54,8 +63,8 @@ body.scroll-mode #p-cs{min-height:100svh}
 body.scroll-mode #p-ct{min-height:100svh}
 
 /* CURSOR */
-#cur-d{position:fixed;z-index:9999;pointer-events:none;width:5px;height:5px;border-radius:50%;background:#EE4E00;transform:translate(-50%,-50%);mix-blend-mode:normal;transition:width var(--dur-fast),height var(--dur-fast)}
-#cur-r{position:fixed;z-index:9998;pointer-events:none;width:40px;height:40px;border-radius:50%;border:1px solid rgba(10,10,26,.15);transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s}
+#cur-d{position:fixed;z-index:9999;pointer-events:none;width:5px;height:5px;border-radius:50%;background:#EE4E00;transform:translate(-50%,-50%);mix-blend-mode:normal;transition:width var(--dur-fast),height var(--dur-fast);will-change:transform}
+#cur-r{position:fixed;z-index:9998;pointer-events:none;width:40px;height:40px;border-radius:50%;border:1px solid rgba(10,10,26,.15);transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s;will-change:transform}
 body.on-hover #cur-d{width:40px;height:40px}
 body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 
@@ -73,8 +82,7 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 .ldr-fill-logo{display:none}
 .ldr-bar{display:none}
 .ldr-pct{display:none}
-@keyframes loaderWave{0%,100%{transform:translateX(-2%) scaleX(1)}50%{transform:translateX(2%) scaleX(1.03)}}
-@keyframes loaderPulse{0%,100%{transform:scale(1);opacity:.88}50%{transform:scale(1.06);opacity:1}}
+/* loaderWave/loaderPulse removed — unused */
 
 /* NAV */
 #nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:1.4rem 3rem;pointer-events:none}
@@ -87,6 +95,7 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 .nav-lnk:hover{color:#0a0a1a}
 .nav-cta{font-size:.95rem;letter-spacing:.1em;text-transform:uppercase;padding:.85rem 2.4rem;border:none;border-radius:2rem;color:var(--c-white);cursor:pointer;font-weight:700;font-family:inherit;transition:all var(--dur-mid);background:#1E10C7;box-shadow:0 4px 20px rgba(30,16,199,.3)}
 .nav-cta:hover{background:#2A1FE0;transform:scale(1.05);box-shadow:0 6px 28px rgba(30,16,199,.4)}
+.nav-cta:active{transform:scale(.96);transition-duration:80ms}
 
 /* BACK */
 #back{position:fixed;left:3rem;top:50%;transform:translateY(-50%);z-index:150;opacity:0;pointer-events:none;transition:opacity .4s;cursor:pointer;mix-blend-mode:normal}
@@ -104,7 +113,7 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 #ui{position:fixed;inset:0;z-index:100;pointer-events:none}
 
 /* PANELS */
-.pnl{position:absolute;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;opacity:0;will-change:opacity}
+.pnl{position:absolute;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;opacity:0;will-change:opacity,transform}
 .pnl.open{pointer-events:auto}
 
 /* HERO */
@@ -124,6 +133,7 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 .hero-chip span{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(10,10,26,.65);font-weight:700}
 .h-enter{display:inline-flex;align-items:center;gap:1.2rem;font-size:1.15rem;letter-spacing:.06em;text-transform:none;color:var(--c-white);cursor:pointer;pointer-events:auto;font-weight:700;background:#1E10C7;border:none;border-radius:3rem;padding:1.4rem 3.6rem;font-family:inherit;opacity:0;transition:all var(--dur-mid);box-shadow:0 4px 24px rgba(30,16,199,.35)}
 .h-enter:hover{background:#2A1FE0;transform:translateY(-3px) scale(1.04);box-shadow:0 8px 40px rgba(30,16,199,.45)}
+.h-enter:active{transform:scale(.95);transition-duration:80ms}
 .h-arr{width:36px;height:2px;background:currentColor;position:relative;flex-shrink:0;transition:width .3s}
 .h-enter:hover .h-arr{width:52px}
 .h-arr::after{content:'';position:absolute;right:0;top:50%;transform:translateY(-50%) rotate(45deg);width:7px;height:7px;border-right:2px solid;border-top:2px solid}
@@ -156,6 +166,7 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 .orbit-btn::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,var(--glow-color,.1),transparent 70%);opacity:0;transition:opacity .4s}
 .orbit-btn::after{content:'';position:absolute;inset:1px;border-radius:inherit;border:1px solid rgba(255,255,255,.04);pointer-events:none}
 .orbit-btn:hover,.orbit-btn.is-hover{border-color:rgba(30,16,199,.3);background:#eef0ff;transform:translateY(-10px) scale(1.02);box-shadow:0 18px 50px rgba(30,16,199,.12)}
+.orbit-btn:active{transform:scale(.97);transition-duration:80ms}
 .orbit-btn:hover::before,.orbit-btn.is-hover::before{opacity:1}
 .orbit-btn:nth-child(1){--glow-color:rgba(30,16,199,.3)}
 .orbit-btn:nth-child(2){--glow-color:rgba(104,88,255,.3)}
@@ -208,6 +219,7 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 .nc-step-num{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:rgba(30,16,199,.2);line-height:1}
 .nc-next{font-size:.95rem;letter-spacing:.04em;text-transform:none;color:var(--c-white);cursor:pointer;background:var(--c-brand);border:none;border-radius:2rem;padding:.95rem 2.4rem;font-family:inherit;font-weight:700;transition:all var(--dur-mid);display:inline-flex;align-items:center;gap:.7rem;box-shadow:0 4px 20px var(--c-brand-glow);align-self:flex-start;position:sticky;bottom:0;margin-top:.5rem}
 .nc-next:hover{background:var(--c-brand-h);transform:translateY(-2px);box-shadow:0 8px 32px var(--c-brand-glow)}
+.nc-next:active{transform:scale(.95);transition-duration:80ms}
 .nc-proof{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin:0 0 1rem;position:relative;z-index:1}
 .nc-proof-card{padding:.6rem .75rem;border-radius:.9rem;background:rgba(255,255,255,.95);border:1px solid rgba(30,16,199,.08);box-shadow:0 8px 24px rgba(17,32,199,.06)}
 .nc-proof-v{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;color:#0a0a1a;letter-spacing:-.03em}
@@ -268,12 +280,12 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 .ss-btns{display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
 .btn-pri{font-size:1rem;letter-spacing:.04em;text-transform:none;padding:1.25rem 3rem;background:#1E10C7;color:var(--c-white);border:none;border-radius:2rem;cursor:pointer;font-family:inherit;font-weight:700;transition:all var(--dur-mid);box-shadow:0 4px 24px rgba(30,16,199,.3)}
 .btn-pri:hover{background:#2A1FE0;transform:translateY(-2px);box-shadow:0 8px 36px rgba(30,16,199,.4)}
+.btn-pri:active{transform:scale(.95);transition-duration:80ms}
 /* text-only secondary */
 .btn-txt{background:none;border:none;font-family:inherit;font-size:.9rem;color:rgba(10,10,26,.4);cursor:pointer;padding:0;letter-spacing:.04em;transition:color .3s;pointer-events:auto;font-weight:500;display:inline-flex;align-items:center;gap:.4rem}
 .btn-txt:hover{color:#0a0a1a}
 .btn-txt::after{content:'→';transition:transform .3s}
 .btn-txt:hover::after{transform:translateX(4px)}
-.btn-pri:hover{background:#2A1FE0;transform:translateY(-2px);box-shadow:0 6px 28px var(--c-brand-glow)}
 .btn-sec{font-size:1rem;letter-spacing:.04em;text-transform:none;padding:1.3rem 3rem;background:transparent;color:var(--c-text);border:1px solid var(--c-border);border-radius:2rem;cursor:pointer;font-family:inherit;font-weight:600;transition:all .3s}
 .btn-sec:hover{color:#0a0a1a;border-color:rgba(10,10,26,.4);transform:translateY(-2px)}
 
@@ -406,6 +418,7 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 .csd-cta-msg em{font-style:normal;color:#EE4E00}
 .csd-cta-btn{display:inline-flex;align-items:center;gap:.8rem;padding:1rem 2.2rem;background:#EE4E00;color:#fff;border:none;border-radius:2.5rem;font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .25s;white-space:nowrap}
 .csd-cta-btn:hover{background:#d44200;transform:translateY(-2px);box-shadow:0 12px 32px rgba(238,78,0,.35)}
+.csd-cta-btn:active{transform:scale(.95);transition-duration:80ms}
 .csd-cta-btn svg{width:16px;height:16px;transition:transform .25s}
 .csd-cta-btn:hover svg{transform:translateX(4px)}
 /* Responsive */
@@ -451,12 +464,13 @@ body.on-hover #cur-r{width:60px;height:60px;border-color:rgba(30,16,199,.3)}
 select.fi{background:#f4f6ff;color:#0a0a1a;cursor:pointer}
 select.fi option{background:#f4f6ff;color:#0a0a1a}
 select.fi:hover{border-color:rgba(30,16,199,.5)}
-select.fi:focus{border-color:rgba(30,16,199,.6);background:#111}
+select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 .fi:focus,.ft:focus{border-color:rgba(30,16,199,.6);background:#eef1ff;box-shadow:0 0 20px rgba(30,16,199,.15)}
 .fi::placeholder,.ft::placeholder{color:rgba(10,10,26,.3)}
 .ft{resize:vertical;min-height:100px}
 .fsub{width:100%;padding:1.35rem;background:var(--c-brand);color:var(--c-white);border:none;border-radius:2rem;cursor:pointer;font-family:inherit;font-size:1rem;letter-spacing:.06em;text-transform:none;font-weight:700;transition:all var(--dur-mid);box-shadow:0 4px 20px var(--c-brand-glow)}
 .fsub:hover{background:var(--c-brand-h);transform:translateY(-3px);box-shadow:0 8px 36px var(--c-brand-glow),0 0 60px rgba(30,16,199,.2)}
+.fsub:active{transform:scale(.96);transition-duration:80ms}
 .fst{margin-top:.7rem;font-size:.75rem;color:rgba(10,10,26,.3);text-align:center;display:none}
 .fst.ok{color:#6858ff;display:block}
 .fst.err{color:#EE4E00;display:block}
@@ -489,6 +503,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#111}
 .prob-cta{margin-top:3rem;opacity:0;transform:translateY(10px)}
 .prob-cta-btn{display:inline-flex;align-items:center;gap:1rem;font-size:1rem;letter-spacing:.04em;text-transform:none;color:#fff;cursor:pointer;pointer-events:auto;font-weight:700;background:#1E10C7;border:none;border-radius:3rem;padding:1.2rem 3rem;font-family:inherit;transition:all var(--dur-mid);box-shadow:0 4px 24px rgba(30,16,199,.3)}
 .prob-cta-btn:hover{background:#2A1FE0;transform:translateY(-3px) scale(1.04);box-shadow:0 8px 40px rgba(30,16,199,.4)}
+.prob-cta-btn:active{transform:scale(.95);transition-duration:80ms}
 .prob-cta-btn .h-arr{transition:width .3s}
 .prob-cta-btn:hover .h-arr{width:52px}
 
@@ -806,7 +821,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#111}
     </div>
     <div class="ss-case-img" style="opacity:1;transform:none">
       <div class="ss-img-label">FLASHBACK : GYERIM<br>Launch Strategy Case</div>
-      <img src="cases/service/1.jpg" alt="Flashback Gyerim 전략 케이스">
+      <img src="cases/service/1.jpg" alt="Flashback Gyerim 브랜드 런칭 전략 케이스 스터디" loading="lazy" width="600" height="400">
     </div>
   </div>
 </div>
@@ -816,7 +831,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#111}
   <div class="ss-wrap">
     <div class="ss-case-img" style="opacity:1;transform:none">
       <div class="ss-img-label">IFS 프랜차이즈 박람회<br>COEX · Performance Case</div>
-      <img src="cases/service/2.png" alt="IFS 프랜차이즈 박람회 퍼포먼스 케이스">
+      <img src="cases/service/2.png" alt="IFS 프랜차이즈 박람회 퍼포먼스 마케팅 케이스 스터디" loading="lazy" width="600" height="400">
     </div>
     <div class="ss-c">
       <div class="ss-num">02 / Performance</div>
@@ -846,7 +861,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#111}
     </div>
     <div class="ss-case-img" style="opacity:1;transform:none">
       <div class="ss-img-label">라마다 플라자 제주<br>Content & SNS Case</div>
-      <img src="cases/service/3.png" alt="라마다 플라자 제주 콘텐츠 케이스">
+      <img src="cases/service/3.png" alt="라마다 플라자 제주 SNS 콘텐츠 마케팅 케이스 스터디" loading="lazy" width="600" height="400">
     </div>
   </div>
 </div>
@@ -855,7 +870,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#111}
 <div class="pnl ss" id="p-s3">
   <div class="ss-wrap">
     <div class="ss-case-img" style="opacity:1;transform:none">
-      <img src="cases/service/4.jpg" alt="브랜드 아이덴티티 케이스">
+      <img src="cases/service/4.jpg" alt="브랜드 아이덴티티 디자인 케이스 스터디" loading="lazy" width="600" height="400">
     </div>
     <div class="ss-c">
       <div class="ss-num">04 / Brand Identity</div>
@@ -1358,7 +1373,7 @@ document.addEventListener('mousemove',function(e){
   parMouse.x=(e.clientX/innerWidth-.5)*2;
   parMouse.y=-(e.clientY/innerHeight-.5)*2;
 },{passive:true});
-(function aC(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;CR.style.left=rx+'px';CR.style.top=ry+'px';requestAnimationFrame(aC);})();
+(function aC(){rx+=(mx-rx)*.18;ry+=(my-ry)*.18;CR.style.left=rx+'px';CR.style.top=ry+'px';requestAnimationFrame(aC);})();
 
 function hoverOn(){document.body.classList.add('on-hover')}
 function hoverOff(){document.body.classList.remove('on-hover')}
@@ -1432,7 +1447,7 @@ function goto(ns){
   var prev=cur; cur=ns;
   moveCam(ns);
   hidePanel(PMAP[prev]);
-  setTimeout(function(){openPanel(PMAP[ns],ns);},420);
+  setTimeout(function(){openPanel(PMAP[ns],ns);},280);
   update3D(ns);
   updateNav(ns);
   updateProg(ns);
@@ -1450,7 +1465,7 @@ function goBack(){
   var old=cur; cur=prev;
   moveCam(prev);
   hidePanel(PMAP[old]);
-  setTimeout(function(){openPanel(PMAP[prev],prev);},420);
+  setTimeout(function(){openPanel(PMAP[prev],prev);},280);
   update3D(prev);
   updateNav(prev);
   updateProg(prev);
@@ -1459,17 +1474,17 @@ function goBack(){
 function moveCam(s){
   var c=CAM_CFG[s];if(!c)return;
   parStr=c.par;
-  gsap.to(CAM.position,{x:c.p[0],y:c.p[1],z:c.p[2],duration:1.8,ease:'power3.inOut'});
-  gsap.to(camTgt,{x:c.t[0],y:c.t[1],z:c.t[2],duration:1.8,ease:'power3.inOut'});
+  gsap.to(CAM.position,{x:c.p[0],y:c.p[1],z:c.p[2],duration:1.2,ease:'power3.inOut'});
+  gsap.to(camTgt,{x:c.t[0],y:c.t[1],z:c.t[2],duration:1.2,ease:'power3.inOut'});
 }
 
 function hidePanel(id){
   var el=document.getElementById(id);if(!el)return;
   el.classList.remove('open');
-  el.style.transition='opacity .4s ease,transform .4s ease';
+  el.style.transition='opacity .25s ease,transform .25s ease';
   el.style.opacity='0';
-  el.style.transform='scale(.97) translateY(-16px)';
-  setTimeout(function(){el.style.display='none';el.style.transition='';el.style.transform='';},400);
+  el.style.transform='scale(.98) translateY(-10px)';
+  setTimeout(function(){el.style.display='none';el.style.transition='';el.style.transform='';},260);
 }
 
 function openPanel(id,state){
@@ -1478,8 +1493,8 @@ function openPanel(id,state){
   el.style.opacity='0';
   el.style.transform='scale(.97) translateY(20px)';
   el.classList.add('open');
-  el.style.transition='opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)';
-  setTimeout(function(){el.style.opacity='1';el.style.transform='scale(1) translateY(0)';},20);
+  el.style.transition='opacity .45s cubic-bezier(.16,1,.3,1),transform .45s cubic-bezier(.16,1,.3,1)';
+  setTimeout(function(){el.style.opacity='1';el.style.transform='scale(1) translateY(0)';},10);
   if(state===S.HERO)animHero();
   else if(state===S.PROB)animProb();
   else if(state===S.CORE||state===S.MOM||state===S.ORB)animNode(id);
@@ -1489,11 +1504,11 @@ function openPanel(id,state){
   else if(state===S.CT)animCt();
   if(state===S.ORBIT){
     var oh=document.getElementById('o-hint');
-    if(oh){oh.style.opacity='0';setTimeout(function(){oh.style.transition='opacity .8s';oh.style.opacity='1';},600);}
+    if(oh){oh.style.opacity='0';setTimeout(function(){oh.style.transition='opacity .6s';oh.style.opacity='1';},200);}
     var on=document.getElementById('orbit-nav');
-    if(on){on.style.opacity='0';setTimeout(function(){on.style.transition='opacity .8s ease';on.style.opacity='1';},900);}
+    if(on){on.style.opacity='0';setTimeout(function(){on.style.transition='opacity .6s ease';on.style.opacity='1';},380);}
     var os=document.getElementById('orbit-skip');
-    if(os){os.style.opacity='0';setTimeout(function(){os.style.transition='opacity .8s ease';os.style.opacity='1';},1200);}
+    if(os){os.style.opacity='0';setTimeout(function(){os.style.transition='opacity .6s ease';os.style.opacity='1';},560);}
   }
 }
 
@@ -1505,18 +1520,18 @@ function animHero(){
   });
   lines.forEach(function(l,i){
     l.style.transition='none';l.style.transform='translateY(110%)';
-    setTimeout(function(){l.style.transition='transform 1s cubic-bezier(.16,1,.3,1)';l.style.transform='translateY(0)';},260+i*140);
+    setTimeout(function(){l.style.transition='transform .8s cubic-bezier(.16,1,.3,1)';l.style.transform='translateY(0)';},140+i*100);
   });
   var eye=document.querySelector('.h-eye');
-  if(eye){eye.style.opacity='0';eye.style.transform='translateY(12px)';setTimeout(function(){eye.style.transition='opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)';eye.style.opacity='1';eye.style.transform='translateY(0)';},100);}
+  if(eye){eye.style.opacity='0';eye.style.transform='translateY(12px)';setTimeout(function(){eye.style.transition='opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)';eye.style.opacity='1';eye.style.transform='translateY(0)';},60);}
   var sub=document.querySelector('.h-sub');
-  if(sub){sub.style.opacity='0';sub.style.transform='translateY(12px)';setTimeout(function(){sub.style.transition='opacity .9s ease,transform .9s ease';sub.style.opacity='1';sub.style.transform='translateY(0)';},800);}
+  if(sub){sub.style.opacity='0';sub.style.transform='translateY(12px)';setTimeout(function(){sub.style.transition='opacity .7s ease,transform .7s ease';sub.style.opacity='1';sub.style.transform='translateY(0)';},480);}
   var chips=document.getElementById('hero-chip-row');
-  if(chips){chips.style.opacity='0';chips.style.transform='translateY(10px)';setTimeout(function(){chips.style.transition='opacity .9s ease,transform .9s ease';chips.style.opacity='1';chips.style.transform='translateY(0)';},920);}
+  if(chips){chips.style.opacity='0';chips.style.transform='translateY(10px)';setTimeout(function(){chips.style.transition='opacity .7s ease,transform .7s ease';chips.style.opacity='1';chips.style.transform='translateY(0)';},580);}
   var ctaGrp=document.querySelector('.h-cta-group');
-  if(ctaGrp){ctaGrp.style.opacity='0';ctaGrp.style.transform='translateY(10px)';setTimeout(function(){ctaGrp.style.transition='opacity .9s var(--ease-out),transform .9s var(--ease-out)';ctaGrp.style.opacity='1';ctaGrp.style.transform='translateY(0)';},1100);}
+  if(ctaGrp){ctaGrp.style.opacity='0';ctaGrp.style.transform='translateY(10px)';setTimeout(function(){ctaGrp.style.transition='opacity .7s var(--ease-out),transform .7s var(--ease-out)';ctaGrp.style.opacity='1';ctaGrp.style.transform='translateY(0)';},700);}
   var sh=document.getElementById('scroll-hint');
-  if(sh){sh.style.opacity='0';setTimeout(function(){sh.style.transition='opacity 1.2s';sh.style.opacity='1';},1600);}
+  if(sh){sh.style.opacity='0';setTimeout(function(){sh.style.transition='opacity 1s';sh.style.opacity='1';},1100);}
   var stats=document.getElementById('h-stats');
   if(stats){
     // Pure opacity fade — zero movement, no layout reflow, no wobble
@@ -1579,7 +1594,7 @@ function animHero(){
         },{threshold:0.4});
         io.observe(statsEl);
       })();
-    },1400);
+    },900);
   }
 }
 
@@ -1921,6 +1936,11 @@ document.getElementById('c').addEventListener('click',function(e){
 
 // ── ANIM LOOP ──
 var CLK=new THREE.Clock();
+function _orbNode(m,t){
+  var ot=(m===hovN&&m._frozenT!==undefined)?m._frozenT:t;
+  var a=m._a+ot*m._spd,tl=m._tilt;
+  m.position.set(m._r*Math.cos(a),m._r*Math.sin(a)*Math.cos(tl),m._r*Math.sin(a)*Math.sin(tl));
+}
 function unfreezeNode(m){
   if(!m||m._frozenT===undefined)return;
   // Adjust _a so planet resumes from frozen position
@@ -1937,18 +1957,11 @@ function animate(){
   nebPts.rotation.y=t*.018;
 
   if(orbitGrp.visible){
-    // Orbit group ALWAYS rotates — per-planet freeze via _frozenT
     orbitGrp.rotation.y=t*.055;
 
-    // Per-planet orbit: only hovered planet is frozen (uses its own _frozenT)
-    function orbNode(m){
-      var ot=(m===hovN&&m._frozenT!==undefined)?m._frozenT:t;
-      var a=m._a+ot*m._spd,tl=m._tilt;
-      m.position.set(m._r*Math.cos(a),m._r*Math.sin(a)*Math.cos(tl),m._r*Math.sin(a)*Math.sin(tl));
-    }
-    orbNode(momMesh); orbNode(orbMesh);
+    _orbNode(momMesh,t); _orbNode(orbMesh,t);
     // Mini dots — always live (never hovered, so always use t)
-    orbitGrp.children.forEach(function(c){if(c._gw)orbNode(c);});
+    orbitGrp.children.forEach(function(c){if(c._gw)_orbNode(c,t);});
     // Orbit rings — always live
     ringMeshes.forEach(function(r,i){
       r.rotation.z=r._baseZ+t*r._spd;
@@ -1978,9 +1991,13 @@ function animate(){
 }
 animate();
 
+var _resizeT;
 window.addEventListener('resize',function(){
-  CAM.aspect=innerWidth/innerHeight;CAM.updateProjectionMatrix();
-  R.setSize(innerWidth,innerHeight);
+  clearTimeout(_resizeT);
+  _resizeT=setTimeout(function(){
+    CAM.aspect=innerWidth/innerHeight;CAM.updateProjectionMatrix();
+    R.setSize(innerWidth,innerHeight);
+  },100);
 });
 
 // ── BUTTON WIRING ──
@@ -2045,7 +2062,7 @@ var FULL_SEQ=['hero','prob','orbit','core','mom','orb','svc','cli','ct'];
 var lastW=0;
 window.addEventListener('wheel',function(e){
   if(SCROLL_MODE)return;
-  var now=Date.now();if(now-lastW<600)return;lastW=now;
+  var now=Date.now();if(now-lastW<400)return;lastW=now;
   var idx=FULL_SEQ.indexOf(cur);
   if(idx<0){var mi=PMAIN.indexOf(cur);if(mi<0)return;if(e.deltaY>0&&mi<PMAIN.length-1)goto(PMAIN[mi+1]);else if(e.deltaY<0&&mi>0)goto(PMAIN[mi-1]);return;}
   if(e.deltaY>0&&idx<FULL_SEQ.length-1)goto(FULL_SEQ[idx+1]);
@@ -2058,7 +2075,7 @@ window.addEventListener('wheel',function(e){
   window.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
   window.addEventListener('touchend',function(e){
     if(SCROLL_MODE)return;
-    var now=Date.now();if(now-lastT<600)return;
+    var now=Date.now();if(now-lastT<400)return;
     var dx=e.changedTouches[0].clientX-tx;
     var dy=e.changedTouches[0].clientY-ty;
     if(Math.abs(dy)<Math.abs(dx)||Math.abs(dy)<40)return;
@@ -2115,13 +2132,13 @@ document.addEventListener('keydown',function(e){
         ph.style.display='flex';
         ph.style.opacity='0';
         ph.classList.add('open');
-        ph.style.transition='opacity .7s ease';
-        setTimeout(function(){ph.style.opacity='1';},20);
+        ph.style.transition='opacity .5s ease';
+        setTimeout(function(){ph.style.opacity='1';},10);
         animHero();
         updateProg(S.HERO);
-      },650);
+      },450);
     }
-  },1700);
+  },900);
 })();
 
 // ── CASE CAROUSEL ──
@@ -2300,7 +2317,7 @@ document.getElementById('form').addEventListener('submit',async function(e){
         message:d.message
       })
     });
-    if(!res.ok)throw new Error('supabase error '+res.status);
+    if(!res.ok)throw new Error('전송 실패');
     // Success
     form.style.transition='opacity .5s ease';
     form.style.opacity='0';
@@ -2308,7 +2325,10 @@ document.getElementById('form').addEventListener('submit',async function(e){
       form.style.display='none';
       var successDiv=document.createElement('div');
       successDiv.style.cssText='text-align:center;padding:3rem 1rem;';
-      successDiv.innerHTML='<div style="font-size:3rem;margin-bottom:1rem;">✓</div><h3 style="font-family:Space Grotesk,sans-serif;font-size:1.6rem;color:#fff;margin-bottom:.8rem;">문의가 접수되었습니다</h3><p style="color:rgba(255,255,255,.6);font-size:.95rem;">검토 후 빠르게 연락드리겠습니다.</p>';
+      var ck=document.createElement('div');ck.style.cssText='font-size:3rem;margin-bottom:1rem';ck.textContent='✓';
+      var sh3=document.createElement('h3');sh3.style.cssText='font-family:Space Grotesk,sans-serif;font-size:1.6rem;color:#fff;margin-bottom:.8rem';sh3.textContent='문의가 접수되었습니다';
+      var sp=document.createElement('p');sp.style.cssText='color:rgba(255,255,255,.6);font-size:.95rem';sp.textContent='검토 후 빠르게 연락드리겠습니다.';
+      successDiv.appendChild(ck);successDiv.appendChild(sh3);successDiv.appendChild(sp);
       successDiv.style.opacity='0';
       form.parentNode.appendChild(successDiv);
       gsap.to(successDiv,{opacity:1,y:0,duration:.6,ease:'power2.out'});
