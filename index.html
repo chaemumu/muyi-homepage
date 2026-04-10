@@ -237,14 +237,14 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .h-text-link{display:none}
 .h-link-arr{display:none}
 /* STATS — glass morphism dark */
-.h-stats{display:flex;gap:0;margin-top:3.2rem;opacity:0;border:1px solid rgba(140,162,255,.12);border-radius:var(--radius-lg);overflow:hidden;background:rgba(10,10,30,.4);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 8px 40px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);max-width:580px}
-.h-stat{padding:1.4rem 1.8rem;text-align:center;flex:1;min-width:0;position:relative;transition:background var(--dur-mid)}
+.h-stats{display:flex;gap:0;margin-top:3.2rem;opacity:0;border:1px solid rgba(140,162,255,.12);border-radius:var(--radius-lg);overflow:hidden;background:rgba(10,10,30,.4);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 8px 40px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);max-width:720px}
+.h-stat{padding:1.8rem 2.2rem;text-align:center;flex:1;min-width:0;position:relative;transition:background var(--dur-mid)}
 .h-stat:hover{background:rgba(140,162,255,.06)}
 .h-stat+.h-stat{border-left:1px solid rgba(140,162,255,.1)}
-.h-stat-n{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(1.9rem,3vw,2.6rem);font-weight:700;color:#fff;letter-spacing:-.03em;line-height:1.05;display:flex;align-items:flex-end;justify-content:center;gap:.2rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.h-stat-n{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2.2rem,3.6vw,3.2rem);font-weight:700;color:#fff;letter-spacing:-.03em;line-height:1.05;display:flex;align-items:flex-end;justify-content:center;gap:.2rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .h-stat-n .cnt{display:inline-flex;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1;white-space:nowrap}
 .h-stat-n em{color:var(--c-accent);font-style:normal;font-size:.62em;letter-spacing:-.02em;margin-bottom:.1rem}
-.h-stat-l{font-size:var(--text-xs);letter-spacing:.08em;text-transform:uppercase;color:rgba(200,210,255,.45);margin-top:.5rem;font-weight:600}
+.h-stat-l{font-size:var(--text-xs);letter-spacing:.08em;text-transform:uppercase;color:rgba(200,210,255,.45);margin-top:.5rem;font-weight:600;white-space:nowrap}
 .h-stat-ctx{display:none}
 
 /* SCROLL DOWN INDICATOR */
@@ -1554,13 +1554,19 @@ function openPanel(id,state){
 }
 
 function animHero(){
-  // ── EPIC HERO ANIMATION — GSAP Timeline ──
+  // ── EPIC HERO ANIMATION — Sphere first, then text ──
   var tl=gsap.timeline({defaults:{ease:'power3.out'}});
 
-  // 1. Eyebrow — fade in from above
+  // 0. Sphere scales in first — dramatic entrance
+  if(heroSphere){
+    heroGrp.scale.set(.4,.4,.4);
+    tl.to(heroGrp.scale,{x:1,y:1,z:1,duration:1.4,ease:'power2.out'},0);
+  }
+
+  // 1. Eyebrow — fade in after sphere
   var eye=document.querySelector('.h-eye');
   if(eye){eye.style.opacity='0';eye.style.transform='translateY(20px)';}
-  tl.to(eye,{opacity:1,y:0,duration:.8,delay:.6},'start');
+  tl.to(eye,{opacity:1,y:0,duration:.8},.8);
 
   // 2. Title lines — dramatic stagger reveal with clip
   var lines=document.querySelectorAll('.h-line-in');
@@ -1570,18 +1576,18 @@ function animHero(){
     l.style.opacity='1';
   });
   lines.forEach(function(l,i){
-    tl.to(l,{y:0,duration:1.0,ease:'power4.out'},0.7+i*.12);
+    tl.to(l,{y:0,duration:1.0,ease:'power4.out'},1.0+i*.12);
   });
 
   // 3. Subtitle — smooth fade
   var sub=document.getElementById('h-sub');
   if(sub){sub.style.opacity='0';sub.style.transform='translateY(18px)';}
-  tl.to(sub,{opacity:1,y:0,duration:.9},1.1);
+  tl.to(sub,{opacity:1,y:0,duration:.9},1.4);
 
   // 4. CTA group — pop in
   var ctaGrp=document.querySelector('.h-cta-group');
   if(ctaGrp){ctaGrp.style.opacity='0';ctaGrp.style.transform='translateY(16px) scale(.96)';}
-  tl.to(ctaGrp,{opacity:1,y:0,scale:1,duration:.8},1.3);
+  tl.to(ctaGrp,{opacity:1,y:0,scale:1,duration:.8},1.6);
 
   // 5. CTA button pulse after appearing
   var enterBtn=document.getElementById('enter-btn');
@@ -1590,7 +1596,7 @@ function animHero(){
       {boxShadow:'0 0 0 0 rgba(30,16,199,0), 0 4px 32px rgba(30,16,199,.4), inset 0 1px 0 rgba(255,255,255,.1)',duration:0},
       {boxShadow:'0 0 0 16px rgba(30,16,199,0), 0 4px 32px rgba(30,16,199,.55), inset 0 1px 0 rgba(255,255,255,.1)',duration:.6},
       {boxShadow:'0 0 0 0 rgba(30,16,199,0), 0 4px 32px rgba(30,16,199,.4), inset 0 1px 0 rgba(255,255,255,.1)',duration:.4}
-    ]},1.8);
+    ]},2.1);
   }
 
   // 6. Stats — glass panel slides up
@@ -1599,7 +1605,7 @@ function animHero(){
     stats.style.opacity='0';
     stats.style.transform='translateY(20px)';
     stats.style.transition='none';
-    tl.to(stats,{opacity:1,y:0,duration:.8},1.5);
+    tl.to(stats,{opacity:1,y:0,duration:.8},1.8);
     // Scroll hint
     var sh=document.getElementById('scroll-hint');
     if(sh){sh.style.opacity='0';setTimeout(function(){sh.style.transition='opacity 1.2s';sh.style.opacity='1';},2200);}
@@ -2004,11 +2010,11 @@ var heroMouseTarget={x:0,y:0},heroMouseCurrent={x:0,y:0};
     depthWrite:true
   });
 
-  heroSphere=new THREE.Mesh(new THREE.SphereGeometry(2.0,64,64),heroMat);
+  heroSphere=new THREE.Mesh(new THREE.SphereGeometry(2.5,64,64),heroMat);
   heroGrp.add(heroSphere);
 
   // Glow shells — layered atmosphere
-  var glowSizes=[2.4,2.9,3.6,4.5];
+  var glowSizes=[3.0,3.6,4.4,5.4];
   var glowOpacities=[.08,.05,.03,.015];
   var glowColors=[0x2820ee,0x4834f7,0x6858ff,0x8CA2FF];
   for(var i=0;i<glowSizes.length;i++){
@@ -2022,11 +2028,11 @@ var heroMouseTarget={x:0,y:0},heroMouseCurrent={x:0,y:0};
 
   // Hero rings — 5 concentric orbital rings
   var ringConfigs=[
-    {r:3.0,tube:.012,segs:180,tiltX:.18,tiltZ:.05,spd:.22,col:0x4834f7,op:.45},
-    {r:3.8,tube:.009,segs:200,tiltX:.32,tiltZ:-.08,spd:-.15,col:0x6858ff,op:.32},
-    {r:4.6,tube:.007,segs:220,tiltX:.12,tiltZ:.12,spd:.10,col:0x8CA2FF,op:.22},
-    {r:5.5,tube:.005,segs:240,tiltX:.42,tiltZ:-.04,spd:-.08,col:0x4455CC,op:.14},
-    {r:6.5,tube:.004,segs:260,tiltX:.26,tiltZ:.15,spd:.05,col:0x8CA2FF,op:.08}
+    {r:3.6,tube:.012,segs:180,tiltX:.18,tiltZ:.05,spd:.22,col:0x4834f7,op:.45},
+    {r:4.5,tube:.009,segs:200,tiltX:.32,tiltZ:-.08,spd:-.15,col:0x6858ff,op:.32},
+    {r:5.4,tube:.007,segs:220,tiltX:.12,tiltZ:.12,spd:.10,col:0x8CA2FF,op:.22},
+    {r:6.4,tube:.005,segs:240,tiltX:.42,tiltZ:-.04,spd:-.08,col:0x4455CC,op:.14},
+    {r:7.5,tube:.004,segs:260,tiltX:.26,tiltZ:.15,spd:.05,col:0x8CA2FF,op:.08}
   ];
   for(var i=0;i<ringConfigs.length;i++){
     var rc=ringConfigs[i];
