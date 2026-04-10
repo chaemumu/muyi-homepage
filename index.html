@@ -206,49 +206,41 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 #p-hero{flex-direction:column;text-align:left;padding:var(--nav-h) var(--edge-pad) 3rem;align-items:flex-start;perspective:1600px;overflow:visible;isolation:isolate}
 #p-hero::before{content:'';position:absolute;inset:12% auto auto -8%;width:42vw;height:42vw;max-width:640px;max-height:640px;border-radius:50%;background:radial-gradient(circle,rgba(30,16,199,.07) 0%,rgba(30,16,199,.03) 28%,rgba(30,16,199,.01) 56%,transparent 72%);filter:blur(18px);z-index:-2;animation:heroFloat 10s ease-in-out infinite}
 #p-hero::after{content:'';position:absolute;right:6%;top:18%;width:22vw;height:22vw;min-width:180px;min-height:180px;border-radius:50%;background:radial-gradient(circle,rgba(140,162,255,.06) 0%,rgba(140,162,255,.02) 35%,transparent 72%);filter:blur(10px);z-index:-2;animation:heroFloatAlt 12s ease-in-out infinite}
-.h-eye{font-size:var(--text-xs);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--c-brand);margin-bottom:1rem;font-weight:700;opacity:0;transform:translateY(8px)}
-.h-title{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2.6rem,5.2vw,4.8rem);font-weight:700;line-height:1.06;letter-spacing:-.045em;margin-bottom:1.6rem;color:#0a0a1a;position:relative;padding:.02em 0 .08em;overflow:visible;max-width:18ch}
+.h-eye{font-size:var(--text-xs);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--c-brand);margin-bottom:1.4rem;font-weight:700;opacity:0;transform:translateY(8px)}
+.h-title{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(3.4rem,7vw,7.2rem);font-weight:700;line-height:1.0;letter-spacing:-.055em;margin-bottom:2.4rem;color:#0a0a1a;position:relative;padding:.02em 0 .08em;overflow:visible;max-width:14ch}
 .h-line{display:block;overflow:visible;padding:.02em 0}
 .h-line-in{display:inline-block;position:relative;transform:translateY(110%);color:inherit}
 .h-line-in::before,.h-line-in::after{content:none}
 .h-title-grad{display:inline-block;color:#0a0a1a;background:none;-webkit-background-clip:border-box;-webkit-text-fill-color:currentColor;background-clip:border-box;-webkit-text-stroke:0}
-.h-sub{font-size:clamp(.92rem,1.3vw,1.05rem);color:var(--c-text);font-weight:400;max-width:480px;line-height:var(--lh-relaxed);margin:0 0 1.8rem;opacity:0;font-family:'Noto Sans KR','DM Sans',sans-serif;letter-spacing:-.01em}
-.hero-chip-row{display:flex;gap:.8rem;flex-wrap:wrap;margin:0 0 1.6rem;opacity:0}
-.hero-chip{display:inline-flex;align-items:center;gap:.55rem;padding:.6rem .9rem;border-radius:var(--radius-full);background:rgba(30,16,199,.05);border:1px solid rgba(30,16,199,.1);backdrop-filter:blur(16px);box-shadow:var(--shadow-sm);transition:all var(--dur-mid) var(--ease-out)}
-.hero-chip:hover{background:rgba(30,16,199,.08);border-color:rgba(30,16,199,.18);transform:translateY(-1px)}
-.hero-chip::before{content:'';width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,#fff 0%,#7f72ff 70%,#3f2aff 100%);box-shadow:0 0 12px rgba(111,96,255,.4);flex-shrink:0}
-.hero-chip span{font-size:var(--text-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--c-text);font-weight:600}
-.h-enter{display:inline-flex;align-items:center;gap:1rem;font-size:var(--text-md);letter-spacing:.04em;text-transform:none;color:var(--c-white);cursor:pointer;pointer-events:auto;font-weight:700;background:var(--c-brand);border:none;border-radius:var(--radius-full);padding:1.2rem 3rem;font-family:inherit;opacity:0;transition:all var(--dur-mid) var(--ease-out);box-shadow:0 4px 24px rgba(30,16,199,.3);position:relative;overflow:hidden}
-.h-enter::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12) 0%,transparent 50%);opacity:0;transition:opacity var(--dur-mid)}
-.h-enter:hover{background:var(--c-brand-h);transform:translateY(-3px);box-shadow:0 12px 40px rgba(30,16,199,.4)}
+.h-sub{display:none}
+.hero-chip-row{display:none}
+.h-enter{display:inline-flex;align-items:center;gap:1rem;font-size:clamp(1rem,1.4vw,1.15rem);letter-spacing:.04em;text-transform:none;color:var(--c-white);cursor:pointer;pointer-events:auto;font-weight:700;background:var(--c-brand);border:none;border-radius:var(--radius-full);padding:1.3rem 3.2rem;font-family:inherit;opacity:0;transition:all var(--dur-mid) var(--ease-out);box-shadow:0 4px 28px rgba(30,16,199,.35);position:relative;overflow:hidden}
+.h-enter::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.14) 0%,transparent 50%);opacity:0;transition:opacity var(--dur-mid)}
+.h-enter:hover{background:var(--c-brand-h);transform:translateY(-3px);box-shadow:0 14px 44px rgba(30,16,199,.45)}
 .h-enter:hover::before{opacity:1}
 .h-enter:active{transform:translateY(-1px) scale(.97);transition-duration:80ms}
 .h-arr{width:36px;height:2px;background:currentColor;position:relative;flex-shrink:0;transition:width .3s}
 .h-enter:hover .h-arr{width:52px}
 .h-arr::after{content:'';position:absolute;right:0;top:50%;transform:translateY(-50%) rotate(45deg);width:7px;height:7px;border-right:2px solid;border-top:2px solid}
 .h-cta-group{display:flex;align-items:center;gap:2rem;flex-wrap:wrap;opacity:0}
-.h-text-link{background:none;border:none;font-family:inherit;font-size:var(--text-base);font-weight:600;color:var(--c-text);cursor:pointer;pointer-events:auto;letter-spacing:.02em;display:inline-flex;align-items:center;gap:.4rem;transition:color var(--dur-mid),gap var(--dur-mid);padding:0;text-decoration:none;position:relative}
-.h-text-link::after{content:'';position:absolute;bottom:-.15rem;left:0;width:0;height:1px;background:var(--c-brand);transition:width var(--dur-mid) var(--ease-out)}
-.h-text-link:hover{color:var(--c-brand)}
-.h-text-link:hover::after{width:100%}
-.h-text-link:hover .h-link-arr{transform:translateY(3px)}
-.h-link-arr{display:inline-block;transition:transform var(--dur-fast);font-size:1.1rem}
-.h-stats{display:grid;grid-template-columns:repeat(3,minmax(200px,1fr));gap:1rem;margin-top:2.4rem;opacity:0}
-.h-stat{padding:1.8rem 1.6rem;text-align:left;background:#ffffff;border:1px solid var(--c-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);min-width:0;position:relative;transition:transform var(--dur-mid) var(--ease-out),box-shadow var(--dur-mid)}
-.h-stat:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
-.h-stat:first-child{padding-left:1.6rem}
-.h-stat+.h-stat{border-left:none}
-.h-stat-n{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2.6rem,4vw,3.6rem);font-weight:700;color:#0a0a1a;letter-spacing:-.03em;line-height:1.05;display:flex;align-items:flex-end;gap:.2rem;justify-content:flex-start;font-variant-numeric:tabular-nums;white-space:nowrap}
-.h-stat-n .cnt{display:inline-flex;justify-content:flex-end;width:5ch;min-width:5ch;text-align:right;transform-origin:bottom left;will-change:transform;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1;white-space:nowrap}
-.h-stat-n em{color:var(--c-brand);font-style:normal;font-size:.68em;letter-spacing:-.02em;margin-bottom:.1rem}
-.h-stat-l{font-size:var(--text-xs);letter-spacing:.08em;text-transform:uppercase;color:rgba(10,10,26,.7);margin-top:.9rem;font-weight:700}
-.h-stat-ctx{font-size:var(--text-xs);color:var(--c-subtle);margin-top:.45rem;letter-spacing:.01em;font-family:'Noto Sans KR','DM Sans',sans-serif;opacity:1;line-height:var(--lh-base)}
+.h-text-link{display:none}
+.h-link-arr{display:none}
+/* STATS — horizontal badge strip */
+.h-stats{display:flex;gap:0;margin-top:3rem;opacity:0;border:1px solid var(--c-border);border-radius:var(--radius-lg);overflow:hidden;background:#ffffff;box-shadow:var(--shadow-md);max-width:560px}
+.h-stat{padding:1.4rem 1.8rem;text-align:left;flex:1;min-width:0;position:relative;transition:background var(--dur-mid)}
+.h-stat:hover{background:#fafafe}
+.h-stat+.h-stat{border-left:1px solid var(--c-border)}
+.h-stat-n{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(1.9rem,3vw,2.6rem);font-weight:700;color:#0a0a1a;letter-spacing:-.03em;line-height:1.05;display:flex;align-items:flex-end;gap:.2rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.h-stat-n .cnt{display:inline-flex;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1;white-space:nowrap}
+.h-stat-n em{color:var(--c-brand);font-style:normal;font-size:.62em;letter-spacing:-.02em;margin-bottom:.1rem}
+.h-stat-l{font-size:var(--text-xs);letter-spacing:.06em;text-transform:uppercase;color:rgba(10,10,26,.55);margin-top:.5rem;font-weight:700}
+.h-stat-ctx{display:none}
 
 /* SCROLL DOWN INDICATOR */
-.scroll-hint{position:absolute;bottom:1.8rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;cursor:pointer;pointer-events:auto;opacity:0;transition:opacity var(--dur-slow)}
-.scroll-hint-txt{font-size:var(--text-xs);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--c-subtle);font-weight:600;transition:color var(--dur-mid)}
+.scroll-hint{position:absolute;bottom:2.4rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.7rem;cursor:pointer;pointer-events:auto;opacity:0;transition:opacity var(--dur-slow)}
+.scroll-hint-txt{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(10,10,26,.35);font-weight:700;transition:color var(--dur-mid)}
 .scroll-hint:hover .scroll-hint-txt{color:var(--c-brand)}
-.scroll-hint-arrow{width:22px;height:22px;border-right:2px solid var(--c-subtle);border-bottom:2px solid var(--c-subtle);transform:rotate(45deg);animation:scrollBounce 2.2s cubic-bezier(.45,.05,.55,.95) infinite;transition:border-color var(--dur-mid)}
+.scroll-hint-arrow{width:28px;height:28px;border-right:2px solid rgba(10,10,26,.25);border-bottom:2px solid rgba(10,10,26,.25);transform:rotate(45deg);animation:scrollBounce 1.8s cubic-bezier(.45,.05,.55,.95) infinite;transition:border-color var(--dur-mid)}
 .scroll-hint:hover .scroll-hint-arrow{border-color:var(--c-brand)}
 @keyframes scrollBounce{0%,100%{transform:rotate(45deg) translateY(0)}50%{transform:rotate(45deg) translateY(8px)}}
 
@@ -702,35 +694,25 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 <div class="pnl" id="p-hero">
   <p class="h-eye">Orbit Architecture · Brand Growth</p>
   <h1 class="h-title">
-    <span class="h-line"><span class="h-line-in h-title-grad">광고를 대행하지 않고</span></span>
-    <span class="h-line"><span class="h-line-in h-title-grad">브랜드 성장 시스템을</span></span>
-    <span class="h-line"><span class="h-line-in h-title-grad">직접 설계합니다.</span></span>
+    <span class="h-line"><span class="h-line-in h-title-grad">성장이 멈춘</span></span>
+    <span class="h-line"><span class="h-line-in h-title-grad">브랜드를 다시</span></span>
+    <span class="h-line"><span class="h-line-in h-title-grad">궤도에 올립니다.</span></span>
   </h1>
-  <p class="h-sub">전략·채널·퍼포먼스를 하나의 흐름으로 연결해<br>성과가 계속 쌓이는 구조를 만듭니다.</p>
-  <div class="hero-chip-row" id="hero-chip-row">
-    <div class="hero-chip"><span>광고 대행이 아닌 성장 설계</span></div>
-    <div class="hero-chip"><span>브랜드와 실행을 한 구조로</span></div>
-    <div class="hero-chip"><span>Enterprise IMC 대응</span></div>
-  </div>
   <div class="h-cta-group">
     <button class="h-enter" id="enter-btn">무료 진단 받기 <span class="h-arr"></span></button>
-    <button class="h-text-link" id="explore-btn">문제부터 보기 <span class="h-link-arr">↓</span></button>
   </div>
   <div class="h-stats" id="h-stats">
     <div class="h-stat">
       <div class="h-stat-n"><span class="cnt" data-to="500">0</span><em>+</em></div>
-      <div class="h-stat-l">누적 실행 프로젝트</div>
-      <div class="h-stat-ctx">다양한 예산 구간 직접 운영</div>
+      <div class="h-stat-l">실행 프로젝트</div>
     </div>
     <div class="h-stat">
       <div class="h-stat-n"><span class="cnt" data-to="37">0</span><em>+</em></div>
-      <div class="h-stat-l">운영 · 컨설팅 브랜드</div>
-      <div class="h-stat-ctx">F&amp;B · 뷰티 · 라이프스타일 중심</div>
+      <div class="h-stat-l">운영 브랜드</div>
     </div>
     <div class="h-stat">
       <div class="h-stat-n"><span class="cnt" data-to="7">0</span><em>년</em></div>
-      <div class="h-stat-l">IMC 전략 실무</div>
-      <div class="h-stat-ctx">전략부터 운영까지 일관되게</div>
+      <div class="h-stat-l">IMC 실무</div>
     </div>
   </div>
   <div class="scroll-hint" id="scroll-hint" onclick="window._go('prob')">
@@ -1430,7 +1412,7 @@ var S={HERO:'hero',PROB:'prob',ORBIT:'orbit',CORE:'core',MOM:'mom',ORB:'orb',SVC
 var cur=S.HERO,hist=[];
 
 var CAM_CFG={
-  hero:   {p:[0,0,16],   t:[0,0,0],   par:.8},
+  hero:   {p:[0,0,11],   t:[0,0,0],   par:.9},
   prob:   {p:[0,0,15],   t:[0,0,0],   par:.6},
   orbit:  {p:[0,1.4,10.8],  t:[0,.6,0],   par:.35},
   core:   {p:[-3.5,1.1,7.4],t:[-1.5,.6,0],par:.2},
