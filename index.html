@@ -38,7 +38,7 @@
   "url":"https://www.muyi.co.kr",
   "logo":"https://www.muyi.co.kr/assets/case-images/og-image.png",
   "description":"마케팅 컨설팅, 퍼포먼스 마케팅, 브랜드 전략부터 SNS 운영까지. 맞춤 성장 구조를 설계합니다.",
-  "address":{"@type":"PostalAddress","streetAddress":"디지털로 178 B1313","addressLocality":"금천구","addressRegion":"서울특별시","postalCode":"08512","addressCountry":"KR"},
+  "address":{"@type":"PostalAddress","streetAddress":"디지털로 178 퍼블릭 가산 B동","addressLocality":"금천구","addressRegion":"서울특별시","postalCode":"08512","addressCountry":"KR"},
   "contactPoint":{"@type":"ContactPoint","email":"info@muyi.co.kr","contactType":"sales","availableLanguage":"Korean"},
   "areaServed":"KR",
   "sameAs":[]
@@ -61,7 +61,7 @@
   "areaServed":"KR",
   "priceRange":"₩₩",
   "serviceType":["브랜드 전략 컨설팅","퍼포먼스 마케팅","SNS 콘텐츠 마케팅","IMC 통합 마케팅","공공기관 홍보 대행","소상공인 마케팅","B2B 마케팅","그로스 마케팅","CRM 마케팅","콘텐츠 마케팅"],
-  "address":{"@type":"PostalAddress","streetAddress":"디지털로 178 B1313","addressLocality":"금천구","addressRegion":"서울특별시","addressCountry":"KR"},
+  "address":{"@type":"PostalAddress","streetAddress":"디지털로 178 퍼블릭 가산 B동","addressLocality":"금천구","addressRegion":"서울특별시","addressCountry":"KR"},
   "geo":{"@type":"GeoCoordinates","latitude":"37.49795","longitude":"126.90313"},
   "openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"09:00","closes":"18:00"}
 }</script>
@@ -145,7 +145,7 @@ body.scroll-mode #p-cli{min-height:100svh}
 body.scroll-mode #p-svc,
 body.scroll-mode #p-case{min-height:auto}
 body.scroll-mode #p-cs{min-height:100svh}
-body.scroll-mode #p-ct{min-height:100svh}
+body.scroll-mode #p-ct{min-height:100svh;background:#ffffff}
 
 /* CURSOR */
 #cur-d{position:fixed;z-index:9999;pointer-events:none;width:5px;height:5px;border-radius:50%;background:#EE4E00;transform:translate(-50%,-50%);mix-blend-mode:normal;transition:width var(--dur-fast),height var(--dur-fast);will-change:transform}
@@ -196,14 +196,11 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 #back:hover .back-inner{color:rgba(10,10,26,.8)}
 
 /* PROGRESS */
-#prog{position:fixed;bottom:1.6rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;z-index:150;opacity:0;transition:opacity .4s,background-color .6s,border-color .6s;pointer-events:none;background-color:rgba(10,10,26,.07);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:100px;padding:4px;border:1px solid rgba(10,10,26,.08)}
+#prog{position:fixed;bottom:1.6rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;z-index:150;opacity:0;transition:opacity .4s;pointer-events:none;background-color:rgba(10,10,26,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:100px;padding:4px;border:1px solid rgba(140,162,255,.12)}
 #prog.vis{opacity:1;pointer-events:auto}
-#prog.prog-dark{background-color:rgba(200,210,255,.1);border-color:rgba(140,162,255,.15)}
 #prog-slider{position:absolute;top:4px;height:calc(100% - 8px);background:var(--c-brand);border-radius:100px;transition:left .32s cubic-bezier(.4,0,.2,1),width .32s cubic-bezier(.4,0,.2,1);z-index:0;pointer-events:none}
-.pt{position:relative;z-index:1;background:none;border:none;cursor:pointer;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.42rem .88rem;border-radius:100px;color:rgba(10,10,26,.45);transition:color .3s;font-family:inherit;white-space:nowrap}
+.pt{position:relative;z-index:1;background:none;border:none;cursor:pointer;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.42rem .88rem;border-radius:100px;color:rgba(200,210,255,.45);transition:color .3s;font-family:inherit;white-space:nowrap}
 .pt.on{color:#ffffff}
-.prog-dark .pt{color:rgba(200,210,255,.45)}
-.prog-dark .pt.on{color:#ffffff}
 
 /* UI LAYER */
 #ui{position:fixed;inset:0;z-index:100;pointer-events:none}
@@ -260,7 +257,7 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 @keyframes heroGlow{0%,100%{opacity:.7;transform:translate(-50%,-52%) scale(1)}50%{opacity:1;transform:translate(-50%,-52%) scale(1.08)}}
 
 /* ORBIT HINT & NAV */
-#p-orbit{flex-direction:column;align-items:center;justify-content:flex-end;padding:var(--nav-h) var(--edge-pad) 2.5rem;gap:.7rem;background:#ffffff}
+#p-orbit{flex-direction:column;align-items:center;justify-content:flex-end;padding:var(--nav-h) var(--edge-pad) 2.5rem;gap:.7rem}
 .o-hint{font-size:.82rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(10,10,26,.4);font-weight:600;opacity:0;margin-top:auto;margin-bottom:.2rem}
 .orbit-nav{display:flex;flex-direction:column;gap:.55rem;opacity:0;width:min(660px,100% - 3rem)}
 .orbit-btn{position:relative;display:flex;flex-direction:row;align-items:center;gap:1.1rem;padding:1.3rem 1.8rem;border:1px solid var(--c-border);border-radius:var(--radius-md);background:#f6f7ff;backdrop-filter:blur(18px);cursor:pointer;transition:all var(--dur-mid) var(--ease-out);pointer-events:auto;text-align:left;width:100%;overflow:hidden;box-shadow:var(--shadow-sm)}
@@ -1327,7 +1324,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
     </div>
     <div class="ct-info">
       <div class="ct-row"><span class="ct-key">이메일</span><span class="ct-val"><a href="mailto:info@muyi.co.kr" style="color:inherit;text-decoration:none">info@muyi.co.kr</a></span></div>
-      <div class="ct-row"><span class="ct-key">위치</span><span class="ct-val">서울시 금천구 디지털로 178 B1313</span></div>
+      <div class="ct-row"><span class="ct-key">위치</span><span class="ct-val">서울시 금천구 디지털로 178 퍼블릭 가산 B동</span></div>
     </div>
   </div>
   <div class="ct-col">
@@ -1860,16 +1857,14 @@ function updateProg(s){
   var pg=document.getElementById('prog');
   var idx=PMAIN.indexOf(s);
   pg.classList.toggle('vis',idx>=0);
-  // Dark mode for hero
-  var isDark=s===S.HERO;
-  pg.style.backgroundColor=isDark?'rgba(200,210,255,.1)':'rgba(10,10,26,.07)';
-  pg.style.borderColor=isDark?'rgba(140,162,255,.15)':'rgba(10,10,26,.08)';
-  pg.querySelectorAll('.pt').forEach(function(b){
-    if(!b.classList.contains('on')){b.style.color=isDark?'rgba(200,210,255,.45)':'rgba(10,10,26,.45)';}
-    else{b.style.color='#ffffff';}
-  });
+  // Always dark style
+  pg.style.backgroundColor='rgba(10,10,26,.82)';
+  pg.style.borderColor='rgba(140,162,255,.12)';
   var btns=document.querySelectorAll('.pt');
   btns.forEach(function(b,i){b.classList.toggle('on',i===idx);});
+  btns.forEach(function(b){
+    b.style.color=b.classList.contains('on')?'#ffffff':'rgba(200,210,255,.45)';
+  });
   var slider=document.getElementById('prog-slider');
   if(slider&&idx>=0&&btns[idx]){
     var btn=btns[idx];
@@ -2689,7 +2684,7 @@ function initMap(){
   var container=document.getElementById('mapContainer');
   if(!container||typeof L==='undefined')return;
 
-  // 서울시 금천구 디지털로 178 (에이스하이엔드타워 3차) B1313
+  // 서울시 금천구 디지털로 178 퍼블릭 가산 B동
   var lat=37.47695, lng=126.88537;
 
   mapInstance=L.map(container,{
@@ -2717,7 +2712,7 @@ function initMap(){
 
   L.marker([lat,lng],{icon:icon})
     .addTo(mapInstance)
-    .bindPopup('<b>MUYI</b><br>서울시 금천구 디지털로 178 B1313');
+    .bindPopup('<b>MUYI</b><br>서울시 금천구 디지털로 178 퍼블릭 가산 B동');
 }
 </script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
