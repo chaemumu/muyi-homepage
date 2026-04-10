@@ -687,12 +687,12 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 
 <div id="prog">
   <div id="prog-slider"></div>
-  <button class="pt on" onclick="window._go('hero')">홈</button>
-  <button class="pt" onclick="window._go('prob')">문제</button>
-  <button class="pt" onclick="window._go('orbit')">솔루션</button>
-  <button class="pt" onclick="window._go('svc')">서비스</button>
-  <button class="pt" onclick="window._go('cli')">고객사</button>
-  <button class="pt" onclick="window._go('ct')">문의</button>
+  <button class="pt on" data-s="hero">Home</button>
+  <button class="pt" data-s="prob">Pain</button>
+  <button class="pt" data-s="orbit">Orbit</button>
+  <button class="pt" data-s="svc">Work</button>
+  <button class="pt" data-s="cli">Clients</button>
+  <button class="pt" data-s="ct">Contact</button>
 </div>
 
 <div id="orbit-tooltip"><div class="ot-name"></div><div class="ot-desc"></div></div>
@@ -1819,6 +1819,44 @@ function updateProg(s){
     slider.style.top='4px';
   }
 }
+
+// ── PROG NAV: hold + drag to slide ──
+(function(){
+  var pressing=false;
+  var pg=document.getElementById('prog');
+
+  function getBtnAt(x,y){
+    var els=document.elementsFromPoint(x,y);
+    for(var i=0;i<els.length;i++){if(els[i].classList.contains('pt'))return els[i];}
+    return null;
+  }
+  function activate(btn){
+    if(!btn)return;
+    var s=btn.dataset.s;
+    if(s&&s!==cur)window._go(s);
+  }
+
+  pg.addEventListener('mousedown',function(e){
+    pressing=true;
+    activate(e.target.closest('.pt'));
+  });
+  document.addEventListener('mousemove',function(e){
+    if(!pressing)return;
+    activate(getBtnAt(e.clientX,e.clientY));
+  });
+  document.addEventListener('mouseup',function(){pressing=false;});
+
+  pg.addEventListener('touchstart',function(e){
+    pressing=true;
+    activate(e.target.closest('.pt'));
+  },{passive:true});
+  document.addEventListener('touchmove',function(e){
+    if(!pressing)return;
+    var t=e.touches[0];
+    activate(getBtnAt(t.clientX,t.clientY));
+  },{passive:true});
+  document.addEventListener('touchend',function(){pressing=false;});
+})();
 
 function initScrollMode(){
   document.documentElement.classList.add('scroll-mode');
