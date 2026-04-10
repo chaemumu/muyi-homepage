@@ -292,7 +292,7 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 #orbit-tooltip .ot-desc{font-size:.8rem;color:rgba(10,10,26,.55);margin-top:.18rem;letter-spacing:.02em}
 
 /* NODE PANELS */
-.npnl{justify-content:flex-end;padding:var(--nav-h) var(--edge-pad) 3rem var(--edge-pad);padding-right:var(--edge-pad);align-items:center;background:#ffffff}
+.npnl{justify-content:flex-end;padding:var(--nav-h) var(--edge-pad) 3rem var(--edge-pad);padding-right:var(--edge-pad);align-items:center}
 .npnl.lft{justify-content:flex-start;padding:var(--nav-h) var(--edge-pad) 3rem var(--edge-pad);padding-left:var(--edge-pad)}
 .nc{max-width:580px;display:flex;flex-direction:column;justify-content:flex-start;gap:.8rem;opacity:0;transform:translateX(30px);padding:1.6rem 1.8rem 1.4rem;border:1px solid var(--c-border);border-radius:var(--radius-xl);background:#ffffff;backdrop-filter:blur(18px);box-shadow:var(--shadow-xl);position:relative;overflow:hidden;min-height:auto;max-height:calc(100vh - var(--nav-h) - 3rem);overflow-y:auto}
 .nc::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at top left,var(--card-glow,rgba(110,96,255,.12)) 0%,transparent 50%);opacity:.75;pointer-events:none}
@@ -344,7 +344,7 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 }
 
 /* SERVICE PATHS */
-#p-svc{position:absolute;inset:0;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;padding:calc(var(--nav-h) + .5rem) var(--edge-pad) 1.5rem;gap:.6rem;background:#ffffff}
+#p-svc{position:absolute;inset:0;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;padding:calc(var(--nav-h) + .5rem) var(--edge-pad) 1.5rem;gap:.6rem}
 .sl{cursor:pointer;pointer-events:auto;opacity:0;transform:scale(.94) translateY(8px);transition:all var(--dur-mid) var(--ease-out);padding:1.4rem 1.6rem 1.2rem;border:1px solid var(--c-border);border-radius:var(--radius-lg);display:flex;flex-direction:column;justify-content:flex-start;position:relative;overflow:hidden;background:#f6f7ff;box-shadow:var(--shadow-sm);backdrop-filter:blur(12px)}
 .sl::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(30,16,199,.06),transparent 70%);opacity:0;transition:opacity .5s}
 .sl::after{content:'';position:absolute;inset:1px;border-radius:inherit;border:1px solid rgba(255,255,255,.05);pointer-events:none}
@@ -361,7 +361,7 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .sl:hover .sl-line{width:110px}
 
 /* SERVICE MICRO-SCENES */
-.ss{padding:var(--nav-h) var(--edge-pad) clamp(2rem,4vw,3rem);gap:3rem;background:#ffffff}
+.ss{padding:var(--nav-h) var(--edge-pad) clamp(2rem,4vw,3rem);gap:3rem}
 .ss-c{max-width:540px;flex:1}
 #p-s0 .ss-c,#p-s2 .ss-c{margin-left:0;margin-right:auto}
 #p-s1 .ss-c,#p-s3 .ss-c{margin-left:auto;margin-right:0}
@@ -1795,8 +1795,9 @@ function animCt(){
 
 function update3D(s){
   var isHeroState=s===S.HERO;
-  // Dark/light background transition
-  var targetBg=isHeroState?{r:0.020,g:0.016,b:0.055}:{r:1,g:1,b:1};
+  // Dark/light background transition — keep dark for orbit states so 3D is visible
+  var isOrbitState=[S.ORBIT,S.CORE,S.MOM,S.ORB].indexOf(s)>=0;
+  var targetBg=(isHeroState||isOrbitState)?{r:0.020,g:0.016,b:0.055}:{r:1,g:1,b:1};
   gsap.to(R.getClearColor(),{r:targetBg.r,g:targetBg.g,b:targetBg.b,duration:1.2,ease:'power2.inOut'});
 
   if(SCROLL_MODE){
