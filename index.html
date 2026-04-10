@@ -2686,14 +2686,14 @@ function initMap(){
   if(!container||typeof L==='undefined')return;
 
   // 서울시 금천구 디지털로 178 퍼블릭 가산 B동
-  var lat=37.47695, lng=126.88537;
+  var lat=37.47570, lng=126.88610;
 
   mapInstance=L.map(container,{
     center:[lat,lng],
     zoom:16,
     zoomControl:true,
     attributionControl:false,
-    scrollWheelZoom:false
+    scrollWheelZoom:true
   });
 
   // CartoDB Positron — 간결한 회색 타일
@@ -2714,6 +2714,15 @@ function initMap(){
   L.marker([lat,lng],{icon:icon})
     .addTo(mapInstance)
     .bindPopup('<b>MUYI</b><br>서울시 금천구 디지털로 178 퍼블릭 가산 B동');
+
+  // MUYI 라벨 — 마커 옆에 항상 표시
+  var label=L.divIcon({
+    html:'<div style="font-family:Space Grotesk,DM Sans,sans-serif;font-size:13px;font-weight:700;color:#1E10C7;white-space:nowrap;text-shadow:0 0 4px #fff,0 0 4px #fff,0 0 4px #fff">MUYI</div>',
+    className:'',
+    iconSize:[50,20],
+    iconAnchor:[-8,28]
+  });
+  L.marker([lat,lng],{icon:label,interactive:false}).addTo(mapInstance);
 }
 </script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
