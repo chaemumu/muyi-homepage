@@ -189,10 +189,11 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 #back:hover .back-inner{color:rgba(10,10,26,.8)}
 
 /* PROGRESS */
-#prog{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;gap:.5rem;align-items:center;z-index:150;opacity:0;transition:opacity .4s;pointer-events:none}
-#prog.vis{opacity:1}
-.pd{width:6px;height:6px;border-radius:50%;background:rgba(10,10,26,.15);transition:all .4s}
-.pd.on{background:#EE4E00;width:28px;border-radius:4px}
+#prog{position:fixed;bottom:1.6rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;z-index:150;opacity:0;transition:opacity .4s;pointer-events:none;background:rgba(10,10,26,.07);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:100px;padding:4px;border:1px solid rgba(10,10,26,.08)}
+#prog.vis{opacity:1;pointer-events:auto}
+#prog-slider{position:absolute;top:4px;height:calc(100% - 8px);background:var(--c-brand);border-radius:100px;transition:left .32s cubic-bezier(.4,0,.2,1),width .32s cubic-bezier(.4,0,.2,1);z-index:0;pointer-events:none}
+.pt{position:relative;z-index:1;background:none;border:none;cursor:pointer;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.42rem .88rem;border-radius:100px;color:rgba(10,10,26,.45);transition:color .3s;font-family:inherit;white-space:nowrap}
+.pt.on{color:#ffffff}
 
 /* UI LAYER */
 #ui{position:fixed;inset:0;z-index:100;pointer-events:none}
@@ -685,12 +686,13 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 <div id="back"><div class="back-inner">Back</div></div>
 
 <div id="prog">
-  <div class="pd on"></div>
-  <div class="pd"></div>
-  <div class="pd"></div>
-  <div class="pd"></div>
-  <div class="pd"></div>
-  <div class="pd"></div>
+  <div id="prog-slider"></div>
+  <button class="pt on" onclick="window._go('hero')">홈</button>
+  <button class="pt" onclick="window._go('prob')">문제</button>
+  <button class="pt" onclick="window._go('orbit')">솔루션</button>
+  <button class="pt" onclick="window._go('svc')">서비스</button>
+  <button class="pt" onclick="window._go('cli')">고객사</button>
+  <button class="pt" onclick="window._go('ct')">문의</button>
 </div>
 
 <div id="orbit-tooltip"><div class="ot-name"></div><div class="ot-desc"></div></div>
@@ -1807,7 +1809,15 @@ function updateProg(s){
   var pg=document.getElementById('prog');
   var idx=PMAIN.indexOf(s);
   pg.classList.toggle('vis',idx>=0);
-  document.querySelectorAll('.pd').forEach(function(d,i){d.classList.toggle('on',i===idx);});
+  var btns=document.querySelectorAll('.pt');
+  btns.forEach(function(b,i){b.classList.toggle('on',i===idx);});
+  var slider=document.getElementById('prog-slider');
+  if(slider&&idx>=0&&btns[idx]){
+    var btn=btns[idx];
+    slider.style.left=btn.offsetLeft+'px';
+    slider.style.width=btn.offsetWidth+'px';
+    slider.style.top='4px';
+  }
 }
 
 function initScrollMode(){
