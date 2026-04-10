@@ -1200,34 +1200,34 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 <!-- CONTACT -->
 <div class="pnl" id="p-ct">
   <!-- Location Map — Group 8 from Figma #40 -->
-  <div class="ct-map-bg" id="ctMapBg" style="position:relative;background:#000;overflow:hidden;">
+  <div class="ct-map-bg" id="ctMapBg" style="position:relative;background:#f8f8f8;overflow:hidden;">
     <div class="ct-map-fade"></div>
 
     <!-- Map Container -->
     <svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 2800 1378" preserveAspectRatio="xMidYMid slice">
       <defs>
         <style>
-          .map-label { font-family: Pretendard, sans-serif; font-size: 17.6px; font-weight: 500; fill: #fff; text-anchor: middle; }
+          .map-label { font-family: Pretendard, sans-serif; font-size: 17.6px; font-weight: 500; fill: #1a1a1a; text-anchor: middle; }
           .map-label-left { text-anchor: start; }
           .map-label-multiline { line-height: 1.1; }
         </style>
       </defs>
 
-      <!-- Background vectors (road lines) -->
-      <image x="1252" y="172" width="783" height="452" href="https://www.figma.com/api/mcp/asset/e423bebd-c9e1-44be-9e13-462fa4095e96" />
-      <image x="1620" y="550" width="450" height="100" href="https://www.figma.com/api/mcp/asset/ad295f93-92e3-41c7-a623-52725f684748" />
+      <!-- Background vectors (road lines) - inverted to black -->
+      <image x="1252" y="172" width="783" height="452" href="https://www.figma.com/api/mcp/asset/e423bebd-c9e1-44be-9e13-462fa4095e96" style="filter:invert(1);" />
+      <image x="1620" y="550" width="450" height="100" href="https://www.figma.com/api/mcp/asset/ad295f93-92e3-41c7-a623-52725f684748" style="filter:invert(1);" />
 
-      <!-- Road lines (rotated) -->
-      <g transform="translate(1695, 400) rotate(71.96)">
+      <!-- Road lines (rotated) - inverted to black -->
+      <g transform="translate(1695, 400) rotate(71.96)" style="filter:invert(1);">
         <image x="-724" y="-10" width="1449" height="20" href="https://www.figma.com/api/mcp/asset/f58fa465-ddc7-4c65-a44e-81dcfeacefad" />
       </g>
-      <g transform="translate(1784, 400) rotate(58.42)">
+      <g transform="translate(1784, 400) rotate(58.42)" style="filter:invert(1);">
         <image x="-724" y="-5" width="1449" height="10" href="https://www.figma.com/api/mcp/asset/a54dec75-8801-4db1-a229-cf40d7e1b1f7" />
       </g>
-      <g transform="translate(1950, 750) rotate(159.53)">
+      <g transform="translate(1950, 750) rotate(159.53)" style="filter:invert(1);">
         <image x="-607" y="-7" width="1214" height="14" href="https://www.figma.com/api/mcp/asset/862f065f-4cf5-4b0b-869f-ec6266da8193" />
       </g>
-      <g transform="translate(2295, 920) rotate(149.13)">
+      <g transform="translate(2295, 920) rotate(149.13)" style="filter:invert(1);">
         <image x="-312" y="-5" width="624" height="10" href="https://www.figma.com/api/mcp/asset/d86f8295-1f31-441d-82ee-a0a7afd37c8b" />
       </g>
 
@@ -1263,16 +1263,16 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       <text class="map-label map-label-left" x="2023" y="690">마리오아울렛</text>
 
       <!-- Marker circles -->
-      <circle cx="2285" cy="722" r="3.3" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.6" />
-      <circle cx="1990" cy="536" r="3.3" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.6" />
-      <circle cx="1915" cy="525" r="3.3" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.6" />
-      <circle cx="1800" cy="615" r="3.3" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.6" />
-      <circle cx="2106" cy="1117" r="3.3" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.6" />
-      <circle cx="2346" cy="1049" r="3.3" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.6" />
-      <circle cx="1851" cy="784" r="3.3" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.6" />
-      <circle cx="1993" cy="1205" r="3.3" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.6" />
+      <circle cx="2285" cy="722" r="3.3" fill="none" stroke="#999" stroke-width="1.5" opacity="0.7" />
+      <circle cx="1990" cy="536" r="3.3" fill="none" stroke="#999" stroke-width="1.5" opacity="0.7" />
+      <circle cx="1915" cy="525" r="3.3" fill="none" stroke="#999" stroke-width="1.5" opacity="0.7" />
+      <circle cx="1800" cy="615" r="3.3" fill="none" stroke="#999" stroke-width="1.5" opacity="0.7" />
+      <circle cx="2106" cy="1117" r="3.3" fill="none" stroke="#999" stroke-width="1.5" opacity="0.7" />
+      <circle cx="2346" cy="1049" r="3.3" fill="none" stroke="#999" stroke-width="1.5" opacity="0.7" />
+      <circle cx="1851" cy="784" r="3.3" fill="none" stroke="#999" stroke-width="1.5" opacity="0.7" />
+      <circle cx="1993" cy="1205" r="3.3" fill="none" stroke="#999" stroke-width="1.5" opacity="0.7" />
       <circle cx="2125" cy="685" r="3.3" fill="none" stroke="#EE4E00" stroke-width="1.5" />
-      <circle cx="2206" cy="487" r="3.3" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.6" />
+      <circle cx="2206" cy="487" r="3.3" fill="none" stroke="#999" stroke-width="1.5" opacity="0.7" />
 
       <!-- MUYI logo marker -->
       <g transform="translate(1793, 414)">
@@ -1282,7 +1282,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 
     <!-- MUYI Logo overlay -->
     <div style="position:absolute;bottom:8%;right:15%;transform:translateX(50%);z-index:10;">
-      <img src="https://www.figma.com/api/mcp/asset/460bcbdf-97c5-4c1d-abad-2414a98ce357" alt="MUYI" loading="lazy" style="width:100px;height:auto;filter:drop-shadow(0 0 20px rgba(255,255,255,0.1));">
+      <img src="https://www.figma.com/api/mcp/asset/460bcbdf-97c5-4c1d-abad-2414a98ce357" alt="MUYI" loading="lazy" style="width:100px;height:auto;filter:drop-shadow(0 0 15px rgba(0,0,0,0.08));">
     </div>
   </div>
   <div class="ct-col">
