@@ -1,6 +1,15 @@
+# 모든 검색 로봇 — 전체 허용
 User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /.well-known/
+
+# 네이버 검색로봇(Yeti) — 명시적 전체 허용
+User-agent: Yeti
+Allow: /
+Disallow: /api/
+
+# JS / CSS 리소스 수집 허용 (네이버 가이드 권장)
+# 별도 차단 없이 Allow: / 로 포함됨
 
 Sitemap: https://www.muyi.co.kr/sitemap.xml
