@@ -1,9 +1,31 @@
 {
   "version": 2,
   "builds": [
-    { "src": "index.html", "use": "@vercel/static" }
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "self-employed.html", "use": "@vercel/static" },
+    { "src": "b2b-marketing.html", "use": "@vercel/static" },
+    { "src": "public-sector.html", "use": "@vercel/static" },
+    { "src": "sitemap.xml", "use": "@vercel/static" },
+    { "src": "robots.txt", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/navercf8e2c196459dc3679eb7ad7799fb33c.html", "dest": "/navercf8e2c196459dc3679eb7ad7799fb33c.html" },
+    { "src": "/sitemap.xml", "dest": "/sitemap.xml" },
+    { "src": "/robots.txt", "dest": "/robots.txt" },
+    { "src": "/self-employed", "dest": "/self-employed.html" },
+    { "src": "/b2b-marketing", "dest": "/b2b-marketing.html" },
+    { "src": "/public-sector", "dest": "/public-sector.html" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/cases/(.*)", "dest": "/cases/$1" },
     { "src": "/(.*)", "dest": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+      ]
+    }
   ]
 }

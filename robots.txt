@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /assets/
+Disallow: /playwright-mcp/
+
+Sitemap: https://www.muyi.co.kr/sitemap.xml
+
+# Naver
+User-agent: Yeti
+Allow: /
+
+# Google
+User-agent: Googlebot
+Allow: /
