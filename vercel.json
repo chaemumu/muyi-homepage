@@ -6,12 +6,13 @@
     { "src": "b2b-marketing.html", "use": "@vercel/static" },
     { "src": "public-sector.html", "use": "@vercel/static" },
     { "src": "sitemap.xml", "use": "@vercel/static" },
-    { "src": "robots.txt", "use": "@vercel/static" }
+    { "src": "robots.txt", "use": "@vercel/static" },
+    { "src": "navercf8e2c196459dc3679eb7ad7799fb33c.html", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/robots.txt", "dest": "/robots.txt", "headers": { "Content-Type": "text/plain" } },
+    { "src": "/sitemap.xml", "dest": "/sitemap.xml", "headers": { "Content-Type": "application/xml" } },
     { "src": "/navercf8e2c196459dc3679eb7ad7799fb33c.html", "dest": "/navercf8e2c196459dc3679eb7ad7799fb33c.html" },
-    { "src": "/sitemap.xml", "dest": "/sitemap.xml" },
-    { "src": "/robots.txt", "dest": "/robots.txt" },
     { "src": "/self-employed", "dest": "/self-employed.html" },
     { "src": "/b2b-marketing", "dest": "/b2b-marketing.html" },
     { "src": "/public-sector", "dest": "/public-sector.html" },
