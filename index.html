@@ -1354,13 +1354,39 @@ var parStr = 0.7;
 var CD = document.getElementById('cur-d');
 var CR = document.getElementById('cur-r');
 var mx=0,my=0,rx=0,ry=0;
+var dragStart={x:0,y:0},isDragging=false;
 document.addEventListener('mousemove',function(e){
   mx=e.clientX;my=e.clientY;
   CD.style.left=mx+'px';CD.style.top=my+'px';
   parMouse.x=(e.clientX/innerWidth-.5)*2;
   parMouse.y=-(e.clientY/innerHeight-.5)*2;
+  if(isDragging){
+    var deltaX=e.clientX-dragStart.x;
+    var opacity=Math.max(0,1-Math.abs(deltaX)/300);
+    CD.style.opacity=opacity;
+  }
 },{passive:true});
 (function aC(){rx+=(mx-rx)*.18;ry+=(my-ry)*.18;CR.style.left=rx+'px';CR.style.top=ry+'px';requestAnimationFrame(aC);})();
+
+// Drag to navigate pages
+CD.addEventListener('mousedown',function(e){
+  isDragging=true;
+  dragStart={x:e.clientX,y:e.clientY};
+  CD.style.transition='opacity 0s';
+});
+document.addEventListener('mouseup',function(e){
+  if(!isDragging)return;
+  isDragging=false;
+  CD.style.opacity='1';
+  CD.style.transition='opacity var(--dur-fast)';
+  var deltaX=e.clientX-dragStart.x;
+  if(Math.abs(deltaX)<50)return;
+  if(SCROLL_MODE)return;
+  var idx=PMAIN.indexOf(cur);
+  if(idx<0)idx=0;
+  if(deltaX>50&&idx>0){goto(PMAIN[idx-1]);}
+  else if(deltaX<-50&&idx<PMAIN.length-1){goto(PMAIN[idx+1]);}
+});
 
 function hoverOn(){document.body.classList.add('on-hover')}
 function hoverOff(){document.body.classList.remove('on-hover')}
