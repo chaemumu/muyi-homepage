@@ -150,12 +150,13 @@ body.scroll-mode #p-ct{min-height:100svh;background:#ffffff}
 /* Scroll-mode mobile specifics */
 body.scroll-mode #p-hero{padding-bottom:4rem}
 body.scroll-mode #p-prob{min-height:auto;padding-top:3rem;padding-bottom:3rem}
-body.scroll-mode #p-svc{min-height:auto;padding:2rem 0}
+body.scroll-mode #p-svc{position:relative!important;inset:auto!important;min-height:auto;padding:2rem 0;overflow:visible}
 body.scroll-mode #p-cli{min-height:auto;padding-top:3rem;padding-bottom:3rem}
-body.scroll-mode #p-ct{min-height:auto;padding-bottom:4rem}
+body.scroll-mode #p-ct{min-height:auto;padding-bottom:4rem;display:grid!important}
 body.scroll-mode #p-case{padding:2rem 0}
 body.scroll-mode #p-cs{min-height:auto;padding:3rem 0}
 body.scroll-mode .pnl.ss{display:none!important}
+body.scroll-mode .svc-kpi-tag{opacity:1;transform:none}
 body.scroll-mode #c{position:fixed;z-index:-1;opacity:.15}
 body.scroll-mode #nav{backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(255,255,255,.85)}
 body.scroll-mode .nav-dark #nav,body.scroll-mode #nav.nav-dark{background:rgba(5,4,14,.85)}
@@ -2179,6 +2180,49 @@ function initScrollMode(){
   update3D(S.HERO);
   updateNav(S.HERO);
   updateProg(S.HERO);
+
+  // Scroll-triggered animations via IntersectionObserver
+  var animMap={
+    'p-hero':function(){animHero();},
+    'p-prob':function(){animProb();},
+    'p-orbit':function(){
+      var nav=document.querySelector('.orbit-nav');
+      if(nav)nav.style.opacity='1';
+      var hint=document.querySelector('.o-hint');
+      if(hint)hint.style.opacity='1';
+      var skip=document.querySelector('.orbit-skip');
+      if(skip)skip.style.opacity='1';
+      document.querySelectorAll('.orbit-btn').forEach(function(b){b.style.opacity='1';b.style.transform='none';});
+    },
+    'p-svc':function(){animSvc();},
+    'p-cli':function(){animCli();},
+    'p-cs':function(){
+      var eye=document.querySelector('.csd-eye');if(eye)eye.classList.add('vis');
+      var title=document.querySelector('.csd-title');if(title)title.classList.add('vis');
+    },
+    'p-ct':function(){
+      var ct=document.getElementById('p-ct');
+      if(!ct)return;
+      ct.querySelectorAll('.ct-eye,.ct-ti,.ct-desc,.fi,.ft,.fb,.fl').forEach(function(el){
+        el.style.opacity='1';el.style.transform='none';
+      });
+      var mapBg=ct.querySelector('.ct-map-bg');
+      if(mapBg)mapBg.classList.add('is-vis');
+    }
+  };
+  var triggered={};
+  var scrollObs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting||triggered[e.target.id])return;
+      triggered[e.target.id]=true;
+      var fn=animMap[e.target.id];
+      if(fn)fn();
+    });
+  },{threshold:0.08});
+  SCROLL_VISIBLE_PANELS.forEach(function(id){
+    var el=document.getElementById(id);
+    if(el)scrollObs.observe(el);
+  });
 }
 
 // ── THREE OBJECTS ──
