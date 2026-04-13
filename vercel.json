@@ -4,6 +4,7 @@
     { "src": "/robots.txt", "dest": "/robots.txt" },
     { "src": "/sitemap.xml", "dest": "/sitemap.xml" },
     { "src": "/navercf8e2c196459dc3679eb7ad7799fb33c.html", "dest": "/navercf8e2c196459dc3679eb7ad7799fb33c.html" },
+    { "src": "/consult", "dest": "/consult.html" },
     { "src": "/self-employed", "dest": "/self-employed.html" },
     { "src": "/b2b-marketing", "dest": "/b2b-marketing.html" },
     { "src": "/public-sector", "dest": "/public-sector.html" },
