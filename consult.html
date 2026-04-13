@@ -85,12 +85,12 @@ html{scroll-snap-type:y mandatory;overflow-y:scroll;scroll-behavior:auto}
 #nav.nav-dark .nav-b2b{color:rgba(200,210,255,.5);border-color:rgba(200,210,255,.15)}
 #nav.nav-dark .nav-b2b:hover{color:#fff;border-color:rgba(200,210,255,.3)}
 
-/* SECTION PROGRESS DOTS */
-#dots{position:fixed;right:2rem;top:50%;transform:translateY(-50%);z-index:150;display:flex;flex-direction:column;gap:.6rem}
-.dot{width:8px;height:8px;border-radius:50%;background:rgba(10,10,26,.15);cursor:pointer;transition:all .4s var(--ease-out);border:none;padding:0}
-.dot.on{background:var(--c-brand);transform:scale(1.4)}
-.dot.dark{background:rgba(200,210,255,.2)}
-.dot.dark.on{background:var(--c-accent)}
+/* BOTTOM TOGGLE NAV */
+#prog{position:fixed;bottom:1.6rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;z-index:150;opacity:0;transition:opacity .4s;pointer-events:none;background-color:rgba(10,10,26,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:100px;padding:4px;border:1px solid rgba(140,162,255,.12)}
+#prog.vis{opacity:1;pointer-events:auto}
+#prog-slider{position:absolute;top:4px;height:calc(100% - 8px);background:var(--c-brand);border-radius:100px;transition:left .32s cubic-bezier(.4,0,.2,1),width .32s cubic-bezier(.4,0,.2,1);z-index:0;pointer-events:none}
+.pt{position:relative;z-index:1;background:none;border:none;cursor:pointer;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.42rem .88rem;border-radius:100px;color:rgba(200,210,255,.45);transition:color .3s;font-family:inherit;white-space:nowrap}
+.pt.on{color:#ffffff}
 
 /* HERO — Dark */
 .hero{background:var(--c-dark);text-align:center;padding:8rem var(--edge-pad) 4rem;align-items:center}
@@ -194,8 +194,8 @@ html{scroll-snap-type:y mandatory;overflow-y:scroll;scroll-behavior:auto}
 .cta-btn:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(30,16,199,.35)}
 .cta-note{font-size:.84rem;color:rgba(200,210,255,.35);margin-top:2rem;font-family:'Noto Sans KR','DM Sans',sans-serif}
 
-/* CONTACT FORM — no snap, natural scroll */
-.contact{padding:clamp(5rem,10vw,10rem) var(--edge-pad);background:var(--c-bg);scroll-snap-align:start}
+/* CONTACT FORM */
+.contact{padding:0 var(--edge-pad);background:var(--c-bg)}
 .contact-inner{display:grid;grid-template-columns:1fr 1fr;gap:clamp(3rem,6vw,8rem);max-width:1200px;margin:0 auto}
 .contact-left{display:flex;flex-direction:column;justify-content:center}
 .ct-promises{display:flex;flex-direction:column;gap:1.2rem;margin:2rem 0}
@@ -243,7 +243,8 @@ footer{background:#000;padding:3rem var(--edge-pad);border-top:1px solid rgba(25
   .logo-img{height:77px}
   .nav-r .nav-lnk{display:none}
   .nav-b2b{display:none}
-  #dots{display:none}
+  #prog{bottom:1rem;padding:3px}
+  .pt{font-size:.55rem;padding:.35rem .65rem}
   .hero{padding:7rem 1.5rem 3rem}
   .hero-stats{flex-direction:column;max-width:280px}
   .hero-stat+.hero-stat{border-left:none;border-top:1px solid rgba(140,162,255,.1)}
@@ -275,16 +276,19 @@ footer{background:#000;padding:3rem var(--edge-pad);border-top:1px solid rgba(25
     <img class="logo-img logo-white" src="/assets/logo-white.png" alt="MUYI">
   </a>
   <div class="nav-r">
-    <a class="nav-lnk" href="#problem">Problem</a>
-    <a class="nav-lnk" href="#solution">Solution</a>
-    <a class="nav-lnk" href="#proof">Proof</a>
     <a class="nav-b2b" href="/">Enterprise</a>
     <a class="nav-cta" href="#contact">무료 진단</a>
   </div>
 </nav>
 
-<!-- PROGRESS DOTS -->
-<div id="dots"></div>
+<!-- BOTTOM TOGGLE NAV -->
+<div id="prog">
+  <div id="prog-slider"></div>
+  <button class="pt on" data-s="hero">Home</button>
+  <button class="pt" data-s="problem">Problem</button>
+  <button class="pt" data-s="solution">Solution</button>
+  <button class="pt" data-s="proof">Proof</button>
+</div>
 
 <!-- HERO -->
 <section class="snap-section hero" id="hero" data-theme="dark">
@@ -442,7 +446,6 @@ footer{background:#000;padding:3rem var(--edge-pad);border-top:1px solid rgba(25
 
 <!-- CTA -->
 <section class="snap-section cta" data-theme="dark">
-  <span class="sec-eye fade-up" style="color:var(--c-accent);text-align:center;display:block">TAKE ACTION NOW</span>
   <h2 class="cta-title fade-up">
     성과를 만드는 변화,<br>
     <span>15분 전화 한 통</span>이면 충분합니다.
@@ -453,7 +456,7 @@ footer{background:#000;padding:3rem var(--edge-pad);border-top:1px solid rgba(25
 </section>
 
 <!-- CONTACT FORM -->
-<section class="contact" id="contact" data-theme="light">
+<section class="snap-section contact" id="contact" data-theme="light">
   <div class="contact-inner">
     <div class="contact-left">
       <span class="sec-eye fade-up">무료 진단 · 영업일 기준 24시간 내 답변</span>
@@ -508,19 +511,38 @@ footer{background:#000;padding:3rem var(--edge-pad);border-top:1px solid rgba(25
 <script>
 gsap.registerPlugin(ScrollTrigger);
 
-/* ── SECTIONS & DOTS ── */
+/* ── SECTIONS & BOTTOM TOGGLE NAV ── */
 var sections=document.querySelectorAll('.snap-section');
-var dotsWrap=document.getElementById('dots');
-sections.forEach(function(s,i){
-  var dot=document.createElement('button');
-  dot.className='dot'+(s.dataset.theme==='dark'?' dark':'');
-  dot.addEventListener('click',function(){s.scrollIntoView({behavior:'smooth'});});
-  dotsWrap.appendChild(dot);
-});
-var dots=dotsWrap.querySelectorAll('.dot');
-
-/* ── NAV + DOTS THEME UPDATE ── */
+var prog=document.getElementById('prog');
+var progSlider=document.getElementById('prog-slider');
+var ptBtns=prog.querySelectorAll('.pt');
 var nav=document.getElementById('nav');
+
+/* Show prog after first scroll */
+ScrollTrigger.create({
+  trigger:sections[1]||sections[0],
+  start:'top 80%',
+  onEnter:function(){prog.classList.add('vis');},
+  onLeaveBack:function(){prog.classList.remove('vis');}
+});
+
+/* Slider positioning */
+function updateSlider(idx){
+  var btn=ptBtns[idx];
+  if(!btn)return;
+  progSlider.style.left=btn.offsetLeft+'px';
+  progSlider.style.width=btn.offsetWidth+'px';
+  ptBtns.forEach(function(b,i){b.classList.toggle('on',i===idx);});
+}
+
+/* Click to scroll */
+ptBtns.forEach(function(btn,i){
+  btn.addEventListener('click',function(){
+    sections[i].scrollIntoView({behavior:'smooth'});
+  });
+});
+
+/* NAV + TOGGLE THEME UPDATE */
 sections.forEach(function(sec,i){
   ScrollTrigger.create({
     trigger:sec,
@@ -531,28 +553,30 @@ sections.forEach(function(sec,i){
       var isDark=sec.dataset.theme==='dark';
       nav.classList.toggle('nav-dark',isDark);
       nav.classList.toggle('scrolled',!isDark);
-      dots.forEach(function(d,j){
-        d.classList.toggle('on',j===i);
-        d.classList.toggle('dark',isDark);
-      });
+      updateSlider(i);
     }
   });
 });
 
-/* ── SECTION ENTER ANIMATIONS ── */
-sections.forEach(function(sec){
+/* Init slider */
+requestAnimationFrame(function(){updateSlider(0);});
+
+/* ── SECTION ENTER ANIMATIONS (GSAP full-screen transitions) ── */
+sections.forEach(function(sec,idx){
   var els=sec.querySelectorAll('.fade-up');
+  /* Enter animation */
   ScrollTrigger.create({
     trigger:sec,
-    start:'top 70%',
+    start:'top 80%',
     once:true,
     onEnter:function(){
-      els.forEach(function(el,i){
-        var extra=parseFloat(getComputedStyle(el).getPropertyValue('--i')||0)*120;
-        setTimeout(function(){el.classList.add('vis');},i*80+extra);
-      });
+      gsap.fromTo(els,{opacity:0,y:50},{opacity:1,y:0,duration:.9,ease:'power3.out',stagger:.1});
     }
   });
+  /* Parallax depth on scroll */
+  if(idx>0){
+    gsap.fromTo(sec,{clipPath:'inset(8% 0 0 0)'},{clipPath:'inset(0% 0 0 0)',ease:'none',scrollTrigger:{trigger:sec,start:'top bottom',end:'top top',scrub:.6}});
+  }
 });
 
 /* ── COUNTER ANIMATION ── */
@@ -606,7 +630,7 @@ document.querySelectorAll('.cnt').forEach(function(el){
   });
   var sh=document.getElementById('scroll-hint');
   if(sh){sh.style.opacity='0';setTimeout(function(){sh.style.transition='opacity 1.2s';sh.style.opacity='1';},2200);}
-  if(dots[0])dots[0].classList.add('on');
+  updateSlider(0);
 })();
 
 /* ── FORM SUBMIT ── */
