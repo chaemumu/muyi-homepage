@@ -20,6 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&family=Noto+Sans+KR:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <style>
 :root{
@@ -163,20 +164,11 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-f
 .testi-name{font-size:.82rem;font-weight:700;color:#fff}
 .testi-role{font-size:.72rem;color:var(--c-subtle)}
 
-/* CTA */
-#p-cta{padding:0 var(--edge-pad)}
-#p-cta::before{content:'';position:absolute;left:50%;top:50%;width:80vmin;height:80vmin;border-radius:50%;background:radial-gradient(circle,rgba(30,16,199,.15) 0%,transparent 60%);filter:blur(60px);transform:translate(-50%,-50%);pointer-events:none}
-.cta-title{font-family:'Noto Sans KR','Space Grotesk',sans-serif;font-size:clamp(2.4rem,5vw,4rem);font-weight:900;line-height:1.08;letter-spacing:-.04em;color:#fff;margin-bottom:2rem;position:relative}
-.cta-title span{color:var(--c-accent)}
-.cta-phone{font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:700;color:#fff;letter-spacing:-.03em;margin-bottom:2.5rem;display:block;text-decoration:none;transition:color .3s}
-.cta-phone:hover{color:var(--c-accent)}
-.cta-btn{display:inline-flex;align-items:center;gap:.8rem;font-size:clamp(1rem,1.4vw,1.15rem);color:#fff;cursor:pointer;font-weight:700;background:linear-gradient(135deg,#2a18e8,#4834f7);border:1px solid rgba(140,162,255,.2);border-radius:var(--radius-full);padding:1.3rem 3.6rem;font-family:inherit;transition:all var(--dur-mid) var(--ease-out);box-shadow:0 4px 32px rgba(30,16,199,.4);text-decoration:none}
-.cta-btn:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(30,16,199,.35)}
-.cta-note{font-size:.84rem;color:rgba(200,210,255,.35);margin-top:2rem;font-family:'Noto Sans KR','DM Sans',sans-serif}
-
-/* CONTACT FORM — dark */
-#p-contact{display:none;padding:4rem var(--edge-pad);text-align:left}
-.contact-inner{display:grid;grid-template-columns:1fr 1fr;gap:clamp(3rem,6vw,8rem);max-width:1200px;margin:0 auto;width:100%}
+/* CONTACT FORM — dark with map */
+#p-contact{display:none;padding:0;text-align:left;flex-direction:column}
+.ct-map-bg{width:100%;height:clamp(200px,22vw,300px);position:relative;overflow:hidden;background:#0a0a1a;flex-shrink:0}
+.ct-map-fade{position:absolute;left:0;top:0;bottom:0;width:80px;background:linear-gradient(90deg,#0a0a1a,transparent);z-index:2;pointer-events:none}
+.contact-inner{display:grid;grid-template-columns:1fr 1fr;gap:clamp(3rem,6vw,8rem);max-width:1200px;margin:0 auto;width:100%;padding:2.5rem var(--edge-pad) 2rem;flex:1;align-content:center}
 .contact-left{display:flex;flex-direction:column;justify-content:center}
 .ct-promises{display:flex;flex-direction:column;gap:1.2rem;margin:2rem 0}
 .ct-promise{display:flex;align-items:center;gap:.8rem;font-size:.88rem;color:rgba(200,210,255,.6);font-family:'Noto Sans KR','DM Sans',sans-serif;background:rgba(20,16,60,.4);border:1px solid var(--c-border);border-radius:var(--radius-full);padding:.75rem 1.4rem;transition:all var(--dur-mid) var(--ease-out)}
@@ -203,14 +195,12 @@ select.fi option{background:#0a0a1a;color:#fff}
 .fst.ok{color:var(--c-accent);display:block}
 .fst.err{color:var(--c-orange);display:block}
 
-/* FOOTER — inside contact panel */
-.foot-bar{position:absolute;bottom:0;left:0;right:0;padding:1.5rem var(--edge-pad);border-top:1px solid rgba(140,162,255,.06)}
-.foot-inner{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto;flex-wrap:wrap;gap:1rem}
-.foot-logo{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;color:#fff;letter-spacing:-.03em}
-.foot-links{display:flex;gap:2rem}
-.foot-links a{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);text-decoration:none;transition:color .3s}
-.foot-links a:hover{color:var(--c-accent)}
-.foot-copy{font-size:.72rem;letter-spacing:.08em;color:rgba(255,255,255,.2)}
+/* FOOTER — inside contact left */
+.ct-foot{margin-top:2rem;padding-top:1.5rem;border-top:1px solid rgba(140,162,255,.08)}
+.ct-foot-links{display:flex;gap:1.5rem;margin-bottom:.6rem}
+.ct-foot-links a{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(200,210,255,.3);text-decoration:none;transition:color .3s}
+.ct-foot-links a:hover{color:var(--c-accent)}
+.ct-foot-copy{font-size:.68rem;letter-spacing:.06em;color:rgba(200,210,255,.15)}
 
 /* ANIM */
 .fade-up{opacity:0;transform:translateY(40px)}
@@ -265,6 +255,7 @@ select.fi option{background:#0a0a1a;color:#fff}
   <button class="pt" data-s="problem">Problem</button>
   <button class="pt" data-s="solution">Solution</button>
   <button class="pt" data-s="proof">Proof</button>
+  <button class="pt" data-s="contact">Contact</button>
 </div>
 
 <!-- PANEL LAYER -->
@@ -424,31 +415,34 @@ select.fi option{background:#0a0a1a;color:#fff}
     </div>
   </div>
 
-  <!-- CTA -->
-  <div class="pnl" id="p-cta">
-    <h2 class="cta-title fade-up">
-      성과를 만드는 변화,<br>
-      <span>15분 전화 한 통</span>이면 충분합니다.
-    </h2>
-    <a class="cta-phone fade-up" href="tel:02-1234-5678">02. 1234. 5678</a>
-    <a class="cta-btn fade-up" href="javascript:goto('contact')">무료 상담 신청하기</a>
-    <p class="cta-note fade-up">진단 후 어떠한 강요도 하지 않습니다. 오직 귀사의 성장을 위한 관점만 드립니다.</p>
-  </div>
-
   <!-- CONTACT FORM -->
   <div class="pnl" id="p-contact">
+    <!-- Dark Map -->
+    <div class="ct-map-bg" id="ctMapBg">
+      <div class="ct-map-fade"></div>
+      <div id="mapContainer" style="position:absolute;inset:0;width:100%;height:100%;"></div>
+    </div>
     <div class="contact-inner">
       <div class="contact-left">
-        <span class="sec-eye fade-up">무료 진단 · 영업일 기준 24시간 내 답변</span>
-        <h2 class="sec-title fade-up">광고비 새는 곳,<br>15분이면<br>찾아드립니다.</h2>
+        <span class="sec-eye fade-up">무료 마케팅 진단 · 24시간 내 회신</span>
+        <h2 class="sec-title fade-up">매출이 멈춘 이유,<br>15분이면<br>찾아드립니다.</h2>
         <div class="ct-promises fade-up">
-          <div class="ct-promise"><span class="ct-promise-icon">✓</span>현재 광고 구조를 먼저 무료로 검토해 드립니다</div>
-          <div class="ct-promise"><span class="ct-promise-icon">✓</span>24시간 내 전담 마케터가 직접 연락드립니다</div>
-          <div class="ct-promise"><span class="ct-promise-icon">✓</span>강매 없이 솔직한 진단만 드립니다</div>
+          <div class="ct-promise"><span class="ct-promise-icon">✓</span>현재 광고 구조를 무료로 진단해 드립니다</div>
+          <div class="ct-promise"><span class="ct-promise-icon">✓</span>업종 전담 마케터가 직접 연락드립니다</div>
+          <div class="ct-promise"><span class="ct-promise-icon">✓</span>강매 없이 데이터 기반 솔직한 피드백만 드립니다</div>
         </div>
         <div class="ct-info fade-up">
           <div class="ct-row"><span class="ct-key">이메일</span><span class="ct-val"><a href="mailto:info@muyi.co.kr">info@muyi.co.kr</a></span></div>
           <div class="ct-row"><span class="ct-key">위치</span><span class="ct-val">서울시 금천구 디지털로 178 퍼블릭 가산 B동</span></div>
+        </div>
+        <div class="ct-foot fade-up">
+          <div class="ct-foot-links">
+            <a href="/consult">B2C</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms</a>
+            <a href="mailto:info@muyi.co.kr">Contact</a>
+          </div>
+          <span class="ct-foot-copy">&copy; 2026 MUYI CORPORATION. All rights reserved.</span>
         </div>
       </div>
       <div class="fade-up">
@@ -472,28 +466,16 @@ select.fi option{background:#0a0a1a;color:#fff}
         </form>
       </div>
     </div>
-    <div class="foot-bar">
-      <div class="foot-inner">
-        <span class="foot-logo">MUYI</span>
-        <div class="foot-links">
-          <a href="/">Enterprise</a>
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms</a>
-          <a href="mailto:info@muyi.co.kr">Contact</a>
-        </div>
-        <span class="foot-copy">&copy; 2024 MUYI Digital Authority. All rights reserved.</span>
-      </div>
-    </div>
   </div>
 
 </div>
 
 <script>
 /* ── STATE MAP ── */
-var S={HERO:'hero',PROB:'problem',SOL:'solution',PROOF:'proof',CTA:'cta',CT:'contact'};
-var PMAP={hero:'p-hero',problem:'p-prob',solution:'p-sol',proof:'p-proof',cta:'p-cta',contact:'p-contact'};
-var STATES=[S.HERO,S.PROB,S.SOL,S.PROOF,S.CTA,S.CT];
-var PROG_MAP={hero:0,problem:1,solution:2,proof:3};
+var S={HERO:'hero',PROB:'problem',SOL:'solution',PROOF:'proof',CT:'contact'};
+var PMAP={hero:'p-hero',problem:'p-prob',solution:'p-sol',proof:'p-proof',contact:'p-contact'};
+var STATES=[S.HERO,S.PROB,S.SOL,S.PROOF,S.CT];
+var PROG_MAP={hero:0,problem:1,solution:2,proof:3,contact:4};
 var cur=S.HERO;
 var hist=[];
 var isTransitioning=false;
@@ -541,6 +523,14 @@ function openPanel(id,state){
   setTimeout(function(){el.style.opacity='1';el.style.transform='scale(1) translateY(0)';},10);
   animPanel(el);
   runCountersIn(el);
+  if(id==='p-contact'){
+    setTimeout(function(){
+      if(typeof initMap==='function')initMap();
+      if(mapInstance)mapInstance.invalidateSize();
+      var mb=document.getElementById('ctMapBg');
+      if(mb)mb.style.opacity='1';
+    },300);
+  }
 }
 
 function animPanel(el){
@@ -691,6 +681,23 @@ function runCountersIn(el){
     });
   });
 })();
+
+/* ── MAP (dark tiles) ── */
+var mapInstance=null;
+function initMap(){
+  if(mapInstance)return;
+  var container=document.getElementById('mapContainer');
+  if(!container||typeof L==='undefined')return;
+  var lat=37.47570,lng=126.88610;
+  mapInstance=L.map(container,{center:[lat,lng],zoom:16,zoomControl:true,attributionControl:false,scrollWheelZoom:true});
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(mapInstance);
+  var markerSvg='<svg width="32" height="42" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg"><path d="M16 0C9.4 0 4 5.4 4 12c0 8.5 12 30 12 30S28 20.5 28 12C28 5.4 22.6 0 16 0z" fill="#8CA2FF" stroke="#fff" stroke-width="1.5"/><circle cx="16" cy="12" r="4.5" fill="#ffffff"/></svg>';
+  var icon=L.divIcon({html:markerSvg,className:'',iconSize:[32,42],iconAnchor:[16,42],popupAnchor:[0,-42]});
+  L.marker([lat,lng],{icon:icon}).addTo(mapInstance).bindPopup('<b style="color:#0a0a1a">MUYI</b><br style="color:#333">서울시 금천구 디지털로 178 퍼블릭 가산 B동');
+  var label=L.divIcon({html:'<div style="font-family:Space Grotesk,DM Sans,sans-serif;font-size:13px;font-weight:700;color:#8CA2FF;white-space:nowrap;text-shadow:0 0 6px rgba(0,0,0,.8)">MUYI</div>',className:'',iconSize:[50,20],iconAnchor:[-8,28]});
+  L.marker([lat,lng],{icon:label,interactive:false}).addTo(mapInstance);
+}
 </script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 </body>
 </html>
