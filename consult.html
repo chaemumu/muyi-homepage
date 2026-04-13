@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>MUYI | 광고비는 나가는데 매출은 그대로? — 퍼포먼스 마케팅 전문</title>
+<meta name="description" content="광고비만 나가고 매출은 제자리? 9년, 2,700개사의 데이터가 증명하는 MUYI의 업종별 맞춤 퍼포먼스 마케팅. 무료 마케팅 진단 가능.">
+<meta name="keywords" content="퍼포먼스 마케팅,광고 대행사,마케팅 대행,ROAS 개선,광고비 절감,매출 증대,업종별 마케팅,마케팅 진단,온라인 마케팅,브랜드 컨설팅">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+<meta name="theme-color" content="#1E10C7">
+<meta property="og:type" content="website">
+<meta property="og:title" content="MUYI | 광고비는 나가는데 매출은 그대로?">
+<meta property="og:description" content="9년, 2,700개사의 데이터가 증명합니다. 업종 DNA를 분석하여 독보적인 점유율을 설계합니다.">
+<meta property="og:url" content="https://www.muyi.co.kr/consult">
+<meta property="og:site_name" content="MUYI">
+<meta property="og:image" content="https://www.muyi.co.kr/assets/case-images/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="shortcut icon" href="/favicon.svg">
+<link rel="canonical" href="https://www.muyi.co.kr/consult">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&family=Noto+Sans+KR:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+:root{
+  --c-bg:#ffffff;
+  --c-dark:#05040e;
+  --c-brand:#1E10C7;
+  --c-brand-h:#3428F0;
+  --c-accent:#8CA2FF;
+  --c-accent-h:#A8B8FF;
+  --c-orange:#EE4E00;
+  --c-muted:#6E60FF;
+  --c-white:#ffffff;
+  --c-text:rgba(10,10,26,.72);
+  --c-subtle:rgba(10,10,26,.48);
+  --c-border:rgba(10,10,26,.10);
+  --dur-fast:180ms;
+  --dur-mid:380ms;
+  --dur-slow:720ms;
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --shadow-sm:0 2px 8px rgba(17,32,88,.04);
+  --shadow-md:0 8px 24px rgba(17,32,88,.06);
+  --shadow-lg:0 20px 48px rgba(17,32,88,.08);
+  --shadow-xl:0 32px 64px rgba(17,32,88,.1);
+  --radius-sm:.6rem;
+  --radius-md:1rem;
+  --radius-lg:1.4rem;
+  --radius-xl:2rem;
+  --radius-full:999px;
+  --edge-pad:clamp(2.4rem,6vw,7rem);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+::selection{background:rgba(30,16,199,.12);color:#0a0a1a}
+html{scroll-behavior:smooth}
+body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-family:'DM Sans','Noto Sans KR',sans-serif;text-rendering:optimizeLegibility;background:var(--c-bg);color:#0a0a1a;overflow-x:hidden}
+
+/* NAV */
+#nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 2.8rem;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(255,255,255,.85);transition:background .4s,box-shadow .4s}
+#nav.scrolled{box-shadow:0 1px 0 var(--c-border)}
+.logo{cursor:pointer;display:flex;align-items:center;text-decoration:none}
+.logo-img{height:115px;width:auto;object-fit:contain;transition:opacity .3s}
+.logo-white{display:none}
+#nav.nav-dark .logo-blue{display:none}
+#nav.nav-dark .logo-white{display:block}
+.nav-r{display:flex;align-items:center;gap:2rem}
+.nav-lnk{font-size:.84rem;letter-spacing:.1em;text-transform:uppercase;color:var(--c-text);cursor:pointer;font-weight:500;background:none;border:none;font-family:inherit;transition:color var(--dur-mid);position:relative;text-decoration:none}
+.nav-lnk::after{content:'';position:absolute;bottom:-.2rem;left:0;width:0;height:1.5px;background:var(--c-brand);transition:width var(--dur-mid) var(--ease-out)}
+.nav-lnk:hover{color:#0a0a1a}
+.nav-lnk:hover::after{width:100%}
+.nav-cta{font-size:.84rem;letter-spacing:.08em;text-transform:uppercase;padding:.78rem 2.2rem;border:none;border-radius:var(--radius-full);color:var(--c-white);cursor:pointer;font-weight:700;font-family:inherit;transition:all var(--dur-mid) var(--ease-out);background:var(--c-brand);box-shadow:0 4px 20px rgba(30,16,199,.25);text-decoration:none;display:inline-flex;align-items:center}
+.nav-cta:hover{background:var(--c-brand-h);transform:translateY(-2px);box-shadow:0 8px 32px rgba(30,16,199,.35)}
+.nav-b2b{font-size:.78rem;color:var(--c-subtle);text-decoration:none;letter-spacing:.06em;transition:color .3s;border:1px solid var(--c-border);padding:.5rem 1.2rem;border-radius:var(--radius-full)}
+.nav-b2b:hover{color:var(--c-brand);border-color:rgba(30,16,199,.2)}
+/* Dark nav for hero */
+#nav.nav-dark{background:rgba(5,4,14,.85)}
+#nav.nav-dark .logo-text{color:#fff}
+#nav.nav-dark .nav-lnk{color:rgba(200,210,255,.7)}
+#nav.nav-dark .nav-lnk:hover{color:#fff}
+#nav.nav-dark .nav-cta{background:rgba(140,162,255,.15);border:1px solid rgba(140,162,255,.25);box-shadow:0 4px 20px rgba(0,0,0,.3)}
+#nav.nav-dark .nav-cta:hover{background:rgba(140,162,255,.25)}
+#nav.nav-dark .nav-b2b{color:rgba(200,210,255,.5);border-color:rgba(200,210,255,.15)}
+#nav.nav-dark .nav-b2b:hover{color:#fff;border-color:rgba(200,210,255,.3)}
+
+/* HERO — Dark */
+.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8rem var(--edge-pad) 4rem;background:var(--c-dark);overflow:hidden}
+.hero::before{content:'';position:absolute;left:50%;top:50%;width:70vmin;height:70vmin;max-width:800px;border-radius:50%;background:radial-gradient(circle,rgba(30,16,199,.18) 0%,rgba(60,40,240,.08) 30%,rgba(140,162,255,.03) 55%,transparent 72%);filter:blur(40px);transform:translate(-50%,-52%);animation:heroGlow 8s ease-in-out infinite;pointer-events:none}
+.hero-eye{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(140,162,255,.85);margin-bottom:1.8rem;font-weight:600;display:inline-flex;align-items:center;gap:.8rem}
+.hero-eye::before,.hero-eye::after{content:'';width:24px;height:1px;background:linear-gradient(90deg,transparent,rgba(140,162,255,.5),transparent)}
+.hero-title{font-family:'Noto Sans KR','Space Grotesk',sans-serif;font-size:clamp(2.8rem,7vw,6rem);font-weight:900;line-height:1.02;letter-spacing:-.05em;color:#fff;margin-bottom:1.6rem;max-width:16ch}
+.hero-title-grad{display:inline;background:linear-gradient(135deg,#ffffff 0%,#c8bfff 45%,#8CA2FF 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(.95rem,1.5vw,1.15rem);color:rgba(200,210,255,.5);font-weight:400;line-height:1.7;max-width:38ch;margin:0 auto 2.8rem;font-family:'Noto Sans KR','DM Sans',sans-serif}
+.hero-cta{display:inline-flex;align-items:center;gap:1rem;font-size:clamp(1rem,1.4vw,1.15rem);color:#fff;cursor:pointer;font-weight:700;background:linear-gradient(135deg,#2a18e8 0%,#4834f7 100%);border:1px solid rgba(140,162,255,.2);border-radius:var(--radius-full);padding:1.3rem 3.2rem;font-family:inherit;transition:all var(--dur-mid) var(--ease-out);box-shadow:0 4px 32px rgba(30,16,199,.4),inset 0 1px 0 rgba(255,255,255,.1);text-decoration:none}
+.hero-cta:hover{transform:translateY(-4px);box-shadow:0 0 40px rgba(30,16,199,.3),0 20px 60px rgba(30,16,199,.35);border-color:rgba(140,162,255,.4)}
+.hero-cta:active{transform:translateY(-1px) scale(.97);transition-duration:80ms}
+.hero-cta-arr{width:36px;height:2px;background:currentColor;position:relative;flex-shrink:0;transition:width .3s}
+.hero-cta:hover .hero-cta-arr{width:52px}
+.hero-cta-arr::after{content:'';position:absolute;right:0;top:50%;transform:translateY(-50%) rotate(45deg);width:7px;height:7px;border-right:2px solid;border-top:2px solid}
+.hero-stats{display:flex;gap:0;margin-top:3.2rem;border:1px solid rgba(140,162,255,.12);border-radius:var(--radius-lg);overflow:hidden;background:rgba(10,10,30,.4);backdrop-filter:blur(20px);box-shadow:0 8px 40px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);max-width:720px}
+.hero-stat{padding:1.8rem 2.2rem;text-align:center;flex:1;min-width:0;transition:background var(--dur-mid)}
+.hero-stat:hover{background:rgba(140,162,255,.06)}
+.hero-stat+.hero-stat{border-left:1px solid rgba(140,162,255,.1)}
+.hero-stat-n{font-family:'Space Grotesk',sans-serif;font-size:clamp(2.2rem,3.6vw,3.2rem);font-weight:700;color:#fff;letter-spacing:-.03em;line-height:1.05;display:flex;align-items:flex-end;justify-content:center;gap:.2rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hero-stat-n .cnt{display:inline-flex;font-variant-numeric:tabular-nums}
+.hero-stat-n em{color:var(--c-accent);font-style:normal;font-size:.62em;letter-spacing:-.02em;margin-bottom:.1rem}
+.hero-stat-l{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(200,210,255,.45);margin-top:.5rem;font-weight:600;white-space:nowrap}
+.scroll-hint{position:absolute;bottom:2.4rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.7rem;cursor:pointer}
+.scroll-hint-txt{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(200,210,255,.35);font-weight:700}
+.scroll-hint-arrow{width:28px;height:28px;border-right:2px solid rgba(200,210,255,.25);border-bottom:2px solid rgba(200,210,255,.25);transform:rotate(45deg);animation:scrollBounce 1.8s cubic-bezier(.45,.05,.55,.95) infinite}
+@keyframes scrollBounce{0%,100%{transform:rotate(45deg) translateY(0)}50%{transform:rotate(45deg) translateY(8px)}}
+@keyframes heroGlow{0%,100%{opacity:.7;transform:translate(-50%,-52%) scale(1)}50%{opacity:1;transform:translate(-50%,-52%) scale(1.08)}}
+
+/* PROBLEM */
+.problem{padding:clamp(5rem,10vw,10rem) var(--edge-pad);background:var(--c-bg);position:relative}
+.sec-eye{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--c-brand);margin-bottom:1rem;font-weight:700;display:block}
+.sec-title{font-family:'Noto Sans KR','Space Grotesk',sans-serif;font-size:clamp(2rem,4vw,3.4rem);font-weight:900;line-height:1.1;letter-spacing:-.04em;color:#0a0a1a;margin-bottom:1.2rem;word-break:keep-all}
+.sec-sub{font-size:var(--text-base,1rem);color:var(--c-text);line-height:1.7;max-width:52ch;font-family:'Noto Sans KR','DM Sans',sans-serif;margin-bottom:3rem}
+.prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.prob-card{padding:2.4rem 2rem;border:1px solid var(--c-border);border-radius:var(--radius-lg);background:linear-gradient(145deg,#f8f9ff 0%,#ffffff 100%);position:relative;overflow:hidden;transition:all var(--dur-mid) var(--ease-out)}
+.prob-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c-brand);transform:scaleX(0);transform-origin:left;transition:transform var(--dur-slow) var(--ease-out)}
+.prob-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg);border-color:rgba(30,16,199,.15)}
+.prob-card:hover::before{transform:scaleX(1)}
+.prob-num{font-family:'Space Grotesk',sans-serif;font-size:clamp(3rem,5vw,4.5rem);font-weight:700;color:var(--c-brand);letter-spacing:-.04em;line-height:1;margin-bottom:1rem}
+.prob-num em{font-style:normal;font-size:.5em;color:var(--c-accent);vertical-align:super}
+.prob-card h3{font-family:'Noto Sans KR','DM Sans',sans-serif;font-size:1.15rem;font-weight:700;color:#0a0a1a;margin-bottom:.8rem;letter-spacing:-.02em}
+.prob-card p{font-size:.88rem;color:var(--c-text);line-height:1.7;font-family:'Noto Sans KR','DM Sans',sans-serif}
+.prob-icon{font-size:1.8rem;margin-bottom:1.2rem;display:block}
+
+/* SOLUTION */
+.solution{padding:clamp(5rem,10vw,10rem) var(--edge-pad);background:var(--c-dark);color:#fff;position:relative;overflow:hidden}
+.solution .sec-eye{color:var(--c-accent)}
+.solution .sec-title{color:#fff}
+.solution .sec-sub{color:rgba(200,210,255,.5)}
+.sol-grid{display:grid;grid-template-columns:7fr 5fr;gap:1.5rem}
+.sol-card{padding:3rem 2.4rem;border-radius:var(--radius-xl);position:relative;overflow:hidden;transition:transform var(--dur-mid) var(--ease-out)}
+.sol-card:hover{transform:translateY(-4px)}
+.sol-main{grid-column:1;grid-row:1/3;background:rgba(30,16,199,.12);border:1px solid rgba(140,162,255,.12)}
+.sol-side1{background:rgba(140,162,255,.08);border:1px solid rgba(140,162,255,.08)}
+.sol-side2{background:rgba(104,88,255,.08);border:1px solid rgba(104,88,255,.08)}
+.sol-tag{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-accent);font-weight:700;margin-bottom:1.6rem;display:flex;align-items:center;gap:.6rem}
+.sol-tag::before{content:'';width:8px;height:8px;border-radius:50%;background:currentColor}
+.sol-card h3{font-family:'Noto Sans KR','Space Grotesk',sans-serif;font-size:clamp(1.6rem,2.8vw,2.4rem);font-weight:700;letter-spacing:-.03em;margin-bottom:1rem;line-height:1.15}
+.sol-card p{font-size:.92rem;color:rgba(200,210,255,.55);line-height:1.75;font-family:'Noto Sans KR','DM Sans',sans-serif;margin-bottom:1.6rem}
+.sol-kpi{display:inline-flex;align-items:center;gap:1rem;padding:1rem 1.4rem;border-radius:var(--radius-md);background:rgba(0,0,0,.2);border:1px solid rgba(140,162,255,.1)}
+.sol-kpi-num{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;color:#fff;letter-spacing:-.03em}
+.sol-kpi-label{font-size:.72rem;color:rgba(200,210,255,.45);letter-spacing:.06em;line-height:1.4}
+.sol-link{display:inline-flex;align-items:center;gap:.5rem;font-size:.88rem;color:var(--c-accent);font-weight:600;cursor:pointer;transition:gap .3s;margin-top:auto}
+.sol-link:hover{gap:.8rem}
+.sol-link::after{content:'\2192';transition:transform .3s}
+.sol-link:hover::after{transform:translateX(4px)}
+
+/* PROOF */
+.proof{padding:clamp(5rem,10vw,10rem) var(--edge-pad);background:var(--c-bg)}
+.proof-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:4rem}
+.proof-card{padding:1.8rem 1.6rem;border:1px solid var(--c-border);border-radius:var(--radius-lg);background:linear-gradient(145deg,#f8f9ff,#eef2ff);position:relative;overflow:hidden;transition:all var(--dur-mid) var(--ease-out)}
+.proof-card::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--c-brand),var(--c-accent));transform:scaleX(.08);transform-origin:left;transition:transform var(--dur-slow) var(--ease-out)}
+.proof-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.proof-card:hover::after{transform:scaleX(1)}
+.proof-num{font-family:'Space Grotesk',sans-serif;font-size:clamp(2.2rem,3.5vw,3rem);font-weight:700;color:#0a0a1a;letter-spacing:-.03em;line-height:1;margin-bottom:.4rem}
+.proof-num .cnt{color:var(--c-brand)}
+.proof-label{font-size:.78rem;color:var(--c-subtle);letter-spacing:.06em;font-weight:500;line-height:1.5;font-family:'Noto Sans KR','DM Sans',sans-serif}
+
+/* TESTIMONIALS */
+.testimonials{padding:clamp(5rem,10vw,10rem) var(--edge-pad);background:#f8f9ff}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.testi-card{padding:2.4rem 2rem;border-radius:var(--radius-lg);background:#fff;border:1px solid var(--c-border);display:flex;flex-direction:column;justify-content:space-between;transition:all var(--dur-mid) var(--ease-out)}
+.testi-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:rgba(30,16,199,.1)}
+.testi-quote{font-size:.68rem;color:var(--c-brand);opacity:.3;margin-bottom:1rem;line-height:1}
+.testi-text{font-family:'Noto Sans KR','DM Sans',sans-serif;font-size:1.05rem;font-weight:500;line-height:1.75;color:#0a0a1a;margin-bottom:2rem;word-break:keep-all}
+.testi-author{display:flex;align-items:center;gap:.8rem}
+.testi-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--c-brand),var(--c-accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.88rem;flex-shrink:0}
+.testi-name{font-size:.88rem;font-weight:700;color:#0a0a1a}
+.testi-role{font-size:.75rem;color:var(--c-subtle)}
+
+/* CTA */
+.cta{padding:clamp(6rem,12vw,12rem) var(--edge-pad);background:var(--c-dark);text-align:center;position:relative;overflow:hidden}
+.cta::before{content:'';position:absolute;left:50%;top:50%;width:80vmin;height:80vmin;border-radius:50%;background:radial-gradient(circle,rgba(30,16,199,.15) 0%,transparent 60%);filter:blur(60px);transform:translate(-50%,-50%);pointer-events:none}
+.cta .sec-eye{color:var(--c-accent);text-align:center}
+.cta-title{font-family:'Noto Sans KR','Space Grotesk',sans-serif;font-size:clamp(2.4rem,5vw,4rem);font-weight:900;line-height:1.08;letter-spacing:-.04em;color:#fff;margin-bottom:2rem;position:relative}
+.cta-title span{color:var(--c-accent)}
+.cta-phone{font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:700;color:#fff;letter-spacing:-.03em;margin-bottom:2.5rem;display:block;text-decoration:none;transition:color .3s}
+.cta-phone:hover{color:var(--c-accent)}
+.cta-btn{display:inline-flex;align-items:center;gap:.8rem;font-size:clamp(1rem,1.4vw,1.15rem);color:#fff;cursor:pointer;font-weight:700;background:linear-gradient(135deg,#2a18e8,#4834f7);border:1px solid rgba(140,162,255,.2);border-radius:var(--radius-full);padding:1.3rem 3.6rem;font-family:inherit;transition:all var(--dur-mid) var(--ease-out);box-shadow:0 4px 32px rgba(30,16,199,.4);text-decoration:none}
+.cta-btn:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(30,16,199,.35)}
+.cta-note{font-size:.84rem;color:rgba(200,210,255,.35);margin-top:2rem;font-family:'Noto Sans KR','DM Sans',sans-serif}
+
+/* CONTACT FORM */
+.contact{padding:clamp(5rem,10vw,10rem) var(--edge-pad);background:var(--c-bg)}
+.contact-inner{display:grid;grid-template-columns:1fr 1fr;gap:clamp(3rem,6vw,8rem);max-width:1200px;margin:0 auto}
+.contact-left{display:flex;flex-direction:column;justify-content:center}
+.ct-promises{display:flex;flex-direction:column;gap:1.2rem;margin:2rem 0}
+.ct-promise{display:flex;align-items:center;gap:.8rem;font-size:.88rem;color:var(--c-text);font-family:'Noto Sans KR','DM Sans',sans-serif;background:#f6f7ff;border:1px solid var(--c-border);border-radius:var(--radius-full);padding:.75rem 1.4rem;transition:all var(--dur-mid) var(--ease-out);box-shadow:var(--shadow-sm)}
+.ct-promise:hover{background:#eef1ff;transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.ct-promise-icon{color:var(--c-accent);font-weight:700;font-size:1rem;flex-shrink:0}
+.ct-info{display:flex;flex-direction:column;gap:1rem;margin-top:1.5rem}
+.ct-row{display:flex;flex-direction:column;gap:.2rem}
+.ct-key{font-size:.78rem;letter-spacing:.06em;color:var(--c-subtle);font-weight:600}
+.ct-val{font-size:1rem;color:rgba(10,10,26,.75)}
+.ct-val a{color:inherit;text-decoration:none;transition:color .3s}
+.ct-val a:hover{color:var(--c-brand)}
+/* Form */
+.fg{margin-bottom:1rem}
+.fl{display:block;font-size:.78rem;letter-spacing:.06em;color:var(--c-subtle);margin-bottom:.4rem;font-weight:600}
+.fi,.ft{width:100%;padding:.85rem 1.1rem;border:1px solid var(--c-border);border-radius:var(--radius-md);font-family:inherit;font-size:.92rem;color:#0a0a1a;background:#f8f9ff;transition:border-color .3s,box-shadow .3s;outline:none}
+.fi:focus,.ft:focus{border-color:var(--c-brand);box-shadow:0 0 0 3px rgba(30,16,199,.08)}
+.ft{min-height:120px;resize:vertical}
+select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.5rem}
+select.fi option{background:#f4f6ff;color:#0a0a1a}
+.fsub{width:100%;padding:1.15rem;background:var(--c-brand);color:var(--c-white);border:none;border-radius:var(--radius-full);cursor:pointer;font-family:inherit;font-size:1rem;font-weight:700;transition:all var(--dur-mid) var(--ease-out);box-shadow:0 4px 20px rgba(30,16,199,.3);position:relative;overflow:hidden}
+.fsub:hover{background:var(--c-brand-h);transform:translateY(-2px);box-shadow:0 8px 32px rgba(30,16,199,.35)}
+.fsub:active{transform:translateY(0) scale(.97);transition-duration:80ms}
+.fst{margin-top:.7rem;font-size:.75rem;color:rgba(10,10,26,.3);text-align:center;display:none}
+.fst.ok{color:var(--c-muted);display:block}
+.fst.err{color:var(--c-orange);display:block}
+
+/* FOOTER */
+footer{background:#000;padding:3rem var(--edge-pad);border-top:1px solid rgba(255,255,255,.06)}
+.foot-inner{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto;flex-wrap:wrap;gap:1.5rem}
+.foot-logo{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;color:#fff;letter-spacing:-.03em}
+.foot-links{display:flex;gap:2rem}
+.foot-links a{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);text-decoration:none;transition:color .3s}
+.foot-links a:hover{color:var(--c-accent)}
+.foot-copy{font-size:.72rem;letter-spacing:.08em;color:rgba(255,255,255,.2)}
+
+/* MID CTA BANNER */
+.mid-cta{padding:3rem var(--edge-pad);background:var(--c-brand);text-align:center}
+.mid-cta-text{font-family:'Noto Sans KR','DM Sans',sans-serif;font-size:clamp(1rem,1.8vw,1.3rem);color:#fff;font-weight:600;margin-bottom:1.5rem;letter-spacing:-.01em}
+.mid-cta-btn{display:inline-flex;align-items:center;gap:.6rem;font-size:.92rem;color:var(--c-brand);background:#fff;border:none;border-radius:var(--radius-full);padding:.9rem 2.4rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all var(--dur-mid) var(--ease-out);box-shadow:0 4px 20px rgba(0,0,0,.15);text-decoration:none}
+.mid-cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.mid-cta-btn::after{content:'\2192';transition:transform .3s}
+.mid-cta-btn:hover::after{transform:translateX(4px)}
+
+/* MOBILE */
+@media(max-width:767px){
+  #nav{padding:.8rem 1.2rem}
+  .logo-img{height:77px}
+  .nav-r .nav-lnk{display:none}
+  .nav-b2b{display:none}
+  .hero{padding:7rem 1.5rem 3rem}
+  .hero-stats{flex-direction:column;max-width:280px}
+  .hero-stat+.hero-stat{border-left:none;border-top:1px solid rgba(140,162,255,.1)}
+  .prob-grid{grid-template-columns:1fr}
+  .sol-grid{grid-template-columns:1fr}
+  .sol-main{grid-row:auto}
+  .proof-grid{grid-template-columns:repeat(2,1fr)}
+  .testi-grid{grid-template-columns:1fr}
+  .contact-inner{grid-template-columns:1fr}
+  .foot-inner{flex-direction:column;text-align:center}
+}
+@media(min-width:768px) and (max-width:1023px){
+  .prob-grid{grid-template-columns:1fr 1fr}
+  .prob-grid .prob-card:last-child{grid-column:1/-1;max-width:50%;margin:0 auto}
+  .proof-grid{grid-template-columns:repeat(2,1fr)}
+  .testi-grid{grid-template-columns:1fr 1fr}
+  .testi-grid .testi-card:last-child{grid-column:1/-1;max-width:50%;margin:0 auto}
+}
+
+/* ANIM HELPERS */
+.fade-up{opacity:0;transform:translateY(30px)}
+.fade-up.vis{opacity:1;transform:translateY(0);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.stagger{transition-delay:calc(var(--i,0) * 120ms)!important}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav" class="nav-dark">
+  <a class="logo" href="/consult">
+    <img class="logo-img logo-blue" src="/assets/logo-blue.png" alt="MUYI">
+    <img class="logo-img logo-white" src="/assets/logo-white.png" alt="MUYI">
+  </a>
+  <div class="nav-r">
+    <a class="nav-lnk" href="#problem">Problem</a>
+    <a class="nav-lnk" href="#solution">Solution</a>
+    <a class="nav-lnk" href="#proof">Proof</a>
+    <a class="nav-b2b" href="/">Enterprise</a>
+    <a class="nav-cta" href="#contact">무료 진단</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <span class="hero-eye fade-up">DIGITAL AUTHORITY CURATOR</span>
+  <h1 class="hero-title fade-up">
+    광고비는 나가는데,<br>
+    <span class="hero-title-grad">매출은 그대로인<br>사장님께</span>
+  </h1>
+  <p class="hero-sub fade-up">
+    9년, 2,700개사의 데이터가 증명합니다.<br>
+    업종 DNA를 분석하여 독보적인 점유율을 설계합니다.
+  </p>
+  <a class="hero-cta fade-up" href="#contact">
+    무료 마케팅 진단 받기
+    <span class="hero-cta-arr"></span>
+  </a>
+  <div class="hero-stats fade-up">
+    <div class="hero-stat">
+      <div class="hero-stat-n"><span class="cnt" data-to="9">0</span><em>년</em></div>
+      <div class="hero-stat-l">업력</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-n"><span class="cnt" data-to="2700">0</span><em>+</em></div>
+      <div class="hero-stat-l">누적 고객사</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-n"><span class="cnt" data-to="240">0</span><em>%</em></div>
+      <div class="hero-stat-l">평균 ROAS 상승</div>
+    </div>
+  </div>
+  <div class="scroll-hint" id="scroll-hint">
+    <span class="scroll-hint-txt">Scroll</span>
+    <span class="scroll-hint-arrow"></span>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <span class="sec-eye fade-up">CURRENT STATUS CHECK</span>
+  <h2 class="sec-title fade-up">지금 이런 상황 아닌가요?</h2>
+  <p class="sec-sub fade-up">대부분의 대표님들이 겪고 있는 마케팅의 구조적 문제입니다.</p>
+  <div class="prob-grid">
+    <div class="prob-card fade-up" style="--i:0">
+      <span class="prob-icon">📉</span>
+      <div class="prob-num">68<em>%</em></div>
+      <h3>밑 빠진 독에 물 붓는 광고비</h3>
+      <p>ROAS는 낮아지는데 경쟁은 치열해지고, 결국 남는 것 없이 광고 플랫폼만 배불리고 있습니다.</p>
+    </div>
+    <div class="prob-card fade-up" style="--i:1">
+      <span class="prob-icon">🔍</span>
+      <div class="prob-num">73<em>%</em></div>
+      <h3>데이터 없는 감성 마케팅</h3>
+      <p>예쁜 디자인이 매출을 보장하지 않습니다. 고객의 구매 여정을 무시한 마케팅은 외면받을 뿐입니다.</p>
+    </div>
+    <div class="prob-card fade-up" style="--i:2">
+      <span class="prob-icon">🔄</span>
+      <div class="prob-num">82<em>%</em></div>
+      <h3>일회성 고객의 굴레</h3>
+      <p>신규 고객 유치에만 급급하여 재방문과 충성 고객을 놓치고 있는 브랜드가 대다수입니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MID CTA -->
+<div class="mid-cta">
+  <p class="mid-cta-text">지금 우리 브랜드의 마케팅 구조, 무료로 진단받아 보세요</p>
+  <a class="mid-cta-btn" href="#contact">무료 진단 신청</a>
+</div>
+
+<!-- SOLUTION -->
+<section class="solution" id="solution">
+  <span class="sec-eye fade-up">OUR CORE SOLUTIONS</span>
+  <h2 class="sec-title fade-up">비즈니스를 변화시키는<br>세 가지 권위의 축</h2>
+  <p class="sec-sub fade-up">단순 대행을 넘어 브랜드의 본질적 가치를 시장에 전달하는 MUYI만의 전략 프로세스입니다.</p>
+  <div class="sol-grid">
+    <div class="sol-card sol-main fade-up">
+      <div class="sol-tag">Core Engine</div>
+      <h3>Online Performance<br>Marketing</h3>
+      <p>정교한 타겟팅과 매체 최적화를 통해 브랜드 인지도를 압도적 매출로 전환합니다. 귀사의 업종 특성에 맞는 최적의 채널 조합을 설계합니다.</p>
+      <div class="sol-kpi">
+        <div class="sol-kpi-num">2.4<span style="font-size:.5em;color:var(--c-accent)">배</span></div>
+        <div class="sol-kpi-label">평균 광고<br>전환율 상승</div>
+      </div>
+    </div>
+    <div class="sol-card sol-side1 fade-up">
+      <div class="sol-tag" style="color:var(--c-muted)">Strategy</div>
+      <h3>Brand Consulting</h3>
+      <p>귀사만의 고유한 서사를 발굴하고 시장 내 대체 불가능한 위치를 선점할 수 있도록 체계를 설계합니다.</p>
+      <span class="sol-link">컨설팅 프로세스 보기</span>
+    </div>
+    <div class="sol-card sol-side2 fade-up">
+      <div class="sol-tag" style="color:var(--c-accent)">Intelligence</div>
+      <h3>Growth Seminar</h3>
+      <p>업계 리더들을 위한 마케팅 실무 세미나. 2,700여 개사의 데이터가 증명하는 인사이트를 직접 확인하세요.</p>
+      <span class="sol-link">세미나 일정 확인</span>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<section class="proof" id="proof">
+  <span class="sec-eye fade-up">PROVEN RESULTS</span>
+  <h2 class="sec-title fade-up">숫자가 증명하는 MUYI의 성과</h2>
+  <div class="proof-grid">
+    <div class="proof-card fade-up" style="--i:0">
+      <div class="proof-num"><span class="cnt" data-to="2700">0</span>+</div>
+      <div class="proof-label">누적 프로젝트 수</div>
+    </div>
+    <div class="proof-card fade-up" style="--i:1">
+      <div class="proof-num"><span class="cnt" data-to="240">0</span>%</div>
+      <div class="proof-label">평균 ROAS 상승률</div>
+    </div>
+    <div class="proof-card fade-up" style="--i:2">
+      <div class="proof-num"><span class="cnt" data-to="94">0</span>%</div>
+      <div class="proof-label">계약 유지율</div>
+    </div>
+    <div class="proof-card fade-up" style="--i:3">
+      <div class="proof-num"><span class="cnt" data-to="9">0</span>년</div>
+      <div class="proof-label">업계 경력</div>
+    </div>
+  </div>
+
+  <!-- Testimonials inline -->
+  <div class="testi-grid">
+    <div class="testi-card fade-up" style="--i:0">
+      <div>
+        <div class="testi-quote" style="font-size:2.5rem">"</div>
+        <p class="testi-text">"단순히 광고 집행만 하는 게 아니라, 사업의 본질적인 문제점을 짚어주셔서 매출이 300% 이상 뛰었습니다."</p>
+      </div>
+      <div class="testi-author">
+        <div class="testi-avatar">김</div>
+        <div>
+          <div class="testi-name">김태호 대표</div>
+          <div class="testi-role">라이프스타일 브랜드 A사</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card fade-up" style="--i:1">
+      <div>
+        <div class="testi-quote" style="font-size:2.5rem">"</div>
+        <p class="testi-text">"마케팅 진단 한 번으로 버려지던 광고비 1,500만원을 살려냈습니다. 데이터의 힘을 믿게 되었습니다."</p>
+      </div>
+      <div class="testi-author">
+        <div class="testi-avatar">이</div>
+        <div>
+          <div class="testi-name">이지은 원장</div>
+          <div class="testi-role">강남 IT 아카데미</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card fade-up" style="--i:2">
+      <div>
+        <div class="testi-quote" style="font-size:2.5rem">"</div>
+        <p class="testi-text">"업종별 특성을 정확히 이해하고 계시더군요. 저희 분야에서 이렇게 효율을 낼 줄은 몰랐습니다."</p>
+      </div>
+      <div class="testi-author">
+        <div class="testi-avatar">최</div>
+        <div>
+          <div class="testi-name">최준서 본부장</div>
+          <div class="testi-role">프랜차이즈 B그룹</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <span class="sec-eye fade-up" style="color:var(--c-accent);text-align:center;display:block">TAKE ACTION NOW</span>
+  <h2 class="cta-title fade-up">
+    성과를 만드는 변화,<br>
+    <span>15분 전화 한 통</span>이면 충분합니다.
+  </h2>
+  <a class="cta-phone fade-up" href="tel:02-1234-5678">02. 1234. 5678</a>
+  <a class="cta-btn fade-up" href="#contact">무료 상담 신청하기</a>
+  <p class="cta-note fade-up">진단 후 어떠한 강요도 하지 않습니다. 오직 귀사의 성장을 위한 관점만 드립니다.</p>
+</section>
+
+<!-- CONTACT FORM -->
+<section class="contact" id="contact">
+  <div class="contact-inner">
+    <div class="contact-left">
+      <span class="sec-eye fade-up">무료 진단 · 영업일 기준 24시간 내 답변</span>
+      <h2 class="sec-title fade-up">광고비 새는 곳,<br>15분이면<br>찾아드립니다.</h2>
+      <div class="ct-promises fade-up">
+        <div class="ct-promise"><span class="ct-promise-icon">✓</span>현재 광고 구조를 먼저 무료로 검토해 드립니다</div>
+        <div class="ct-promise"><span class="ct-promise-icon">✓</span>24시간 내 전담 마케터가 직접 연락드립니다</div>
+        <div class="ct-promise"><span class="ct-promise-icon">✓</span>강매 없이 솔직한 진단만 드립니다</div>
+      </div>
+      <div class="ct-info fade-up">
+        <div class="ct-row"><span class="ct-key">이메일</span><span class="ct-val"><a href="mailto:info@muyi.co.kr">info@muyi.co.kr</a></span></div>
+        <div class="ct-row"><span class="ct-key">위치</span><span class="ct-val">서울시 금천구 디지털로 178 퍼블릭 가산 B동</span></div>
+      </div>
+    </div>
+    <div class="fade-up">
+      <form id="form" novalidate>
+        <div class="fg"><label class="fl">이름</label><input class="fi" type="text" name="name" placeholder="홍길동" required></div>
+        <div class="fg"><label class="fl">이메일</label><input class="fi" type="email" name="email" placeholder="hello@brand.com"></div>
+        <div class="fg"><label class="fl">연락처</label><input class="fi" type="tel" name="phone" placeholder="010-0000-0000" required></div>
+        <div class="fg"><label class="fl">문의 유형</label>
+          <select class="fi" name="type">
+            <option>매출이 안 오르는 광고 진단</option>
+            <option>신규 고객 유입 늘리기</option>
+            <option>인스타그램 / SNS 운영</option>
+            <option>네이버 플레이스 / 블로그</option>
+            <option>브랜드 리뉴얼</option>
+            <option>기타 궁금한 점</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">메시지</label><textarea class="ft" name="message" placeholder="예: 월 광고비 300만원 쓰는데 문의가 안 들어와요"></textarea></div>
+        <button class="fsub" type="submit" id="sbtn"><span>무료 진단 요청 보내기</span></button>
+        <div class="fst" id="fst"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-inner">
+    <span class="foot-logo">MUYI</span>
+    <div class="foot-links">
+      <a href="/">Enterprise</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms</a>
+      <a href="mailto:info@muyi.co.kr">Contact</a>
+    </div>
+    <span class="foot-copy">&copy; 2024 MUYI Digital Authority. All rights reserved.</span>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ── NAV SCROLL ── */
+(function(){
+  var nav=document.getElementById('nav');
+  var hero=document.getElementById('hero');
+  var observer=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      nav.classList.toggle('nav-dark',e.isIntersecting);
+      nav.classList.toggle('scrolled',!e.isIntersecting);
+    });
+  },{threshold:0.3});
+  observer.observe(hero);
+})();
+
+/* ── SCROLL ANIMATIONS ── */
+document.querySelectorAll('.fade-up').forEach(function(el){
+  ScrollTrigger.create({
+    trigger:el,
+    start:'top 88%',
+    once:true,
+    onEnter:function(){
+      var delay=parseFloat(getComputedStyle(el).getPropertyValue('--i')||0)*120;
+      setTimeout(function(){el.classList.add('vis');},delay);
+    }
+  });
+});
+
+/* ── COUNTER ANIMATION ── */
+function easeOutCubic(t){return 1-Math.pow(1-t,3);}
+function runCounter(el){
+  if(el._counted)return;
+  el._counted=true;
+  var target=parseInt(el.getAttribute('data-to'),10);
+  var dur=target>=100?2200:target>=10?1800:1500;
+  var startTime=null;
+  el.textContent='0';
+  function tick(ts){
+    if(!startTime)startTime=ts;
+    var p=Math.min((ts-startTime)/dur,1);
+    var val=Math.round(easeOutCubic(p)*target);
+    el.textContent=target>=1000?val.toLocaleString():val;
+    if(p<1)requestAnimationFrame(tick);
+    else{
+      el.textContent=target>=1000?target.toLocaleString():target;
+      el.style.transition='transform 120ms ease-out';
+      el.style.transform='scale(1.08)';
+      setTimeout(function(){
+        el.style.transition='transform 120ms ease-in';
+        el.style.transform='scale(1)';
+        setTimeout(function(){el.style.transition='';el.style.transform='';},130);
+      },120);
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+document.querySelectorAll('.cnt').forEach(function(el){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        io.unobserve(e.target);
+        setTimeout(function(){runCounter(el);},200);
+      }
+    });
+  },{threshold:0.4});
+  io.observe(el);
+});
+
+/* ── HERO ENTRANCE ── */
+(function(){
+  var tl=gsap.timeline({defaults:{ease:'power3.out'}});
+  var els=document.querySelectorAll('.hero .fade-up');
+  els.forEach(function(el,i){
+    el.style.opacity='0';el.style.transform='translateY(30px)';
+    tl.to(el,{opacity:1,y:0,duration:.8},.3+i*.15);
+  });
+  var sh=document.getElementById('scroll-hint');
+  if(sh){sh.style.opacity='0';setTimeout(function(){sh.style.transition='opacity 1.2s';sh.style.opacity='1';},2200);}
+})();
+
+/* ── FORM SUBMIT ── */
+(function(){
+  var form=document.getElementById('form');
+  var fst=document.getElementById('fst');
+  var sbtn=document.getElementById('sbtn');
+  if(!form)return;
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var name=form.name.value.trim();
+    var phone=form.phone.value.trim();
+    if(!name||!phone){
+      fst.className='fst err';
+      fst.textContent='이름과 연락처는 필수입니다.';
+      return;
+    }
+    sbtn.disabled=true;
+    sbtn.innerHTML='<span>전송 중...</span>';
+    var data=new FormData(form);
+    var body={};
+    data.forEach(function(v,k){body[k]=v;});
+    fetch('/api/contact',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    }).then(function(r){
+      if(!r.ok)throw new Error('fail');
+      fst.className='fst ok';
+      fst.textContent='감사합니다! 영업일 기준 24시간 내 연락드리겠습니다.';
+      form.reset();
+    }).catch(function(){
+      fst.className='fst ok';
+      fst.textContent='감사합니다! 영업일 기준 24시간 내 연락드리겠습니다.';
+      form.reset();
+    }).finally(function(){
+      sbtn.disabled=false;
+      sbtn.innerHTML='<span>무료 진단 요청 보내기</span>';
+    });
+  });
+})();
+
+/* ── SMOOTH SCROLL ── */
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+  a.addEventListener('click',function(e){
+    var target=document.querySelector(this.getAttribute('href'));
+    if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'});}
+  });
+});
+</script>
+</body>
+</html>
