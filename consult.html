@@ -54,8 +54,11 @@
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 ::selection{background:rgba(30,16,199,.12);color:#0a0a1a}
-html{scroll-behavior:smooth}
 body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-family:'DM Sans','Noto Sans KR',sans-serif;text-rendering:optimizeLegibility;background:var(--c-bg);color:#0a0a1a;overflow-x:hidden}
+
+/* SCROLL SNAP */
+html{scroll-snap-type:y mandatory;overflow-y:scroll;scroll-behavior:auto}
+.snap-section{scroll-snap-align:start;min-height:100svh;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
 
 /* NAV */
 #nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 2.8rem;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(255,255,255,.85);transition:background .4s,box-shadow .4s}
@@ -74,9 +77,7 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-f
 .nav-cta:hover{background:var(--c-brand-h);transform:translateY(-2px);box-shadow:0 8px 32px rgba(30,16,199,.35)}
 .nav-b2b{font-size:.78rem;color:var(--c-subtle);text-decoration:none;letter-spacing:.06em;transition:color .3s;border:1px solid var(--c-border);padding:.5rem 1.2rem;border-radius:var(--radius-full)}
 .nav-b2b:hover{color:var(--c-brand);border-color:rgba(30,16,199,.2)}
-/* Dark nav for hero */
 #nav.nav-dark{background:rgba(5,4,14,.85)}
-#nav.nav-dark .logo-text{color:#fff}
 #nav.nav-dark .nav-lnk{color:rgba(200,210,255,.7)}
 #nav.nav-dark .nav-lnk:hover{color:#fff}
 #nav.nav-dark .nav-cta{background:rgba(140,162,255,.15);border:1px solid rgba(140,162,255,.25);box-shadow:0 4px 20px rgba(0,0,0,.3)}
@@ -84,8 +85,15 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-f
 #nav.nav-dark .nav-b2b{color:rgba(200,210,255,.5);border-color:rgba(200,210,255,.15)}
 #nav.nav-dark .nav-b2b:hover{color:#fff;border-color:rgba(200,210,255,.3)}
 
+/* SECTION PROGRESS DOTS */
+#dots{position:fixed;right:2rem;top:50%;transform:translateY(-50%);z-index:150;display:flex;flex-direction:column;gap:.6rem}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(10,10,26,.15);cursor:pointer;transition:all .4s var(--ease-out);border:none;padding:0}
+.dot.on{background:var(--c-brand);transform:scale(1.4)}
+.dot.dark{background:rgba(200,210,255,.2)}
+.dot.dark.on{background:var(--c-accent)}
+
 /* HERO — Dark */
-.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8rem var(--edge-pad) 4rem;background:var(--c-dark);overflow:hidden}
+.hero{background:var(--c-dark);text-align:center;padding:8rem var(--edge-pad) 4rem;align-items:center}
 .hero::before{content:'';position:absolute;left:50%;top:50%;width:70vmin;height:70vmin;max-width:800px;border-radius:50%;background:radial-gradient(circle,rgba(30,16,199,.18) 0%,rgba(60,40,240,.08) 30%,rgba(140,162,255,.03) 55%,transparent 72%);filter:blur(40px);transform:translate(-50%,-52%);animation:heroGlow 8s ease-in-out infinite;pointer-events:none}
 .hero-eye{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(140,162,255,.85);margin-bottom:1.8rem;font-weight:600;display:inline-flex;align-items:center;gap:.8rem}
 .hero-eye::before,.hero-eye::after{content:'';width:24px;height:1px;background:linear-gradient(90deg,transparent,rgba(140,162,255,.5),transparent)}
@@ -113,10 +121,11 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-f
 @keyframes heroGlow{0%,100%{opacity:.7;transform:translate(-50%,-52%) scale(1)}50%{opacity:1;transform:translate(-50%,-52%) scale(1.08)}}
 
 /* PROBLEM */
-.problem{padding:clamp(5rem,10vw,10rem) var(--edge-pad);background:var(--c-bg);position:relative}
+.problem{padding:0 var(--edge-pad);background:var(--c-bg)}
+.prob-inner{max-width:1200px;margin:0 auto;width:100%}
 .sec-eye{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--c-brand);margin-bottom:1rem;font-weight:700;display:block}
 .sec-title{font-family:'Noto Sans KR','Space Grotesk',sans-serif;font-size:clamp(2rem,4vw,3.4rem);font-weight:900;line-height:1.1;letter-spacing:-.04em;color:#0a0a1a;margin-bottom:1.2rem;word-break:keep-all}
-.sec-sub{font-size:var(--text-base,1rem);color:var(--c-text);line-height:1.7;max-width:52ch;font-family:'Noto Sans KR','DM Sans',sans-serif;margin-bottom:3rem}
+.sec-sub{font-size:1rem;color:var(--c-text);line-height:1.7;max-width:52ch;font-family:'Noto Sans KR','DM Sans',sans-serif;margin-bottom:3rem}
 .prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
 .prob-card{padding:2.4rem 2rem;border:1px solid var(--c-border);border-radius:var(--radius-lg);background:linear-gradient(145deg,#f8f9ff 0%,#ffffff 100%);position:relative;overflow:hidden;transition:all var(--dur-mid) var(--ease-out)}
 .prob-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c-brand);transform:scaleX(0);transform-origin:left;transition:transform var(--dur-slow) var(--ease-out)}
@@ -129,53 +138,52 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-f
 .prob-icon{font-size:1.8rem;margin-bottom:1.2rem;display:block}
 
 /* SOLUTION */
-.solution{padding:clamp(5rem,10vw,10rem) var(--edge-pad);background:var(--c-dark);color:#fff;position:relative;overflow:hidden}
+.solution{padding:0 var(--edge-pad);background:var(--c-dark);color:#fff}
+.sol-inner{max-width:1200px;margin:0 auto;width:100%}
 .solution .sec-eye{color:var(--c-accent)}
 .solution .sec-title{color:#fff}
 .solution .sec-sub{color:rgba(200,210,255,.5)}
 .sol-grid{display:grid;grid-template-columns:7fr 5fr;gap:1.5rem}
-.sol-card{padding:3rem 2.4rem;border-radius:var(--radius-xl);position:relative;overflow:hidden;transition:transform var(--dur-mid) var(--ease-out)}
+.sol-card{padding:2.4rem 2rem;border-radius:var(--radius-xl);position:relative;overflow:hidden;transition:transform var(--dur-mid) var(--ease-out)}
 .sol-card:hover{transform:translateY(-4px)}
 .sol-main{grid-column:1;grid-row:1/3;background:rgba(30,16,199,.12);border:1px solid rgba(140,162,255,.12)}
 .sol-side1{background:rgba(140,162,255,.08);border:1px solid rgba(140,162,255,.08)}
 .sol-side2{background:rgba(104,88,255,.08);border:1px solid rgba(104,88,255,.08)}
-.sol-tag{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-accent);font-weight:700;margin-bottom:1.6rem;display:flex;align-items:center;gap:.6rem}
+.sol-tag{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-accent);font-weight:700;margin-bottom:1.2rem;display:flex;align-items:center;gap:.6rem}
 .sol-tag::before{content:'';width:8px;height:8px;border-radius:50%;background:currentColor}
-.sol-card h3{font-family:'Noto Sans KR','Space Grotesk',sans-serif;font-size:clamp(1.6rem,2.8vw,2.4rem);font-weight:700;letter-spacing:-.03em;margin-bottom:1rem;line-height:1.15}
-.sol-card p{font-size:.92rem;color:rgba(200,210,255,.55);line-height:1.75;font-family:'Noto Sans KR','DM Sans',sans-serif;margin-bottom:1.6rem}
-.sol-kpi{display:inline-flex;align-items:center;gap:1rem;padding:1rem 1.4rem;border-radius:var(--radius-md);background:rgba(0,0,0,.2);border:1px solid rgba(140,162,255,.1)}
-.sol-kpi-num{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;color:#fff;letter-spacing:-.03em}
+.sol-card h3{font-family:'Noto Sans KR','Space Grotesk',sans-serif;font-size:clamp(1.4rem,2.4vw,2rem);font-weight:700;letter-spacing:-.03em;margin-bottom:.8rem;line-height:1.15}
+.sol-card p{font-size:.88rem;color:rgba(200,210,255,.55);line-height:1.7;font-family:'Noto Sans KR','DM Sans',sans-serif;margin-bottom:1.2rem}
+.sol-kpi{display:inline-flex;align-items:center;gap:1rem;padding:.8rem 1.2rem;border-radius:var(--radius-md);background:rgba(0,0,0,.2);border:1px solid rgba(140,162,255,.1)}
+.sol-kpi-num{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:700;color:#fff;letter-spacing:-.03em}
 .sol-kpi-label{font-size:.72rem;color:rgba(200,210,255,.45);letter-spacing:.06em;line-height:1.4}
 .sol-link{display:inline-flex;align-items:center;gap:.5rem;font-size:.88rem;color:var(--c-accent);font-weight:600;cursor:pointer;transition:gap .3s;margin-top:auto}
 .sol-link:hover{gap:.8rem}
 .sol-link::after{content:'\2192';transition:transform .3s}
 .sol-link:hover::after{transform:translateX(4px)}
 
-/* PROOF */
-.proof{padding:clamp(5rem,10vw,10rem) var(--edge-pad);background:var(--c-bg)}
-.proof-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:4rem}
-.proof-card{padding:1.8rem 1.6rem;border:1px solid var(--c-border);border-radius:var(--radius-lg);background:linear-gradient(145deg,#f8f9ff,#eef2ff);position:relative;overflow:hidden;transition:all var(--dur-mid) var(--ease-out)}
+/* PROOF + TESTIMONIALS */
+.proof{padding:0 var(--edge-pad);background:var(--c-bg)}
+.proof-inner{max-width:1200px;margin:0 auto;width:100%}
+.proof-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:3rem}
+.proof-card{padding:1.6rem 1.4rem;border:1px solid var(--c-border);border-radius:var(--radius-lg);background:linear-gradient(145deg,#f8f9ff,#eef2ff);position:relative;overflow:hidden;transition:all var(--dur-mid) var(--ease-out)}
 .proof-card::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--c-brand),var(--c-accent));transform:scaleX(.08);transform-origin:left;transition:transform var(--dur-slow) var(--ease-out)}
 .proof-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
 .proof-card:hover::after{transform:scaleX(1)}
-.proof-num{font-family:'Space Grotesk',sans-serif;font-size:clamp(2.2rem,3.5vw,3rem);font-weight:700;color:#0a0a1a;letter-spacing:-.03em;line-height:1;margin-bottom:.4rem}
+.proof-num{font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,3vw,2.6rem);font-weight:700;color:#0a0a1a;letter-spacing:-.03em;line-height:1;margin-bottom:.4rem}
 .proof-num .cnt{color:var(--c-brand)}
-.proof-label{font-size:.78rem;color:var(--c-subtle);letter-spacing:.06em;font-weight:500;line-height:1.5;font-family:'Noto Sans KR','DM Sans',sans-serif}
-
-/* TESTIMONIALS */
-.testimonials{padding:clamp(5rem,10vw,10rem) var(--edge-pad);background:#f8f9ff}
+.proof-label{font-size:.75rem;color:var(--c-subtle);letter-spacing:.06em;font-weight:500;line-height:1.5;font-family:'Noto Sans KR','DM Sans',sans-serif}
 .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
-.testi-card{padding:2.4rem 2rem;border-radius:var(--radius-lg);background:#fff;border:1px solid var(--c-border);display:flex;flex-direction:column;justify-content:space-between;transition:all var(--dur-mid) var(--ease-out)}
+.testi-card{padding:2rem 1.8rem;border-radius:var(--radius-lg);background:#fff;border:1px solid var(--c-border);display:flex;flex-direction:column;justify-content:space-between;transition:all var(--dur-mid) var(--ease-out)}
 .testi-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:rgba(30,16,199,.1)}
-.testi-quote{font-size:.68rem;color:var(--c-brand);opacity:.3;margin-bottom:1rem;line-height:1}
-.testi-text{font-family:'Noto Sans KR','DM Sans',sans-serif;font-size:1.05rem;font-weight:500;line-height:1.75;color:#0a0a1a;margin-bottom:2rem;word-break:keep-all}
+.testi-quote{font-size:.68rem;color:var(--c-brand);opacity:.3;margin-bottom:.8rem;line-height:1}
+.testi-text{font-family:'Noto Sans KR','DM Sans',sans-serif;font-size:.95rem;font-weight:500;line-height:1.7;color:#0a0a1a;margin-bottom:1.5rem;word-break:keep-all}
 .testi-author{display:flex;align-items:center;gap:.8rem}
-.testi-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--c-brand),var(--c-accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.88rem;flex-shrink:0}
-.testi-name{font-size:.88rem;font-weight:700;color:#0a0a1a}
-.testi-role{font-size:.75rem;color:var(--c-subtle)}
+.testi-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--c-brand),var(--c-accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.82rem;flex-shrink:0}
+.testi-name{font-size:.82rem;font-weight:700;color:#0a0a1a}
+.testi-role{font-size:.72rem;color:var(--c-subtle)}
 
 /* CTA */
-.cta{padding:clamp(6rem,12vw,12rem) var(--edge-pad);background:var(--c-dark);text-align:center;position:relative;overflow:hidden}
+.cta{padding:0 var(--edge-pad);background:var(--c-dark);text-align:center;align-items:center}
 .cta::before{content:'';position:absolute;left:50%;top:50%;width:80vmin;height:80vmin;border-radius:50%;background:radial-gradient(circle,rgba(30,16,199,.15) 0%,transparent 60%);filter:blur(60px);transform:translate(-50%,-50%);pointer-events:none}
 .cta .sec-eye{color:var(--c-accent);text-align:center}
 .cta-title{font-family:'Noto Sans KR','Space Grotesk',sans-serif;font-size:clamp(2.4rem,5vw,4rem);font-weight:900;line-height:1.08;letter-spacing:-.04em;color:#fff;margin-bottom:2rem;position:relative}
@@ -186,8 +194,8 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-f
 .cta-btn:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(30,16,199,.35)}
 .cta-note{font-size:.84rem;color:rgba(200,210,255,.35);margin-top:2rem;font-family:'Noto Sans KR','DM Sans',sans-serif}
 
-/* CONTACT FORM */
-.contact{padding:clamp(5rem,10vw,10rem) var(--edge-pad);background:var(--c-bg)}
+/* CONTACT FORM — no snap, natural scroll */
+.contact{padding:clamp(5rem,10vw,10rem) var(--edge-pad);background:var(--c-bg);scroll-snap-align:start}
 .contact-inner{display:grid;grid-template-columns:1fr 1fr;gap:clamp(3rem,6vw,8rem);max-width:1200px;margin:0 auto}
 .contact-left{display:flex;flex-direction:column;justify-content:center}
 .ct-promises{display:flex;flex-direction:column;gap:1.2rem;margin:2rem 0}
@@ -200,7 +208,6 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-f
 .ct-val{font-size:1rem;color:rgba(10,10,26,.75)}
 .ct-val a{color:inherit;text-decoration:none;transition:color .3s}
 .ct-val a:hover{color:var(--c-brand)}
-/* Form */
 .fg{margin-bottom:1rem}
 .fl{display:block;font-size:.78rem;letter-spacing:.06em;color:var(--c-subtle);margin-bottom:.4rem;font-weight:600}
 .fi,.ft{width:100%;padding:.85rem 1.1rem;border:1px solid var(--c-border);border-radius:var(--radius-md);font-family:inherit;font-size:.92rem;color:#0a0a1a;background:#f8f9ff;transition:border-color .3s,box-shadow .3s;outline:none}
@@ -224,20 +231,19 @@ footer{background:#000;padding:3rem var(--edge-pad);border-top:1px solid rgba(25
 .foot-links a:hover{color:var(--c-accent)}
 .foot-copy{font-size:.72rem;letter-spacing:.08em;color:rgba(255,255,255,.2)}
 
-/* MID CTA BANNER */
-.mid-cta{padding:3rem var(--edge-pad);background:var(--c-brand);text-align:center}
-.mid-cta-text{font-family:'Noto Sans KR','DM Sans',sans-serif;font-size:clamp(1rem,1.8vw,1.3rem);color:#fff;font-weight:600;margin-bottom:1.5rem;letter-spacing:-.01em}
-.mid-cta-btn{display:inline-flex;align-items:center;gap:.6rem;font-size:.92rem;color:var(--c-brand);background:#fff;border:none;border-radius:var(--radius-full);padding:.9rem 2.4rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all var(--dur-mid) var(--ease-out);box-shadow:0 4px 20px rgba(0,0,0,.15);text-decoration:none}
-.mid-cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.2)}
-.mid-cta-btn::after{content:'\2192';transition:transform .3s}
-.mid-cta-btn:hover::after{transform:translateX(4px)}
+/* ANIM */
+.fade-up{opacity:0;transform:translateY(40px)}
+.fade-up.vis{opacity:1;transform:translateY(0);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
+.stagger{transition-delay:calc(var(--i,0) * 120ms)!important}
 
 /* MOBILE */
 @media(max-width:767px){
+  html{scroll-snap-type:y proximity}
   #nav{padding:.8rem 1.2rem}
   .logo-img{height:77px}
   .nav-r .nav-lnk{display:none}
   .nav-b2b{display:none}
+  #dots{display:none}
   .hero{padding:7rem 1.5rem 3rem}
   .hero-stats{flex-direction:column;max-width:280px}
   .hero-stat+.hero-stat{border-left:none;border-top:1px solid rgba(140,162,255,.1)}
@@ -248,6 +254,8 @@ footer{background:#000;padding:3rem var(--edge-pad);border-top:1px solid rgba(25
   .testi-grid{grid-template-columns:1fr}
   .contact-inner{grid-template-columns:1fr}
   .foot-inner{flex-direction:column;text-align:center}
+  .snap-section{min-height:auto;scroll-snap-align:start;padding-top:4rem;padding-bottom:4rem}
+  .hero{min-height:100svh}
 }
 @media(min-width:768px) and (max-width:1023px){
   .prob-grid{grid-template-columns:1fr 1fr}
@@ -256,11 +264,6 @@ footer{background:#000;padding:3rem var(--edge-pad);border-top:1px solid rgba(25
   .testi-grid{grid-template-columns:1fr 1fr}
   .testi-grid .testi-card:last-child{grid-column:1/-1;max-width:50%;margin:0 auto}
 }
-
-/* ANIM HELPERS */
-.fade-up{opacity:0;transform:translateY(30px)}
-.fade-up.vis{opacity:1;transform:translateY(0);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
-.stagger{transition-delay:calc(var(--i,0) * 120ms)!important}
 </style>
 </head>
 <body>
@@ -280,8 +283,11 @@ footer{background:#000;padding:3rem var(--edge-pad);border-top:1px solid rgba(25
   </div>
 </nav>
 
+<!-- PROGRESS DOTS -->
+<div id="dots"></div>
+
 <!-- HERO -->
-<section class="hero" id="hero">
+<section class="snap-section hero" id="hero" data-theme="dark">
   <span class="hero-eye fade-up">DIGITAL AUTHORITY CURATOR</span>
   <h1 class="hero-title fade-up">
     광고비는 나가는데,<br>
@@ -316,129 +322,118 @@ footer{background:#000;padding:3rem var(--edge-pad);border-top:1px solid rgba(25
 </section>
 
 <!-- PROBLEM -->
-<section class="problem" id="problem">
-  <span class="sec-eye fade-up">CURRENT STATUS CHECK</span>
-  <h2 class="sec-title fade-up">지금 이런 상황 아닌가요?</h2>
-  <p class="sec-sub fade-up">대부분의 대표님들이 겪고 있는 마케팅의 구조적 문제입니다.</p>
-  <div class="prob-grid">
-    <div class="prob-card fade-up" style="--i:0">
-      <span class="prob-icon">📉</span>
-      <div class="prob-num">68<em>%</em></div>
-      <h3>밑 빠진 독에 물 붓는 광고비</h3>
-      <p>ROAS는 낮아지는데 경쟁은 치열해지고, 결국 남는 것 없이 광고 플랫폼만 배불리고 있습니다.</p>
-    </div>
-    <div class="prob-card fade-up" style="--i:1">
-      <span class="prob-icon">🔍</span>
-      <div class="prob-num">73<em>%</em></div>
-      <h3>데이터 없는 감성 마케팅</h3>
-      <p>예쁜 디자인이 매출을 보장하지 않습니다. 고객의 구매 여정을 무시한 마케팅은 외면받을 뿐입니다.</p>
-    </div>
-    <div class="prob-card fade-up" style="--i:2">
-      <span class="prob-icon">🔄</span>
-      <div class="prob-num">82<em>%</em></div>
-      <h3>일회성 고객의 굴레</h3>
-      <p>신규 고객 유치에만 급급하여 재방문과 충성 고객을 놓치고 있는 브랜드가 대다수입니다.</p>
+<section class="snap-section problem" id="problem" data-theme="light">
+  <div class="prob-inner">
+    <span class="sec-eye fade-up">CURRENT STATUS CHECK</span>
+    <h2 class="sec-title fade-up">지금 이런 상황 아닌가요?</h2>
+    <p class="sec-sub fade-up">대부분의 대표님들이 겪고 있는 마케팅의 구조적 문제입니다.</p>
+    <div class="prob-grid">
+      <div class="prob-card fade-up" style="--i:0">
+        <span class="prob-icon">📉</span>
+        <div class="prob-num">68<em>%</em></div>
+        <h3>밑 빠진 독에 물 붓는 광고비</h3>
+        <p>ROAS는 낮아지는데 경쟁은 치열해지고, 결국 남는 것 없이 광고 플랫폼만 배불리고 있습니다.</p>
+      </div>
+      <div class="prob-card fade-up" style="--i:1">
+        <span class="prob-icon">🔍</span>
+        <div class="prob-num">73<em>%</em></div>
+        <h3>데이터 없는 감성 마케팅</h3>
+        <p>예쁜 디자인이 매출을 보장하지 않습니다. 고객의 구매 여정을 무시한 마케팅은 외면받을 뿐입니다.</p>
+      </div>
+      <div class="prob-card fade-up" style="--i:2">
+        <span class="prob-icon">🔄</span>
+        <div class="prob-num">82<em>%</em></div>
+        <h3>일회성 고객의 굴레</h3>
+        <p>신규 고객 유치에만 급급하여 재방문과 충성 고객을 놓치고 있는 브랜드가 대다수입니다.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- MID CTA -->
-<div class="mid-cta">
-  <p class="mid-cta-text">지금 우리 브랜드의 마케팅 구조, 무료로 진단받아 보세요</p>
-  <a class="mid-cta-btn" href="#contact">무료 진단 신청</a>
-</div>
-
 <!-- SOLUTION -->
-<section class="solution" id="solution">
-  <span class="sec-eye fade-up">OUR CORE SOLUTIONS</span>
-  <h2 class="sec-title fade-up">비즈니스를 변화시키는<br>세 가지 권위의 축</h2>
-  <p class="sec-sub fade-up">단순 대행을 넘어 브랜드의 본질적 가치를 시장에 전달하는 MUYI만의 전략 프로세스입니다.</p>
-  <div class="sol-grid">
-    <div class="sol-card sol-main fade-up">
-      <div class="sol-tag">Core Engine</div>
-      <h3>Online Performance<br>Marketing</h3>
-      <p>정교한 타겟팅과 매체 최적화를 통해 브랜드 인지도를 압도적 매출로 전환합니다. 귀사의 업종 특성에 맞는 최적의 채널 조합을 설계합니다.</p>
-      <div class="sol-kpi">
-        <div class="sol-kpi-num">2.4<span style="font-size:.5em;color:var(--c-accent)">배</span></div>
-        <div class="sol-kpi-label">평균 광고<br>전환율 상승</div>
+<section class="snap-section solution" id="solution" data-theme="dark">
+  <div class="sol-inner">
+    <span class="sec-eye fade-up">OUR CORE SOLUTIONS</span>
+    <h2 class="sec-title fade-up">비즈니스를 변화시키는<br>세 가지 권위의 축</h2>
+    <p class="sec-sub fade-up">단순 대행을 넘어 브랜드의 본질적 가치를 시장에 전달하는 MUYI만의 전략 프로세스입니다.</p>
+    <div class="sol-grid">
+      <div class="sol-card sol-main fade-up">
+        <div class="sol-tag">Core Engine</div>
+        <h3>Online Performance<br>Marketing</h3>
+        <p>정교한 타겟팅과 매체 최적화를 통해 브랜드 인지도를 압도적 매출로 전환합니다. 귀사의 업종 특성에 맞는 최적의 채널 조합을 설계합니다.</p>
+        <div class="sol-kpi">
+          <div class="sol-kpi-num">2.4<span style="font-size:.5em;color:var(--c-accent)">배</span></div>
+          <div class="sol-kpi-label">평균 광고<br>전환율 상승</div>
+        </div>
       </div>
-    </div>
-    <div class="sol-card sol-side1 fade-up">
-      <div class="sol-tag" style="color:var(--c-muted)">Strategy</div>
-      <h3>Brand Consulting</h3>
-      <p>귀사만의 고유한 서사를 발굴하고 시장 내 대체 불가능한 위치를 선점할 수 있도록 체계를 설계합니다.</p>
-      <span class="sol-link">컨설팅 프로세스 보기</span>
-    </div>
-    <div class="sol-card sol-side2 fade-up">
-      <div class="sol-tag" style="color:var(--c-accent)">Intelligence</div>
-      <h3>Growth Seminar</h3>
-      <p>업계 리더들을 위한 마케팅 실무 세미나. 2,700여 개사의 데이터가 증명하는 인사이트를 직접 확인하세요.</p>
-      <span class="sol-link">세미나 일정 확인</span>
+      <div class="sol-card sol-side1 fade-up">
+        <div class="sol-tag" style="color:var(--c-muted)">Strategy</div>
+        <h3>Brand Consulting</h3>
+        <p>귀사만의 고유한 서사를 발굴하고 시장 내 대체 불가능한 위치를 선점할 수 있도록 체계를 설계합니다.</p>
+        <span class="sol-link">컨설팅 프로세스 보기</span>
+      </div>
+      <div class="sol-card sol-side2 fade-up">
+        <div class="sol-tag" style="color:var(--c-accent)">Intelligence</div>
+        <h3>Growth Seminar</h3>
+        <p>업계 리더들을 위한 마케팅 실무 세미나. 2,700여 개사의 데이터가 증명하는 인사이트를 직접 확인하세요.</p>
+        <span class="sol-link">세미나 일정 확인</span>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- PROOF -->
-<section class="proof" id="proof">
-  <span class="sec-eye fade-up">PROVEN RESULTS</span>
-  <h2 class="sec-title fade-up">숫자가 증명하는 MUYI의 성과</h2>
-  <div class="proof-grid">
-    <div class="proof-card fade-up" style="--i:0">
-      <div class="proof-num"><span class="cnt" data-to="2700">0</span>+</div>
-      <div class="proof-label">누적 프로젝트 수</div>
-    </div>
-    <div class="proof-card fade-up" style="--i:1">
-      <div class="proof-num"><span class="cnt" data-to="240">0</span>%</div>
-      <div class="proof-label">평균 ROAS 상승률</div>
-    </div>
-    <div class="proof-card fade-up" style="--i:2">
-      <div class="proof-num"><span class="cnt" data-to="94">0</span>%</div>
-      <div class="proof-label">계약 유지율</div>
-    </div>
-    <div class="proof-card fade-up" style="--i:3">
-      <div class="proof-num"><span class="cnt" data-to="9">0</span>년</div>
-      <div class="proof-label">업계 경력</div>
-    </div>
-  </div>
-
-  <!-- Testimonials inline -->
-  <div class="testi-grid">
-    <div class="testi-card fade-up" style="--i:0">
-      <div>
-        <div class="testi-quote" style="font-size:2.5rem">"</div>
-        <p class="testi-text">"단순히 광고 집행만 하는 게 아니라, 사업의 본질적인 문제점을 짚어주셔서 매출이 300% 이상 뛰었습니다."</p>
+<section class="snap-section proof" id="proof" data-theme="light">
+  <div class="proof-inner">
+    <span class="sec-eye fade-up">PROVEN RESULTS</span>
+    <h2 class="sec-title fade-up">숫자가 증명하는 MUYI의 성과</h2>
+    <div class="proof-grid">
+      <div class="proof-card fade-up" style="--i:0">
+        <div class="proof-num"><span class="cnt" data-to="2700">0</span>+</div>
+        <div class="proof-label">누적 프로젝트 수</div>
       </div>
-      <div class="testi-author">
-        <div class="testi-avatar">김</div>
+      <div class="proof-card fade-up" style="--i:1">
+        <div class="proof-num"><span class="cnt" data-to="240">0</span>%</div>
+        <div class="proof-label">평균 ROAS 상승률</div>
+      </div>
+      <div class="proof-card fade-up" style="--i:2">
+        <div class="proof-num"><span class="cnt" data-to="94">0</span>%</div>
+        <div class="proof-label">계약 유지율</div>
+      </div>
+      <div class="proof-card fade-up" style="--i:3">
+        <div class="proof-num"><span class="cnt" data-to="9">0</span>년</div>
+        <div class="proof-label">업계 경력</div>
+      </div>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card fade-up" style="--i:0">
         <div>
-          <div class="testi-name">김태호 대표</div>
-          <div class="testi-role">라이프스타일 브랜드 A사</div>
+          <div class="testi-quote" style="font-size:2.5rem">"</div>
+          <p class="testi-text">"단순히 광고 집행만 하는 게 아니라, 사업의 본질적인 문제점을 짚어주셔서 매출이 300% 이상 뛰었습니다."</p>
+        </div>
+        <div class="testi-author">
+          <div class="testi-avatar">김</div>
+          <div><div class="testi-name">김태호 대표</div><div class="testi-role">라이프스타일 브랜드 A사</div></div>
         </div>
       </div>
-    </div>
-    <div class="testi-card fade-up" style="--i:1">
-      <div>
-        <div class="testi-quote" style="font-size:2.5rem">"</div>
-        <p class="testi-text">"마케팅 진단 한 번으로 버려지던 광고비 1,500만원을 살려냈습니다. 데이터의 힘을 믿게 되었습니다."</p>
-      </div>
-      <div class="testi-author">
-        <div class="testi-avatar">이</div>
+      <div class="testi-card fade-up" style="--i:1">
         <div>
-          <div class="testi-name">이지은 원장</div>
-          <div class="testi-role">강남 IT 아카데미</div>
+          <div class="testi-quote" style="font-size:2.5rem">"</div>
+          <p class="testi-text">"마케팅 진단 한 번으로 버려지던 광고비 1,500만원을 살려냈습니다. 데이터의 힘을 믿게 되었습니다."</p>
+        </div>
+        <div class="testi-author">
+          <div class="testi-avatar">이</div>
+          <div><div class="testi-name">이지은 원장</div><div class="testi-role">강남 IT 아카데미</div></div>
         </div>
       </div>
-    </div>
-    <div class="testi-card fade-up" style="--i:2">
-      <div>
-        <div class="testi-quote" style="font-size:2.5rem">"</div>
-        <p class="testi-text">"업종별 특성을 정확히 이해하고 계시더군요. 저희 분야에서 이렇게 효율을 낼 줄은 몰랐습니다."</p>
-      </div>
-      <div class="testi-author">
-        <div class="testi-avatar">최</div>
+      <div class="testi-card fade-up" style="--i:2">
         <div>
-          <div class="testi-name">최준서 본부장</div>
-          <div class="testi-role">프랜차이즈 B그룹</div>
+          <div class="testi-quote" style="font-size:2.5rem">"</div>
+          <p class="testi-text">"업종별 특성을 정확히 이해하고 계시더군요. 저희 분야에서 이렇게 효율을 낼 줄은 몰랐습니다."</p>
+        </div>
+        <div class="testi-author">
+          <div class="testi-avatar">최</div>
+          <div><div class="testi-name">최준서 본부장</div><div class="testi-role">프랜차이즈 B그룹</div></div>
         </div>
       </div>
     </div>
@@ -446,7 +441,7 @@ footer{background:#000;padding:3rem var(--edge-pad);border-top:1px solid rgba(25
 </section>
 
 <!-- CTA -->
-<section class="cta">
+<section class="snap-section cta" data-theme="dark">
   <span class="sec-eye fade-up" style="color:var(--c-accent);text-align:center;display:block">TAKE ACTION NOW</span>
   <h2 class="cta-title fade-up">
     성과를 만드는 변화,<br>
@@ -458,7 +453,7 @@ footer{background:#000;padding:3rem var(--edge-pad);border-top:1px solid rgba(25
 </section>
 
 <!-- CONTACT FORM -->
-<section class="contact" id="contact">
+<section class="contact" id="contact" data-theme="light">
   <div class="contact-inner">
     <div class="contact-left">
       <span class="sec-eye fade-up">무료 진단 · 영업일 기준 24시간 내 답변</span>
@@ -513,28 +508,49 @@ footer{background:#000;padding:3rem var(--edge-pad);border-top:1px solid rgba(25
 <script>
 gsap.registerPlugin(ScrollTrigger);
 
-/* ── NAV SCROLL ── */
-(function(){
-  var nav=document.getElementById('nav');
-  var hero=document.getElementById('hero');
-  var observer=new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      nav.classList.toggle('nav-dark',e.isIntersecting);
-      nav.classList.toggle('scrolled',!e.isIntersecting);
-    });
-  },{threshold:0.3});
-  observer.observe(hero);
-})();
+/* ── SECTIONS & DOTS ── */
+var sections=document.querySelectorAll('.snap-section');
+var dotsWrap=document.getElementById('dots');
+sections.forEach(function(s,i){
+  var dot=document.createElement('button');
+  dot.className='dot'+(s.dataset.theme==='dark'?' dark':'');
+  dot.addEventListener('click',function(){s.scrollIntoView({behavior:'smooth'});});
+  dotsWrap.appendChild(dot);
+});
+var dots=dotsWrap.querySelectorAll('.dot');
 
-/* ── SCROLL ANIMATIONS ── */
-document.querySelectorAll('.fade-up').forEach(function(el){
+/* ── NAV + DOTS THEME UPDATE ── */
+var nav=document.getElementById('nav');
+sections.forEach(function(sec,i){
   ScrollTrigger.create({
-    trigger:el,
-    start:'top 88%',
+    trigger:sec,
+    start:'top 50%',
+    end:'bottom 50%',
+    onToggle:function(self){
+      if(!self.isActive)return;
+      var isDark=sec.dataset.theme==='dark';
+      nav.classList.toggle('nav-dark',isDark);
+      nav.classList.toggle('scrolled',!isDark);
+      dots.forEach(function(d,j){
+        d.classList.toggle('on',j===i);
+        d.classList.toggle('dark',isDark);
+      });
+    }
+  });
+});
+
+/* ── SECTION ENTER ANIMATIONS ── */
+sections.forEach(function(sec){
+  var els=sec.querySelectorAll('.fade-up');
+  ScrollTrigger.create({
+    trigger:sec,
+    start:'top 70%',
     once:true,
     onEnter:function(){
-      var delay=parseFloat(getComputedStyle(el).getPropertyValue('--i')||0)*120;
-      setTimeout(function(){el.classList.add('vis');},delay);
+      els.forEach(function(el,i){
+        var extra=parseFloat(getComputedStyle(el).getPropertyValue('--i')||0)*120;
+        setTimeout(function(){el.classList.add('vis');},i*80+extra);
+      });
     }
   });
 });
@@ -590,6 +606,7 @@ document.querySelectorAll('.cnt').forEach(function(el){
   });
   var sh=document.getElementById('scroll-hint');
   if(sh){sh.style.opacity='0';setTimeout(function(){sh.style.transition='opacity 1.2s';sh.style.opacity='1';},2200);}
+  if(dots[0])dots[0].classList.add('on');
 })();
 
 /* ── FORM SUBMIT ── */
@@ -632,7 +649,7 @@ document.querySelectorAll('.cnt').forEach(function(el){
   });
 })();
 
-/* ── SMOOTH SCROLL ── */
+/* ── SMOOTH ANCHOR SCROLL ── */
 document.querySelectorAll('a[href^="#"]').forEach(function(a){
   a.addEventListener('click',function(e){
     var target=document.querySelector(this.getAttribute('href'));
