@@ -374,8 +374,8 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 /* SERVICE MICRO-SCENES */
 .ss{padding:var(--nav-h) var(--edge-pad) clamp(2rem,4vw,3rem);gap:3rem;background:#ffffff}
 .ss-c{max-width:540px;flex:1}
-#p-s0 .ss-c,#p-s2 .ss-c{margin-left:0;margin-right:auto}
-#p-s1 .ss-c,#p-s3 .ss-c{margin-left:auto;margin-right:0}
+#p-s0 .ss-c,#p-s2 .ss-c,#p-s4 .ss-c{margin-left:0;margin-right:auto}
+#p-s1 .ss-c,#p-s3 .ss-c,#p-s5 .ss-c{margin-left:auto;margin-right:0}
 .ss-num{font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:rgba(10,10,26,.35);margin-bottom:2rem;font-weight:700}
 /* KEY LINE */
 .ss-key{display:inline-block;font-size:var(--text-base);font-weight:700;color:var(--c-brand);letter-spacing:.01em;font-family:'Noto Sans KR','DM Sans',sans-serif;border-left:2px solid var(--c-brand);padding:.5rem .9rem .5rem 1rem;margin-bottom:2rem;line-height:var(--lh-base);word-break:keep-all;background:rgba(30,16,199,.04);border-radius:0 var(--radius-sm) var(--radius-sm) 0}
@@ -670,7 +670,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   .svc-kpi-tag{font-size:.7rem}
   .ss{flex-direction:column;padding:5rem 1.5rem 1.5rem;gap:2rem;align-items:flex-start}
   .ss-t{font-size:clamp(1.8rem,6vw,2.6rem);word-break:keep-all}
-  #p-s0 .ss-c,#p-s1 .ss-c,#p-s2 .ss-c,#p-s3 .ss-c{margin-left:0;margin-right:0}
+  #p-s0 .ss-c,#p-s1 .ss-c,#p-s2 .ss-c,#p-s3 .ss-c,#p-s4 .ss-c,#p-s5 .ss-c{margin-left:0;margin-right:0}
   #p-ct{grid-template-columns:1fr;grid-template-rows:auto auto auto;gap:2rem;padding:4rem 1.5rem 1.5rem;overflow-y:auto;align-items:start}
   .ct-col:first-of-type{grid-column:1;grid-row:1}
   .ct-col:last-of-type{grid-column:1;grid-row:2}
@@ -899,64 +899,94 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   <div class="svc-list">
     <div class="svc-item" data-i="0">
       <span class="svc-num">01</span>
-      <span class="svc-ko">전략 컨설팅</span>
-      <span class="svc-en">Strategy Consulting</span>
-      <span class="svc-kpi-tag">500+ 브랜드 전략 수립</span>
+      <span class="svc-ko">전략</span>
+      <span class="svc-en">Brand Strategy</span>
+      <span class="svc-kpi-tag">Flashback Gyerim</span>
       <span class="svc-arrow">→</span>
     </div>
     <div class="svc-item" data-i="1">
       <span class="svc-num">02</span>
-      <span class="svc-ko">퍼포먼스 마케팅</span>
-      <span class="svc-en">Performance Marketing</span>
-      <span class="svc-kpi-tag">평균 ROAS 340% 달성</span>
+      <span class="svc-ko">퍼포먼스</span>
+      <span class="svc-en">Paid &amp; Performance</span>
+      <span class="svc-kpi-tag">IFS × COEX</span>
       <span class="svc-arrow">→</span>
     </div>
     <div class="svc-item" data-i="2">
       <span class="svc-num">03</span>
-      <span class="svc-ko">SNS 콘텐츠 마케팅</span>
+      <span class="svc-ko">콘텐츠</span>
       <span class="svc-en">Content &amp; Social</span>
-      <span class="svc-kpi-tag">월 평균 팔로워 +12,000</span>
+      <span class="svc-kpi-tag">복호두</span>
       <span class="svc-arrow">→</span>
     </div>
     <div class="svc-item" data-i="3">
       <span class="svc-num">04</span>
-      <span class="svc-ko">브랜드 아이덴티티</span>
-      <span class="svc-en">Brand Identity</span>
-      <span class="svc-kpi-tag">런칭 후 인지도 3배 상승</span>
+      <span class="svc-ko">브랜딩</span>
+      <span class="svc-en">Identity Design</span>
+      <span class="svc-kpi-tag">한가온 한방병원</span>
+      <span class="svc-arrow">→</span>
+    </div>
+    <div class="svc-item" data-i="4">
+      <span class="svc-num">05</span>
+      <span class="svc-ko">IMC</span>
+      <span class="svc-en">Integrated Marketing</span>
+      <span class="svc-kpi-tag">행담도 × CJ프레시웨이</span>
+      <span class="svc-arrow">→</span>
+    </div>
+    <div class="svc-item" data-i="5">
+      <span class="svc-num">06</span>
+      <span class="svc-ko">공공 홍보</span>
+      <span class="svc-en">Public Affairs</span>
+      <span class="svc-kpi-tag">대한민국 김장김치 축제</span>
       <span class="svc-arrow">→</span>
     </div>
   </div>
   <div class="svc-preview">
     <div class="svc-prev-img" data-pi="0">
-      <img src="cases/service/1.jpg" alt="전략 컨설팅 케이스" width="600" height="800">
+      <img src="cases/30.png" alt="Flashback Gyerim 전략 케이스" width="600" height="800">
       <div class="svc-prev-overlay"></div>
       <div class="svc-prev-badge">
-        <div class="svc-prev-kpi">500+</div>
-        <div class="svc-prev-label">브랜드 전략 수립</div>
+        <div class="svc-prev-kpi">Flashback</div>
+        <div class="svc-prev-label">Gyerim · Brand Strategy</div>
       </div>
     </div>
     <div class="svc-prev-img" data-pi="1">
-      <img src="cases/service/2.png" alt="퍼포먼스 마케팅 케이스" width="600" height="800">
+      <img src="cases/33.png" alt="IFS COEX 퍼포먼스 케이스" width="600" height="800">
       <div class="svc-prev-overlay"></div>
       <div class="svc-prev-badge">
         <div class="svc-prev-kpi">ROAS 340%</div>
-        <div class="svc-prev-label">평균 달성률</div>
+        <div class="svc-prev-label">IFS × COEX · Performance</div>
       </div>
     </div>
     <div class="svc-prev-img" data-pi="2">
-      <img src="cases/service/3.png" alt="SNS 콘텐츠 마케팅 케이스" width="600" height="800">
+      <img src="cases/37.png" alt="복호두 콘텐츠 케이스" width="600" height="800">
       <div class="svc-prev-overlay"></div>
       <div class="svc-prev-badge">
-        <div class="svc-prev-kpi">+12,000</div>
-        <div class="svc-prev-label">월 평균 팔로워 증가</div>
+        <div class="svc-prev-kpi">복호두</div>
+        <div class="svc-prev-label">Content &amp; Social</div>
       </div>
     </div>
     <div class="svc-prev-img" data-pi="3">
-      <img src="cases/service/4.jpg" alt="브랜드 아이덴티티 케이스" width="600" height="800">
+      <img src="cases/36.png" alt="한가온 브랜딩 케이스" width="600" height="800">
       <div class="svc-prev-overlay"></div>
       <div class="svc-prev-badge">
-        <div class="svc-prev-kpi">3×</div>
-        <div class="svc-prev-label">런칭 후 인지도 상승</div>
+        <div class="svc-prev-kpi">한가온</div>
+        <div class="svc-prev-label">한방병원 · Identity Design</div>
+      </div>
+    </div>
+    <div class="svc-prev-img" data-pi="4">
+      <img src="cases/39.png" alt="행담도 IMC 케이스" width="600" height="800">
+      <div class="svc-prev-overlay"></div>
+      <div class="svc-prev-badge">
+        <div class="svc-prev-kpi">행담도</div>
+        <div class="svc-prev-label">CJ프레시웨이 · IMC</div>
+      </div>
+    </div>
+    <div class="svc-prev-img" data-pi="5">
+      <img src="cases/34.png" alt="김장김치 축제 공공 홍보 케이스" width="600" height="800">
+      <div class="svc-prev-overlay"></div>
+      <div class="svc-prev-badge">
+        <div class="svc-prev-kpi">김장김치 축제</div>
+        <div class="svc-prev-label">대한민국 · Public Affairs</div>
       </div>
     </div>
   </div>
@@ -966,7 +996,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 <div class="pnl ss" id="p-s0">
   <div class="ss-wrap">
     <div class="ss-c">
-      <div class="ss-num">01 / Strategy</div>
+      <div class="ss-num">01 / Brand Strategy</div>
       <h3 class="ss-t">브랜드는<br>감으로 만들지 않습니다<br>전략으로 설계합니다</h3>
       <p class="ss-sub">런칭부터 유입, 확산까지 하나의 구조로 설계합니다<br>메시지, 채널, 전환이 따로 놀지 않게 연결합니다</p>
       <div class="ss-key">전략은 방향이 아니라, 결과를 만드는 구조입니다</div>
@@ -976,8 +1006,8 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
     </div>
     <div class="ss-case-img" style="opacity:1;transform:none">
-      <div class="ss-img-label">FLASHBACK : GYERIM<br>Launch Strategy Case</div>
-      <img src="cases/service/1.jpg" alt="Flashback Gyerim 브랜드 런칭 전략 케이스 스터디" loading="lazy" width="600" height="400">
+      <div class="ss-img-label">FLASHBACK : GYERIM<br>Brand Strategy Case</div>
+      <img src="cases/30.png" alt="Flashback Gyerim 브랜드 전략 케이스" loading="lazy" width="600" height="400">
     </div>
   </div>
 </div>
@@ -986,11 +1016,11 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 <div class="pnl ss" id="p-s1">
   <div class="ss-wrap">
     <div class="ss-case-img" style="opacity:1;transform:none">
-      <div class="ss-img-label">IFS 프랜차이즈 박람회<br>COEX · Performance Case</div>
-      <img src="cases/service/2.png" alt="IFS 프랜차이즈 박람회 퍼포먼스 마케팅 케이스 스터디" loading="lazy" width="600" height="400">
+      <div class="ss-img-label">IFS 프랜차이즈 산업·창업 박람회<br>COEX · Performance Case</div>
+      <img src="cases/33.png" alt="IFS COEX 퍼포먼스 케이스" loading="lazy" width="600" height="400">
     </div>
     <div class="ss-c">
-      <div class="ss-num">02 / Performance</div>
+      <div class="ss-num">02 / Paid &amp; Performance</div>
       <h3 class="ss-t">광고비는<br>노출에 쓰지 않습니다<br>결과에 연결합니다</h3>
       <p class="ss-sub">유입이 아니라 전환 구조를 설계합니다<br>어디에 쓰느냐가 아니라, 어디서 돈이 만들어지는지를 봅니다</p>
       <div class="ss-key">광고는 비용이 아니라 수익 구조입니다</div>
@@ -1006,7 +1036,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 <div class="pnl ss" id="p-s2">
   <div class="ss-wrap">
     <div class="ss-c">
-      <div class="ss-num">03 / Content &amp; SNS</div>
+      <div class="ss-num">03 / Content &amp; Social</div>
       <h3 class="ss-t">콘텐츠는<br>소모하지 않습니다<br>자산으로 만듭니다</h3>
       <p class="ss-sub">조회수가 아니라 자산을 만듭니다<br>콘텐츠는 계속 유입을 만드는 구조여야 합니다</p>
       <div class="ss-key">한 번 쓰고 끝나는 콘텐츠는 만들지 않습니다</div>
@@ -1016,8 +1046,8 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
     </div>
     <div class="ss-case-img" style="opacity:1;transform:none">
-      <div class="ss-img-label">라마다 플라자 제주<br>Content & SNS Case</div>
-      <img src="cases/service/3.png" alt="라마다 플라자 제주 SNS 콘텐츠 마케팅 케이스 스터디" loading="lazy" width="600" height="400">
+      <div class="ss-img-label">복호두<br>Content &amp; Social Case</div>
+      <img src="cases/37.png" alt="복호두 콘텐츠 마케팅 케이스" loading="lazy" width="600" height="400">
     </div>
   </div>
 </div>
@@ -1026,13 +1056,54 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 <div class="pnl ss" id="p-s3">
   <div class="ss-wrap">
     <div class="ss-case-img" style="opacity:1;transform:none">
-      <img src="cases/service/4.jpg" alt="브랜드 아이덴티티 디자인 케이스 스터디" loading="lazy" width="600" height="400">
+      <div class="ss-img-label">한가온 한방병원<br>Identity Design Case</div>
+      <img src="cases/36.png" alt="한가온 한방병원 브랜딩 케이스" loading="lazy" width="600" height="400">
     </div>
     <div class="ss-c">
-      <div class="ss-num">04 / Brand Identity</div>
+      <div class="ss-num">04 / Identity Design</div>
       <h3 class="ss-t">브랜드는<br>보이는 게 아닙니다<br>기억되는 기준입니다</h3>
       <p class="ss-sub">디자인이 아니라 선택의 이유를 만듭니다<br>고객이 기억하고 설명할 수 있는 브랜드를 만듭니다</p>
       <div class="ss-key">예쁜 브랜드는 많습니다. 선택되는 브랜드는 적습니다</div>
+      <div class="ss-btns">
+        <button class="btn-pri" data-go="contact">프로젝트 문의하기</button>
+        <button class="btn-txt" data-go="svc">다른 서비스</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICE 4: IMC -->
+<div class="pnl ss" id="p-s4">
+  <div class="ss-wrap">
+    <div class="ss-c">
+      <div class="ss-num">05 / Integrated Marketing</div>
+      <h3 class="ss-t">채널은<br>따로 굴러가지 않습니다<br>하나의 궤도로 연결합니다</h3>
+      <p class="ss-sub">네이버, 인스타그램, 커뮤니티를 끊김 없이 연결합니다<br>캠페인이 끝나도 자산이 남는 구조를 설계합니다</p>
+      <div class="ss-key">채널이 시너지를 낼 때 비로소 브랜드가 성장합니다</div>
+      <div class="ss-btns">
+        <button class="btn-pri" data-go="contact">프로젝트 문의하기</button>
+        <button class="btn-txt" data-go="svc">다른 서비스</button>
+      </div>
+    </div>
+    <div class="ss-case-img" style="opacity:1;transform:none">
+      <div class="ss-img-label">행담도 · CJ프레시웨이<br>IMC Case</div>
+      <img src="cases/39.png" alt="행담도 CJ프레시웨이 IMC 케이스" loading="lazy" width="600" height="400">
+    </div>
+  </div>
+</div>
+
+<!-- SERVICE 5: PUBLIC AFFAIRS -->
+<div class="pnl ss" id="p-s5">
+  <div class="ss-wrap">
+    <div class="ss-case-img" style="opacity:1;transform:none">
+      <div class="ss-img-label">대한민국 김장김치 축제<br>Public Affairs Case</div>
+      <img src="cases/34.png" alt="대한민국 김장김치 축제 공공 홍보 케이스" loading="lazy" width="600" height="400">
+    </div>
+    <div class="ss-c">
+      <div class="ss-num">06 / Public Affairs</div>
+      <h3 class="ss-t">공공 캠페인은<br>노출이 아닙니다<br>참여를 만드는 구조입니다</h3>
+      <p class="ss-sub">OOH부터 QR 전환, 온라인 커뮤니티까지 연계합니다<br>행사 현장과 디지털을 하나의 흐름으로 묶습니다</p>
+      <div class="ss-key">시민이 참여하는 캠페인이 기억에 남습니다</div>
       <div class="ss-btns">
         <button class="btn-pri" data-go="contact">프로젝트 문의하기</button>
         <button class="btn-txt" data-go="svc">다른 서비스</button>
@@ -1478,7 +1549,7 @@ function hoverOff(){document.body.classList.remove('on-hover')}
 
 // ── STATE ──
 var SCROLL_MODE=false;
-var S={HERO:'hero',PROB:'prob',ORBIT:'orbit',CORE:'core',MOM:'mom',ORB:'orb',SVC:'svc',S0:'s0',S1:'s1',S2:'s2',S3:'s3',CLI:'cli',CT:'ct'};
+var S={HERO:'hero',PROB:'prob',ORBIT:'orbit',CORE:'core',MOM:'mom',ORB:'orb',SVC:'svc',S0:'s0',S1:'s1',S2:'s2',S3:'s3',S4:'s4',S5:'s5',CLI:'cli',CT:'ct'};
 var cur=S.HERO,hist=[];
 
 var CAM_CFG={
@@ -1493,13 +1564,15 @@ var CAM_CFG={
   s1:     {p:[4,1,10],   t:[1.5,.3,0], par:.3},
   s2:     {p:[0,3.5,10], t:[0,1,0],   par:.3},
   s3:     {p:[0,-3,10],  t:[0,-1,0],  par:.3},
+  s4:     {p:[-4,-1,10], t:[-1.5,-.3,0],par:.3},
+  s5:     {p:[4,-1,10],  t:[1.5,-.3,0], par:.3},
   cli:    {p:[0,0,14],   t:[0,0,0],   par:.3},
   ct:     {p:[0,0,13],   t:[0,0,0],   par:.3},
 };
 
 var PMAP={
   hero:'p-hero',prob:'p-prob',orbit:'p-orbit',core:'p-core',mom:'p-mom',orb:'p-orb',
-  svc:'p-svc',s0:'p-s0',s1:'p-s1',s2:'p-s2',s3:'p-s3',cli:'p-cli',ct:'p-ct'
+  svc:'p-svc',s0:'p-s0',s1:'p-s1',s2:'p-s2',s3:'p-s3',s4:'p-s4',s5:'p-s5',cli:'p-cli',ct:'p-ct'
 };
 var PMAIN=['hero','prob','orbit','svc','cli','ct'];
 var SCROLL_PANEL_MAP={
@@ -1513,7 +1586,7 @@ var SCROLL_PANEL_MAP={
   s0:'p-svc',
   s1:'p-svc',
   s2:'p-svc',
-  s3:'p-svc',
+  s3:'p-svc',s4:'p-svc',s5:'p-svc',
   cli:'p-case',
   ct:'p-ct'
 };
@@ -1590,7 +1663,7 @@ function openPanel(id,state){
   else if(state===S.PROB)animProb();
   else if(state===S.CORE||state===S.MOM||state===S.ORB)animNode(id);
   else if(state===S.SVC)animSvc();
-  else if(state===S.S0||state===S.S1||state===S.S2||state===S.S3)animSS(id);
+  else if(state===S.S0||state===S.S1||state===S.S2||state===S.S3||state===S.S4||state===S.S5)animSS(id);
   else if(state===S.CLI)animCli();
   else if(state===S.CT)animCt();
   if(state===S.ORBIT){
