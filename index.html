@@ -2169,7 +2169,6 @@ function updateNav(s){
   var nav=document.getElementById('nav');
   if(SCROLL_MODE){
     document.getElementById('back').classList.remove('vis');
-    if(nav)nav.classList.remove('nav-dark');
     return;
   }
   var isHero=s===S.HERO;
@@ -2300,25 +2299,33 @@ function initScrollMode(){
     if(el)scrollObs.observe(el);
   });
 
-  // Floating CTA — show after hero, hide on contact
+  // Floating CTA + Nav dark toggle (hero visible → nav-dark on)
   var floatCta=document.getElementById('float-cta');
-  if(floatCta){
-    var heroEl=document.getElementById('p-hero');
-    var ctEl=document.getElementById('p-ct');
-    var floatObs=new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if(e.target.id==='p-hero'){
-          if(e.isIntersecting) floatCta.classList.remove('vis');
-          else floatCta.classList.add('vis');
+  var navEl=document.getElementById('nav');
+  var heroEl=document.getElementById('p-hero');
+  var ctEl=document.getElementById('p-ct');
+  var caseEl=document.getElementById('p-case');
+  if(navEl)navEl.classList.add('nav-dark'); // start on hero
+  var floatObs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.target.id==='p-hero'){
+        if(e.isIntersecting){
+          if(floatCta)floatCta.classList.remove('vis');
+          if(navEl)navEl.classList.add('nav-dark');
+        } else {
+          if(floatCta)floatCta.classList.add('vis');
+          if(navEl)navEl.classList.remove('nav-dark');
         }
-        if(e.target.id==='p-ct'){
-          if(e.isIntersecting) floatCta.classList.remove('vis');
-        }
-      });
-    },{threshold:0.15});
-    if(heroEl)floatObs.observe(heroEl);
-    if(ctEl)floatObs.observe(ctEl);
-  }
+      }
+      /* case section uses light overlay in scroll-mode, so nav stays light */
+      if(e.target.id==='p-ct'){
+        if(e.isIntersecting&&floatCta) floatCta.classList.remove('vis');
+      }
+    });
+  },{threshold:0.15});
+  if(heroEl)floatObs.observe(heroEl);
+  if(ctEl)floatObs.observe(ctEl);
+  if(caseEl)floatObs.observe(caseEl);
 }
 
 // ── THREE OBJECTS ──
