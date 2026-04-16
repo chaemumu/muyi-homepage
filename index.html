@@ -643,6 +643,8 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .ct-ti .h-line{padding:.02em 0}
 .ct-ti .h-line-in{transform-origin:center bottom}
 .ct-ti .h-title-grad{background:none;-webkit-background-clip:border-box;-webkit-text-fill-color:#0a0a1a;background-clip:border-box}
+.ct-left{display:flex;flex-direction:column}
+.ct-desc{font-size:1.05rem;line-height:1.7;color:var(--c-subtle);margin-bottom:auto;word-break:keep-all}
 .ct-stats{display:flex;gap:2.5rem;padding-bottom:.5rem}
 .ct-stat{display:flex;flex-direction:column;gap:.4rem}
 .ct-stat-num{font-family:'Syne','Space Grotesk',sans-serif;font-size:3rem;font-weight:800;color:var(--c-brand);line-height:1;letter-spacing:-.03em;display:inline}
@@ -1662,15 +1664,14 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
     <div class="ct-map-fade"></div>
     <div id="mapContainer" style="position:absolute;inset:0;width:100%;height:100%;"></div>
   </div>
-  <div class="ct-col" style="display:flex;flex-direction:column;justify-content:space-between">
-    <div>
-      <span class="ct-eye">영업일 기준 24시간 내 답변</span>
-      <h2 class="ct-ti">
-        <span class="h-line"><span class="h-line-in h-title-grad">무이와 함께</span></span>
-        <span class="h-line"><span class="h-line-in h-title-grad">성장 구조를</span></span>
-        <span class="h-line"><span class="h-line-in h-title-grad">설계할 시간입니다.</span></span>
-      </h2>
-    </div>
+  <div class="ct-col ct-left">
+    <span class="ct-eye">영업일 기준 24시간 내 답변</span>
+    <h2 class="ct-ti">
+      <span class="h-line"><span class="h-line-in h-title-grad">무이와 함께</span></span>
+      <span class="h-line"><span class="h-line-in h-title-grad">성장 구조를</span></span>
+      <span class="h-line"><span class="h-line-in h-title-grad">설계할 시간입니다.</span></span>
+    </h2>
+    <p class="ct-desc">브랜드 전략부터 퍼포먼스까지,<br>풀퍼널 마케팅 파트너가 필요한 순간.</p>
     <div class="ct-stats">
       <div class="ct-stat"><span class="ct-stat-num" data-target="150">0</span><span class="ct-stat-unit">+</span><span class="ct-stat-label">엔터프라이즈 프로젝트 수행</span></div>
       <div class="ct-stat"><span class="ct-stat-num" data-target="97">0</span><span class="ct-stat-unit">%</span><span class="ct-stat-label">클라이언트 재계약률</span></div>
