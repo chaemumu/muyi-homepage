@@ -643,10 +643,11 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .ct-ti .h-line{padding:.02em 0}
 .ct-ti .h-line-in{transform-origin:center bottom}
 .ct-ti .h-title-grad{background:none;-webkit-background-clip:border-box;-webkit-text-fill-color:#0a0a1a;background-clip:border-box}
-.ct-info{display:flex;flex-direction:column;gap:1rem;grid-column:1;grid-row:1;align-self:end}
-.ct-row{display:flex;flex-direction:column;gap:.15rem}
-.ct-key{font-size:.78rem;letter-spacing:.06em;color:var(--c-subtle);font-weight:600}
-.ct-val{font-size:1rem;color:rgba(10,10,26,.75)}
+.ct-stats{display:flex;gap:2rem}
+.ct-stat{display:flex;flex-direction:column;gap:.2rem}
+.ct-stat-num{font-family:'Syne','Space Grotesk',sans-serif;font-size:2.2rem;font-weight:800;color:var(--c-brand);line-height:1;letter-spacing:-.02em;display:inline}
+.ct-stat-unit{font-family:'Syne','Space Grotesk',sans-serif;font-size:1.4rem;font-weight:800;color:var(--c-brand);line-height:1}
+.ct-stat-label{font-size:.72rem;color:var(--c-subtle);letter-spacing:.02em;line-height:1.3}
 .fg{margin-bottom:1rem}
 .fl{display:block;font-size:var(--text-xs);letter-spacing:.04em;color:var(--c-subtle);margin-bottom:.4rem;font-weight:600;font-family:'Noto Sans KR','DM Sans',sans-serif}
 .fi,.ft{width:100%;background:#f6f7ff;border:1px solid rgba(30,16,199,.12);border-radius:var(--radius-sm);color:#0a0a1a;padding:.9rem 1.2rem;font-family:inherit;font-size:var(--text-base);outline:none;transition:border-color var(--dur-mid),background var(--dur-mid),box-shadow var(--dur-mid);-webkit-appearance:none}
@@ -821,6 +822,10 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   .legal-modal{padding:1.8rem 1.4rem;max-height:85vh;border-radius:12px}
   .ct-ti{font-size:clamp(1.4rem,5.5vw,2rem);word-break:keep-all;margin-bottom:.8rem}
   .ct-eye{margin-bottom:.4rem;font-size:.65rem}
+  .ct-stats{gap:1.2rem;margin-top:.8rem;margin-bottom:.4rem}
+  .ct-stat-num{font-size:1.6rem}
+  .ct-stat-unit{font-size:1rem}
+  .ct-stat-label{font-size:.62rem}
   .fg{margin-bottom:.6rem}
   .fi,.ft{font-size:.88rem;padding:.6rem .8rem;min-height:44px}
   .ft{min-height:60px}
@@ -1657,13 +1662,20 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
     <div class="ct-map-fade"></div>
     <div id="mapContainer" style="position:absolute;inset:0;width:100%;height:100%;"></div>
   </div>
-  <div class="ct-col">
-    <span class="ct-eye">영업일 기준 24시간 내 답변</span>
-    <h2 class="ct-ti">
-      <span class="h-line"><span class="h-line-in h-title-grad">무이와 함께</span></span>
-      <span class="h-line"><span class="h-line-in h-title-grad">성장 구조를</span></span>
-      <span class="h-line"><span class="h-line-in h-title-grad">설계할 시간입니다.</span></span>
-    </h2>
+  <div class="ct-col" style="display:flex;flex-direction:column;justify-content:space-between">
+    <div>
+      <span class="ct-eye">영업일 기준 24시간 내 답변</span>
+      <h2 class="ct-ti">
+        <span class="h-line"><span class="h-line-in h-title-grad">무이와 함께</span></span>
+        <span class="h-line"><span class="h-line-in h-title-grad">성장 구조를</span></span>
+        <span class="h-line"><span class="h-line-in h-title-grad">설계할 시간입니다.</span></span>
+      </h2>
+    </div>
+    <div class="ct-stats">
+      <div class="ct-stat"><span class="ct-stat-num" data-target="150">0</span><span class="ct-stat-unit">+</span><span class="ct-stat-label">엔터프라이즈 프로젝트 수행</span></div>
+      <div class="ct-stat"><span class="ct-stat-num" data-target="97">0</span><span class="ct-stat-unit">%</span><span class="ct-stat-label">클라이언트 재계약률</span></div>
+      <div class="ct-stat"><span class="ct-stat-num" data-target="340">0</span><span class="ct-stat-unit">%</span><span class="ct-stat-label">평균 ROAS 개선</span></div>
+    </div>
   </div>
   <div class="ct-col">
     <form id="form" novalidate>
@@ -1677,7 +1689,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
         </select>
       </div>
       <div class="fg"><label class="fl">메시지</label><textarea class="ft" name="message" placeholder="프로젝트에 대해 간단히 알려주세요"></textarea></div>
-      <button class="fsub" type="submit" id="sbtn"><span>무료 진단 요청 보내기</span></button>
+      <button class="fsub" type="submit" id="sbtn"><span>무료 진단</span></button>
       <div class="fst" id="fst"></div>
     </form>
   </div>
@@ -2190,6 +2202,14 @@ function animCt(){
       line.style.transition='opacity .8s cubic-bezier(.16,1,.3,1)';
       line.style.opacity='1';
     },240+i*130);
+  });
+  document.querySelectorAll('#p-ct .ct-stat-num').forEach(function(el,i){
+    var target=parseInt(el.dataset.target);var dur=1200;var start=performance.now();
+    el.textContent='0';
+    setTimeout(function(){
+      function tick(now){var p=Math.min((now-start)/dur,1);var ease=1-Math.pow(1-p,3);el.textContent=Math.round(target*ease);if(p<1)requestAnimationFrame(tick);else el.textContent=target;}
+      start=performance.now();requestAnimationFrame(tick);
+    },500+i*150);
   });
 }
 
