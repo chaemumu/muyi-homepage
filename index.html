@@ -162,8 +162,8 @@ body.scroll-mode .ct-map-bg{opacity:1!important;height:200px}
 body.scroll-mode .pnl.ss{display:none!important}
 body.scroll-mode .svc-kpi-tag{opacity:1;transform:none}
 body.scroll-mode #c{position:fixed;z-index:-1;opacity:.15}
-body.scroll-mode #nav{backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(255,255,255,.85)}
-body.scroll-mode .nav-dark #nav,body.scroll-mode #nav.nav-dark{background:rgba(5,4,14,.85)}
+body.scroll-mode #nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background:transparent}
+body.scroll-mode .nav-dark #nav,body.scroll-mode #nav.nav-dark{background:transparent}
 
 /* CURSOR */
 #cur-d{position:fixed;z-index:9999;pointer-events:none;width:5px;height:5px;border-radius:50%;background:#EE4E00;transform:translate(-50%,-50%);mix-blend-mode:normal;transition:width var(--dur-fast),height var(--dur-fast);will-change:transform}
@@ -717,7 +717,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   .npnl,.npnl.lft{padding:calc(var(--nav-h) + 1rem) var(--edge-pad) 3rem;justify-content:flex-start;align-items:stretch}
   .nc{max-width:100%;transform:none!important;padding:0 var(--edge-pad)}
   .nc-title{font-size:clamp(1.6rem,6vw,2.4rem);transform:none;word-break:keep-all}
-  .nc-desc{font-size:clamp(.82rem,3vw,.92rem);line-height:1.65;word-break:keep-all}
+  .nc-desc{font-size:clamp(.85rem,3.2vw,.95rem);line-height:1.6;word-break:keep-all}
   .nc-list{gap:.35rem}
   .nc-item{font-size:.82rem;padding:.5rem .75rem;min-height:44px;display:flex;align-items:center}
   .nc-next{display:none}
@@ -766,8 +766,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   .ct-col:last-of-type{grid-column:1;grid-row:2}
   .ct-info{grid-column:1;grid-row:4;padding-top:1rem;border-top:1px solid rgba(0,0,0,.06)}
   .ct-map-bg{grid-column:1;grid-row:3;height:180px}
-  .ct-footer{grid-column:1;grid-row:5}
-  .ct-footer{grid-column:1;grid-row:4;flex-direction:column;align-items:center;text-align:center;gap:.5rem}
+  .ct-footer{grid-column:1;grid-row:5;flex-direction:column;align-items:center;text-align:center;gap:.5rem}
   .ct-ti{font-size:clamp(1.6rem,6vw,2.4rem);word-break:keep-all}
   .ct-promises{gap:.8rem;margin-bottom:1.8rem}
   .ct-promise{padding:.6rem 1rem;font-size:.82rem}
@@ -783,7 +782,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   .cli-ey{font-size:.65rem}
   .cli-ti{font-size:clamp(1.4rem,5.5vw,2rem);word-break:keep-all}
   .cli-sub{font-size:.82rem;line-height:1.6;word-break:keep-all}
-  .cl-grid{grid-template-columns:repeat(3,1fr);gap:1rem 1.2rem}
+  .cl-grid{grid-template-columns:repeat(2,1fr);gap:1rem 1.5rem}
   .cli-cases{grid-template-columns:1fr 1fr;gap:.6rem}
   .cli-case{min-width:0;padding:.8rem}
   .cli-case-n{font-size:1.1rem}
@@ -831,7 +830,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   .prob-card{min-width:100%;max-width:100%;padding:.7rem}
   .ss-t{font-size:clamp(1.3rem,5vw,1.7rem)}
   .ss-sub{font-size:.8rem}
-  .cl-grid{grid-template-columns:repeat(3,1fr);gap:.8rem}
+  .cl-grid{grid-template-columns:repeat(2,1fr);gap:.8rem}
   .lg img{max-height:40px}
   .lg:first-child img{max-height:50px}
   .cli-cases{grid-template-columns:1fr}
@@ -859,7 +858,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   <div class="nav-r">
 <button class="nav-lnk" id="cli-btn">성과 사례</button>
 <a class="nav-lnk" href="/consult" style="border:1px solid var(--c-border);padding:.4rem 1rem;border-radius:var(--radius-full);font-size:.72rem">B2C</a>
-<button class="nav-cta" id="ct-nav">무료 진단</button>
+<button class="nav-cta" id="ct-nav">문의하기</button>
   </div>
 </nav>
 
