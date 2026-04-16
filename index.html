@@ -135,11 +135,11 @@
 html,body{width:100%;height:100%;overflow:hidden;background:var(--c-bg)}
 body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-family:'DM Sans','Noto Sans KR',sans-serif;text-rendering:optimizeLegibility;font-feature-settings:'kern' 1,'liga' 1}
 #c{position:fixed;inset:0;width:100%;height:100%;display:block}
-html.scroll-mode,body.scroll-mode{height:auto;overflow-x:hidden;overflow-y:auto}
+html.scroll-mode,body.scroll-mode{height:auto;overflow-x:hidden;overflow-y:auto;scroll-snap-type:y proximity}
 body.scroll-mode #back,body.scroll-mode #prog{display:none!important}
 body.scroll-mode #ui{position:relative;inset:auto;pointer-events:auto;display:flex;flex-direction:column}
 body.scroll-mode .pnl{position:relative;inset:auto;display:flex;opacity:1!important;pointer-events:auto;will-change:auto}
-body.scroll-mode #p-hero{min-height:100svh;background:linear-gradient(180deg,rgb(5,4,14) 0%,rgb(5,4,14) 85%,#ffffff 100%)}
+body.scroll-mode #p-hero{min-height:100svh;background:linear-gradient(180deg,rgb(5,4,14) 0%,rgb(5,4,14) 85%,#ffffff 100%);scroll-snap-align:start}
 body.scroll-mode #p-prob,
 body.scroll-mode #p-cli{min-height:100svh}
 body.scroll-mode #p-orbit{min-height:auto;padding:3rem 0}
@@ -149,12 +149,15 @@ body.scroll-mode #p-cs{min-height:100svh}
 body.scroll-mode #p-ct{min-height:100svh;background:#ffffff}
 /* Scroll-mode mobile specifics */
 body.scroll-mode #p-hero{padding-bottom:4rem}
-body.scroll-mode #p-prob{min-height:auto;padding-top:3rem;padding-bottom:3rem}
-body.scroll-mode #p-svc{position:relative!important;inset:auto!important;min-height:auto;padding:2rem 0;overflow:visible}
-body.scroll-mode #p-cli{min-height:auto;padding-top:3rem;padding-bottom:3rem}
-body.scroll-mode #p-ct{min-height:auto;padding-bottom:4rem;display:grid!important}
-body.scroll-mode #p-case{padding:2rem 0}
-body.scroll-mode #p-cs{min-height:auto;padding:3rem 0}
+body.scroll-mode #p-prob{min-height:100svh;padding-top:3rem;padding-bottom:3rem;scroll-snap-align:start}
+body.scroll-mode #p-orbit,body.scroll-mode #p-svc,body.scroll-mode #p-cs{display:none!important}
+body.scroll-mode #p-core,body.scroll-mode #p-mom,body.scroll-mode #p-orb{min-height:100svh;scroll-snap-align:start;background:#fff}
+body.scroll-mode .npnl,.scroll-mode .npnl.lft{justify-content:center;align-items:center;padding:var(--nav-h) var(--edge-pad) 3rem}
+body.scroll-mode .nc{transform:none!important}
+body.scroll-mode #p-case{min-height:100svh;padding:0;scroll-snap-align:start}
+body.scroll-mode .cs-wrap{height:100svh}
+body.scroll-mode #p-cli{min-height:100svh;padding-top:3rem;padding-bottom:3rem;scroll-snap-align:start}
+body.scroll-mode #p-ct{min-height:auto;padding-bottom:4rem;display:grid!important;scroll-snap-align:start}
 body.scroll-mode .pnl.ss{display:none!important}
 body.scroll-mode .svc-kpi-tag{opacity:1;transform:none}
 body.scroll-mode #c{position:fixed;z-index:-1;opacity:.15}
@@ -593,7 +596,7 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .ct-promises{display:flex;flex-direction:column;gap:1.2rem;margin-bottom:2.8rem}
 .ct-promise{display:flex;align-items:center;gap:.8rem;font-size:var(--text-sm);color:var(--c-text);font-family:'Noto Sans KR','DM Sans',sans-serif;letter-spacing:.01em;background:#f6f7ff;border:1px solid var(--c-border);border-radius:var(--radius-full);padding:.75rem 1.4rem;backdrop-filter:blur(8px);transition:all var(--dur-mid) var(--ease-out);box-shadow:var(--shadow-sm)}
 .ct-promise:hover{background:#eef1ff;transform:translateY(-2px);box-shadow:var(--shadow-md)}
-.ct-info{display:flex;flex-direction:column;gap:1rem}
+.ct-info{display:flex;flex-direction:column;gap:1rem;grid-column:1;grid-row:1;align-self:end}
 .ct-row{display:flex;flex-direction:column;gap:.2rem}
 .ct-promise-icon{color:var(--c-accent);font-weight:700;font-size:1rem;flex-shrink:0}
 .ct-key{font-size:.78rem;letter-spacing:.06em;color:var(--c-subtle);font-weight:600}
@@ -749,10 +752,12 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   #p-s0 .ss-c,#p-s1 .ss-c,#p-s2 .ss-c,#p-s3 .ss-c,#p-s4 .ss-c,#p-s5 .ss-c,#p-s6 .ss-c{margin-left:0;margin-right:0}
 
   /* CONTACT */
-  #p-ct{grid-template-columns:1fr;grid-template-rows:auto auto auto auto;gap:1.2rem;padding:calc(var(--nav-h) + .5rem) var(--edge-pad) 4rem;overflow-y:auto;align-items:start}
+  #p-ct{grid-template-columns:1fr;grid-template-rows:auto auto auto auto auto;gap:1.2rem;padding:calc(var(--nav-h) + .5rem) var(--edge-pad) 4rem;overflow-y:auto;align-items:start}
   .ct-col:first-of-type{grid-column:1;grid-row:1}
   .ct-col:last-of-type{grid-column:1;grid-row:2}
+  .ct-info{grid-column:1;grid-row:4;padding-top:1rem;border-top:1px solid rgba(0,0,0,.06)}
   .ct-map-bg{grid-column:1;grid-row:3;height:180px}
+  .ct-footer{grid-column:1;grid-row:5}
   .ct-footer{grid-column:1;grid-row:4;flex-direction:column;align-items:center;text-align:center;gap:.5rem}
   .ct-ti{font-size:clamp(1.6rem,6vw,2.4rem);word-break:keep-all}
   .ct-promises{gap:.8rem;margin-bottom:1.8rem}
@@ -1579,10 +1584,6 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       <div class="ct-promise"><span class="ct-promise-icon">✓</span>영업일 기준 24시간 내 첫 답변을 드립니다</div>
       <div class="ct-promise"><span class="ct-promise-icon">✓</span>결과 중심으로 일하고, 측정 가능한 성과를 함께 추적합니다</div>
     </div>
-    <div class="ct-info">
-      <div class="ct-row"><span class="ct-key">이메일</span><span class="ct-val"><a href="mailto:info@muyi.co.kr" style="color:inherit;text-decoration:none">info@muyi.co.kr</a></span></div>
-      <div class="ct-row"><span class="ct-key">위치</span><span class="ct-val">서울시 금천구 디지털로 178 퍼블릭 가산 B동</span></div>
-    </div>
   </div>
   <div class="ct-col">
     <form id="form" novalidate>
@@ -1599,6 +1600,10 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       <button class="fsub" type="submit" id="sbtn"><span>진단 요청 보내기</span></button>
       <div class="fst" id="fst"></div>
     </form>
+  </div>
+  <div class="ct-info">
+    <div class="ct-row"><span class="ct-key">이메일</span><span class="ct-val"><a href="mailto:info@muyi.co.kr" style="color:inherit;text-decoration:none">info@muyi.co.kr</a></span></div>
+    <div class="ct-row"><span class="ct-key">위치</span><span class="ct-val">서울시 금천구 디지털로 178 퍼블릭 가산 B동</span></div>
   </div>
   <div class="ct-footer">
     <div class="ct-footer-links">
@@ -1724,19 +1729,16 @@ var PMAIN=['hero','prob','orbit','svc','cli','ct'];
 var SCROLL_PANEL_MAP={
   hero:'p-hero',
   prob:'p-prob',
-  orbit:'p-svc',
-  core:'p-svc',
-  mom:'p-svc',
-  orb:'p-svc',
-  svc:'p-svc',
-  s0:'p-svc',
-  s1:'p-svc',
-  s2:'p-svc',
-  s3:'p-svc',s4:'p-svc',s5:'p-svc',s6:'p-svc',
-  cli:'p-case',
+  orbit:'p-core',
+  core:'p-core',
+  mom:'p-mom',
+  orb:'p-orb',
+  svc:'p-case',
+  s0:'p-case',s1:'p-case',s2:'p-case',s3:'p-case',s4:'p-case',s5:'p-case',s6:'p-case',
+  cli:'p-cli',
   ct:'p-ct'
 };
-var SCROLL_VISIBLE_PANELS=['p-hero','p-prob','p-orbit','p-svc','p-case','p-cli','p-cs','p-ct'];
+var SCROLL_VISIBLE_PANELS=['p-hero','p-prob','p-core','p-mom','p-orb','p-case','p-cli','p-ct'];
 
 function scrollToState(ns,pushHist){
   var targetId=SCROLL_PANEL_MAP[ns]||SCROLL_PANEL_MAP[S.HERO];
@@ -2220,12 +2222,11 @@ function initScrollMode(){
       if(skip)skip.style.opacity='1';
       document.querySelectorAll('.orbit-btn').forEach(function(b){b.style.opacity='1';b.style.transform='none';});
     },
+    'p-core':function(){animNode('p-core');},
+    'p-mom':function(){animNode('p-mom');},
+    'p-orb':function(){animNode('p-orb');},
     'p-svc':function(){animSvc();},
     'p-cli':function(){animCli();},
-    'p-cs':function(){
-      var eye=document.querySelector('.csd-eye');if(eye)eye.classList.add('vis');
-      var title=document.querySelector('.csd-title');if(title)title.classList.add('vis');
-    },
     'p-ct':function(){
       var ct=document.getElementById('p-ct');
       if(!ct)return;
