@@ -607,11 +607,29 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .ct-map-bg.is-vis{opacity:1;transition-delay:.5s}
 .ct-map-fade{position:absolute;left:0;top:0;bottom:0;width:80px;background:linear-gradient(90deg,#f0f0f0,transparent);z-index:2;pointer-events:none}
 .ct-map-bg svg{width:100%;height:100%;display:block}
-.ct-footer{grid-column:1/-1;grid-row:3;display:flex;justify-content:space-between;align-items:center;padding-top:1.5rem;border-top:1px solid var(--c-border);flex-wrap:wrap;gap:.8rem}
-.ct-footer-links{display:flex;gap:1.5rem}
-.ct-footer-links a{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--c-subtle);text-decoration:none;transition:color .3s}
-.ct-footer-links a:hover{color:var(--c-brand)}
-.ct-footer-copy{font-size:.68rem;letter-spacing:.06em;color:rgba(10,10,26,.25)}
+.ct-footer{grid-column:1/-1;grid-row:3;padding-top:1.5rem;border-top:1px solid var(--c-border);display:flex;flex-direction:column;gap:.6rem}
+.ct-footer-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem}
+.ct-footer-links{display:flex;align-items:center;gap:1.2rem}
+.ct-footer-links button{font-size:.68rem;letter-spacing:.06em;color:rgba(10,10,26,.35);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;transition:color .3s}
+.ct-footer-links button:hover{color:var(--c-brand)}
+.ct-footer-links .ft-sep{width:1px;height:10px;background:rgba(10,10,26,.12)}
+.ct-footer-switch{display:inline-flex;align-items:center;gap:.45rem;font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--c-brand);text-decoration:none;border:1px solid rgba(30,16,199,.2);border-radius:var(--radius-full);padding:.35rem .9rem .35rem .7rem;transition:all .25s;background:rgba(30,16,199,.04)}
+.ct-footer-switch:hover{background:var(--c-brand);color:#fff;border-color:var(--c-brand);transform:translateY(-1px);box-shadow:0 4px 12px rgba(30,16,199,.2)}
+.ct-footer-switch svg{width:12px;height:12px;transition:transform .25s}
+.ct-footer-switch:hover svg{transform:translateX(2px)}
+.ct-footer-meta{font-size:.62rem;color:rgba(10,10,26,.22);letter-spacing:.02em;line-height:1.6}
+.ct-footer-meta span+span::before{content:'·';margin:0 .5rem}
+/* Legal Modal */
+.legal-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;display:none;align-items:center;justify-content:center;padding:2rem;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.legal-modal-overlay.is-open{display:flex}
+.legal-modal{background:#fff;border-radius:16px;max-width:580px;width:100%;max-height:80vh;overflow-y:auto;padding:2.5rem 3rem;position:relative;box-shadow:0 24px 80px rgba(0,0,0,.18)}
+.legal-modal-close{position:absolute;top:1rem;right:1rem;width:32px;height:32px;border:none;background:rgba(10,10,26,.05);border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .2s;color:#999}
+.legal-modal-close:hover{background:rgba(10,10,26,.1);color:#333}
+.legal-modal h2{font-family:'Noto Sans KR',sans-serif;font-size:1.2rem;font-weight:700;color:#0a0a1a;margin-bottom:1.2rem;letter-spacing:-.02em}
+.legal-modal h3{font-size:.85rem;font-weight:700;color:#0a0a1a;margin:1.2rem 0 .4rem}
+.legal-modal p,.legal-modal li{font-size:.82rem;line-height:1.7;color:rgba(10,10,26,.6);font-family:'Noto Sans KR','DM Sans',sans-serif}
+.legal-modal ul{list-style:disc;padding-left:1.2rem;margin:.2rem 0}
+.legal-modal .legal-note{margin-top:1.5rem;padding-top:.8rem;border-top:1px solid rgba(10,10,26,.06);font-size:.75rem;color:rgba(10,10,26,.3)}
 .ct-col{position:relative;z-index:1}
 .ct-col:first-of-type{grid-column:1;grid-row:1}
 .ct-col:last-of-type{grid-column:2;grid-row:1}
@@ -793,7 +811,13 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   .ct-col:first-of-type{grid-column:1;grid-row:1}
   .ct-col:last-of-type{grid-column:1;grid-row:2}
   .ct-map-bg{grid-column:1;grid-row:3;height:140px}
-  .ct-footer{display:flex;grid-column:1;grid-row:4;padding-top:.6rem;border-top:1px solid rgba(0,0,0,.06);flex-wrap:wrap;gap:.5rem;justify-content:space-between;align-items:center}
+  .ct-footer{grid-column:1;grid-row:4;padding-top:.6rem;border-top:1px solid rgba(0,0,0,.06);gap:.3rem}
+  .ct-footer-row{gap:.5rem}
+  .ct-footer-links{gap:.8rem}
+  .ct-footer-links button{font-size:.6rem}
+  .ct-footer-switch{font-size:.58rem;padding:.3rem .7rem .3rem .55rem}
+  .ct-footer-meta{font-size:.55rem}
+  .legal-modal{padding:1.8rem 1.4rem;max-height:85vh;border-radius:12px}
   .ct-ti{font-size:clamp(1.4rem,5.5vw,2rem);word-break:keep-all;margin-bottom:.8rem}
   .ct-promises{display:none}
   .ct-eye{margin-bottom:.4rem;font-size:.65rem}
@@ -1650,9 +1674,9 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   </div>
   <div class="ct-col">
     <form id="form" novalidate>
-      <div class="fg"><label class="fl">이름</label><input class="fi" type="text" name="name" placeholder="홍길동"></div>
+      <div class="fg"><label class="fl">이름</label><input class="fi" type="text" name="name" placeholder="홍길동" required></div>
       <div class="fg"><label class="fl">이메일</label><input class="fi" type="email" name="email" placeholder="hello@brand.com"></div>
-      <div class="fg"><label class="fl">연락처</label><input class="fi" type="tel" name="phone" placeholder="010-0000-0000"></div>
+      <div class="fg"><label class="fl">연락처</label><input class="fi" type="tel" name="phone" placeholder="010-0000-0000" required></div>
       <div class="fg"><label class="fl">문의 유형</label>
         <select class="fi" name="type">
           <option>IMC 전략 컨설팅</option><option>퍼포먼스 마케팅</option>
@@ -1660,18 +1684,24 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
         </select>
       </div>
       <div class="fg"><label class="fl">메시지</label><textarea class="ft" name="message" placeholder="프로젝트에 대해 간단히 알려주세요"></textarea></div>
-      <button class="fsub" type="submit" id="sbtn"><span>진단 요청 보내기</span></button>
+      <button class="fsub" type="submit" id="sbtn"><span>무료 진단 요청 보내기</span></button>
       <div class="fst" id="fst"></div>
     </form>
   </div>
   <div class="ct-footer">
-    <div class="ct-footer-links">
-      <a href="/consult">B2C</a>
-      <a href="/privacy">Privacy Policy</a>
-      <a href="/terms">Terms</a>
-      <a href="mailto:info@muyi.co.kr">Contact</a>
+    <div class="ct-footer-row">
+      <div class="ct-footer-links">
+        <button onclick="openLegalModal('privacy')">개인정보처리방침</button>
+        <span class="ft-sep"></span>
+        <button onclick="openLegalModal('terms')">이용약관</button>
+        <span class="ft-sep"></span>
+        <button onclick="window._go&&window._go('ct')">문의하기</button>
+      </div>
+      <a href="/consult" class="ct-footer-switch">B2C<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 2.5L8 6l-3.5 3.5"/></svg></a>
     </div>
-    <span class="ct-footer-copy">&copy; 2026 MUYI CORPORATION. All rights reserved.</span>
+    <div class="ct-footer-meta">
+      <span>&copy; MUYI Corporation</span><span>481-81-02827</span><span>info@muyi.co.kr</span><span>070-8833-8210</span>
+    </div>
   </div>
 </div>
 
@@ -3317,6 +3347,23 @@ function initMap(){
   setTimeout(function(){mapInstance.invalidateSize();},300);
   setTimeout(function(){mapInstance.invalidateSize();},1000);
 }
+</script>
+
+<!-- Legal Modals -->
+<div class="legal-modal-overlay" id="legalModal" onclick="if(event.target===this)closeLegalModal()">
+  <div class="legal-modal">
+    <button class="legal-modal-close" onclick="closeLegalModal()">&times;</button>
+    <div id="legalContent"></div>
+  </div>
+</div>
+<script>
+var _legalData={
+privacy:'<h2>개인정보처리방침</h2><p>주식회사 무이코퍼레이션(이하 "회사")은 상담 문의를 위해 아래와 같은 개인정보를 수집하고 있습니다.</p><h3>1. 수집 항목</h3><ul><li>이름, 연락처</li></ul><h3>2. 수집 및 이용 목적</h3><ul><li>상담 문의 응대 및 서비스 안내</li></ul><h3>3. 보유 및 이용 기간</h3><ul><li>문의 접수일로부터 1년 보관 후 파기</li><li>단, 이용자가 삭제를 요청할 경우 즉시 삭제</li></ul><h3>4. 제3자 제공 여부</h3><ul><li>회사는 이용자의 개인정보를 외부에 제공하지 않습니다.</li></ul><h3>5. 이용자의 권리</h3><ul><li>이용자는 언제든지 개인정보 열람, 수정, 삭제를 요청할 수 있습니다.</li></ul><h3>6. 문의처</h3><ul><li>이메일: info@muyi.co.kr</li></ul><p class="legal-note">본 방침은 법령 및 회사 정책에 따라 변경될 수 있습니다.</p>',
+terms:'<h2>이용약관</h2><p>본 웹사이트는 주식회사 무이코퍼레이션(이하 "회사")이 운영하며, 이용자는 아래의 조건에 동의한 것으로 간주됩니다.</p><h3>1. 서비스 목적</h3><p>본 사이트는 마케팅 상담 및 정보 제공을 목적으로 운영됩니다.</p><h3>2. 서비스 이용</h3><p>이용자는 본 사이트를 통해 상담 요청 및 관련 정보를 제공받을 수 있습니다.</p><h3>3. 책임의 제한</h3><p>회사는 제공되는 정보 및 상담 결과에 대해 특정 성과를 보장하지 않으며, 외부 요인(시장 상황, 광고 플랫폼 정책 등)에 따른 결과에 대해 책임지지 않습니다.</p><h3>4. 금지 행위</h3><p>이용자는 허위 정보 입력, 서비스 운영 방해 등의 행위를 해서는 안 됩니다.</p><h3>5. 지적재산권</h3><p>본 사이트의 모든 콘텐츠는 회사에 귀속되며, 무단 복제 및 사용을 금지합니다.</p><h3>6. 분쟁 해결</h3><p>본 약관과 관련된 분쟁은 대한민국 법을 따르며, 관할 법원은 회사 소재지를 기준으로 합니다.</p><p class="legal-note">본 약관은 필요 시 변경될 수 있습니다.</p>'
+};
+function openLegalModal(t){document.getElementById('legalContent').innerHTML=_legalData[t];document.getElementById('legalModal').classList.add('is-open');document.body.style.overflow='hidden'}
+function closeLegalModal(){document.getElementById('legalModal').classList.remove('is-open');document.body.style.overflow=''}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLegalModal()});
 </script>
 </body>
 </html>
