@@ -141,18 +141,18 @@ body.scroll-mode #ui{position:relative;inset:auto;pointer-events:auto;display:fl
 body.scroll-mode .pnl{position:relative;inset:auto;display:flex;opacity:1!important;pointer-events:auto;will-change:auto;scroll-snap-align:start;scroll-snap-stop:normal}
 body.scroll-mode .pnl.ss{display:none!important}
 
-/* ═══ MOBILE INDEX — 11 SECTIONS (hero→prob→diagnosis→core→mom→orb→svc→case→cs→cli→ct) ═══ */
+/* ═══ MOBILE INDEX — 화이트 베이스 (히어로 제외 전 섹션) ═══ */
 body.scroll-mode #p-hero{min-height:100svh;background:radial-gradient(ellipse at 50% 40%,#0e0a3a 0%,#05040e 60%,#020108 100%);padding-bottom:3rem}
 body.scroll-mode .h-enter,body.scroll-mode .h-eye,body.scroll-mode .h-sub,body.scroll-mode .h-stats,body.scroll-mode .h-cta-group,body.scroll-mode .scroll-hint{opacity:1!important;transform:none!important}
 body.scroll-mode .h-line-in{transform:none!important;opacity:1!important}
-body.scroll-mode #p-prob{min-height:100svh;background:#fafbff;padding-top:calc(var(--nav-h) + 1.2rem);padding-bottom:3rem}
-body.scroll-mode #p-orbit{min-height:auto;background:linear-gradient(160deg,#0d0c22 0%,#13102e 100%);padding:3rem var(--edge-pad) 3rem!important;display:flex!important}
+body.scroll-mode #p-prob{min-height:100svh;background:#fff;padding-top:calc(var(--nav-h) + 1.2rem);padding-bottom:3rem}
+body.scroll-mode #p-orbit{min-height:auto;background:#fff;padding:3rem var(--edge-pad) 3rem!important;display:flex!important}
 body.scroll-mode #p-core,body.scroll-mode #p-mom,body.scroll-mode #p-orb{display:none!important}
-body.scroll-mode #p-svc{min-height:auto;background:#ffffff;display:flex!important;padding:3.5rem 0 3rem}
-body.scroll-mode #p-case{min-height:100svh;background:#04040e}
+body.scroll-mode #p-svc{min-height:auto;background:#fff;display:flex!important;padding:3.5rem 0 3rem}
+body.scroll-mode #p-case{min-height:auto;background:#fff;padding:3rem var(--edge-pad)}
 body.scroll-mode #p-cs{display:none!important}
-body.scroll-mode #p-cli{min-height:auto;background:#ffffff;padding:3.5rem var(--edge-pad) 3rem}
-body.scroll-mode #p-ct{min-height:100svh;padding-bottom:1.5rem;display:grid!important;background:#ffffff}
+body.scroll-mode #p-cli{min-height:auto;background:#fff;padding:3.5rem var(--edge-pad) 3rem}
+body.scroll-mode #p-ct{min-height:100svh;padding-bottom:1.5rem;display:grid!important;background:#fff}
 /* Solution nodes (CORE/MOM/ORB) — dark gradient cards */
 body.scroll-mode .npnl,body.scroll-mode .npnl.lft{justify-content:flex-start;align-items:stretch;padding:0 var(--edge-pad)!important;position:relative;flex-direction:column}
 body.scroll-mode .nc{transform:none!important;max-width:100%;background:transparent;border:none;box-shadow:none;backdrop-filter:none;padding:0;max-height:none;overflow:visible}
@@ -171,18 +171,23 @@ body.scroll-mode .nc-next{background:#fff!important;color:#1E10C7!important;font
 body.scroll-mode .nc-next:hover{background:#f0f0ff!important;color:#1E10C7!important}
 
 /* Case carousel */
-body.scroll-mode .cs-wrap{height:100svh}
+/* p-case — 화이트 배경 + 라운드 카드 */
+body.scroll-mode #p-case{flex-direction:column;align-items:stretch;border-top:1px solid rgba(10,10,26,.06);padding:2.4rem var(--edge-pad) 2.8rem;gap:.8rem}
+body.scroll-mode #p-case::before{content:'CASE STUDY';display:block;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--c-brand);font-weight:700;flex-shrink:0}
+body.scroll-mode .cs-wrap{height:62svh;min-height:320px;border-radius:1.2rem;overflow:hidden;box-shadow:0 8px 32px rgba(10,10,26,.12)}
+body.scroll-mode .cs-track{height:100%}
 body.scroll-mode .cs-bg{background-position:center center}
-body.scroll-mode .cs-overlay{background:linear-gradient(0deg,rgba(4,4,14,.92) 0%,rgba(4,4,14,.6) 45%,rgba(4,4,14,.25) 100%)}
+body.scroll-mode .cs-overlay{background:linear-gradient(0deg,rgba(4,4,14,.9) 0%,rgba(4,4,14,.5) 50%,rgba(4,4,14,.1) 100%)}
 body.scroll-mode .cs-content{color:#fff}
 body.scroll-mode .cs-index{color:rgba(255,255,255,.4)}
-body.scroll-mode .cs-tag{background:rgba(30,16,199,.15);border-color:rgba(30,16,199,.4);color:#8CA2FF}
+body.scroll-mode .cs-tag{background:rgba(30,16,199,.2);border-color:rgba(30,16,199,.5);color:#8CA2FF}
 body.scroll-mode .cs-name{color:#fff}
-body.scroll-mode .cs-desc{color:rgba(255,255,255,.7)}
-body.scroll-mode .cs-ch{border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.65)}
-body.scroll-mode .cs-step{color:rgba(255,255,255,.68)}
+body.scroll-mode .cs-desc{color:rgba(255,255,255,.75)}
+body.scroll-mode .cs-ch{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7)}
+body.scroll-mode .cs-step{color:rgba(255,255,255,.7)}
 body.scroll-mode .cs-step-num{color:#8CA2FF}
-body.scroll-mode .cs-dots .cs-dot{background:rgba(255,255,255,.25)}
+body.scroll-mode .cs-dots{bottom:.9rem;left:1rem}
+body.scroll-mode .cs-dots .cs-dot{background:rgba(255,255,255,.3)}
 body.scroll-mode .cs-dots .cs-dot.on{background:#EE4E00}
 
 /* Numbers */
@@ -190,9 +195,18 @@ body.scroll-mode #p-cs .csd-eye,body.scroll-mode #p-cs .csd-title,body.scroll-mo
 body.scroll-mode #p-cs .csd-tab.vis{opacity:1;transform:none}
 body.scroll-mode .ct-map-bg{opacity:1!important;height:200px}
 body.scroll-mode .svc-kpi-tag{opacity:1;transform:none}
-body.scroll-mode #c{position:fixed;z-index:-1;opacity:.12;pointer-events:none}
+body.scroll-mode #c{position:fixed;z-index:-1;opacity:.06;pointer-events:none}
+/* 화이트 배경 섹션 간 구분선 */
+body.scroll-mode #p-prob,body.scroll-mode #p-orbit,body.scroll-mode #p-svc,body.scroll-mode #p-cli,body.scroll-mode #p-ct{border-top:1px solid rgba(10,10,26,.06)}
+/* NAV — 라이트 섹션에서 다크 텍스트 */
 body.scroll-mode #nav{backdrop-filter:none;-webkit-backdrop-filter:none;background:transparent}
+body.scroll-mode #nav .logo-img{filter:url(#svg-blue)}
+body.scroll-mode #nav .nav-cta{background:var(--c-brand);color:#fff}
 body.scroll-mode .nav-dark #nav,body.scroll-mode #nav.nav-dark{background:transparent}
+/* prob 카드 — 화이트 배경 유지 */
+body.scroll-mode .prob-card{background:#f9f9fc;border-color:rgba(10,10,26,.07)}
+/* CLIENTS — prob eye, title dark */
+body.scroll-mode .cli-ey,body.scroll-mode .cli-ti,body.scroll-mode .cli-sub{color:#0a0a1a}
 
 /* MOBILE PROGRESS BAR (sticky top) */
 #m-progress{display:none}
@@ -776,35 +790,36 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   .h-stat-n{font-size:clamp(1.5rem,5.5vw,1.9rem)}
   .h-stat-l{font-size:.62rem;letter-spacing:.06em;margin-top:.3rem}
 
-  /* DIAGNOSIS (p-orbit) — dark, tap-first */
+  /* DIAGNOSIS (p-orbit) — 라이트 모드 */
   #orbit-tooltip{display:none}
   #back{display:none}
   #p-orbit{padding:2.8rem var(--edge-pad) 2.8rem;justify-content:flex-start;gap:.9rem;flex-direction:column;align-items:stretch}
-  #p-orbit::before{content:'DIAGNOSIS';display:block;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.35);font-weight:700;margin-bottom:.1rem}
-  .o-hint{font-size:clamp(1.15rem,4.8vw,1.5rem);letter-spacing:-.02em;margin:0 0 1rem;text-align:left;color:rgba(255,255,255,.92);font-weight:700;font-family:'Noto Sans KR',sans-serif;text-transform:none;line-height:1.35;opacity:1!important;word-break:keep-all}
-  .orbit-nav{flex-direction:column;gap:.55rem;padding:0;width:100%;opacity:1!important}
-  .orbit-btn{min-width:auto;flex-direction:row;align-items:center;gap:.85rem;padding:1rem 1rem 1rem 1.1rem;border-radius:.85rem;min-height:auto;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);box-shadow:none;position:relative;overflow:hidden;transform:none!important;transition:background .2s,border-color .2s}
-  .orbit-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--glow-color,rgba(140,162,255,.6));border-radius:0 2px 2px 0;opacity:.7}
-  .orbit-btn.is-act{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.16)}
+  #p-orbit::before{content:'DIAGNOSIS';display:block;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--c-brand);font-weight:700;margin-bottom:.1rem}
+  .o-hint{font-size:clamp(1.15rem,4.8vw,1.5rem);letter-spacing:-.03em;margin:0 0 1rem;text-align:left;color:#0a0a1a;font-weight:800;font-family:'Noto Sans KR',sans-serif;text-transform:none;line-height:1.3;opacity:1!important;word-break:keep-all}
+  .orbit-nav{flex-direction:column;gap:.5rem;padding:0;width:100%;opacity:1!important}
+  .orbit-btn{min-width:auto;flex-direction:row;align-items:center;gap:.85rem;padding:1rem 1rem 1rem 1.2rem;border-radius:.9rem;min-height:auto;border:1px solid rgba(10,10,26,.09);background:#f9f9fc;box-shadow:none;position:relative;overflow:hidden;transform:none!important;transition:background .18s,border-color .18s,box-shadow .18s}
+  .orbit-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--glow-color,var(--c-brand));border-radius:0 2px 2px 0;opacity:.5;transition:opacity .18s}
+  .orbit-btn.is-act{background:#eef1ff;border-color:rgba(30,16,199,.18);box-shadow:0 2px 12px rgba(30,16,199,.08)}
+  .orbit-btn.is-act::before{opacity:1}
   .orbit-btn:active{transform:scale(.98)!important;transition-duration:80ms}
-  .orbit-btn-index{position:static;font-size:.6rem;opacity:.35;width:auto;min-width:1.2rem;color:#fff;font-weight:700}
+  .orbit-btn-index{position:static;font-size:.6rem;opacity:.3;width:auto;min-width:1.2rem;color:#0a0a1a;font-weight:700}
   .orbit-btn-icon{width:8px;height:8px;flex-shrink:0;position:static;border-radius:50%}
-  .orbit-btn-name{min-width:auto;font-size:.95rem;font-weight:700;flex:1;letter-spacing:-.01em;color:#fff}
-  .orbit-btn-kpi{font-size:.58rem;min-width:auto;white-space:nowrap;margin-left:auto;padding:.25rem .55rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-weight:600;border-radius:.4rem}
+  .orbit-btn-name{min-width:auto;font-size:.97rem;font-weight:700;flex:1;letter-spacing:-.01em;color:#0a0a1a}
+  .orbit-btn-kpi{font-size:.58rem;min-width:auto;white-space:nowrap;margin-left:auto;padding:.25rem .55rem;background:rgba(30,16,199,.06);border:none;color:rgba(30,16,199,.7);font-weight:700;border-radius:.4rem}
   .orbit-btn-problem{display:none}
   .orbit-btn-desc{display:none}
-  .orbit-skip{font-size:.72rem;margin-top:.2rem;letter-spacing:.1em;opacity:1!important;align-self:flex-start;color:rgba(255,255,255,.4);text-transform:uppercase}
+  .orbit-skip{font-size:.72rem;margin-top:.2rem;letter-spacing:.1em;opacity:1!important;align-self:flex-start;color:rgba(10,10,26,.35);text-transform:uppercase}
 
-  /* INLINE DETAIL CARDS */
+  /* INLINE DETAIL CARDS — 라이트 */
   .orbit-detail-wrap{width:100%;display:none}
   body.scroll-mode .orbit-detail-wrap{display:block;overflow:hidden}
-  .orbit-detail{display:none;flex-direction:column;gap:.85rem;padding:1.4rem 1.3rem;border-radius:1rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);margin-top:.2rem;animation:detailIn .3s cubic-bezier(.16,1,.3,1) both}
+  .orbit-detail{display:none;flex-direction:column;gap:.8rem;padding:1.4rem 1.3rem;border-radius:1rem;background:#fff;border:1px solid rgba(30,16,199,.1);box-shadow:0 4px 24px rgba(30,16,199,.07);margin-top:.3rem;animation:detailIn .28s cubic-bezier(.16,1,.3,1) both}
   .orbit-detail.is-act{display:flex}
-  @keyframes detailIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-  .odet-prob{font-size:.7rem;letter-spacing:.06em;color:rgba(255,255,255,.45);font-weight:600;text-transform:none;font-family:'Noto Sans KR',sans-serif}
-  .odet-sol{font-size:clamp(1.15rem,4.5vw,1.45rem);font-weight:800;color:#fff;line-height:1.25;letter-spacing:-.02em;font-family:'Noto Sans KR',sans-serif;word-break:keep-all}
-  .odet-desc{font-size:.82rem;color:rgba(255,255,255,.55);line-height:1.65;font-family:'Noto Sans KR',sans-serif;word-break:keep-all;margin-top:-.1rem}
-  .odet-cta{display:inline-flex;align-self:flex-start;padding:.75rem 1.4rem;background:#fff;color:#0a0a1a;border:none;border-radius:var(--radius-full);font-family:inherit;font-weight:800;font-size:.82rem;letter-spacing:.01em;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .2s}
+  @keyframes detailIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .odet-prob{font-size:.7rem;color:rgba(10,10,26,.4);font-weight:600;font-family:'Noto Sans KR',sans-serif}
+  .odet-sol{font-size:clamp(1.1rem,4.5vw,1.35rem);font-weight:800;color:#0a0a1a;line-height:1.25;letter-spacing:-.03em;font-family:'Noto Sans KR',sans-serif;word-break:keep-all}
+  .odet-desc{font-size:.82rem;color:rgba(10,10,26,.55);line-height:1.65;font-family:'Noto Sans KR',sans-serif;word-break:keep-all;margin-top:-.1rem}
+  .odet-cta{display:inline-flex;align-self:flex-start;padding:.78rem 1.5rem;background:var(--c-brand);color:#fff;border:none;border-radius:var(--radius-full);font-family:inherit;font-weight:800;font-size:.82rem;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .18s;box-shadow:0 4px 16px rgba(30,16,199,.25)}
   .odet-cta:active{opacity:.8}
 
   /* SOLUTION NODE DETAIL PANELS — MOBILE (dark bg) */
