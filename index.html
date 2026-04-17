@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"><meta name="format-detection" content="telephone=no,email=no,address=no">
 <title>MUYI | 마케팅 대행사 · 브랜드 전략 컨설팅 · 퍼포먼스 마케팅</title>
 <meta name="description" content="소상공인·기업·공공기관 맞춤 마케팅 대행사. 브랜드 전략·퍼포먼스·SNS 운영. 무료 진단 가능.">
 <meta name="keywords" content="마케팅 대행사,퍼포먼스 마케팅,브랜드 전략 컨설팅,마케팅 컨설팅 회사,소상공인 마케팅,B2B 마케팅,공공기관 홍보 대행,SNS 마케팅,콘텐츠 마케팅,IMC 전략,나라장터 마케팅,광고 대행,그로스 마케팅">
@@ -170,15 +170,17 @@ body.scroll-mode .nc-pill{background:rgba(255,255,255,.12)!important;border:1px 
 body.scroll-mode .nc-next{background:#fff!important;color:#1E10C7!important;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.28)!important;position:static!important}
 body.scroll-mode .nc-next:hover{background:#f0f0ff!important;color:#1E10C7!important}
 
-/* Case carousel → 모바일 수직 풀스크린 스냅 슬라이드 */
+/* Case carousel → 모바일 scroll-pinning (sticky viewport, 슬라이드 fade) */
+body.scroll-mode #p-case{display:block!important;padding:0!important;min-height:400svh;position:relative;background:transparent;border-top:none!important}
 body.scroll-mode #p-case::before{display:none!important}
-body.scroll-mode .cs-wrap{height:auto!important;min-height:0!important;border-radius:0!important;overflow:visible!important;box-shadow:none!important}
-body.scroll-mode .cs-track{flex-direction:column!important;height:auto!important;transform:none!important;transition:none!important}
-body.scroll-mode .cs-slide{min-width:100%!important;width:100%!important;height:100svh!important;flex-shrink:0;scroll-snap-align:start;overflow:hidden;position:relative}
+body.scroll-mode .cs-wrap{position:sticky!important;top:0!important;height:100svh!important;min-height:0!important;border-radius:0!important;overflow:hidden!important;box-shadow:none!important;width:100%}
+body.scroll-mode .cs-track{position:relative;height:100%!important;flex-direction:row!important;transform:none!important;transition:none!important}
+body.scroll-mode .cs-slide{position:absolute!important;inset:0!important;min-width:100%;height:100%!important;opacity:0;transition:opacity .55s ease;scroll-snap-align:none}
+body.scroll-mode .cs-slide.m-act{opacity:1}
 body.scroll-mode .cs-slide .cs-content{opacity:1!important;transform:none!important}
 body.scroll-mode .cs-slide::before{content:'CASE STUDY';position:absolute;top:calc(var(--nav-h) + .9rem);left:1.4rem;z-index:5;font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700}
 body.scroll-mode .cs-bg{background-position:50% 50%!important;background-size:cover!important}
-body.scroll-mode .cs-overlay{background:linear-gradient(180deg,rgba(4,4,14,.55) 0%,rgba(4,4,14,.04) 35%,rgba(4,4,14,.04) 50%,rgba(4,4,14,.92) 100%)}
+body.scroll-mode .cs-overlay{background:linear-gradient(180deg,rgba(4,4,14,.55) 0%,rgba(4,4,14,.05) 38%,rgba(4,4,14,.05) 50%,rgba(4,4,14,.92) 100%)}
 body.scroll-mode .cs-content{position:absolute!important;bottom:0;left:0;right:0;z-index:2;display:flex;flex-direction:column;gap:.5rem;padding:2rem 1.4rem 3.2rem;box-sizing:border-box;color:#fff;max-width:none;width:auto}
 body.scroll-mode .cs-index{color:rgba(255,255,255,.4)}
 body.scroll-mode .cs-tag{background:rgba(30,16,199,.2);border-color:rgba(30,16,199,.5);color:#8CA2FF}
@@ -186,6 +188,7 @@ body.scroll-mode .cs-name{color:#fff}
 body.scroll-mode .cs-desc{color:rgba(255,255,255,.75)}
 body.scroll-mode .cs-ch{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7)}
 body.scroll-mode .cs-dots{display:none!important}
+body.scroll-mode .cs-swipe-hint{display:none!important}
 body.scroll-mode .cs-prev,body.scroll-mode .cs-next{display:none!important}
 
 /* Numbers */
@@ -211,6 +214,7 @@ body.scroll-mode #p-ct .ft{min-height:62px}
 body.scroll-mode #p-ct .fsub{min-height:48px;font-size:.9rem;letter-spacing:.02em;box-shadow:0 6px 20px rgba(30,16,199,.3);padding:.8rem}
 body.scroll-mode #p-ct .fl{font-size:.65rem;margin-bottom:.25rem;letter-spacing:.06em}
 body.scroll-mode .ct-stat{pointer-events:none!important;cursor:default!important;user-select:none}
+body.scroll-mode .ct-footer-meta{pointer-events:none!important;user-select:none!important}
 body.scroll-mode .svc-kpi-tag{opacity:1;transform:none}
 body.scroll-mode #c{position:fixed;z-index:-1;opacity:.06;pointer-events:none}
 /* 화이트 배경 섹션 간 구분선 */
@@ -2568,6 +2572,32 @@ function initScrollMode(){
       });
     }
   };
+  // Case study scroll-pinning: 스크롤 진행도에 따라 슬라이드 fade 전환
+  (function(){
+    var pCase=document.getElementById('p-case');
+    var slides=pCase?Array.prototype.slice.call(pCase.querySelectorAll('.cs-slide')):[];
+    if(!slides.length||!pCase)return;
+    slides[0].classList.add('m-act');
+    var total=slides.length;
+    var ticking=false;
+    function update(){
+      var top=pCase.getBoundingClientRect().top;
+      var scrollable=pCase.offsetHeight-window.innerHeight;
+      if(scrollable<=0)return;
+      var progress=Math.max(0,Math.min(1,-top/scrollable));
+      var idx=Math.min(total-1,Math.floor(progress*total));
+      slides.forEach(function(s,i){
+        if(i===idx)s.classList.add('m-act');
+        else s.classList.remove('m-act');
+      });
+      ticking=false;
+    }
+    window.addEventListener('scroll',function(){
+      if(!ticking){requestAnimationFrame(update);ticking=true;}
+    },{passive:true});
+    update();
+  })();
+
   var triggered={};
   var scrollObs=new IntersectionObserver(function(entries){
     entries.forEach(function(e){
