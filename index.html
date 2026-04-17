@@ -152,7 +152,7 @@ body.scroll-mode #p-mom{min-height:auto;background:linear-gradient(135deg,#3a1fb
 body.scroll-mode #p-orb{min-height:auto;background:linear-gradient(135deg,#2a18e8 0%,#ee4e00 160%);overflow:visible;padding:3.5rem 0 3rem;display:flex!important}
 body.scroll-mode #p-svc{min-height:auto;background:#ffffff;display:flex!important;padding:3.5rem 0 3rem}
 body.scroll-mode #p-case{min-height:100svh;background:#04040e}
-body.scroll-mode #p-cs{min-height:auto;background:#080814;pointer-events:auto;flex-direction:column;padding:3rem 0 3rem}
+body.scroll-mode #p-cs{display:none!important}
 body.scroll-mode #p-cli{min-height:auto;background:#ffffff;padding:3.5rem var(--edge-pad) 3rem}
 body.scroll-mode #p-ct{min-height:100svh;padding-bottom:1.5rem;display:grid!important;background:#ffffff}
 /* Solution nodes (CORE/MOM/ORB) — dark gradient cards */
@@ -1914,7 +1914,7 @@ var SCROLL_PANEL_MAP={
   cli:'p-cli',
   ct:'p-ct'
 };
-var SCROLL_VISIBLE_PANELS=['p-hero','p-prob','p-orbit','p-core','p-mom','p-orb','p-svc','p-case','p-cs','p-cli','p-ct'];
+var SCROLL_VISIBLE_PANELS=['p-hero','p-prob','p-orbit','p-core','p-mom','p-orb','p-svc','p-case','p-cli','p-ct'];
 
 function scrollToState(ns,pushHist){
   var targetId=SCROLL_PANEL_MAP[ns]||SCROLL_PANEL_MAP[S.HERO];
