@@ -149,7 +149,7 @@ body.scroll-mode #p-prob{min-height:100svh;background:#fff;padding-top:calc(var(
 body.scroll-mode #p-orbit{min-height:auto;background:#fff;padding:3rem var(--edge-pad) 3rem!important;display:flex!important}
 body.scroll-mode #p-core,body.scroll-mode #p-mom,body.scroll-mode #p-orb{display:none!important}
 body.scroll-mode #p-svc{min-height:auto;background:#fff;display:flex!important;padding:3.5rem 0 3rem}
-body.scroll-mode #p-case{min-height:auto;background:#fff;padding:3rem var(--edge-pad)}
+body.scroll-mode #p-case{display:block!important;padding:0!important;gap:0;border-top:none!important;min-height:auto;background:transparent}
 body.scroll-mode #p-cs{display:none!important}
 body.scroll-mode #p-cli{min-height:auto;background:#fff;padding:3.5rem var(--edge-pad) 3rem}
 body.scroll-mode #p-ct{min-height:100svh;display:flex!important;flex-direction:column;padding:calc(var(--nav-h) + .7rem) var(--edge-pad) 1.6rem;background:#fff;gap:0;overflow-y:auto;align-items:stretch}
@@ -170,25 +170,23 @@ body.scroll-mode .nc-pill{background:rgba(255,255,255,.12)!important;border:1px 
 body.scroll-mode .nc-next{background:#fff!important;color:#1E10C7!important;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.28)!important;position:static!important}
 body.scroll-mode .nc-next:hover{background:#f0f0ff!important;color:#1E10C7!important}
 
-/* Case carousel */
-/* p-case — 화이트 배경 + 라운드 카드 */
-body.scroll-mode #p-case{flex-direction:column;align-items:stretch;border-top:1px solid rgba(10,10,26,.06);padding:2.4rem var(--edge-pad) 2.8rem;gap:.8rem}
-body.scroll-mode #p-case::before{content:'CASE STUDY';display:block;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--c-brand);font-weight:700;flex-shrink:0}
-body.scroll-mode .cs-wrap{height:65svh;min-height:340px;border-radius:1.2rem;overflow:hidden;box-shadow:0 8px 32px rgba(10,10,26,.12)}
-body.scroll-mode .cs-track{height:100%}
+/* Case carousel → 모바일 수직 풀스크린 스냅 슬라이드 */
+body.scroll-mode #p-case::before{display:none!important}
+body.scroll-mode .cs-wrap{height:auto!important;min-height:0!important;border-radius:0!important;overflow:visible!important;box-shadow:none!important}
+body.scroll-mode .cs-track{flex-direction:column!important;height:auto!important;transform:none!important;transition:none!important}
+body.scroll-mode .cs-slide{min-width:100%!important;width:100%!important;height:100svh!important;flex-shrink:0;scroll-snap-align:start;overflow:hidden;position:relative}
+body.scroll-mode .cs-slide .cs-content{opacity:1!important;transform:none!important}
+body.scroll-mode .cs-slide::before{content:'CASE STUDY';position:absolute;top:calc(var(--nav-h) + .9rem);left:1.4rem;z-index:5;font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700}
 body.scroll-mode .cs-bg{background-position:50% 50%!important;background-size:cover!important}
-body.scroll-mode .cs-overlay{background:linear-gradient(0deg,rgba(4,4,14,.9) 0%,rgba(4,4,14,.5) 50%,rgba(4,4,14,.1) 100%)}
-body.scroll-mode .cs-content{position:absolute!important;bottom:0;left:0;right:0;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;gap:.5rem;padding:2rem 1.4rem 3rem;box-sizing:border-box;color:#fff;max-width:none;width:auto}
+body.scroll-mode .cs-overlay{background:linear-gradient(180deg,rgba(4,4,14,.55) 0%,rgba(4,4,14,.04) 35%,rgba(4,4,14,.04) 50%,rgba(4,4,14,.92) 100%)}
+body.scroll-mode .cs-content{position:absolute!important;bottom:0;left:0;right:0;z-index:2;display:flex;flex-direction:column;gap:.5rem;padding:2rem 1.4rem 3.2rem;box-sizing:border-box;color:#fff;max-width:none;width:auto}
 body.scroll-mode .cs-index{color:rgba(255,255,255,.4)}
 body.scroll-mode .cs-tag{background:rgba(30,16,199,.2);border-color:rgba(30,16,199,.5);color:#8CA2FF}
 body.scroll-mode .cs-name{color:#fff}
 body.scroll-mode .cs-desc{color:rgba(255,255,255,.75)}
 body.scroll-mode .cs-ch{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7)}
-body.scroll-mode .cs-step{color:rgba(255,255,255,.7)}
-body.scroll-mode .cs-step-num{color:#8CA2FF}
-body.scroll-mode .cs-dots{bottom:.9rem;left:1rem}
-body.scroll-mode .cs-dots .cs-dot{background:rgba(255,255,255,.3)}
-body.scroll-mode .cs-dots .cs-dot.on{background:#EE4E00}
+body.scroll-mode .cs-dots{display:none!important}
+body.scroll-mode .cs-prev,body.scroll-mode .cs-next{display:none!important}
 
 /* Numbers */
 body.scroll-mode #p-cs .csd-eye,body.scroll-mode #p-cs .csd-title,body.scroll-mode #p-cs .csd-tab,body.scroll-mode #p-cs .csd-cta-row{opacity:1;transform:none}
@@ -3201,6 +3199,7 @@ document.addEventListener('keydown',function(e){
 
 // ── CASE CAROUSEL ──
 (function(){
+  if(SCROLL_MODE)return;
   var track=document.getElementById('csTrack');
   var slides=track?track.querySelectorAll('.cs-slide'):[];
   var dots=document.querySelectorAll('#csDots .cs-dot');
