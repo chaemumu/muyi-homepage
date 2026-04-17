@@ -146,10 +146,8 @@ body.scroll-mode #p-hero{min-height:100svh;background:radial-gradient(ellipse at
 body.scroll-mode .h-enter,body.scroll-mode .h-eye,body.scroll-mode .h-sub,body.scroll-mode .h-stats,body.scroll-mode .h-cta-group,body.scroll-mode .scroll-hint{opacity:1!important;transform:none!important}
 body.scroll-mode .h-line-in{transform:none!important;opacity:1!important}
 body.scroll-mode #p-prob{min-height:100svh;background:#fafbff;padding-top:calc(var(--nav-h) + 1.2rem);padding-bottom:3rem}
-body.scroll-mode #p-orbit{min-height:auto;background:linear-gradient(180deg,#eef1ff 0%,#f8f9ff 100%);padding:3rem var(--edge-pad) 3rem!important;display:flex!important}
-body.scroll-mode #p-core{min-height:auto;background:linear-gradient(135deg,#1a0f8a 0%,#2a18e8 100%);overflow:visible;padding:3.5rem 0 3rem;display:flex!important}
-body.scroll-mode #p-mom{min-height:auto;background:linear-gradient(135deg,#3a1fb8 0%,#6858ff 100%);overflow:visible;padding:3.5rem 0 3rem;display:flex!important}
-body.scroll-mode #p-orb{min-height:auto;background:linear-gradient(135deg,#2a18e8 0%,#ee4e00 160%);overflow:visible;padding:3.5rem 0 3rem;display:flex!important}
+body.scroll-mode #p-orbit{min-height:auto;background:linear-gradient(160deg,#0d0c22 0%,#13102e 100%);padding:3rem var(--edge-pad) 3rem!important;display:flex!important}
+body.scroll-mode #p-core,body.scroll-mode #p-mom,body.scroll-mode #p-orb{display:none!important}
 body.scroll-mode #p-svc{min-height:auto;background:#ffffff;display:flex!important;padding:3.5rem 0 3rem}
 body.scroll-mode #p-case{min-height:100svh;background:#04040e}
 body.scroll-mode #p-cs{display:none!important}
@@ -778,23 +776,36 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   .h-stat-n{font-size:clamp(1.5rem,5.5vw,1.9rem)}
   .h-stat-l{font-size:.62rem;letter-spacing:.06em;margin-top:.3rem}
 
-  /* DIAGNOSIS (p-orbit) — tap-first interactive menu */
+  /* DIAGNOSIS (p-orbit) — dark, tap-first */
   #orbit-tooltip{display:none}
   #back{display:none}
-  #p-orbit{padding:2.5rem var(--edge-pad) 2.5rem;justify-content:flex-start;gap:1rem;flex-direction:column;align-items:stretch}
-  #p-orbit::before{content:'DIAGNOSIS · 진단';display:block;font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--c-brand);font-weight:800;margin-bottom:.2rem;text-align:left}
-  .o-hint{font-size:clamp(1.2rem,5vw,1.6rem);letter-spacing:-.02em;margin:0 0 1.2rem;text-align:left;color:#0a0a1a;font-weight:800;font-family:'Noto Sans KR',sans-serif;text-transform:none;line-height:1.3;opacity:1!important;word-break:keep-all}
-  .orbit-nav{flex-direction:column;gap:.7rem;padding:0;width:100%;opacity:1!important}
-  .orbit-btn{min-width:auto;flex-direction:row;align-items:center;gap:.9rem;padding:1.1rem 1.1rem 1.1rem 1.3rem;border-radius:1rem;min-height:auto;font-size:.78rem;border:1px solid rgba(30,16,199,.12);background:#fff;box-shadow:0 4px 18px rgba(30,16,199,.08);position:relative;overflow:hidden;transform:none!important}
-  .orbit-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--glow-color,#1E10C7);border-radius:0 2px 2px 0;opacity:.9}
-  .orbit-btn:active{transform:scale(.98)!important;transition-duration:100ms}
-  .orbit-btn-index{position:static;font-size:.62rem;opacity:.4;width:auto;min-width:1.4rem;color:rgba(10,10,26,.4);font-weight:800}
-  .orbit-btn-icon{width:12px;height:12px;flex-shrink:0;position:static}
-  .orbit-btn-name{min-width:auto;font-size:1.02rem;font-weight:800;flex:1;letter-spacing:-.01em}
-  .orbit-btn-kpi{font-size:.62rem;min-width:auto;white-space:nowrap;margin-top:0;margin-left:auto;padding:.3rem .6rem;background:rgba(30,16,199,.07);border:none;color:rgba(30,16,199,.85);font-weight:700}
+  #p-orbit{padding:2.8rem var(--edge-pad) 2.8rem;justify-content:flex-start;gap:.9rem;flex-direction:column;align-items:stretch}
+  #p-orbit::before{content:'DIAGNOSIS';display:block;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.35);font-weight:700;margin-bottom:.1rem}
+  .o-hint{font-size:clamp(1.15rem,4.8vw,1.5rem);letter-spacing:-.02em;margin:0 0 1rem;text-align:left;color:rgba(255,255,255,.92);font-weight:700;font-family:'Noto Sans KR',sans-serif;text-transform:none;line-height:1.35;opacity:1!important;word-break:keep-all}
+  .orbit-nav{flex-direction:column;gap:.55rem;padding:0;width:100%;opacity:1!important}
+  .orbit-btn{min-width:auto;flex-direction:row;align-items:center;gap:.85rem;padding:1rem 1rem 1rem 1.1rem;border-radius:.85rem;min-height:auto;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);box-shadow:none;position:relative;overflow:hidden;transform:none!important;transition:background .2s,border-color .2s}
+  .orbit-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--glow-color,rgba(140,162,255,.6));border-radius:0 2px 2px 0;opacity:.7}
+  .orbit-btn.is-act{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.16)}
+  .orbit-btn:active{transform:scale(.98)!important;transition-duration:80ms}
+  .orbit-btn-index{position:static;font-size:.6rem;opacity:.35;width:auto;min-width:1.2rem;color:#fff;font-weight:700}
+  .orbit-btn-icon{width:8px;height:8px;flex-shrink:0;position:static;border-radius:50%}
+  .orbit-btn-name{min-width:auto;font-size:.95rem;font-weight:700;flex:1;letter-spacing:-.01em;color:#fff}
+  .orbit-btn-kpi{font-size:.58rem;min-width:auto;white-space:nowrap;margin-left:auto;padding:.25rem .55rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-weight:600;border-radius:.4rem}
   .orbit-btn-problem{display:none}
   .orbit-btn-desc{display:none}
-  .orbit-skip{font-size:.78rem;margin-top:.4rem;letter-spacing:.08em;opacity:1!important;align-self:flex-start}
+  .orbit-skip{font-size:.72rem;margin-top:.2rem;letter-spacing:.1em;opacity:1!important;align-self:flex-start;color:rgba(255,255,255,.4);text-transform:uppercase}
+
+  /* INLINE DETAIL CARDS */
+  .orbit-detail-wrap{width:100%;display:none}
+  body.scroll-mode .orbit-detail-wrap{display:block;overflow:hidden}
+  .orbit-detail{display:none;flex-direction:column;gap:.85rem;padding:1.4rem 1.3rem;border-radius:1rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);margin-top:.2rem;animation:detailIn .3s cubic-bezier(.16,1,.3,1) both}
+  .orbit-detail.is-act{display:flex}
+  @keyframes detailIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .odet-prob{font-size:.7rem;letter-spacing:.06em;color:rgba(255,255,255,.45);font-weight:600;text-transform:none;font-family:'Noto Sans KR',sans-serif}
+  .odet-sol{font-size:clamp(1.15rem,4.5vw,1.45rem);font-weight:800;color:#fff;line-height:1.25;letter-spacing:-.02em;font-family:'Noto Sans KR',sans-serif;word-break:keep-all}
+  .odet-desc{font-size:.82rem;color:rgba(255,255,255,.55);line-height:1.65;font-family:'Noto Sans KR',sans-serif;word-break:keep-all;margin-top:-.1rem}
+  .odet-cta{display:inline-flex;align-self:flex-start;padding:.75rem 1.4rem;background:#fff;color:#0a0a1a;border:none;border-radius:var(--radius-full);font-family:inherit;font-weight:800;font-size:.82rem;letter-spacing:.01em;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .2s}
+  .odet-cta:active{opacity:.8}
 
   /* SOLUTION NODE DETAIL PANELS — MOBILE (dark bg) */
   .npnl,.npnl.lft{padding:0 var(--edge-pad);justify-content:flex-start;align-items:stretch;overflow:visible}
@@ -1129,6 +1140,29 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       <span class="orbit-btn-desc">계속 남는 성장 궤도를 만듭니다</span>
     </div>
   </div>
+
+  <!-- MOBILE INLINE DETAIL CARDS -->
+  <div class="orbit-detail-wrap" id="orbit-detail-wrap">
+    <div class="orbit-detail" id="odet-core" data-node="core">
+      <div class="odet-prob">브랜드 설명이 사람마다 다르다면</div>
+      <div class="odet-sol">기준점부터 다시 세웁니다</div>
+      <p class="odet-desc">누구에게, 무엇을, 왜 선택받는지 — 먼저 정리합니다.</p>
+      <button class="odet-cta" onclick="window._go('ct')">Core 상담 시작하기 →</button>
+    </div>
+    <div class="orbit-detail" id="odet-mom" data-node="mom">
+      <div class="odet-prob">광고비가 매출로 안 이어진다면</div>
+      <div class="odet-sol">채널 흐름을 통째로 최적화합니다</div>
+      <p class="odet-desc">어떤 채널이 전환을 만드는지 데이터로 짚어냅니다.</p>
+      <button class="odet-cta" onclick="window._go('ct')">Momentum 상담 시작하기 →</button>
+    </div>
+    <div class="orbit-detail" id="odet-orb" data-node="orb">
+      <div class="odet-prob">캠페인이 끝나면 다시 제자리라면</div>
+      <div class="odet-sol">계속 남는 성장 궤도로 묶습니다</div>
+      <p class="odet-desc">한 번의 집행이 아닌, 구조적으로 쌓이는 마케팅을 만듭니다.</p>
+      <button class="odet-cta" onclick="window._go('ct')">Orbit 상담 시작하기 →</button>
+    </div>
+  </div>
+
   <button class="orbit-skip" id="orbit-skip" onclick="window._go('svc')">전체 서비스 보기</button>
 </div>
 
@@ -1914,7 +1948,7 @@ var SCROLL_PANEL_MAP={
   cli:'p-cli',
   ct:'p-ct'
 };
-var SCROLL_VISIBLE_PANELS=['p-hero','p-prob','p-orbit','p-core','p-mom','p-orb','p-svc','p-case','p-cli','p-ct'];
+var SCROLL_VISIBLE_PANELS=['p-hero','p-prob','p-orbit','p-svc','p-case','p-cli','p-ct'];
 
 function scrollToState(ns,pushHist){
   var targetId=SCROLL_PANEL_MAP[ns]||SCROLL_PANEL_MAP[S.HERO];
@@ -2429,6 +2463,26 @@ function initScrollMode(){
   update3D(S.HERO);
   updateNav(S.HERO);
   updateProg(S.HERO);
+
+  // Mobile: orbit buttons → inline detail cards (no page nav)
+  (function(){
+    var btns=document.querySelectorAll('#orbit-nav .orbit-btn');
+    btns.forEach(function(btn){
+      btn.onclick=null;
+      btn.addEventListener('click',function(){
+        var node=btn.getAttribute('data-node');
+        var isAct=btn.classList.contains('is-act');
+        // toggle off if already active
+        btns.forEach(function(b){b.classList.remove('is-act');});
+        document.querySelectorAll('.orbit-detail').forEach(function(d){d.classList.remove('is-act');});
+        if(!isAct){
+          btn.classList.add('is-act');
+          var det=document.getElementById('odet-'+node);
+          if(det){det.classList.add('is-act');}
+        }
+      },{passive:true});
+    });
+  })();
 
   // Mobile: show all 3 solution nodes as independent sections
   (function(){
