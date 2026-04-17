@@ -152,7 +152,7 @@ body.scroll-mode #p-svc{min-height:auto;background:#fff;display:flex!important;p
 body.scroll-mode #p-case{min-height:auto;background:#fff;padding:3rem var(--edge-pad)}
 body.scroll-mode #p-cs{display:none!important}
 body.scroll-mode #p-cli{min-height:auto;background:#fff;padding:3.5rem var(--edge-pad) 3rem}
-body.scroll-mode #p-ct{min-height:100svh;display:flex!important;flex-direction:column;padding:calc(var(--nav-h) + 1.4rem) var(--edge-pad) 3.5rem;background:#fff;gap:0;overflow-y:auto;align-items:stretch}
+body.scroll-mode #p-ct{min-height:100svh;display:flex!important;flex-direction:column;padding:calc(var(--nav-h) + .7rem) var(--edge-pad) 1.6rem;background:#fff;gap:0;overflow-y:auto;align-items:stretch}
 /* Solution nodes (CORE/MOM/ORB) — dark gradient cards */
 body.scroll-mode .npnl,body.scroll-mode .npnl.lft{justify-content:flex-start;align-items:stretch;padding:0 var(--edge-pad)!important;position:relative;flex-direction:column}
 body.scroll-mode .nc{transform:none!important;max-width:100%;background:transparent;border:none;box-shadow:none;backdrop-filter:none;padding:0;max-height:none;overflow:visible}
@@ -178,7 +178,7 @@ body.scroll-mode .cs-wrap{height:65svh;min-height:340px;border-radius:1.2rem;ove
 body.scroll-mode .cs-track{height:100%}
 body.scroll-mode .cs-bg{background-position:50% 50%!important;background-size:cover!important}
 body.scroll-mode .cs-overlay{background:linear-gradient(0deg,rgba(4,4,14,.9) 0%,rgba(4,4,14,.5) 50%,rgba(4,4,14,.1) 100%)}
-body.scroll-mode .cs-content{color:#fff;width:100%;padding:1.2rem 1.4rem 2.8rem;box-sizing:border-box}
+body.scroll-mode .cs-content{position:absolute!important;bottom:0;left:0;right:0;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;gap:.5rem;padding:2rem 1.4rem 3rem;box-sizing:border-box;color:#fff;max-width:none;width:auto}
 body.scroll-mode .cs-index{color:rgba(255,255,255,.4)}
 body.scroll-mode .cs-tag{background:rgba(30,16,199,.2);border-color:rgba(30,16,199,.5);color:#8CA2FF}
 body.scroll-mode .cs-name{color:#fff}
@@ -196,22 +196,22 @@ body.scroll-mode #p-cs .csd-tab.vis{opacity:1;transform:none}
 body.scroll-mode .ct-map-bg{display:none!important}
 /* Scroll-mode contact layout */
 body.scroll-mode #p-ct .ct-col{width:100%;flex-shrink:0}
-body.scroll-mode #p-ct .ct-col:first-of-type{margin-bottom:1.8rem}
+body.scroll-mode #p-ct .ct-col:first-of-type{margin-bottom:1.1rem}
 body.scroll-mode #p-ct .ct-col:last-of-type{flex:1;min-width:0}
-body.scroll-mode #p-ct .ct-footer{margin-top:auto;padding-top:1.4rem;border-top:1px solid rgba(10,10,26,.07);flex-shrink:0}
-body.scroll-mode #p-ct .ct-ti{font-size:clamp(1.9rem,7.5vw,2.8rem);letter-spacing:-.04em;margin-bottom:.6rem;max-width:none;line-height:1.08}
-body.scroll-mode #p-ct .ct-desc{font-size:.85rem;line-height:1.65;margin-bottom:1.4rem;color:rgba(10,10,26,.5)}
-body.scroll-mode #p-ct .ct-eye{margin-bottom:.7rem;font-size:.62rem}
-body.scroll-mode #p-ct .ct-stats{margin-top:0;padding-bottom:0;margin-bottom:0;gap:.5rem}
-body.scroll-mode #p-ct .ct-stat{padding:.9rem .4rem;border-radius:10px}
-body.scroll-mode #p-ct .ct-stat-val{font-size:1.8rem}
-body.scroll-mode #p-ct .ct-stat-val .ct-stat-unit{font-size:1.1rem}
-body.scroll-mode #p-ct .ct-stat-label{font-size:.62rem;line-height:1.4}
-body.scroll-mode #p-ct .fg{margin-bottom:.7rem}
-body.scroll-mode #p-ct .fi,body.scroll-mode #p-ct .ft{min-height:48px;font-size:.9rem;padding:.75rem 1rem;border-radius:.7rem}
-body.scroll-mode #p-ct .ft{min-height:72px}
-body.scroll-mode #p-ct .fsub{min-height:52px;font-size:.92rem;letter-spacing:.02em;box-shadow:0 6px 24px rgba(30,16,199,.35)}
-body.scroll-mode #p-ct .fl{font-size:.67rem;margin-bottom:.3rem;letter-spacing:.06em}
+body.scroll-mode #p-ct .ct-footer{margin-top:1rem;padding-top:.9rem;border-top:1px solid rgba(10,10,26,.07);flex-shrink:0}
+body.scroll-mode #p-ct .ct-ti{font-size:clamp(1.6rem,6.5vw,2.2rem);letter-spacing:-.04em;margin-bottom:.4rem;max-width:none;line-height:1.1}
+body.scroll-mode #p-ct .ct-desc{font-size:.82rem;line-height:1.6;margin-bottom:1rem;color:rgba(10,10,26,.5)}
+body.scroll-mode #p-ct .ct-eye{margin-bottom:.5rem;font-size:.62rem}
+body.scroll-mode #p-ct .ct-stats{margin-top:0;padding-bottom:0;margin-bottom:0;gap:.4rem}
+body.scroll-mode #p-ct .ct-stat{padding:.7rem .3rem;border-radius:10px}
+body.scroll-mode #p-ct .ct-stat-val{font-size:1.6rem}
+body.scroll-mode #p-ct .ct-stat-val .ct-stat-unit{font-size:1rem}
+body.scroll-mode #p-ct .ct-stat-label{font-size:.6rem;line-height:1.35}
+body.scroll-mode #p-ct .fg{margin-bottom:.5rem}
+body.scroll-mode #p-ct .fi,body.scroll-mode #p-ct .ft{min-height:44px;font-size:.88rem;padding:.65rem .95rem;border-radius:.65rem}
+body.scroll-mode #p-ct .ft{min-height:62px}
+body.scroll-mode #p-ct .fsub{min-height:48px;font-size:.9rem;letter-spacing:.02em;box-shadow:0 6px 20px rgba(30,16,199,.3);padding:.8rem}
+body.scroll-mode #p-ct .fl{font-size:.65rem;margin-bottom:.25rem;letter-spacing:.06em}
 body.scroll-mode .ct-stat{pointer-events:none!important;cursor:default!important;user-select:none}
 body.scroll-mode .svc-kpi-tag{opacity:1;transform:none}
 body.scroll-mode #c{position:fixed;z-index:-1;opacity:.06;pointer-events:none}
