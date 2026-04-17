@@ -143,6 +143,8 @@ body.scroll-mode .pnl.ss{display:none!important}
 
 /* ═══ MOBILE INDEX — 11 SECTIONS (hero→prob→diagnosis→core→mom→orb→svc→case→cs→cli→ct) ═══ */
 body.scroll-mode #p-hero{min-height:100svh;background:radial-gradient(ellipse at 50% 40%,#0e0a3a 0%,#05040e 60%,#020108 100%);padding-bottom:3rem}
+body.scroll-mode .h-enter,body.scroll-mode .h-eye,body.scroll-mode .h-sub,body.scroll-mode .h-stats,body.scroll-mode .h-cta-group,body.scroll-mode .scroll-hint{opacity:1!important;transform:none!important}
+body.scroll-mode .h-line-in{transform:none!important;opacity:1!important}
 body.scroll-mode #p-prob{min-height:100svh;background:#fafbff;padding-top:calc(var(--nav-h) + 1.2rem);padding-bottom:3rem}
 body.scroll-mode #p-orbit{min-height:auto;background:linear-gradient(180deg,#eef1ff 0%,#f8f9ff 100%);padding:3rem var(--edge-pad) 3rem!important;display:flex!important}
 body.scroll-mode #p-core{min-height:auto;background:linear-gradient(135deg,#1a0f8a 0%,#2a18e8 100%);overflow:visible;padding:3.5rem 0 3rem;display:flex!important}
@@ -814,10 +816,10 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   .nc-pill{font-size:.58rem;padding:.22rem .5rem;background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)}
 
   /* SERVICES (p-svc) — MOBILE clean list */
-  #p-svc{flex-direction:column;overflow-y:visible}
-  .svc-list{padding:0 var(--edge-pad);gap:0}
-  .svc-list::before{content:'SERVICES · 서비스';display:block;font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--c-brand);font-weight:800;margin-bottom:.5rem}
-  .svc-list::after{content:'흐름 기반으로 설계된 7개 서비스';display:block;font-size:clamp(1.25rem,5vw,1.6rem);font-weight:800;color:#0a0a1a;line-height:1.3;margin-bottom:1.4rem;letter-spacing:-.02em;word-break:keep-all;font-family:'Noto Sans KR',sans-serif}
+  #p-svc{flex-direction:column;overflow:visible;position:relative!important;inset:auto!important;height:auto!important}
+  .svc-list{flex:none!important;padding:0 var(--edge-pad);gap:0;justify-content:flex-start!important;width:100%}
+  #p-svc::before{content:'SERVICES · 서비스';display:block;font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--c-brand);font-weight:800;margin:0 var(--edge-pad) .5rem;order:-2}
+  #p-svc::after{content:'흐름 기반으로 설계된 7개 서비스';display:block;font-size:clamp(1.25rem,5vw,1.6rem);font-weight:800;color:#0a0a1a;line-height:1.3;margin:0 var(--edge-pad) 1.4rem;letter-spacing:-.02em;word-break:keep-all;font-family:'Noto Sans KR',sans-serif;order:-1}
   .svc-preview{display:none}
   .svc-item{padding:1rem 0;border-bottom:1px solid rgba(10,10,26,.08);opacity:1!important;transform:none!important}
   .svc-item:first-of-type{border-top:1px solid rgba(10,10,26,.08)}
@@ -967,9 +969,9 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   .svc-en{font-size:clamp(1.05rem,5vw,1.5rem)}
   .svc-ko{font-size:.65rem}
   .svc-kpi-tag{display:none}
-  .orbit-btn{padding:.8rem .75rem;gap:.6rem}
-  .orbit-btn-name{font-size:.9rem}
-  .orbit-btn-kpi{display:none}
+  .orbit-btn{padding:.95rem .85rem .95rem 1.1rem;gap:.7rem}
+  .orbit-btn-name{font-size:.95rem}
+  .orbit-btn-kpi{display:inline-flex;font-size:.56rem;padding:.22rem .5rem}
   .nc-title{font-size:clamp(1.3rem,5.5vw,1.8rem)}
   .nc-proof{grid-template-columns:1fr 1fr 1fr}
   .prob-card{min-width:calc(50% - .4rem);max-width:calc(50% - .4rem);padding:.8rem;flex-direction:column}
