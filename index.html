@@ -3063,7 +3063,6 @@ document.getElementById('orb-nx').addEventListener('click',function(){goto(S.SVC
 
   items.forEach(function(el){
     var idx=parseInt(el.getAttribute('data-i'));
-    el.addEventListener('click',function(){goto('s'+idx);});
     el.addEventListener('mouseenter',function(){
       hoverOn();
       items.forEach(function(it){
