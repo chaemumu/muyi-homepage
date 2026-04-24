@@ -390,6 +390,13 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 #orbit-tooltip .ot-name{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;color:#0a0a1a}
 #orbit-tooltip .ot-desc{font-size:.8rem;color:rgba(10,10,26,.55);margin-top:.18rem;letter-spacing:.02em}
 
+/* ORBIT FLOATING PANEL */
+#orbit-fly{position:fixed;top:0;right:0;bottom:0;z-index:200;display:flex;align-items:center;pointer-events:none;padding:var(--nav-h) var(--edge-pad) 2rem;opacity:0;transform:translateX(30px);transition:opacity .38s var(--ease-out),transform .38s var(--ease-out)}
+#orbit-fly.is-open{opacity:1;transform:translateX(0);pointer-events:auto}
+#orbit-fly .nc{opacity:1!important;transform:none!important;max-height:calc(100vh - var(--nav-h) - 4rem);overflow-y:auto}
+#orbit-fly-close{position:absolute;top:calc(var(--nav-h) + .8rem);right:calc(var(--edge-pad) + .4rem);width:32px;height:32px;border-radius:50%;background:rgba(10,10,26,.08);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;color:#0a0a1a;transition:background .2s;z-index:201;line-height:1}
+#orbit-fly-close:hover{background:rgba(10,10,26,.15)}
+
 /* NODE PANELS */
 .npnl{justify-content:flex-end;padding:var(--nav-h) var(--edge-pad) 3rem var(--edge-pad);padding-right:var(--edge-pad);align-items:center}
 .npnl.lft{justify-content:flex-start;padding:var(--nav-h) var(--edge-pad) 3rem var(--edge-pad);padding-left:var(--edge-pad)}
@@ -1131,11 +1138,16 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   </div>
 </div>
 
+<!-- ORBIT FLOATING PANEL OVERLAY -->
+<div id="orbit-fly">
+  <button id="orbit-fly-close" onclick="closeOrbitPanel()">✕</button>
+</div>
+
 <!-- ORBIT VIEW -->
 <div class="pnl" id="p-orbit">
   <div class="o-hint" id="o-hint">지금 브랜드가 멈춰 있는 지점을 선택하세요</div>
   <div class="orbit-nav" id="orbit-nav">
-    <div class="orbit-btn orbit-btn-main" data-node="core" onclick="window._go('core')">
+    <div class="orbit-btn orbit-btn-main" data-node="core" onclick="showOrbitPanel('core')">
       <span class="orbit-btn-index">01</span>
       <span class="orbit-btn-icon blue"></span>
       <span class="orbit-btn-name">Core</span>
@@ -1143,7 +1155,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       <span class="orbit-btn-problem">브랜드 설명이 제각각이라면</span>
       <span class="orbit-btn-desc">기준점부터 다시 세웁니다</span>
     </div>
-    <div class="orbit-btn" data-node="mom" onclick="window._go('mom')">
+    <div class="orbit-btn" data-node="mom" onclick="showOrbitPanel('mom')">
       <span class="orbit-btn-index">02</span>
       <span class="orbit-btn-icon purple"></span>
       <span class="orbit-btn-name">Momentum</span>
@@ -1151,7 +1163,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       <span class="orbit-btn-problem">광고비가 매출로 안 이어진다면</span>
       <span class="orbit-btn-desc">채널 흐름을 한 번에 최적화합니다</span>
     </div>
-    <div class="orbit-btn" data-node="orb" onclick="window._go('orb')">
+    <div class="orbit-btn" data-node="orb" onclick="showOrbitPanel('orb')">
       <span class="orbit-btn-index">03</span>
       <span class="orbit-btn-icon orange"></span>
       <span class="orbit-btn-name">Orbit</span>
@@ -3137,6 +3149,37 @@ document.querySelectorAll('.orbit-btn[data-node]').forEach(function(el){
     hoverOff();
   });
 });
+
+// Orbit floating panel
+var orbitFly=document.getElementById('orbit-fly');
+function showOrbitPanel(id){
+  var srcId=id==='core'?'nc-c':id==='mom'?'nc-m':'nc-o';
+  var src=document.getElementById(srcId);
+  if(!src)return;
+  var existing=orbitFly.querySelector('.nc');
+  if(existing)orbitFly.removeChild(existing);
+  var clone=src.cloneNode(true);
+  clone.removeAttribute('id');
+  clone.style.opacity='1';
+  clone.style.transform='none';
+  orbitFly.appendChild(clone);
+  // nc-next inside overlay
+  var nx=clone.querySelector('.nc-next');
+  if(nx){
+    nx.onclick=function(){
+      if(id==='core')showOrbitPanel('mom');
+      else if(id==='mom')showOrbitPanel('orb');
+      else closeOrbitPanel();
+    };
+  }
+  orbitFly.classList.add('is-open');
+  document.querySelectorAll('.orbit-btn').forEach(function(b){b.classList.toggle('is-act',b.getAttribute('data-node')===id);});
+}
+function closeOrbitPanel(){
+  orbitFly.classList.remove('is-open');
+  document.querySelectorAll('.orbit-btn').forEach(function(b){b.classList.remove('is-act');});
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeOrbitPanel();});
 
 // Clients (nav button removed)
 
