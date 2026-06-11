@@ -29,7 +29,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&family=Montserrat:wght@700;800&family=Noto+Sans+KR:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&family=Noto+Sans+KR:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <!-- Organization Schema -->
 <script type="application/ld+json">{
   "@context":"https://schema.org",
@@ -171,26 +171,27 @@ body.scroll-mode .nc-pill{background:rgba(255,255,255,.12)!important;border:1px 
 body.scroll-mode .nc-next{background:#fff!important;color:#1E10C7!important;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.28)!important;position:static!important}
 body.scroll-mode .nc-next:hover{background:#f0f0ff!important;color:#1E10C7!important}
 
-/* Case carousel → 모바일 scroll-pinning (sticky viewport, 슬라이드 fade) */
-body.scroll-mode #p-case{display:block!important;padding:0!important;min-height:400svh;position:relative;background:transparent;border-top:none!important}
-body.scroll-mode #p-case::before{display:none!important}
-body.scroll-mode .cs-wrap{position:sticky!important;top:0!important;height:100svh!important;min-height:0!important;border-radius:0!important;overflow:hidden!important;box-shadow:none!important;width:100%}
-body.scroll-mode .cs-track{position:relative;height:100%!important;flex-direction:row!important;transform:none!important;transition:none!important}
-body.scroll-mode .cs-slide{position:absolute!important;inset:0!important;min-width:100%;height:100%!important;opacity:0;transition:opacity .55s ease;scroll-snap-align:none}
-body.scroll-mode .cs-slide.m-act{opacity:1}
+/* Case carousel → 모바일 가로 스와이프 슬라이드 */
+body.scroll-mode #p-case{display:block!important;padding:2.6rem 0 2.2rem!important;min-height:auto;position:relative;background:#04040e;border-top:none!important}
+body.scroll-mode #p-case::before{content:'CASE STUDY';display:block;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700;margin:0 var(--edge-pad) 1rem}
+body.scroll-mode #p-case::after{display:none}
+body.scroll-mode .cs-winbar{display:none}
+body.scroll-mode .cs-wrap{position:static;width:100%;height:auto;min-height:0;display:block;border-radius:0;border:none;box-shadow:none;background:transparent;overflow:visible}
+body.scroll-mode .cs-track{display:flex;flex-direction:row;height:auto;min-height:0;transform:none!important;transition:none!important;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:.7rem;padding:0 var(--edge-pad)}
+body.scroll-mode .cs-track::-webkit-scrollbar{display:none}
+body.scroll-mode .cs-slide{position:relative;min-width:85%;width:85%;height:auto;min-height:60svh;flex-shrink:0;scroll-snap-align:center;border-radius:16px;overflow:hidden;display:flex;align-items:flex-end}
 body.scroll-mode .cs-slide .cs-content{opacity:1!important;transform:none!important}
-body.scroll-mode .cs-slide::before{content:'CASE STUDY';position:absolute;top:calc(var(--nav-h) + .9rem);left:1.4rem;z-index:5;font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700}
 body.scroll-mode .cs-bg{background-position:50% 50%!important;background-size:cover!important}
-body.scroll-mode .cs-overlay{background:linear-gradient(180deg,rgba(4,4,14,.55) 0%,rgba(4,4,14,.05) 38%,rgba(4,4,14,.05) 50%,rgba(4,4,14,.92) 100%)}
-body.scroll-mode .cs-content{position:absolute!important;bottom:0;left:0;right:0;z-index:2;display:flex;flex-direction:column;gap:.5rem;padding:2rem 1.4rem 3.2rem;box-sizing:border-box;color:#fff;max-width:none;width:auto}
+body.scroll-mode .cs-overlay{background:linear-gradient(180deg,rgba(4,4,14,.42) 0%,rgba(4,4,14,.06) 34%,rgba(4,4,14,.94) 100%)}
+body.scroll-mode .cs-content{position:absolute!important;bottom:0;left:0;right:0;z-index:2;display:flex;flex-direction:column;gap:.45rem;padding:1.6rem 1.2rem 1.5rem;box-sizing:border-box;color:#fff;max-width:none;width:auto}
 body.scroll-mode .cs-index{color:rgba(255,255,255,.4)}
 body.scroll-mode .cs-tag{background:rgba(30,16,199,.2);border-color:rgba(30,16,199,.5);color:#8CA2FF}
 body.scroll-mode .cs-name{color:#fff}
 body.scroll-mode .cs-desc{color:rgba(255,255,255,.75)}
 body.scroll-mode .cs-ch{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7)}
-body.scroll-mode .cs-dots{display:none!important}
-body.scroll-mode .cs-swipe-hint{display:none!important}
-body.scroll-mode .cs-prev,body.scroll-mode .cs-next{display:none!important}
+body.scroll-mode .cs-dots{display:flex!important;position:static;justify-content:center;margin-top:1rem}
+body.scroll-mode .cs-swipe-hint{display:flex;position:absolute;top:2.45rem;right:var(--edge-pad);bottom:auto}
+body.scroll-mode .cs-scroll-hint{display:none!important}
 
 /* Numbers */
 body.scroll-mode #p-cs .csd-eye,body.scroll-mode #p-cs .csd-title,body.scroll-mode #p-cs .csd-tab,body.scroll-mode #p-cs .csd-cta-row{opacity:1;transform:none}
@@ -514,10 +515,10 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .cli-case{padding:1.6rem 1.4rem 1.4rem;text-align:left;border:1px solid var(--c-border);border-radius:var(--radius-lg);background:linear-gradient(145deg,#f8f9ff 0%,#eef2ff 100%);box-shadow:var(--shadow-md);position:relative;overflow:hidden}
 .cli-case::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--c-brand),var(--c-accent));border-radius:1.4rem 1.4rem 0 0;opacity:.5;transition:opacity .3s}
 .cli-case:hover::before{opacity:1}
-.cli-case-n{display:block;font-family:'Montserrat','DM Sans',sans-serif;font-size:clamp(2rem,3vw,2.8rem);font-weight:800;color:#111;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.cli-case-n{display:block;font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2rem,3vw,2.8rem);font-weight:700;color:#111;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
 .cli-case-d{display:block;font-size:.82rem;color:rgba(0,0,0,.48);margin-top:.6rem;letter-spacing:-.01em;font-weight:500;line-height:1.5;font-family:'Noto Sans KR',sans-serif}
 .cli-ti{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2.2rem,4vw,3.4rem);font-weight:700;color:#111;letter-spacing:-.04em}
-.cli-ti em{color:var(--c-brand);font-style:normal;font-family:'Montserrat','DM Sans',sans-serif;font-size:1em;line-height:1;letter-spacing:-.02em;display:inline-block;font-variant-numeric:tabular-nums}
+.cli-ti em{color:var(--c-brand);font-style:normal;font-family:'Space Grotesk','DM Sans',sans-serif;font-size:1em;line-height:1;letter-spacing:-.02em;display:inline-block;font-variant-numeric:tabular-nums}
 .cl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:2.5rem 3rem;width:100%;max-width:1300px;justify-items:center}
 .lg{display:flex;align-items:center;justify-content:center;padding:0;border-radius:0;border:none;background:#fff;overflow:hidden}
 .lg img{max-width:240px;max-height:108px;object-fit:contain;-webkit-user-drag:none;user-select:none;pointer-events:none;clip-path:inset(2px 3px 4px 2px)}
@@ -547,15 +548,21 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .cli-skip::after{content:'→';font-size:1rem;transition:transform .3s}
 .cli-skip:hover::after{transform:translateX(4px)}
 
-/* CASE STUDIES CAROUSEL */
-#p-case{align-items:stretch;justify-content:stretch;padding:0;background:#04040e;overflow:hidden}
-.cs-wrap{position:relative;width:100%;height:100%;overflow:hidden}
-.cs-track{display:flex;height:100%;transition:transform .7s cubic-bezier(.77,0,.175,1);will-change:transform}
-.cs-slide{position:relative;min-width:100%;height:100%;flex-shrink:0;overflow:hidden;display:flex;align-items:flex-end}
+/* CASE STUDIES CAROUSEL — 팝업 윈도우 카드 + 세로 스크롤 전환 */
+#p-case{align-items:center;justify-content:center;padding:calc(var(--nav-h) + 1rem) 4vw 2.5rem;background:#04040e;overflow:hidden}
+#p-case::after{content:'';position:absolute;left:50%;top:50%;width:72vw;height:72vh;transform:translate(-50%,-50%);background:radial-gradient(ellipse at center,rgba(30,16,199,.22) 0%,transparent 65%);pointer-events:none}
+.cs-wrap{position:relative;z-index:2;width:min(1180px,90vw);height:min(78vh,760px);display:flex;flex-direction:column;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:#070718;box-shadow:0 50px 140px rgba(0,0,0,.65),0 18px 48px rgba(0,0,0,.45);overflow:hidden}
+.cs-winbar{display:flex;align-items:center;gap:.45rem;flex-shrink:0;padding:.8rem 1.3rem;background:rgba(255,255,255,.035);border-bottom:1px solid rgba(255,255,255,.07);position:relative;z-index:5}
+.cs-windot{width:11px;height:11px;border-radius:50%}
+.cs-windot.d1{background:#ff5f57}.cs-windot.d2{background:#febc2e}.cs-windot.d3{background:#28c840}
+.cs-winbar-label{margin-left:.9rem;font-family:'Space Grotesk',sans-serif;font-size:.64rem;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.45);font-weight:700}
+.cs-winbar-url{margin-left:auto;font-family:'Space Grotesk',sans-serif;font-size:.62rem;letter-spacing:.12em;color:rgba(255,255,255,.25);font-weight:600}
+.cs-track{position:relative;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;transition:transform .75s cubic-bezier(.77,0,.175,1);will-change:transform}
+.cs-slide{position:relative;width:100%;height:100%;flex-shrink:0;overflow:hidden;display:flex;align-items:flex-end}
 .cs-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .7s cubic-bezier(.77,0,.175,1)}
 .cs-slide.active .cs-bg{transform:scale(1.03)}
 .cs-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,4,14,.88) 0%,rgba(4,4,14,.6) 45%,rgba(4,4,14,.25) 100%)}
-.cs-content{position:relative;z-index:2;padding:clamp(2.5rem,5vw,5rem) clamp(2.5rem,6vw,6rem);max-width:660px;display:flex;flex-direction:column;gap:1.2rem}
+.cs-content{position:relative;z-index:2;padding:2.2rem 2.8rem 3.4rem;max-width:640px;display:flex;flex-direction:column;gap:1rem}
 .cs-index{font-size:.76rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:700}
 .cs-tag{display:inline-flex;align-self:flex-start;padding:.42rem .9rem;border-radius:999px;background:rgba(30,16,199,.15);border:1px solid rgba(30,16,199,.4);font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:#8CA2FF;font-weight:700}
 .cs-name{font-family:'Space Grotesk',sans-serif;font-size:clamp(2.2rem,4.2vw,3.8rem);font-weight:700;color:#fff;letter-spacing:-.04em;line-height:1}
@@ -565,22 +572,18 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .cs-steps{display:flex;flex-direction:column;gap:.55rem;margin-top:.2rem}
 .cs-step{display:flex;align-items:flex-start;gap:.8rem;font-size:.9rem;line-height:1.6;color:rgba(255,255,255,.68);font-family:'Noto Sans KR','DM Sans',sans-serif}
 .cs-step-num{font-family:'Space Grotesk',sans-serif;font-size:.72rem;color:#8CA2FF;font-weight:700;letter-spacing:.1em;flex-shrink:0;margin-top:.22rem}
-/* Prev / Next */
-.cs-prev,.cs-next{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--dur-mid) var(--ease-out);backdrop-filter:blur(12px)}
-.cs-prev{left:2rem}
-.cs-next{right:2rem}
-.cs-prev:hover,.cs-next:hover{background:rgba(238,78,0,.25);border-color:rgba(238,78,0,.4);transform:translateY(-50%) scale(1.05)}
 /* Dots */
-.cs-dots{position:absolute;bottom:2.2rem;left:clamp(2.5rem,6vw,6rem);z-index:10;display:flex;gap:.5rem;align-items:center}
+.cs-dots{position:absolute;bottom:1.4rem;left:2.8rem;z-index:10;display:flex;gap:.5rem;align-items:center}
 .cs-dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.25);cursor:pointer;transition:all .4s;border:none;padding:0;display:block}
 .cs-dot.on{width:28px;background:#EE4E00}
-/* Drag hint */
-.cs-drag-hint{position:absolute;bottom:2.4rem;right:2.5rem;z-index:10;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.3);font-weight:600;display:flex;align-items:center;gap:.5rem}
-.cs-drag-hint::before{content:'';width:28px;height:1px;background:rgba(255,255,255,.25);display:block}
+/* Scroll hint */
+.cs-scroll-hint{position:absolute;bottom:1.3rem;right:1.8rem;z-index:10;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.32);font-weight:600;display:flex;align-items:center;gap:.5rem}
+.cs-scroll-hint::after{content:'\2193';font-size:.85rem;color:rgba(238,78,0,.8);animation:csHintBob 1.6s ease-in-out infinite}
+@keyframes csHintBob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
 .cs-swipe-hint{display:none}
 /* Slide-in animation */
-.cs-slide .cs-content{opacity:0;transform:translateX(-30px);transition:opacity .6s .2s,transform .6s .2s cubic-bezier(.16,1,.3,1)}
-.cs-slide.active .cs-content{opacity:1;transform:translateX(0)}
+.cs-slide .cs-content{opacity:0;transform:translateY(26px);transition:opacity .6s .2s,transform .6s .2s cubic-bezier(.16,1,.3,1)}
+.cs-slide.active .cs-content{opacity:1;transform:translateY(0)}
 
 /* CASE STUDY DETAIL SECTION */
 #p-cs{flex-direction:column;align-items:stretch;justify-content:flex-start;background:#080814;overflow-y:auto;padding:0;z-index:100;position:relative}
@@ -707,8 +710,9 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .ct-desc{font-size:1rem;line-height:1.7;color:var(--c-subtle);margin-bottom:0;word-break:keep-all}
 .ct-stats{display:flex;gap:.8rem;padding-bottom:.5rem;margin-top:auto}
 .ct-stat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;background:#f4f5ff;border:1px solid rgba(30,16,199,.08);border-radius:12px;padding:1.2rem .5rem;text-align:center;min-width:0}
-.ct-stat-val{font-family:'Syne','Space Grotesk',sans-serif;font-size:2.8rem;font-weight:800;color:var(--c-brand);line-height:1;letter-spacing:-.03em}
-.ct-stat-val .ct-stat-unit{font-size:1.6rem;font-weight:800}
+.ct-stat-val{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:2.8rem;font-weight:700;color:var(--c-brand);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
+.ct-stat-val .ct-stat-unit{font-size:1.6rem;font-weight:700}
+.ct-stat-num{display:inline-block;text-align:right}
 .ct-stat-label{font-size:.72rem;color:var(--c-subtle);letter-spacing:.02em;line-height:1.3}
 .fg{margin-bottom:1rem}
 .fl{display:block;font-size:var(--text-xs);letter-spacing:.04em;color:var(--c-subtle);margin-bottom:.4rem;font-weight:600;font-family:'Noto Sans KR','DM Sans',sans-serif}
@@ -898,8 +902,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   /* CASE CAROUSEL — MOBILE */
   .cs-steps{display:none}
   .cs-desc{font-size:.82rem;line-height:1.6;-webkit-line-clamp:3;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
-  .cs-prev,.cs-next{display:none}
-  .cs-drag-hint{display:none}
+  .cs-scroll-hint{display:none}
   .cs-swipe-hint{display:flex;position:absolute;bottom:1.2rem;right:var(--edge-pad);z-index:10;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:600;align-items:center;gap:.4rem;animation:swipeHintFade 3s ease forwards}
   @keyframes swipeHintFade{0%{opacity:1;transform:translateX(0)}60%{opacity:1;transform:translateX(-6px)}100%{opacity:0;transform:translateX(-6px);pointer-events:none}}
   .cs-content{padding:1.2rem var(--edge-pad) 2.5rem;gap:.5rem;justify-content:flex-end;max-width:100%}
@@ -1538,6 +1541,11 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 <!-- CASE STUDIES CAROUSEL -->
 <div class="pnl" id="p-case">
   <div class="cs-wrap">
+    <div class="cs-winbar">
+      <span class="cs-windot d1"></span><span class="cs-windot d2"></span><span class="cs-windot d3"></span>
+      <span class="cs-winbar-label">Case Study</span>
+      <span class="cs-winbar-url">muyi.co.kr/cases</span>
+    </div>
     <div class="cs-track" id="csTrack">
       <!-- Slide 1 -->
       <div class="cs-slide active">
@@ -1626,15 +1634,13 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
     </div>
     <!-- Controls -->
-    <button class="cs-prev" id="csPrev" aria-label="Previous">&#8592;</button>
-    <button class="cs-next" id="csNext" aria-label="Next">&#8594;</button>
     <div class="cs-dots" id="csDots">
       <button type="button" class="cs-dot on" aria-label="케이스 1 보기"></button>
       <button type="button" class="cs-dot" aria-label="케이스 2 보기"></button>
       <button type="button" class="cs-dot" aria-label="케이스 3 보기"></button>
       <button type="button" class="cs-dot" aria-label="케이스 4 보기"></button>
     </div>
-    <div class="cs-drag-hint">Drag to explore</div>
+    <div class="cs-scroll-hint">Scroll</div>
     <div class="cs-swipe-hint">← 스와이프</div>
   </div>
 </div>
@@ -2340,10 +2346,11 @@ function animCt(){
     },240+i*130);
   });
   document.querySelectorAll('#p-ct .ct-stat-num').forEach(function(el,i){
-    var target=parseInt(el.dataset.target);var dur=1200;var start=performance.now();
+    var target=parseInt(el.dataset.target);var dur=2400;var start=performance.now();
+    el.style.minWidth=String(target).length+'ch';
     el.textContent='0';
     setTimeout(function(){
-      function tick(now){var p=Math.min((now-start)/dur,1);var ease=1-Math.pow(1-p,3);el.textContent=Math.round(target*ease);if(p<1)requestAnimationFrame(tick);else el.textContent=target;}
+      function tick(now){var p=Math.min((now-start)/dur,1);var ease=1-Math.pow(1-p,4);el.textContent=Math.round(target*ease);if(p<1)requestAnimationFrame(tick);else el.textContent=target;}
       start=performance.now();requestAnimationFrame(tick);
     },500+i*150);
   });
@@ -2565,39 +2572,45 @@ function initScrollMode(){
         var target=parseInt(el.dataset.target,10);
         if(!target||el._counted)return;
         el._counted=true;
+        el.style.minWidth=String(target).length+'ch';
         el.textContent='0';
         setTimeout(function(){
-          var start=performance.now();var dur=1200;
-          function tick(now){var p=Math.min((now-start)/dur,1);var ease=1-Math.pow(1-p,3);el.textContent=Math.round(target*ease);if(p<1)requestAnimationFrame(tick);else el.textContent=target;}
+          var start=performance.now();var dur=2400;
+          function tick(now){var p=Math.min((now-start)/dur,1);var ease=1-Math.pow(1-p,4);el.textContent=Math.round(target*ease);if(p<1)requestAnimationFrame(tick);else el.textContent=target;}
           start=performance.now();requestAnimationFrame(tick);
         },300+i*150);
       });
     }
   };
-  // Case study scroll-pinning: 스크롤 진행도에 따라 슬라이드 fade 전환
+  // Case carousel: 모바일 가로 스와이프 — 도트 동기화
   (function(){
     var pCase=document.getElementById('p-case');
-    var slides=pCase?Array.prototype.slice.call(pCase.querySelectorAll('.cs-slide')):[];
-    if(!slides.length||!pCase)return;
-    slides[0].classList.add('m-act');
-    var total=slides.length;
+    var track=document.getElementById('csTrack');
+    if(!pCase||!track)return;
+    var slides=Array.prototype.slice.call(track.querySelectorAll('.cs-slide'));
+    var dots=Array.prototype.slice.call(pCase.querySelectorAll('.cs-dot'));
+    if(!slides.length)return;
     var ticking=false;
-    function update(){
-      var top=pCase.getBoundingClientRect().top;
-      var scrollable=pCase.offsetHeight-window.innerHeight;
-      if(scrollable<=0)return;
-      var progress=Math.max(0,Math.min(1,-top/scrollable));
-      var idx=Math.min(total-1,Math.floor(progress*total));
+    function sync(){
+      var center=track.scrollLeft+track.clientWidth/2;
+      var idx=0,best=Infinity;
       slides.forEach(function(s,i){
-        if(i===idx)s.classList.add('m-act');
-        else s.classList.remove('m-act');
+        var d=Math.abs(s.offsetLeft+s.offsetWidth/2-center);
+        if(d<best){best=d;idx=i;}
       });
+      dots.forEach(function(d,i){d.classList.toggle('on',i===idx);});
       ticking=false;
     }
-    window.addEventListener('scroll',function(){
-      if(!ticking){requestAnimationFrame(update);ticking=true;}
+    track.addEventListener('scroll',function(){
+      if(!ticking){requestAnimationFrame(sync);ticking=true;}
     },{passive:true});
-    update();
+    dots.forEach(function(d,i){
+      d.addEventListener('click',function(){
+        var s=slides[i];
+        track.scrollTo({left:s.offsetLeft-(track.clientWidth-s.offsetWidth)/2,behavior:'smooth'});
+      });
+    });
+    sync();
   })();
 
   var triggered={};
@@ -3150,6 +3163,8 @@ var lastW=0;
 window.addEventListener('wheel',function(e){
   if(SCROLL_MODE)return;
   var now=Date.now();if(now-lastW<400)return;lastW=now;
+  // 케이스 섹션: 슬라이드를 모두 본 뒤에만 섹션 이동
+  if(cur==='case'&&window.csStep&&window.csStep(e.deltaY>0?1:-1))return;
   var idx=FULL_SEQ.indexOf(cur);
   if(idx<0){var mi=PMAIN.indexOf(cur);if(mi<0)return;if(e.deltaY>0&&mi<PMAIN.length-1)goto(PMAIN[mi+1]);else if(e.deltaY<0&&mi>0)goto(PMAIN[mi-1]);return;}
   if(e.deltaY>0&&idx<FULL_SEQ.length-1)goto(FULL_SEQ[idx+1]);
@@ -3168,6 +3183,7 @@ window.addEventListener('wheel',function(e){
     if(Math.abs(dy)<Math.abs(dx)||Math.abs(dy)<40)return;
     lastT=now;
     var idx=FULL_SEQ.indexOf(cur);if(idx<0)return;
+    if(cur==='case'&&window.csStep&&window.csStep(dy<0?1:-1))return;
     if(dy<0&&idx<FULL_SEQ.length-1)goto(FULL_SEQ[idx+1]);
     else if(dy>0&&idx>0)goto(FULL_SEQ[idx-1]);
   },{passive:true});
@@ -3179,8 +3195,10 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){goBack();return;}
   var idx=FULL_SEQ.indexOf(cur);
   if(e.key==='ArrowDown'||e.key==='ArrowRight'){
+    if(cur==='case'&&window.csStep&&window.csStep(1))return;
     if(idx>=0&&idx<FULL_SEQ.length-1)goto(FULL_SEQ[idx+1]);
   } else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){
+    if(cur==='case'&&window.csStep&&window.csStep(-1))return;
     if(idx>0)goto(FULL_SEQ[idx-1]);
   }
 });
@@ -3227,48 +3245,41 @@ document.addEventListener('keydown',function(e){
   setTimeout(showHero,600);
 })();
 
-// ── CASE CAROUSEL ──
+// ── CASE CAROUSEL (데스크톱: 팝업 카드 안 세로 스크롤 전환) ──
 (function(){
   if(SCROLL_MODE)return;
   var track=document.getElementById('csTrack');
   var slides=track?track.querySelectorAll('.cs-slide'):[];
   var dots=document.querySelectorAll('#csDots .cs-dot');
   var total=slides.length;
+  if(!total)return;
   var cur=0;
   function go(n){
+    var nxt=Math.max(0,Math.min(total-1,n));
+    if(nxt===cur)return;
     slides[cur].classList.remove('active');
     dots[cur].classList.remove('on');
-    cur=(n+total)%total;
+    cur=nxt;
     slides[cur].classList.add('active');
     dots[cur].classList.add('on');
-    track.style.transform='translateX(-'+cur*100+'%)';
+    track.style.transform='translateY(-'+cur*100+'%)';
   }
-  var prev=document.getElementById('csPrev');
-  var next=document.getElementById('csNext');
-  if(prev)prev.addEventListener('click',function(){go(cur-1);});
-  if(next)next.addEventListener('click',function(){go(cur+1);});
   dots.forEach(function(d,i){d.addEventListener('click',function(){go(i);});});
-  // Touch/drag
-  var sx=0,dragging=false;
-  if(track){
-    track.addEventListener('pointerdown',function(e){sx=e.clientX;dragging=true;});
-    track.addEventListener('pointerup',function(e){
-      if(!dragging)return;dragging=false;
-      var dx=e.clientX-sx;
-      if(Math.abs(dx)>50)go(dx<0?cur+1:cur-1);
-    });
-    track.addEventListener('pointercancel',function(){dragging=false;});
-  }
-  // Auto-advance every 6s when panel is visible
-  var autoTimer=null;
-  function startAuto(){autoTimer=setInterval(function(){go(cur+1);},6000);}
-  function stopAuto(){clearInterval(autoTimer);}
-  var panel=document.getElementById('p-case');
-  if(panel&&window.IntersectionObserver){
-    new IntersectionObserver(function(es){
-      es[0].isIntersecting?startAuto():stopAuto();
-    },{threshold:.5}).observe(panel);
-  }
+  // 휠/키보드에서 한 스텝 소비 — 경계에서 false 반환 시 섹션 이동
+  window.csStep=function(dir){
+    if(dir>0&&cur<total-1){go(cur+1);return true;}
+    if(dir<0&&cur>0){go(cur-1);return true;}
+    return false;
+  };
+  // Touch/drag (세로)
+  var sy=0,dragging=false;
+  track.addEventListener('pointerdown',function(e){sy=e.clientY;dragging=true;});
+  track.addEventListener('pointerup',function(e){
+    if(!dragging)return;dragging=false;
+    var dy=e.clientY-sy;
+    if(Math.abs(dy)>50)go(dy<0?cur+1:cur-1);
+  });
+  track.addEventListener('pointercancel',function(){dragging=false;});
 })();
 
 // ── CASE STUDY DETAIL SECTION ──
