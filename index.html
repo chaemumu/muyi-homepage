@@ -142,7 +142,9 @@ body.scroll-mode .pnl{position:relative;inset:auto;display:flex;opacity:1!import
 body.scroll-mode .pnl.ss{display:none!important}
 
 /* ═══ MOBILE INDEX — 화이트 베이스 (히어로 제외 전 섹션) ═══ */
-body.scroll-mode #p-hero{min-height:100svh;background:radial-gradient(ellipse at 50% 40%,#0e0a3a 0%,#05040e 60%,#020108 100%);padding-bottom:3rem}
+body.scroll-mode #p-hero{min-height:100svh;background:radial-gradient(ellipse at 50% 40%,#0e0a3a 0%,#05040e 60%,#020108 100%);padding-bottom:3rem;text-align:center!important;align-items:center!important;padding-left:var(--edge-pad)!important;padding-right:var(--edge-pad)!important}
+body.scroll-mode .h-sub{margin-left:auto!important;margin-right:auto!important}
+body.scroll-mode .h-cta-group{justify-content:center!important}
 body.scroll-mode .h-enter,body.scroll-mode .h-eye,body.scroll-mode .h-sub,body.scroll-mode .h-stats,body.scroll-mode .h-cta-group{opacity:1!important;transform:none!important}
 body.scroll-mode .scroll-hint{opacity:1!important;transform:translateX(-50%)!important}
 body.scroll-mode .h-line-in{transform:none!important;opacity:1!important}
@@ -303,14 +305,14 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .pt.on{color:#ffffff}
 
 /* UI LAYER */
-#ui{position:fixed;inset:0;z-index:100;pointer-events:none}
+#ui{position:fixed;inset:0;z-index:100;pointer-events:none;overflow:hidden}
 
 /* PANELS */
 .pnl{position:absolute;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;opacity:0;will-change:opacity,transform}
 .pnl.open{pointer-events:auto}
 
 /* HERO */
-#p-hero{flex-direction:column;text-align:center;padding:0;align-items:center;justify-content:center;perspective:1600px;overflow:visible;isolation:isolate;z-index:10}
+#p-hero{flex-direction:column;text-align:left;padding:0 clamp(3.5rem,9vw,11rem);align-items:flex-start;justify-content:center;perspective:1600px;overflow:visible;isolation:isolate;z-index:10}
 #p-hero::before{content:'';position:absolute;left:50%;top:50%;width:70vmin;height:70vmin;max-width:800px;max-height:800px;border-radius:50%;background:radial-gradient(circle,rgba(30,16,199,.18) 0%,rgba(60,40,240,.08) 30%,rgba(140,162,255,.03) 55%,transparent 72%);filter:blur(40px);z-index:-2;transform:translate(-50%,-52%);animation:heroGlow 8s ease-in-out infinite;pointer-events:none}
 #p-hero::after{content:'';position:absolute;left:50%;top:48%;width:110vmin;height:110vmin;max-width:1200px;max-height:1200px;border-radius:50%;background:radial-gradient(circle,rgba(140,162,255,.06) 0%,rgba(30,16,199,.02) 40%,transparent 65%);filter:blur(60px);z-index:-3;transform:translate(-50%,-50%);pointer-events:none}
 .h-eye{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(140,162,255,.85);margin-bottom:1.8rem;font-weight:600;opacity:0;transform:translateY(16px);display:inline-flex;align-items:center;gap:.8rem}
@@ -319,8 +321,9 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .h-line{display:block;overflow:visible;padding:.04em 0}
 .h-line-in{display:inline-block;position:relative;transform:translateY(120%);color:inherit;will-change:transform}
 .h-line-in::before,.h-line-in::after{content:none}
-.h-title-grad{display:inline-block;background:linear-gradient(135deg,#ffffff 0%,#c8bfff 45%,#8CA2FF 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.h-sub{display:block;font-size:clamp(.95rem,1.5vw,1.15rem);color:rgba(205,214,255,.68);font-weight:400;line-height:1.7;letter-spacing:.01em;max-width:38ch;margin:0 auto 2.8rem;opacity:0;transform:translateY(14px);font-family:'Noto Sans KR','DM Sans',sans-serif}
+.h-title-grad{display:inline-block;color:#fff;-webkit-text-fill-color:#fff}
+.h-title .h-line:last-child .h-title-grad{color:#EE4E00;-webkit-text-fill-color:#EE4E00}
+.h-sub{display:block;font-size:clamp(.95rem,1.5vw,1.15rem);color:rgba(205,214,255,.68);font-weight:400;line-height:1.7;letter-spacing:.01em;max-width:38ch;margin:0 0 2.8rem;opacity:0;transform:translateY(14px);font-family:'Noto Sans KR','DM Sans',sans-serif}
 .hero-chip-row{display:none}
 .h-enter{display:inline-flex;align-items:center;gap:1rem;font-size:clamp(1rem,1.4vw,1.15rem);letter-spacing:.04em;text-transform:none;color:#fff;cursor:pointer;pointer-events:auto;font-weight:700;background:linear-gradient(135deg,#2a18e8 0%,#4834f7 100%);border:1px solid rgba(140,162,255,.2);border-radius:var(--radius-full);padding:1.3rem 3.2rem;font-family:inherit;opacity:0;transition:all var(--dur-mid) var(--ease-out);box-shadow:0 0 0 0 rgba(30,16,199,0),0 4px 32px rgba(30,16,199,.4),inset 0 1px 0 rgba(255,255,255,.1);position:relative;overflow:hidden}
 .h-enter::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.14) 0%,transparent 50%);opacity:0;transition:opacity var(--dur-mid)}
@@ -333,7 +336,7 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .h-arr{width:36px;height:2px;background:currentColor;position:relative;flex-shrink:0;transition:width .3s}
 .h-enter:hover .h-arr{width:52px}
 .h-arr::after{content:'';position:absolute;right:0;top:50%;transform:translateY(-50%) rotate(45deg);width:7px;height:7px;border-right:2px solid;border-top:2px solid}
-.h-cta-group{display:flex;align-items:center;gap:2rem;flex-wrap:wrap;opacity:0;justify-content:center}
+.h-cta-group{display:flex;align-items:center;gap:2rem;flex-wrap:wrap;opacity:0;justify-content:flex-start}
 .h-text-link{display:none}
 .h-link-arr{display:none}
 /* STATS — glass morphism dark */
@@ -454,7 +457,7 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .svc-item.vis{opacity:1;transform:translateY(0)}
 .svc-item.dimmed{opacity:.15;transform:none}
 .svc-item-left{display:flex;flex-direction:column;gap:.25rem;padding-left:1.4rem;flex:1;min-width:0}
-.svc-en{font-family:'Syne','DM Sans',sans-serif;font-size:clamp(1.5rem,3vw,2.8rem);font-weight:800;letter-spacing:-.04em;line-height:1;color:#0a0a1a;transition:color .35s,transform .4s var(--ease-out);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.svc-en{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(1.5rem,3vw,2.8rem);font-weight:700;letter-spacing:-.04em;line-height:1;color:#0a0a1a;transition:color .35s,transform .4s var(--ease-out);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .svc-ko{font-family:'Noto Sans KR',sans-serif;font-size:clamp(.72rem,.9vw,.85rem);font-weight:500;letter-spacing:.02em;color:rgba(10,10,26,.38);transition:color .3s;line-height:1}
 .svc-item-right{display:flex;align-items:center;gap:clamp(.8rem,2vw,2rem);flex-shrink:0}
 .svc-kpi-tag{font-family:'Noto Sans KR','DM Sans',sans-serif;font-size:clamp(.6rem,.72vw,.72rem);font-weight:700;color:var(--c-brand);background:rgba(30,16,199,.07);padding:.28em .8em;border-radius:2em;white-space:nowrap;opacity:0;transform:translateX(8px);transition:opacity .35s,transform .35s}
@@ -472,7 +475,7 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .svc-prev-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(30,16,199,.55) 0%,rgba(5,3,40,.75) 100%)}
 .svc-prev-badge{position:absolute;bottom:2.4rem;left:2rem;right:2rem;color:#fff;opacity:0;transform:translateY(10px);transition:opacity .4s,transform .4s}
 .svc-prev-badge.show{opacity:1;transform:translateY(0)}
-.svc-prev-kpi{font-family:'DM Sans',sans-serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:800;letter-spacing:-.04em;line-height:1;margin-bottom:.4rem}
+.svc-prev-kpi{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:700;letter-spacing:-.04em;line-height:1;margin-bottom:.4rem;font-variant-numeric:tabular-nums}
 .svc-prev-label{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;opacity:.7;font-weight:500}
 
 /* SERVICE MICRO-SCENES */
@@ -517,7 +520,7 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .cli-case:hover::before{opacity:1}
 .cli-case-n{display:block;font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2rem,3vw,2.8rem);font-weight:700;color:#111;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
 .cli-case-d{display:block;font-size:.82rem;color:rgba(0,0,0,.48);margin-top:.6rem;letter-spacing:-.01em;font-weight:500;line-height:1.5;font-family:'Noto Sans KR',sans-serif}
-.cli-ti{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2.2rem,4vw,3.4rem);font-weight:700;color:#111;letter-spacing:-.04em}
+.cli-ti{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2.2rem,4vw,3.4rem);font-weight:700;color:#111;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
 .cli-ti em{color:var(--c-brand);font-style:normal;font-family:'Space Grotesk','DM Sans',sans-serif;font-size:1em;line-height:1;letter-spacing:-.02em;display:inline-block;font-variant-numeric:tabular-nums}
 .cl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:2.5rem 3rem;width:100%;max-width:1300px;justify-items:center}
 .lg{display:flex;align-items:center;justify-content:center;padding:0;border-radius:0;border:none;background:#fff;overflow:hidden}
@@ -552,12 +555,12 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 #p-case{align-items:center;justify-content:center;padding:calc(var(--nav-h) + 1rem) 4vw 2.5rem;background:#04040e;overflow:hidden}
 #p-case::after{content:'';position:absolute;left:50%;top:50%;width:72vw;height:72vh;transform:translate(-50%,-50%);background:radial-gradient(ellipse at center,rgba(30,16,199,.22) 0%,transparent 65%);pointer-events:none}
 .cs-wrap{position:relative;z-index:2;width:min(1180px,90vw);height:min(78vh,760px);display:flex;flex-direction:column;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:#070718;box-shadow:0 50px 140px rgba(0,0,0,.65),0 18px 48px rgba(0,0,0,.45);overflow:hidden}
-.cs-winbar{display:flex;align-items:center;gap:.45rem;flex-shrink:0;padding:.8rem 1.3rem;background:rgba(255,255,255,.035);border-bottom:1px solid rgba(255,255,255,.07);position:relative;z-index:5}
+.cs-winbar{display:flex;align-items:center;gap:.45rem;flex-shrink:0;padding:.8rem 1.3rem;background:#070718;border-bottom:1px solid rgba(255,255,255,.09);position:relative;z-index:5}
 .cs-windot{width:11px;height:11px;border-radius:50%}
 .cs-windot.d1{background:#ff5f57}.cs-windot.d2{background:#febc2e}.cs-windot.d3{background:#28c840}
 .cs-winbar-label{margin-left:.9rem;font-family:'Space Grotesk',sans-serif;font-size:.64rem;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.45);font-weight:700}
 .cs-winbar-url{margin-left:auto;font-family:'Space Grotesk',sans-serif;font-size:.62rem;letter-spacing:.12em;color:rgba(255,255,255,.25);font-weight:600}
-.cs-track{position:relative;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;transition:transform .75s cubic-bezier(.77,0,.175,1);will-change:transform}
+.cs-track{position:relative;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;transition:transform .75s cubic-bezier(.77,0,.175,1);will-change:transform;overflow:hidden}
 .cs-slide{position:relative;width:100%;height:100%;flex-shrink:0;overflow:hidden;display:flex;align-items:flex-end}
 .cs-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .7s cubic-bezier(.77,0,.175,1)}
 .cs-slide.active .cs-bg{transform:scale(1.03)}
@@ -705,7 +708,8 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .ct-ti{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2.8rem,5.5vw,5.2rem);font-weight:700;line-height:.98;letter-spacing:-.06em;color:#0a0a1a;margin-bottom:1.6rem;position:relative;overflow:visible;max-width:16ch;padding:.02em 0 .08em}
 .ct-ti .h-line{display:block;overflow:visible;padding:.04em 0}
 .ct-ti .h-line-in{display:inline-block;position:relative;transform-origin:center bottom}
-.ct-ti .h-title-grad{display:inline-block;background:linear-gradient(135deg,#0a0a1a 0%,#1E10C7 45%,#4834f7 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ct-ti .h-title-grad{display:inline-block;color:#0a0a1a;-webkit-text-fill-color:#0a0a1a;background:none;-webkit-background-clip:unset;background-clip:unset}
+.ct-ti .h-line:last-child .h-title-grad{color:#1E10C7;-webkit-text-fill-color:#1E10C7}
 .ct-left{display:flex;flex-direction:column}
 .ct-desc{font-size:1rem;line-height:1.7;color:var(--c-subtle);margin-bottom:0;word-break:keep-all}
 .ct-stats{display:flex;gap:.8rem;padding-bottom:.5rem;margin-top:auto}
@@ -715,6 +719,7 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .ct-stat-num{display:inline-block;text-align:right}
 .ct-stat-label{font-size:.72rem;color:var(--c-subtle);letter-spacing:.02em;line-height:1.3}
 .fg{margin-bottom:1rem}
+.f-req-note{text-align:right;font-size:.68rem;color:rgba(10,10,26,.38);letter-spacing:.04em;margin-bottom:.9rem;font-family:'Space Grotesk','DM Sans',sans-serif;font-weight:500}
 .fl{display:block;font-size:var(--text-xs);letter-spacing:.04em;color:var(--c-subtle);margin-bottom:.4rem;font-weight:600;font-family:'Noto Sans KR','DM Sans',sans-serif}
 .fi,.ft{width:100%;background:#f6f7ff;border:1px solid rgba(30,16,199,.12);border-radius:var(--radius-sm);color:#0a0a1a;padding:.9rem 1.2rem;font-family:inherit;font-size:var(--text-base);outline:none;transition:border-color var(--dur-mid),background var(--dur-mid),box-shadow var(--dur-mid);-webkit-appearance:none}
 select.fi{background:#f4f6ff;color:#0a0a1a;cursor:pointer}
@@ -1549,7 +1554,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
     <div class="cs-track" id="csTrack">
       <!-- Slide 1 -->
       <div class="cs-slide active">
-        <div class="cs-bg" style="background-image:url('cases/opt/cj-haengdamdo.jpg')"></div>
+        <div class="cs-bg" style="background-image:url('cases/opt/cj-haengdamdo-orig.png')"></div>
         <div class="cs-overlay"></div>
         <div class="cs-content">
           <span class="cs-index">01 / 04</span>
@@ -1570,7 +1575,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
       <!-- Slide 2 -->
       <div class="cs-slide">
-        <div class="cs-bg" style="background-image:url('cases/opt/flashback-gyerim.jpg')"></div>
+        <div class="cs-bg" style="background-image:url('cases/opt/flashback-gyerim-orig.png')"></div>
         <div class="cs-overlay"></div>
         <div class="cs-content">
           <span class="cs-index">02 / 04</span>
@@ -1592,7 +1597,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
       <!-- Slide 3 -->
       <div class="cs-slide">
-        <div class="cs-bg" style="background-image:url('cases/opt/coex-ifs.jpg')"></div>
+        <div class="cs-bg" style="background-image:url('cases/opt/coex-ifs-orig.png')"></div>
         <div class="cs-overlay"></div>
         <div class="cs-content">
           <span class="cs-index">03 / 04</span>
@@ -1613,7 +1618,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
       <!-- Slide 4 -->
       <div class="cs-slide">
-        <div class="cs-bg" style="background-image:url('cases/opt/spc-secta9ine.jpg')"></div>
+        <div class="cs-bg" style="background-image:url('cases/opt/spc-secta9ine-orig.png')"></div>
         <div class="cs-overlay"></div>
         <div class="cs-content">
           <span class="cs-index">04 / 04</span>
@@ -1817,8 +1822,9 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   </div>
   <div class="ct-col">
     <form id="form" novalidate>
+      <p class="f-req-note">* 필수 입력 항목</p>
       <div class="fg"><label class="fl" for="f-name">이름 *</label><input class="fi" id="f-name" type="text" name="name" placeholder="홍길동" autocomplete="name" required></div>
-      <div class="fg"><label class="fl" for="f-email">이메일 (선택)</label><input class="fi" id="f-email" type="email" name="email" placeholder="hello@brand.com" autocomplete="email"></div>
+      <div class="fg"><label class="fl" for="f-email">이메일</label><input class="fi" id="f-email" type="email" name="email" placeholder="hello@brand.com" autocomplete="email"></div>
       <div class="fg"><label class="fl" for="f-phone">연락처 *</label><input class="fi" id="f-phone" type="tel" name="phone" placeholder="010-0000-0000" autocomplete="tel" required></div>
       <div class="fg"><label class="fl" for="f-type">문의 유형</label>
         <select class="fi" id="f-type" name="type">
@@ -2346,7 +2352,7 @@ function animCt(){
     },240+i*130);
   });
   document.querySelectorAll('#p-ct .ct-stat-num').forEach(function(el,i){
-    var target=parseInt(el.dataset.target);var dur=2400;var start=performance.now();
+    var target=parseInt(el.dataset.target);var dur=4000;var start=performance.now();
     el.style.minWidth=String(target).length+'ch';
     el.textContent='0';
     setTimeout(function(){
@@ -2575,7 +2581,7 @@ function initScrollMode(){
         el.style.minWidth=String(target).length+'ch';
         el.textContent='0';
         setTimeout(function(){
-          var start=performance.now();var dur=2400;
+          var start=performance.now();var dur=4000;
           function tick(now){var p=Math.min((now-start)/dur,1);var ease=1-Math.pow(1-p,4);el.textContent=Math.round(target*ease);if(p<1)requestAnimationFrame(tick);else el.textContent=target;}
           start=performance.now();requestAnimationFrame(tick);
         },300+i*150);
@@ -3491,13 +3497,13 @@ function initMap(){
   }).addTo(mapInstance);
 
   // 파란색 커스텀 마커 (#1E10C7)
-  var markerSvg='<svg width="32" height="42" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg"><path d="M16 0C9.4 0 4 5.4 4 12c0 8.5 12 30 12 30S28 20.5 28 12C28 5.4 22.6 0 16 0z" fill="#1E10C7" stroke="#fff" stroke-width="1.5"/><circle cx="16" cy="12" r="4.5" fill="#ffffff"/></svg>';
+  var markerSvg='<svg width="46" height="60" viewBox="0 0 46 60" xmlns="http://www.w3.org/2000/svg"><path d="M23 0C13.6 0 6 7.6 6 17c0 12 17 43 17 43S40 29 40 17C40 7.6 32.4 0 23 0z" fill="#1E10C7" stroke="#fff" stroke-width="2"/><circle cx="23" cy="17" r="6.5" fill="#ffffff"/></svg>';
   var icon=L.divIcon({
     html:markerSvg,
     className:'',
-    iconSize:[32,42],
-    iconAnchor:[16,42],
-    popupAnchor:[0,-42]
+    iconSize:[46,60],
+    iconAnchor:[23,60],
+    popupAnchor:[0,-60]
   });
 
   L.marker([lat,lng],{icon:icon})
