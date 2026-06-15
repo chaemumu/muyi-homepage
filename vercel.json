@@ -11,6 +11,7 @@
     { "src": "/self-employed", "dest": "/self-employed.html" },
     { "src": "/b2b-marketing", "dest": "/b2b-marketing.html" },
     { "src": "/public-sector", "dest": "/public-sector.html" },
+    { "src": "/brochure", "dest": "/brochure.html" },
     { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/cases/(.*)", "dest": "/cases/$1" },
     { "src": "/(.*)", "dest": "/index.html" }
