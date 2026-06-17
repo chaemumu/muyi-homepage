@@ -83,6 +83,7 @@
   "@type":"BreadcrumbList",
   "itemListElement":[{"@type":"ListItem","position":1,"name":"홈","item":"https://www.muyi.co.kr/"}]
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
@@ -152,7 +153,6 @@ body.scroll-mode #p-prob{min-height:100svh;background:#fff;padding-top:calc(var(
 body.scroll-mode #p-orbit{min-height:auto;background:#fff;padding:3rem var(--edge-pad) 3rem!important;display:flex!important}
 body.scroll-mode #p-core,body.scroll-mode #p-mom,body.scroll-mode #p-orb{display:none!important}
 body.scroll-mode #p-svc{min-height:auto;background:#fff;display:flex!important;padding:3.5rem 0 3rem}
-body.scroll-mode #p-case{display:block!important;padding:0!important;gap:0;border-top:none!important;min-height:auto;background:transparent}
 body.scroll-mode #p-cs{display:none!important}
 body.scroll-mode #p-cli{min-height:auto;background:#fff;padding:3.5rem var(--edge-pad) 3rem}
 body.scroll-mode #p-ct{min-height:100svh;display:flex!important;flex-direction:column;padding:calc(var(--nav-h) + .7rem) var(--edge-pad) 1.6rem;background:#fff;gap:0;overflow-y:auto;align-items:stretch}
@@ -173,27 +173,6 @@ body.scroll-mode .nc-pill{background:rgba(255,255,255,.12)!important;border:1px 
 body.scroll-mode .nc-next{background:#fff!important;color:#1E10C7!important;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.28)!important;position:static!important}
 body.scroll-mode .nc-next:hover{background:#f0f0ff!important;color:#1E10C7!important}
 
-/* Case carousel → 모바일 가로 스와이프 슬라이드 */
-body.scroll-mode #p-case{display:block!important;padding:2.6rem 0 2.2rem!important;min-height:auto;position:relative;background:#04040e;border-top:none!important}
-body.scroll-mode #p-case::before{content:'CASE STUDY';display:block;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700;margin:0 var(--edge-pad) 1rem}
-body.scroll-mode #p-case::after{display:none}
-body.scroll-mode .cs-winbar{display:none}
-body.scroll-mode .cs-wrap{position:static;width:100%;height:auto;min-height:0;display:block;border-radius:0;border:none;box-shadow:none;background:transparent;overflow:visible}
-body.scroll-mode .cs-track{display:flex;flex-direction:row;height:auto;min-height:0;transform:none!important;transition:none!important;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:.7rem;padding:0 var(--edge-pad)}
-body.scroll-mode .cs-track::-webkit-scrollbar{display:none}
-body.scroll-mode .cs-slide{position:relative;min-width:85%;width:85%;height:auto;min-height:60svh;flex-shrink:0;scroll-snap-align:center;border-radius:16px;overflow:hidden;display:flex;align-items:flex-end}
-body.scroll-mode .cs-slide .cs-content{opacity:1!important;transform:none!important}
-body.scroll-mode .cs-bg{background-position:50% 50%!important;background-size:cover!important}
-body.scroll-mode .cs-overlay{background:linear-gradient(180deg,rgba(4,4,14,.42) 0%,rgba(4,4,14,.06) 34%,rgba(4,4,14,.94) 100%)}
-body.scroll-mode .cs-content{position:absolute!important;bottom:0;left:0;right:0;z-index:2;display:flex;flex-direction:column;gap:.45rem;padding:1.6rem 1.2rem 1.5rem;box-sizing:border-box;color:#fff;max-width:none;width:auto}
-body.scroll-mode .cs-index{color:rgba(255,255,255,.4)}
-body.scroll-mode .cs-tag{background:rgba(30,16,199,.2);border-color:rgba(30,16,199,.5);color:#8CA2FF}
-body.scroll-mode .cs-name{color:#fff}
-body.scroll-mode .cs-desc{color:rgba(255,255,255,.75)}
-body.scroll-mode .cs-ch{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7)}
-body.scroll-mode .cs-dots{display:flex!important;position:static;justify-content:center;margin-top:1rem}
-body.scroll-mode .cs-swipe-hint{display:flex;position:absolute;top:2.45rem;right:var(--edge-pad);bottom:auto}
-body.scroll-mode .cs-scroll-hint{display:none!important}
 
 /* Numbers */
 body.scroll-mode #p-cs .csd-eye,body.scroll-mode #p-cs .csd-title,body.scroll-mode #p-cs .csd-tab,body.scroll-mode #p-cs .csd-cta-row{opacity:1;transform:none}
@@ -552,42 +531,6 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .cli-skip::after{content:'→';font-size:1rem;transition:transform .3s}
 .cli-skip:hover::after{transform:translateX(4px)}
 
-/* CASE STUDIES CAROUSEL — 팝업 윈도우 카드 + 세로 스크롤 전환 */
-#p-case{align-items:center;justify-content:center;padding:calc(var(--nav-h) + 1rem) 4vw 2.5rem;background:#04040e;overflow:hidden}
-#p-case::after{content:'';position:absolute;left:50%;top:50%;width:72vw;height:72vh;transform:translate(-50%,-50%);background:radial-gradient(ellipse at center,rgba(30,16,199,.22) 0%,transparent 65%);pointer-events:none}
-.cs-wrap{position:relative;z-index:2;width:min(1180px,90vw);height:min(78vh,760px);display:flex;flex-direction:column;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:#070718;box-shadow:0 50px 140px rgba(0,0,0,.65),0 18px 48px rgba(0,0,0,.45);overflow:hidden}
-.cs-winbar{display:flex;align-items:center;gap:.45rem;flex-shrink:0;padding:.8rem 1.3rem;background:#070718;border-bottom:1px solid rgba(255,255,255,.09);position:relative;z-index:5}
-.cs-windot{width:11px;height:11px;border-radius:50%}
-.cs-windot.d1{background:#ff5f57}.cs-windot.d2{background:#febc2e}.cs-windot.d3{background:#28c840}
-.cs-winbar-label{margin-left:.9rem;font-family:'Space Grotesk',sans-serif;font-size:.64rem;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.45);font-weight:700}
-.cs-winbar-url{margin-left:auto;font-family:'Space Grotesk',sans-serif;font-size:.62rem;letter-spacing:.12em;color:rgba(255,255,255,.25);font-weight:600}
-.cs-track{position:relative;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;transition:transform .75s cubic-bezier(.77,0,.175,1);will-change:transform;overflow:hidden}
-.cs-slide{position:relative;width:100%;height:100%;flex-shrink:0;overflow:hidden;display:flex;align-items:flex-end}
-.cs-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .7s cubic-bezier(.77,0,.175,1)}
-.cs-slide.active .cs-bg{transform:scale(1.03)}
-.cs-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,4,14,.88) 0%,rgba(4,4,14,.6) 45%,rgba(4,4,14,.25) 100%)}
-.cs-content{position:relative;z-index:2;padding:2.2rem 2.8rem 3.4rem;max-width:640px;display:flex;flex-direction:column;gap:1rem}
-.cs-index{font-size:.76rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:700}
-.cs-tag{display:inline-flex;align-self:flex-start;padding:.42rem .9rem;border-radius:999px;background:rgba(30,16,199,.15);border:1px solid rgba(30,16,199,.4);font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:#8CA2FF;font-weight:700}
-.cs-name{font-family:'Space Grotesk',sans-serif;font-size:clamp(2.2rem,4.2vw,3.8rem);font-weight:700;color:#fff;letter-spacing:-.04em;line-height:1}
-.cs-desc{font-size:var(--text-base);line-height:var(--lh-relaxed);color:rgba(255,255,255,.7);font-family:'Noto Sans KR','DM Sans',sans-serif;max-width:48ch}
-.cs-channels{display:flex;flex-wrap:wrap;gap:.5rem}
-.cs-ch{padding:.4rem .85rem;border-radius:999px;border:1px solid rgba(255,255,255,.15);font-size:.78rem;color:rgba(255,255,255,.65);letter-spacing:.06em}
-.cs-steps{display:flex;flex-direction:column;gap:.55rem;margin-top:.2rem}
-.cs-step{display:flex;align-items:flex-start;gap:.8rem;font-size:.9rem;line-height:1.6;color:rgba(255,255,255,.68);font-family:'Noto Sans KR','DM Sans',sans-serif}
-.cs-step-num{font-family:'Space Grotesk',sans-serif;font-size:.72rem;color:#8CA2FF;font-weight:700;letter-spacing:.1em;flex-shrink:0;margin-top:.22rem}
-/* Dots */
-.cs-dots{position:absolute;bottom:1.4rem;left:2.8rem;z-index:10;display:flex;gap:.5rem;align-items:center}
-.cs-dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.25);cursor:pointer;transition:all .4s;border:none;padding:0;display:block}
-.cs-dot.on{width:28px;background:#EE4E00}
-/* Scroll hint */
-.cs-scroll-hint{position:absolute;bottom:1.3rem;right:1.8rem;z-index:10;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.32);font-weight:600;display:flex;align-items:center;gap:.5rem}
-.cs-scroll-hint::after{content:'\2193';font-size:.85rem;color:rgba(238,78,0,.8);animation:csHintBob 1.6s ease-in-out infinite}
-@keyframes csHintBob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
-.cs-swipe-hint{display:none}
-/* Slide-in animation */
-.cs-slide .cs-content{opacity:0;transform:translateY(26px);transition:opacity .6s .2s,transform .6s .2s cubic-bezier(.16,1,.3,1)}
-.cs-slide.active .cs-content{opacity:1;transform:translateY(0)}
 
 /* CASE STUDY DETAIL SECTION */
 #p-cs{flex-direction:column;align-items:stretch;justify-content:flex-start;background:#080814;overflow-y:auto;padding:0;z-index:100;position:relative}
@@ -917,19 +860,6 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   /* Even-numbered services: image first (column-reverse makes it natural) */
   #p-s1 .ss-wrap,#p-s3 .ss-wrap,#p-s5 .ss-wrap{flex-direction:column-reverse}
 
-  /* CASE CAROUSEL — MOBILE */
-  .cs-steps{display:none}
-  .cs-desc{font-size:.82rem;line-height:1.6;-webkit-line-clamp:3;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
-  .cs-scroll-hint{display:none}
-  .cs-swipe-hint{display:flex;position:absolute;bottom:1.2rem;right:var(--edge-pad);z-index:10;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:600;align-items:center;gap:.4rem;animation:swipeHintFade 3s ease forwards}
-  @keyframes swipeHintFade{0%{opacity:1;transform:translateX(0)}60%{opacity:1;transform:translateX(-6px)}100%{opacity:0;transform:translateX(-6px);pointer-events:none}}
-  .cs-content{padding:1.2rem var(--edge-pad) 2.5rem;gap:.5rem;justify-content:flex-end;max-width:100%}
-  .cs-name{font-size:clamp(1.5rem,5.5vw,2.2rem)}
-  .cs-channels{gap:.3rem}
-  .cs-ch{padding:.25rem .5rem;font-size:.65rem}
-  .cs-dots{bottom:1.2rem;left:var(--edge-pad)}
-  .cs-overlay{background:linear-gradient(0deg,rgba(4,4,14,.92) 0%,rgba(4,4,14,.55) 50%,rgba(4,4,14,.2) 100%)}
-
   /* CONTACT — 480px fallback (scroll-mode overrides above) */
   .ct-footer-row{gap:.5rem}
   .ct-footer-links{gap:.8rem}
@@ -1081,7 +1011,6 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   <button class="pt" data-s="prob">Pain</button>
   <button class="pt" data-s="orbit">Orbit</button>
   <button class="pt" data-s="svc">Work</button>
-  <button class="pt" data-s="case">Cases</button>
   <button class="pt" data-s="cli">Clients</button>
   <button class="pt" data-s="ct">Contact</button>
 </div>
@@ -1544,113 +1473,6 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   </div>
 </div>
 
-<!-- CASE STUDIES CAROUSEL -->
-<div class="pnl" id="p-case">
-  <div class="cs-wrap">
-    <div class="cs-winbar">
-      <span class="cs-windot d1"></span><span class="cs-windot d2"></span><span class="cs-windot d3"></span>
-      <span class="cs-winbar-label">Case Study</span>
-      <span class="cs-winbar-url">muyi.co.kr/cases</span>
-    </div>
-    <div class="cs-track" id="csTrack">
-      <!-- Slide 1 -->
-      <div class="cs-slide active">
-        <div class="cs-bg" style="background-image:url('cases/opt/cj-haengdamdo.jpg')"></div>
-        <div class="cs-overlay"></div>
-        <div class="cs-content">
-          <span class="cs-index">01 / 04</span>
-          <span class="cs-tag">방문 수요 확장</span>
-          <h2 class="cs-name">행담도 휴게소</h2>
-          <p class="cs-desc">검색·SNS·커뮤니티를 한 흐름으로 묶어 실제 방문 수요를 만들었습니다.</p>
-          <div class="cs-channels">
-            <span class="cs-ch">Naver</span>
-            <span class="cs-ch">Instagram</span>
-            <span class="cs-ch">Community</span>
-          </div>
-          <div class="cs-steps">
-            <div class="cs-step"><span class="cs-step-num">01</span>네이버 채널 운영으로 검색 노출 기반을 정비했습니다.</div>
-            <div class="cs-step"><span class="cs-step-num">02</span>인스타그램 릴스 콘텐츠와 계정 운영 구조를 구축했습니다.</div>
-            <div class="cs-step"><span class="cs-step-num">03</span>커뮤니티 바이럴을 실제 방문 유입으로 연결했습니다.</div>
-          </div>
-        </div>
-      </div>
-      <!-- Slide 2 -->
-      <div class="cs-slide">
-        <div class="cs-bg" style="background-image:url('cases/opt/flashback-gyerim.jpg')"></div>
-        <div class="cs-overlay"></div>
-        <div class="cs-content">
-          <span class="cs-index">02 / 04</span>
-          <span class="cs-tag">런칭 수요 설계</span>
-          <h2 class="cs-name">플래시백: 계림</h2>
-          <p class="cs-desc">런칭 초기 인지도와 전환을 동시에 잡아 14일 만에 조기 매진을 달성했습니다.</p>
-          <div class="cs-channels">
-            <span class="cs-ch">Instagram</span>
-            <span class="cs-ch">Search</span>
-            <span class="cs-ch">Community</span>
-            <span class="cs-ch">Paid Media</span>
-          </div>
-          <div class="cs-steps">
-            <div class="cs-step"><span class="cs-step-num">01</span>콘텐츠 제작부터 프로모션까지 런칭 구간을 통합 운영했습니다.</div>
-            <div class="cs-step"><span class="cs-step-num">02</span>SNS와 검색 채널 중심으로 방문 수요 확산 구조를 만들었습니다.</div>
-            <div class="cs-step"><span class="cs-step-num">03</span>광고 노출이 실제 예매와 방문 행동으로 이어지게 흐름을 설계했습니다.</div>
-          </div>
-        </div>
-      </div>
-      <!-- Slide 3 -->
-      <div class="cs-slide">
-        <div class="cs-bg" style="background-image:url('cases/opt/coex-ifs.jpg')"></div>
-        <div class="cs-overlay"></div>
-        <div class="cs-content">
-          <span class="cs-index">03 / 04</span>
-          <span class="cs-tag">전시 퍼널 구축</span>
-          <h2 class="cs-name">IFS 프랜차이즈 박람회</h2>
-          <p class="cs-desc">릴스·커뮤니티·프로그램을 묶어 상담 신청 320% 증가를 이끌었습니다.</p>
-          <div class="cs-channels">
-            <span class="cs-ch">Instagram Reels</span>
-            <span class="cs-ch">Community</span>
-            <span class="cs-ch">Paid Media</span>
-          </div>
-          <div class="cs-steps">
-            <div class="cs-step"><span class="cs-step-num">01</span>릴스 중심으로 채널을 재정비해 전시 도달 구조를 설계했습니다.</div>
-            <div class="cs-step"><span class="cs-step-num">02</span>참가사에는 무료 마케팅, 참관객에는 무료 컨설팅을 운영했습니다.</div>
-            <div class="cs-step"><span class="cs-step-num">03</span>콘텐츠 노출이 전시 참여와 상담 흐름으로 이어지게 만들었습니다.</div>
-          </div>
-        </div>
-      </div>
-      <!-- Slide 4 -->
-      <div class="cs-slide">
-        <div class="cs-bg" style="background-image:url('cases/opt/spc-secta9ine.jpg')"></div>
-        <div class="cs-overlay"></div>
-        <div class="cs-content">
-          <span class="cs-index">04 / 04</span>
-          <span class="cs-tag">콘텐츠 자산 구축</span>
-          <h2 class="cs-name">Secta9ine 올닷</h2>
-          <p class="cs-desc">지속 읽히는 콘텐츠 구조로 월 15만 리드, 체류 시간 230% 성장.</p>
-          <div class="cs-channels">
-            <span class="cs-ch">Marketing Column</span>
-            <span class="cs-ch">Expert Partner</span>
-            <span class="cs-ch">Platform Content</span>
-          </div>
-          <div class="cs-steps">
-            <div class="cs-step"><span class="cs-step-num">01</span>소상공인과 예비 창업자를 위한 마케팅 칼럼을 기획했습니다.</div>
-            <div class="cs-step"><span class="cs-step-num">02</span>플랫폼 안에서 지속적으로 읽히는 콘텐츠 시리즈를 연재했습니다.</div>
-            <div class="cs-step"><span class="cs-step-num">03</span>단기 광고 대신 신뢰도 기반의 유입 자산을 쌓는 구조를 만들었습니다.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Controls -->
-    <div class="cs-dots" id="csDots">
-      <button type="button" class="cs-dot on" aria-label="케이스 1 보기"></button>
-      <button type="button" class="cs-dot" aria-label="케이스 2 보기"></button>
-      <button type="button" class="cs-dot" aria-label="케이스 3 보기"></button>
-      <button type="button" class="cs-dot" aria-label="케이스 4 보기"></button>
-    </div>
-    <div class="cs-scroll-hint">Scroll</div>
-    <div class="cs-swipe-hint">← 스와이프</div>
-  </div>
-</div>
-
 <!-- CLIENTS -->
 <div class="pnl" id="p-cli">
   <div class="cli-hd">
@@ -1976,9 +1798,9 @@ var CAM_CFG={
 
 var PMAP={
   hero:'p-hero',prob:'p-prob',orbit:'p-orbit',core:'p-core',mom:'p-mom',orb:'p-orb',
-  svc:'p-svc',s0:'p-s0',s1:'p-s1',s2:'p-s2',s3:'p-s3',s4:'p-s4',s5:'p-s5',s6:'p-s6','case':'p-case',cli:'p-cli',ct:'p-ct'
+  svc:'p-svc',s0:'p-s0',s1:'p-s1',s2:'p-s2',s3:'p-s3',s4:'p-s4',s5:'p-s5',s6:'p-s6',cli:'p-cli',ct:'p-ct'
 };
-var PMAIN=['hero','prob','orbit','svc','case','cli','ct'];
+var PMAIN=['hero','prob','orbit','svc','cli','ct'];
 var SCROLL_PANEL_MAP={
   hero:'p-hero',
   prob:'p-prob',
@@ -1987,12 +1809,10 @@ var SCROLL_PANEL_MAP={
   mom:'p-mom',
   orb:'p-orb',
   svc:'p-svc',
-  s0:'p-case',s1:'p-case',s2:'p-case',s3:'p-case',s4:'p-case',s5:'p-case',s6:'p-case',
-  'case':'p-case',
   cli:'p-cli',
   ct:'p-ct'
 };
-var SCROLL_VISIBLE_PANELS=['p-hero','p-prob','p-orbit','p-svc','p-case','p-cli','p-ct'];
+var SCROLL_VISIBLE_PANELS=['p-hero','p-prob','p-orbit','p-svc','p-cli','p-ct'];
 
 function scrollToState(ns,pushHist){
   var targetId=SCROLL_PANEL_MAP[ns]||SCROLL_PANEL_MAP[S.HERO];
@@ -2599,37 +2419,6 @@ function initScrollMode(){
       });
     }
   };
-  // Case carousel: 모바일 가로 스와이프 — 도트 동기화
-  (function(){
-    var pCase=document.getElementById('p-case');
-    var track=document.getElementById('csTrack');
-    if(!pCase||!track)return;
-    var slides=Array.prototype.slice.call(track.querySelectorAll('.cs-slide'));
-    var dots=Array.prototype.slice.call(pCase.querySelectorAll('.cs-dot'));
-    if(!slides.length)return;
-    var ticking=false;
-    function sync(){
-      var center=track.scrollLeft+track.clientWidth/2;
-      var idx=0,best=Infinity;
-      slides.forEach(function(s,i){
-        var d=Math.abs(s.offsetLeft+s.offsetWidth/2-center);
-        if(d<best){best=d;idx=i;}
-      });
-      dots.forEach(function(d,i){d.classList.toggle('on',i===idx);});
-      ticking=false;
-    }
-    track.addEventListener('scroll',function(){
-      if(!ticking){requestAnimationFrame(sync);ticking=true;}
-    },{passive:true});
-    dots.forEach(function(d,i){
-      d.addEventListener('click',function(){
-        var s=slides[i];
-        track.scrollTo({left:s.offsetLeft-(track.clientWidth-s.offsetWidth)/2,behavior:'smooth'});
-      });
-    });
-    sync();
-  })();
-
   var triggered={};
   var scrollObs=new IntersectionObserver(function(entries){
     entries.forEach(function(e){
@@ -2649,7 +2438,6 @@ function initScrollMode(){
   var navEl=document.getElementById('nav');
   var heroEl=document.getElementById('p-hero');
   var ctEl=document.getElementById('p-ct');
-  var caseEl=document.getElementById('p-case');
   if(navEl)navEl.classList.add('nav-dark'); // start on hero
   var floatObs=new IntersectionObserver(function(entries){
     entries.forEach(function(e){
@@ -2674,7 +2462,6 @@ function initScrollMode(){
   },{threshold:0.15});
   if(heroEl)floatObs.observe(heroEl);
   if(ctEl)floatObs.observe(ctEl);
-  if(caseEl)floatObs.observe(caseEl);
 }
 
 // ── THREE OBJECTS ──
@@ -3375,9 +3162,11 @@ document.addEventListener('keydown',function(e){
 
 // ── FORM ──
 
-// Supabase config
-var SUPABASE_URL='https://pacyhanuwuizcxwoggen.supabase.co';
-var SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhY3loYW51d3VpemN4d29nZ2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTI2NDgsImV4cCI6MjA5MTI4ODY0OH0.oe39KUtwr-mZ4OsqWQT6Y3USpigQpD825IM14mIFEaY';
+// EmailJS config — emailjs.com 에서 발급받은 값으로 교체하세요
+var EJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';   // Account > General > Public Key
+var EJS_SERVICE_ID  = 'YOUR_SERVICE_ID';   // Email Services > Service ID
+var EJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID'; // Email Templates > Template ID
+emailjs.init(EJS_PUBLIC_KEY);
 
 // Phone auto-formatting: 000-0000-0000
 (function(){
@@ -3425,18 +3214,14 @@ document.getElementById('form').addEventListener('submit',async function(e){
 
   btn.querySelector('span').textContent='전송 중...';btn.disabled=true;
   try{
-    var res=await fetch(SUPABASE_URL+'/functions/v1/contact',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY},
-      body:JSON.stringify({
-        name:d.name,
-        email:d.email,
-        phone:d.phone,
-        type:d.type||'기타 문의',
-        message:d.message
-      })
+    await emailjs.send(EJS_SERVICE_ID, EJS_TEMPLATE_ID, {
+      from_name: d.name,
+      from_email: d.email||'(미입력)',
+      from_phone: d.phone,
+      inquiry_type: d.type||'기타 문의',
+      message: d.message,
+      to_email: 'info@muyi.co.kr'
     });
-    if(!res.ok)throw new Error('전송 실패');
     // Success
     form.style.transition='opacity .5s ease';
     form.style.opacity='0';
@@ -3537,6 +3322,113 @@ function initMap(){
   setTimeout(function(){mapInstance.invalidateSize();},300);
   setTimeout(function(){mapInstance.invalidateSize();},1000);
 }
+</script>
+
+<!-- ── MUYI 상담 위젯: 채널톡 + 카카오톡 ── -->
+<style>
+/* 카카오톡 플로팅 버튼 — 채널톡 버튼 위에 위치 */
+#muyi-kakao-btn{
+  position:fixed;bottom:5.8rem;right:1.4rem;z-index:9990;
+  width:52px;height:52px;border-radius:50%;
+  background:#FEE500;border:none;cursor:pointer;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(0,0,0,.18);
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s;
+  opacity:0;transform:scale(0);pointer-events:none;
+}
+#muyi-kakao-btn.visible{opacity:1;transform:scale(1);pointer-events:auto}
+#muyi-kakao-btn:hover{transform:scale(1.1);box-shadow:0 8px 24px rgba(0,0,0,.22)}
+#muyi-kakao-btn svg{width:28px;height:28px}
+/* 툴팁 */
+#muyi-kakao-btn::before{
+  content:'카카오톡 상담';
+  position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);
+  white-space:nowrap;background:rgba(10,10,26,.82);color:#fff;
+  font-size:.72rem;font-family:'Noto Sans KR','DM Sans',sans-serif;
+  padding:.35rem .7rem;border-radius:.4rem;pointer-events:none;
+  opacity:0;transition:opacity .2s;
+}
+#muyi-kakao-btn:hover::before{opacity:1}
+@media(max-width:480px){
+  #muyi-kakao-btn{bottom:5.2rem;right:1rem;width:46px;height:46px}
+}
+</style>
+
+<!-- 카카오톡 채널 플로팅 버튼 -->
+<button id="muyi-kakao-btn" aria-label="카카오톡으로 상담하기" title="카카오톡 상담">
+  <!-- 카카오톡 공식 말풍선 아이콘 -->
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.53 5.08 3.84 6.52L4.9 20.5a.5.5 0 0 0 .72.52l4.04-2.18A10.9 10.9 0 0 0 12 19c5.523 0 10-3.477 10-7.8S17.523 3 12 3z" fill="#3A1D1D"/>
+  </svg>
+</button>
+
+<script>
+// ── MUYI 상담 위젯 설정 ──────────────────────────────────────────
+// 아래 두 값만 변경하면 됩니다.
+var MUYI_CONFIG = {
+  // 1) channel.io 가입 후 설정 > 플러그인 키 복사해서 여기에 입력
+  channelTalkKey: '05382d2b-94b8-4fd2-b319-237fb91918ac',
+
+  // 2) 카카오톡 채널 채팅 URL (카카오 채널 검색ID가 muyi93인 경우)
+  //    카카오 채널 관리자센터 > 채널 홈 > 공유하기에서 정확한 URL 확인
+  kakaoUrl: 'https://pf.kakao.com/_muyi93/chat'
+};
+// ─────────────────────────────────────────────────────────────────
+
+// ── 이벤트 추적 유틸 (GA4 설치 시 자동 활성화) ──
+function trackEvent(name, params) {
+  try {
+    if (typeof gtag === 'function') {
+      gtag('event', name, params || {});
+    }
+  } catch(e) {}
+}
+
+// ── 채널톡 설치 ──
+(function() {
+  var key = MUYI_CONFIG.channelTalkKey;
+  if (!key || key === 'YOUR_CHANNEL_IO_PLUGIN_KEY') {
+    console.warn('[MUYI] 채널톡 플러그인 키가 설정되지 않았습니다. MUYI_CONFIG.channelTalkKey를 입력해주세요.');
+    return;
+  }
+
+  // 채널톡 공식 로더 스크립트
+  (function(){var w=window;if(w.ChannelIO){return;}var ch=function(){ch.c(arguments);};ch.q=[];ch.c=function(args){ch.q.push(args);};w.ChannelIO=ch;function l(){if(w.ChannelIOInitialized){return;}w.ChannelIOInitialized=true;var s=document.createElement('script');s.type='text/javascript';s.async=true;s.src='https://cdn.channel.io/plugin/ch-plugin-web.js';var x=document.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(document.readyState==='complete'){l();}else{w.addEventListener('DOMContentLoaded',l);w.addEventListener('load',l);}})();
+
+  ChannelIO('boot', {
+    pluginKey: key,
+    language: 'ko',
+    zIndex: 9980,
+    // 채널톡 버튼 기본 위치: 우측 하단 (관리자 페이지에서도 조정 가능)
+  });
+
+  // 채널톡 이벤트 추적
+  ChannelIO('onShowMessenger', function() {
+    trackEvent('chat_open', { method: 'channel_talk' });
+  });
+
+  // 채널톡이 뜨면 카카오 버튼도 함께 표시
+  ChannelIO('onBoot', function() {
+    var kakaoBtn = document.getElementById('muyi-kakao-btn');
+    if (kakaoBtn) kakaoBtn.classList.add('visible');
+  });
+})();
+
+// ── 카카오톡 버튼 ──
+(function() {
+  var btn = document.getElementById('muyi-kakao-btn');
+  if (!btn) return;
+
+  // 채널톡 키 없을 때도 버튼은 표시
+  if (!MUYI_CONFIG.channelTalkKey || MUYI_CONFIG.channelTalkKey === 'YOUR_CHANNEL_IO_PLUGIN_KEY') {
+    btn.classList.add('visible');
+  }
+
+  btn.addEventListener('click', function() {
+    trackEvent('kakao_chat_click', { kakao_url: MUYI_CONFIG.kakaoUrl });
+    window.open(MUYI_CONFIG.kakaoUrl, '_blank', 'noopener,noreferrer');
+  });
+})();
 </script>
 
 <!-- Legal Modals -->
