@@ -83,7 +83,6 @@
   "@type":"BreadcrumbList",
   "itemListElement":[{"@type":"ListItem","position":1,"name":"홈","item":"https://www.muyi.co.kr/"}]
 }</script>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
@@ -3162,17 +3161,11 @@ document.addEventListener('keydown',function(e){
 
 // ── FORM ──
 
-// EmailJS config — emailjs.com 에서 발급받은 값으로 교체하세요
-var EJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';   // Account > General > Public Key
-var EJS_SERVICE_ID  = 'YOUR_SERVICE_ID';   // Email Services > Service ID
-var EJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID'; // Email Templates > Template ID
-emailjs.init(EJS_PUBLIC_KEY);
-
 // Phone auto-formatting: 000-0000-0000
 (function(){
   var phoneInput=document.querySelector('[name=phone]');
   if(!phoneInput)return;
-  phoneInput.addEventListener('input',function(e){
+  phoneInput.addEventListener('input',function(){
     var v=this.value.replace(/[^0-9]/g,'');
     if(v.length<=3){this.value=v;}
     else if(v.length<=7){this.value=v.slice(0,3)+'-'+v.slice(3);}
@@ -3180,68 +3173,131 @@ emailjs.init(EJS_PUBLIC_KEY);
   });
 })();
 
-// Form field validation helpers
+// 성공 팝업
+function showSuccessPopup(name){
+  var overlay=document.createElement('div');
+  overlay.id='muyi-success-overlay';
+  overlay.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:rgba(10,10,26,.55);backdrop-filter:blur(6px);opacity:0;transition:opacity .3s';
+
+  var box=document.createElement('div');
+  box.style.cssText='background:#fff;border-radius:24px;padding:3rem 2.5rem 2.5rem;max-width:420px;width:100%;text-align:center;box-shadow:0 32px 80px rgba(10,10,26,.22);transform:translateY(24px) scale(.96);transition:transform .4s cubic-bezier(.34,1.56,.64,1)';
+
+  var icon=document.createElement('div');
+  icon.style.cssText='width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#1E10C7,#EE4E00);display:flex;align-items:center;justify-content:center;margin:0 auto 1.6rem;font-size:2rem;color:#fff;box-shadow:0 8px 32px rgba(30,16,199,.3)';
+  icon.textContent='✓';
+
+  var ttl=document.createElement('h3');
+  ttl.style.cssText='font-family:Syne,"Noto Sans KR",sans-serif;font-size:1.5rem;font-weight:800;color:#0a0a1a;margin-bottom:.6rem;letter-spacing:-.03em';
+  ttl.textContent='문의가 접수됐어요!';
+
+  var sub=document.createElement('p');
+  sub.style.cssText='font-family:"Noto Sans KR","DM Sans",sans-serif;font-size:.92rem;color:rgba(10,10,26,.55);line-height:1.7;margin-bottom:2rem';
+  sub.innerHTML=(name?'<strong style="color:#1E10C7">'+name+'</strong>님, ':'')+'빠른 시일 내에 담당자가 직접 연락드리겠습니다.<br>채널톡 채팅으로도 즉시 상담 가능합니다.';
+
+  var btnWrap=document.createElement('div');
+  btnWrap.style.cssText='display:flex;flex-direction:column;gap:.75rem';
+
+  var chatBtn=document.createElement('button');
+  chatBtn.style.cssText='width:100%;padding:1rem;border-radius:12px;background:#1E10C7;color:#fff;border:none;cursor:pointer;font-family:"Noto Sans KR","DM Sans",sans-serif;font-size:.95rem;font-weight:700;transition:background .2s';
+  chatBtn.textContent='채널톡으로 바로 상담하기';
+  chatBtn.onmouseenter=function(){this.style.background='#3428F0';};
+  chatBtn.onmouseleave=function(){this.style.background='#1E10C7';};
+  chatBtn.onclick=function(){
+    document.body.removeChild(overlay);
+    if(window.ChannelIO)ChannelIO('openChat');
+  };
+
+  var closeBtn=document.createElement('button');
+  closeBtn.style.cssText='width:100%;padding:.85rem;border-radius:12px;background:transparent;color:rgba(10,10,26,.45);border:1px solid rgba(10,10,26,.12);cursor:pointer;font-family:"Noto Sans KR","DM Sans",sans-serif;font-size:.88rem;transition:all .2s';
+  closeBtn.textContent='닫기';
+  closeBtn.onmouseenter=function(){this.style.background='rgba(10,10,26,.04)';};
+  closeBtn.onmouseleave=function(){this.style.background='transparent';};
+  closeBtn.onclick=function(){
+    overlay.style.opacity='0';
+    setTimeout(function(){if(overlay.parentNode)document.body.removeChild(overlay);},300);
+  };
+
+  btnWrap.appendChild(chatBtn);
+  btnWrap.appendChild(closeBtn);
+  box.appendChild(icon);box.appendChild(ttl);box.appendChild(sub);box.appendChild(btnWrap);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  // 애니메이션 진입
+  requestAnimationFrame(function(){
+    overlay.style.opacity='1';
+    box.style.transform='translateY(0) scale(1)';
+  });
+
+  // 오버레이 클릭으로 닫기
+  overlay.addEventListener('click',function(e){
+    if(e.target===overlay)closeBtn.onclick();
+  });
+}
+
+// Form 유효성 검사 헬퍼
 function validateField(el,ok){
-  if(ok){el.classList.remove('invalid');}
-  else{el.classList.add('invalid');}
+  if(ok){el.classList.remove('invalid');}else{el.classList.add('invalid');}
   return ok;
 }
 function showFormMsg(st,msg,type,autoClear){
   st.textContent=msg;
   st.className='fst '+(type==='ok'?'ok':'err');
-  if(autoClear){setTimeout(function(){st.textContent='';st.className='fst';},autoClear);}
+  if(autoClear)setTimeout(function(){st.textContent='';st.className='fst';},autoClear);
 }
 
-document.getElementById('form').addEventListener('submit',async function(e){
+document.getElementById('form').addEventListener('submit',function(e){
   e.preventDefault();
   var btn=document.getElementById('sbtn'),st=document.getElementById('fst');
   var d=Object.fromEntries(new FormData(this));
   var form=this;
 
-  // Field-level validation
-  var nameEl=this.querySelector('[name=name]');
-  var emailEl=this.querySelector('[name=email]');
-  var phoneEl=this.querySelector('[name=phone]');
-  var msgEl=this.querySelector('[name=message]');
+  // 유효성 검사
+  var nameEl=form.querySelector('[name=name]');
+  var emailEl=form.querySelector('[name=email]');
+  var phoneEl=form.querySelector('[name=phone]');
+  var msgEl=form.querySelector('[name=message]');
   var ok=true;
   if(!validateField(nameEl,d.name&&d.name.trim().length>0))ok=false;
-  if(!validateField(emailEl,!d.email||/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)))ok=false; // email optional
-
+  if(!validateField(emailEl,!d.email||/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)))ok=false;
   if(!validateField(phoneEl,d.phone&&d.phone.replace(/[^0-9]/g,'').length>=10))ok=false;
-  if(!validateField(msgEl,d.message&&d.message.trim().length>=10)){ok=false;showFormMsg(st,'메시지를 최소 10자 이상 입력해주세요.','err',4000);}
+  if(!validateField(msgEl,d.message&&d.message.trim().length>=10)){
+    ok=false;showFormMsg(st,'메시지를 최소 10자 이상 입력해주세요.','err',4000);
+  }
   if(!ok&&!st.textContent){showFormMsg(st,'필수 항목을 확인해주세요.','err',4000);return;}
   if(!ok)return;
 
   btn.querySelector('span').textContent='전송 중...';btn.disabled=true;
+
+  // 채널톡으로 문의 정보 전달
   try{
-    await emailjs.send(EJS_SERVICE_ID, EJS_TEMPLATE_ID, {
-      from_name: d.name,
-      from_email: d.email||'(미입력)',
-      from_phone: d.phone,
-      inquiry_type: d.type||'기타 문의',
-      message: d.message,
-      to_email: 'info@muyi.co.kr'
-    });
-    // Success
-    form.style.transition='opacity .5s ease';
-    form.style.opacity='0';
-    setTimeout(function(){
-      form.style.display='none';
-      var successDiv=document.createElement('div');
-      successDiv.style.cssText='text-align:center;padding:4rem 2rem;';
-      var ck=document.createElement('div');ck.style.cssText='width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--c-brand),var(--c-accent));display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:1.8rem;color:#fff;box-shadow:0 8px 32px rgba(30,16,199,.3)';ck.textContent='✓';
-      var sh3=document.createElement('h3');sh3.style.cssText='font-family:Syne,Noto Sans KR,sans-serif;font-size:clamp(1.4rem,3vw,1.8rem);color:#0a0a1a;margin-bottom:.6rem;font-weight:700;letter-spacing:-.02em';sh3.textContent='문의가 접수되었습니다';
-      var sp=document.createElement('p');sp.style.cssText='color:rgba(10,10,26,.55);font-size:.9rem;font-family:Noto Sans KR,sans-serif;line-height:1.6;letter-spacing:-.01em';sp.textContent='영업일 기준 24시간 내 연락드리겠습니다.';
-      var line=document.createElement('div');line.style.cssText='width:40px;height:2px;background:linear-gradient(90deg,var(--c-brand),var(--c-accent));margin:1.2rem auto 0;border-radius:2px';
-      successDiv.appendChild(ck);successDiv.appendChild(sh3);successDiv.appendChild(sp);successDiv.appendChild(line);
-      successDiv.style.opacity='0';
-      form.parentNode.appendChild(successDiv);
-      gsap.to(successDiv,{opacity:1,y:0,duration:.6,ease:'power2.out'});
-    },500);
-  }catch(err){
-    showFormMsg(st,'전송에 실패했습니다. 다시 시도해주세요.','err',0);
-    btn.querySelector('span').textContent='무료 진단 신청하기';btn.disabled=false;
-  }
+    if(window.ChannelIO){
+      ChannelIO('updateUser',{
+        profile:{
+          name:d.name,
+          mobileNumber:d.phone.replace(/[^0-9]/g,''),
+          email:d.email||undefined
+        }
+      });
+      ChannelIO('track','lead_submit',{
+        inquiry_type:d.type||'기타 문의',
+        message:d.message,
+        name:d.name,
+        phone:d.phone
+      });
+      trackEvent('lead_submit',{inquiry_type:d.type||'기타 문의'});
+    }
+  }catch(err){}
+
+  // 폼 숨기고 팝업 표시
+  form.style.transition='opacity .4s';
+  form.style.opacity='0';
+  setTimeout(function(){
+    form.style.display='none';
+    btn.querySelector('span').textContent='무료 진단 신청하기';
+    btn.disabled=false;
+    showSuccessPopup(d.name);
+  },400);
 });
 
 // Remove invalid state on input
