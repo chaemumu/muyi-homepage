@@ -222,6 +222,12 @@ select.fi option{background:#0a0a1a;color:#fff}
 .legal-modal .legal-note{margin-top:1.5rem;padding-top:.8rem;border-top:1px solid rgba(10,10,26,.06);font-size:.75rem;color:rgba(10,10,26,.3)}
 @media(max-width:768px){.legal-modal{padding:1.8rem 1.4rem;max-height:85vh;border-radius:12px}.ct-footer-row{gap:.5rem}.ct-footer-links{gap:.8rem}.ct-footer-links button{font-size:.68rem}.ct-footer-switch{font-size:.58rem;padding:.3rem .7rem .3rem .55rem}.ct-footer-meta{font-size:.62rem}}
 
+/* SEGMENT TOGGLE */
+.seg-toggle-wrap{width:100%;display:flex;justify-content:center}
+.seg-toggle{display:inline-flex;align-items:center;background:rgba(140,162,255,.08);border-radius:100px;padding:4px;border:1px solid rgba(140,162,255,.15)}
+.seg-btn{font-family:'DM Sans','Noto Sans KR',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.05em;padding:.55rem 1.4rem;border:none;border-radius:100px;cursor:pointer;transition:all .3s;background:transparent;color:rgba(200,210,255,.4)}
+.seg-btn.active{background:var(--c-brand);color:#fff;box-shadow:0 2px 12px rgba(30,16,199,.4)}
+
 /* ANIM */
 .fade-up{opacity:0;transform:translateY(40px)}
 
@@ -271,7 +277,7 @@ select.fi option{background:#0a0a1a;color:#fff}
     <img class="logo-img logo-white" src="/assets/logo-white.png" alt="MUYI">
   </a>
   <div class="nav-r">
-    <a class="nav-link" href="/">Enterprise</a>
+    <a class="nav-link" href="/enterprise">Enterprise</a>
     <a class="nav-cta" href="javascript:goto('contact')">무료 진단</a>
   </div>
 </nav>
@@ -291,16 +297,24 @@ select.fi option{background:#0a0a1a;color:#fff}
 
   <!-- HERO -->
   <div class="pnl" id="p-hero">
-    <span class="hero-eye fade-up">DIGITAL AUTHORITY CURATOR</span>
-    <h1 class="hero-title fade-up">
+    <!-- SEGMENT TOGGLE -->
+    <div class="seg-toggle-wrap fade-up" style="margin-bottom:2rem">
+      <div class="seg-toggle" id="segToggle">
+        <button class="seg-btn active" id="segSelf" onclick="switchSeg('self')">소상공인 · 자영업자</button>
+        <button class="seg-btn" id="segFnb" onclick="switchSeg('fnb')">F&amp;B · 프랜차이즈 본사</button>
+      </div>
+    </div>
+
+    <span class="hero-eye fade-up" id="heroEye">DIGITAL AUTHORITY CURATOR</span>
+    <h1 class="hero-title fade-up" id="heroTitle">
       광고비는 나가는데,<br>
       <span class="hero-title-grad">매출은 그대로인<br>사장님께</span>
     </h1>
-    <p class="hero-sub fade-up">
+    <p class="hero-sub fade-up" id="heroSub">
       9년, 2,700개사의 데이터가 증명합니다.<br>
       업종 DNA를 분석하여 독보적인 점유율을 설계합니다.
     </p>
-    <a class="hero-cta fade-up" href="javascript:goto('contact')">
+    <a class="hero-cta fade-up" href="javascript:goto('contact')" id="heroCta">
       무료 마케팅 진단 받기
       <span class="hero-cta-arr"></span>
     </a>
@@ -472,6 +486,7 @@ select.fi option{background:#0a0a1a;color:#fff}
             </select>
           </div>
           <div class="fg"><label class="fl">메시지</label><textarea class="ft" name="message" placeholder="예: 월 광고비 300만원 쓰는데 문의가 안 들어와요"></textarea></div>
+          <input type="hidden" name="source" value="local-business-self">
           <button class="fsub" type="submit" id="sbtn"><span>무료 진단</span></button>
           <div class="fst" id="fst"></div>
         </form>
@@ -489,7 +504,7 @@ select.fi option{background:#0a0a1a;color:#fff}
             <span class="ft-sep"></span>
             <button onclick="document.getElementById('form').scrollIntoView({behavior:'smooth'})">문의하기</button>
           </div>
-          <a href="/" class="ct-footer-switch">Enterprise<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 2.5L8 6l-3.5 3.5"/></svg></a>
+          <a href="/enterprise" class="ct-footer-switch">Enterprise<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 2.5L8 6l-3.5 3.5"/></svg></a>
         </div>
         <div class="ct-footer-meta">
           <span>&copy; MUYI Corporation</span><span>481-81-02827</span><span>info@muyi.co.kr</span><span>070-8833-8210</span>
@@ -501,6 +516,51 @@ select.fi option{background:#0a0a1a;color:#fff}
 </div>
 
 <script>
+/* ── SEGMENT DATA ── */
+var SEG_DATA={
+  self:{
+    eye:'DIGITAL AUTHORITY CURATOR',
+    title:'광고비는 나가는데,<br><span class="hero-title-grad">매출은 그대로인<br>사장님께</span>',
+    sub:'9년, 2,700개사의 데이터가 증명합니다.<br>업종 DNA를 분석하여 독보적인 점유율을 설계합니다.',
+    cta:'무료 마케팅 진단 받기',
+    source:'local-business-self'
+  },
+  fnb:{
+    eye:'F&B · FRANCHISE HQ SPECIALIST',
+    title:'가맹점이 팔아야<br><span class="hero-title-grad">본사 매출이<br>올라갑니다</span>',
+    sub:'프랜차이즈 본사와 가맹점을 연결하는 통합 마케팅.<br>브랜드 일관성부터 점포별 퍼포먼스까지.',
+    cta:'F&B 마케팅 상담 받기',
+    source:'local-business-fnb'
+  }
+};
+var curSeg='self';
+
+function switchSeg(seg){
+  if(seg===curSeg)return;
+  curSeg=seg;
+  var d=SEG_DATA[seg];
+  document.getElementById('segSelf').classList.toggle('active',seg==='self');
+  document.getElementById('segFnb').classList.toggle('active',seg==='fnb');
+  var heroEye=document.getElementById('heroEye');
+  var heroTitle=document.getElementById('heroTitle');
+  var heroSub=document.getElementById('heroSub');
+  var heroCta=document.getElementById('heroCta');
+  /* fade out */
+  [heroEye,heroTitle,heroSub,heroCta].forEach(function(el){el.style.opacity='0';el.style.transform='translateY(-8px)';});
+  setTimeout(function(){
+    heroEye.textContent=d.eye;
+    heroTitle.innerHTML=d.title;
+    heroSub.innerHTML=d.sub;
+    var span=document.createElement('span');span.className='hero-cta-arr';
+    heroCta.innerHTML='';heroCta.appendChild(document.createTextNode(d.cta+' '));heroCta.appendChild(span);
+    /* fade in */
+    [heroEye,heroTitle,heroSub,heroCta].forEach(function(el){el.style.transition='opacity .35s ease,transform .35s ease';el.style.opacity='1';el.style.transform='translateY(0)';});
+  },220);
+  /* update contact form source */
+  var srcField=document.querySelector('input[name="source"]');
+  if(srcField)srcField.value=d.source;
+}
+
 /* ── STATE MAP ── */
 var S={HERO:'hero',PROB:'problem',SOL:'solution',PROOF:'proof',CT:'contact'};
 var PMAP={hero:'p-hero',problem:'p-prob',solution:'p-sol',proof:'p-proof',contact:'p-contact'};
