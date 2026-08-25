@@ -19,7 +19,7 @@
 <link rel="canonical" href="https://www.muyi.co.kr/local-business">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&family=Noto+Sans+KR:wght@400;500;700;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <style>
@@ -48,7 +48,7 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 ::selection{background:rgba(140,162,255,.2);color:#fff}
 html{scroll-behavior:smooth}
-body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-family:'DM Sans','Noto Sans KR',sans-serif;text-rendering:optimizeLegibility;background:var(--c-bg);color:#fff}
+body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-family:'Barlow','Noto Sans KR',sans-serif;text-rendering:optimizeLegibility;background:var(--c-bg);color:#fff}
 
 /* ── NAV ── */
 #nav{
@@ -92,7 +92,7 @@ section{position:relative;width:100%;overflow:hidden}
 .hero-eye::before,.hero-eye::after{content:'';width:20px;height:1px;background:linear-gradient(90deg,transparent,rgba(140,162,255,.5),transparent)}
 .hero-title{font-family:'Noto Sans KR','Syne',sans-serif;font-size:clamp(2.4rem,6vw,5.5rem);font-weight:900;line-height:1.04;letter-spacing:-.05em;color:#fff;margin-bottom:clamp(1rem,2vh,1.6rem);text-wrap:balance;max-width:16ch}
 .hero-title-grad{display:inline;background:linear-gradient(135deg,#ffffff 0%,#c8bfff 45%,#8CA2FF 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-sub{font-size:clamp(.92rem,1.3vw,1.1rem);color:rgba(200,210,255,.5);line-height:1.7;max-width:36ch;margin:0 auto clamp(2rem,4vh,2.8rem);font-family:'Noto Sans KR','DM Sans',sans-serif}
+.hero-sub{font-size:clamp(.92rem,1.3vw,1.1rem);color:rgba(200,210,255,.5);line-height:1.7;max-width:36ch;margin:0 auto clamp(2rem,4vh,2.8rem);font-family:'Noto Sans KR','Barlow',sans-serif}
 .hero-cta{display:inline-flex;align-items:center;gap:1rem;font-size:clamp(.95rem,1.2vw,1.1rem);color:#fff;cursor:pointer;font-weight:700;background:linear-gradient(135deg,#2a18e8 0%,#4834f7 100%);border:1px solid rgba(140,162,255,.2);border-radius:var(--radius-full);padding:clamp(1rem,2vh,1.3rem) clamp(2rem,3vw,3.2rem);font-family:inherit;transition:all var(--dur-mid) var(--ease-out);box-shadow:0 4px 32px rgba(30,16,199,.4),inset 0 1px 0 rgba(255,255,255,.1);text-decoration:none;margin-bottom:clamp(2rem,4vh,3.2rem)}
 .hero-cta:hover{transform:translateY(-4px);box-shadow:0 0 40px rgba(30,16,199,.3),0 20px 60px rgba(30,16,199,.35);border-color:rgba(140,162,255,.4)}
 .hero-cta-arr{width:32px;height:2px;background:currentColor;position:relative;flex-shrink:0;transition:width .3s}
@@ -109,14 +109,14 @@ section{position:relative;width:100%;overflow:hidden}
 /* ── SEGMENT TOGGLE ── */
 .seg-toggle-wrap{width:100%;display:flex;justify-content:center;margin-bottom:clamp(1.5rem,3vh,2rem)}
 .seg-toggle{display:inline-flex;align-items:center;background:rgba(140,162,255,.08);border-radius:100px;padding:4px;border:1px solid rgba(140,162,255,.15)}
-.seg-btn{font-family:'DM Sans','Noto Sans KR',sans-serif;font-size:clamp(.68rem,.75vw,.78rem);font-weight:700;letter-spacing:.05em;padding:.52rem clamp(.9rem,1.5vw,1.4rem);border:none;border-radius:100px;cursor:pointer;transition:all .3s;background:transparent;color:rgba(200,210,255,.4)}
+.seg-btn{font-family:'Barlow','Noto Sans KR',sans-serif;font-size:clamp(.68rem,.75vw,.78rem);font-weight:700;letter-spacing:.05em;padding:.52rem clamp(.9rem,1.5vw,1.4rem);border:none;border-radius:100px;cursor:pointer;transition:all .3s;background:transparent;color:rgba(200,210,255,.4)}
 .seg-btn.active{background:var(--c-brand);color:#fff;box-shadow:0 2px 12px rgba(30,16,199,.4)}
 
 /* ── SECTION SHARED ── */
 .sec-inner{max-width:1200px;margin:0 auto;width:100%}
 .sec-eye{font-size:clamp(.62rem,.7vw,.75rem);letter-spacing:.22em;text-transform:uppercase;color:var(--c-accent);margin-bottom:clamp(.7rem,1.2vh,1rem);font-weight:700;display:block}
 .sec-title{font-family:'Noto Sans KR','Syne',sans-serif;font-size:clamp(1.8rem,3.5vw,3.2rem);font-weight:900;line-height:1.1;letter-spacing:-.04em;color:#fff;margin-bottom:clamp(.8rem,1.5vh,1.2rem);word-break:keep-all;text-wrap:balance}
-.sec-sub{font-size:clamp(.88rem,1vw,1rem);color:rgba(200,210,255,.5);line-height:1.7;max-width:52ch;font-family:'Noto Sans KR','DM Sans',sans-serif;margin-bottom:clamp(2rem,4vh,3rem);word-break:keep-all}
+.sec-sub{font-size:clamp(.88rem,1vw,1rem);color:rgba(200,210,255,.5);line-height:1.7;max-width:52ch;font-family:'Noto Sans KR','Barlow',sans-serif;margin-bottom:clamp(2rem,4vh,3rem);word-break:keep-all}
 
 /* ── PROBLEM ── */
 #p-prob{padding:clamp(4rem,8vh,7rem) var(--edge-pad)}
@@ -127,8 +127,8 @@ section{position:relative;width:100%;overflow:hidden}
 .prob-card:hover::before{transform:scaleX(1)}
 .prob-num{font-family:'Syne',sans-serif;font-size:clamp(2.4rem,4vw,4.5rem);font-weight:700;color:var(--c-accent);letter-spacing:-.04em;line-height:1;margin-bottom:.8rem}
 .prob-num em{font-style:normal;font-size:.5em;color:var(--c-muted);vertical-align:super}
-.prob-card h3{font-family:'Noto Sans KR','DM Sans',sans-serif;font-size:clamp(1rem,1.2vw,1.15rem);font-weight:700;color:#fff;margin-bottom:.7rem;letter-spacing:-.02em}
-.prob-card p{font-size:clamp(.82rem,.9vw,.88rem);color:rgba(200,210,255,.5);line-height:1.7;font-family:'Noto Sans KR','DM Sans',sans-serif}
+.prob-card h3{font-family:'Noto Sans KR','Barlow',sans-serif;font-size:clamp(1rem,1.2vw,1.15rem);font-weight:700;color:#fff;margin-bottom:.7rem;letter-spacing:-.02em}
+.prob-card p{font-size:clamp(.82rem,.9vw,.88rem);color:rgba(200,210,255,.5);line-height:1.7;font-family:'Noto Sans KR','Barlow',sans-serif}
 .prob-icon{font-size:1.8rem;margin-bottom:1.2rem;display:block}
 
 /* ── SOLUTION ── */
@@ -142,7 +142,7 @@ section{position:relative;width:100%;overflow:hidden}
 .sol-tag{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-accent);font-weight:700;margin-bottom:1.2rem;display:flex;align-items:center;gap:.6rem}
 .sol-tag::before{content:'';width:8px;height:8px;border-radius:50%;background:currentColor}
 .sol-card h3{font-family:'Noto Sans KR','Syne',sans-serif;font-size:clamp(1.2rem,2vw,1.9rem);font-weight:700;letter-spacing:-.03em;margin-bottom:.8rem;line-height:1.15;color:#fff}
-.sol-card p{font-size:clamp(.82rem,.9vw,.88rem);color:rgba(200,210,255,.55);line-height:1.7;font-family:'Noto Sans KR','DM Sans',sans-serif;margin-bottom:1.2rem}
+.sol-card p{font-size:clamp(.82rem,.9vw,.88rem);color:rgba(200,210,255,.55);line-height:1.7;font-family:'Noto Sans KR','Barlow',sans-serif;margin-bottom:1.2rem}
 .sol-kpi{display:inline-flex;align-items:center;gap:1rem;padding:.8rem 1.2rem;border-radius:var(--radius-md);background:rgba(0,0,0,.2);border:1px solid rgba(140,162,255,.1);margin-top:auto}
 .sol-kpi-num{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:700;color:#fff;letter-spacing:-.03em}
 .sol-kpi-label{font-size:.72rem;color:rgba(200,210,255,.45);letter-spacing:.06em;line-height:1.4}
@@ -159,12 +159,12 @@ section{position:relative;width:100%;overflow:hidden}
 .proof-card:hover::after{transform:scaleX(1)}
 .proof-num{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,2.5vw,2.6rem);font-weight:700;color:#fff;letter-spacing:-.03em;line-height:1;margin-bottom:.4rem;font-variant-numeric:tabular-nums}
 .proof-num .cnt{color:var(--c-accent)}
-.proof-label{font-size:clamp(.68rem,.75vw,.75rem);color:var(--c-subtle);letter-spacing:.06em;font-weight:500;line-height:1.5;font-family:'Noto Sans KR','DM Sans',sans-serif}
+.proof-label{font-size:clamp(.68rem,.75vw,.75rem);color:var(--c-subtle);letter-spacing:.06em;font-weight:500;line-height:1.5;font-family:'Noto Sans KR','Barlow',sans-serif}
 .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(1rem,2vw,1.5rem)}
 .testi-card{padding:clamp(1.5rem,2.5vw,2rem) clamp(1.2rem,2vw,1.8rem);border-radius:var(--radius-lg);background:rgba(20,16,60,.35);border:1px solid var(--c-border);display:flex;flex-direction:column;justify-content:space-between;transition:all var(--dur-mid) var(--ease-out)}
 .testi-card:hover{transform:translateY(-4px);box-shadow:0 20px 48px rgba(0,0,0,.3);border-color:rgba(140,162,255,.2)}
 .testi-quote{font-size:2.5rem;color:var(--c-accent);opacity:.3;margin-bottom:.8rem;line-height:1}
-.testi-text{font-family:'Noto Sans KR','DM Sans',sans-serif;font-size:clamp(.88rem,.95vw,.95rem);font-weight:500;line-height:1.7;color:rgba(200,210,255,.8);margin-bottom:1.5rem;word-break:keep-all}
+.testi-text{font-family:'Noto Sans KR','Barlow',sans-serif;font-size:clamp(.88rem,.95vw,.95rem);font-weight:500;line-height:1.7;color:rgba(200,210,255,.8);margin-bottom:1.5rem;word-break:keep-all}
 .testi-author{display:flex;align-items:center;gap:.8rem}
 .testi-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--c-brand),var(--c-accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.82rem;flex-shrink:0}
 .testi-name{font-size:.82rem;font-weight:700;color:#fff}
@@ -174,7 +174,7 @@ section{position:relative;width:100%;overflow:hidden}
 #p-contact{padding:clamp(4rem,8vh,7rem) var(--edge-pad) clamp(3rem,5vh,5rem)}
 .ct-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(2rem,4vw,5rem);align-items:start;max-width:1300px;margin:0 auto}
 .ct-eye{display:block;font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--c-accent);margin-bottom:1.2rem;font-weight:700}
-.ct-ti{font-family:'Syne','DM Sans',sans-serif;font-size:clamp(2.2rem,4.5vw,5rem);font-weight:700;line-height:1.06;letter-spacing:-.06em;color:#fff;margin-bottom:1.6rem;word-break:keep-all;text-wrap:balance}
+.ct-ti{font-family:'Syne','Barlow',sans-serif;font-size:clamp(2.2rem,4.5vw,5rem);font-weight:700;line-height:1.06;letter-spacing:-.06em;color:#fff;margin-bottom:1.6rem;word-break:keep-all;text-wrap:balance}
 .ct-ti .ct-ti-grad{display:inline-block;background:linear-gradient(135deg,#ffffff 0%,#c8bfff 45%,#8CA2FF 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .ct-left{display:flex;flex-direction:column}
 .ct-desc{font-size:clamp(.9rem,1vw,1rem);line-height:1.7;color:var(--c-subtle);margin-bottom:clamp(1.5rem,3vh,2rem);word-break:keep-all}
@@ -232,7 +232,7 @@ select.fi option{background:#0a0a1a;color:#fff}
 .legal-modal-close:hover{background:rgba(10,10,26,.1);color:#333}
 .legal-modal h2{font-family:'Noto Sans KR',sans-serif;font-size:1.2rem;font-weight:700;color:#0a0a1a;margin-bottom:1.2rem;letter-spacing:-.02em}
 .legal-modal h3{font-size:.85rem;font-weight:700;color:#0a0a1a;margin:1.2rem 0 .4rem}
-.legal-modal p,.legal-modal li{font-size:.82rem;line-height:1.7;color:rgba(10,10,26,.6);font-family:'Noto Sans KR','DM Sans',sans-serif}
+.legal-modal p,.legal-modal li{font-size:.82rem;line-height:1.7;color:rgba(10,10,26,.6);font-family:'Noto Sans KR','Barlow',sans-serif}
 .legal-modal ul{list-style:disc;padding-left:1.2rem;margin:.2rem 0}
 .legal-modal .legal-note{margin-top:1.5rem;padding-top:.8rem;border-top:1px solid rgba(10,10,26,.06);font-size:.75rem;color:rgba(10,10,26,.3)}
 
