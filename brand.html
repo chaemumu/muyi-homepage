@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>MUYI — 브랜드 에셋 점검 (내부용)</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0A0B; --surface:#141416; --surface-2:#1C1C1F;
+  --line:rgba(255,255,255,0.08); --line-str:rgba(255,255,255,0.16);
+  --text:#F5F5F7; --text-sub:#9AA0A8; --text-mute:#7C828B;
+  --brand:#EE4E00; --brand-hi:#FF6B24; --brand-dim:#C43F00;
+  --brand-tint:rgba(238,78,0,0.10); --brand-glow:rgba(238,78,0,0.28);
+  --on-brand:#0A0A0B;
+  --blue:#1E10C7; --blue-tint:rgba(30,16,199,0.14);
+  --r-md:1rem; --r-lg:1.5rem; --pad:clamp(1.25rem,4vw,3rem);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;padding:var(--pad);-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-family:'Plus Jakarta Sans','Noto Sans KR',sans-serif;font-size:clamp(1.5rem,4vw,2.2rem);font-weight:800;letter-spacing:-.03em;margin-bottom:.4rem}
+.lede{color:var(--text-sub);font-size:.92rem;margin-bottom:.6rem}
+.warn{display:inline-block;font-size:.76rem;font-weight:700;color:var(--brand);background:var(--brand-tint);border:1px solid rgba(238,78,0,.3);padding:.4rem .9rem;border-radius:999px;margin-bottom:2.8rem}
+h2{font-family:'Plus Jakarta Sans','Noto Sans KR',sans-serif;font-size:clamp(1.1rem,2.4vw,1.4rem);font-weight:800;letter-spacing:-.02em;margin:3rem 0 .3rem;padding-top:2rem;border-top:1px solid var(--line)}
+h2:first-of-type{border-top:none;padding-top:0;margin-top:2rem}
+.h2sub{color:var(--text-sub);font-size:.85rem;margin-bottom:1.4rem}
+
+/* 로고 프리뷰 */
+.logo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem}
+.logo-cell{border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden}
+.logo-stage{height:150px;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.logo-stage img{max-height:56px;width:auto;object-fit:contain}
+.bg-dark{background:#0A0A0B}
+.bg-surf{background:#141416}
+.bg-white{background:#FFFFFF}
+.bg-brand{background:#EE4E00}
+.logo-cap{font-size:.74rem;color:var(--text-sub);padding:.6rem .9rem;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:.5rem}
+.logo-cap code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.7rem;color:var(--text-mute)}
+.miss{font-size:.76rem;color:var(--text-sub);text-align:center;padding:1rem;border:1px dashed var(--line-str);border-radius:.6rem;width:100%}
+.bg-white .miss{color:#666;border-color:#ccc}
+.bg-brand .miss{color:var(--on-brand);border-color:rgba(10,10,11,.35)}
+
+/* 파일 스위처 */
+.switcher{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.4rem}
+.sw-b{font-family:inherit;font-size:.8rem;font-weight:600;padding:.5rem 1rem;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);cursor:pointer;transition:all .3s}
+.sw-b:hover{border-color:var(--brand)}
+.sw-b.on{background:var(--brand);color:var(--on-brand);border-color:var(--brand);font-weight:700}
+
+/* 사이즈 테스트 */
+.size-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:2rem;padding:2rem;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface)}
+.size-i{text-align:center}
+.size-i img{width:auto;margin:0 auto .6rem}
+.size-l{font-size:.72rem;color:var(--text-sub);font-family:ui-monospace,monospace}
+
+/* 팔레트 */
+.pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.8rem}
+.chip{border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:var(--surface)}
+.chip-sw{height:74px;border-bottom:1px solid var(--line)}
+.chip-b{padding:.75rem .9rem}
+.chip-n{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.76rem;font-weight:600;color:var(--text);margin-bottom:.15rem}
+.chip-v{font-family:ui-monospace,monospace;font-size:.72rem;color:var(--text-sub);margin-bottom:.4rem}
+.chip-u{font-size:.74rem;color:var(--text-sub);line-height:1.6}
+
+/* 대비 표 */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-md)}
+table{width:100%;border-collapse:collapse;min-width:620px}
+th,td{text-align:left;padding:.75rem 1rem;font-size:.83rem;border-bottom:1px solid var(--line)}
+th{background:var(--surface-2);font-weight:700;color:var(--text);white-space:nowrap;font-size:.78rem;letter-spacing:.04em}
+tr:last-child td{border-bottom:none}
+td.ratio{font-family:ui-monospace,monospace;font-weight:700;font-variant-numeric:tabular-nums}
+.badge{display:inline-block;font-size:.7rem;font-weight:800;padding:.2rem .6rem;border-radius:999px;letter-spacing:.03em}
+.b-pass{background:rgba(48,209,88,.14);color:#4ADE80;border:1px solid rgba(74,222,128,.3)}
+.b-large{background:var(--brand-tint);color:var(--brand-hi);border:1px solid rgba(238,78,0,.32)}
+.b-fail{background:rgba(255,90,78,.12);color:#FF8B82;border:1px solid rgba(255,90,78,.32)}
+.swatch-dot{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:.5rem;vertical-align:-1px;border:1px solid var(--line-str)}
+.note{font-size:.8rem;color:var(--text-sub);margin-top:.9rem;line-height:1.75}
+.note b{color:var(--brand)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>MUYI — 브랜드 에셋 점검</h1>
+  <p class="lede">로고 렌더링, 컬러 토큰, 대비율을 한 화면에서 확인하는 내부용 페이지입니다.</p>
+  <span class="warn">내부용 · noindex · sitemap 미등록</span>
+
+  <!-- ═══ 로고 프리뷰 ═══ -->
+  <h2>로고 프리뷰</h2>
+  <p class="h2sub">같은 파일을 4가지 배경에서 나란히 확인합니다.</p>
+
+  <div class="switcher" id="switcher"></div>
+  <div class="logo-grid" id="logoGrid"></div>
+
+  <!-- ═══ 사이즈 테스트 ═══ -->
+  <h2>사이즈 테스트</h2>
+  <p class="h2sub">헤더(30~42px), 푸터, OG 등 실제 사용 높이에서 판독되는지 확인합니다.</p>
+  <div class="size-row" id="sizeRow"></div>
+
+  <!-- ═══ 컬러 팔레트 ═══ -->
+  <h2>컬러 팔레트</h2>
+  <p class="h2sub"><code>local-business.html</code>의 <code>:root</code> 토큰 전체입니다.</p>
+  <div class="pal" id="pal"></div>
+
+  <!-- ═══ 대비 체크 ═══ -->
+  <h2>대비 체크 (WCAG 2.1)</h2>
+  <p class="h2sub">본문 텍스트는 4.5:1 이상, 큰 텍스트(24px 이상 또는 18.66px 이상 굵게)는 3:1 이상이어야 합니다.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>텍스트</th><th>배경</th><th>대비율</th><th>일반 텍스트</th><th>큰 텍스트</th></tr></thead>
+      <tbody id="contrastBody"></tbody>
+    </table>
+  </div>
+  <p class="note" id="contrastNote"></p>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ═══ 로고 후보 파일 ═══ */
+var LOGOS=[
+  {label:'logo-white.svg', path:'assets/logo/logo-white.svg'},
+  {label:'logo-color.svg', path:'assets/logo/logo-color.svg'},
+  {label:'logo-white.png', path:'assets/logo-white.png'},
+  {label:'logo-blue.png',  path:'assets/logo-blue.png'}
+];
+var STAGES=[
+  {cls:'bg-dark',  name:'다크',    hex:'#0A0A0B'},
+  {cls:'bg-surf',  name:'서피스',  hex:'#141416'},
+  {cls:'bg-white', name:'화이트',  hex:'#FFFFFF'},
+  {cls:'bg-brand', name:'오렌지',  hex:'#EE4E00'}
+];
+var SIZES=[24,40,80,160];
+var current=LOGOS[0];
+
+var switcher=document.getElementById('switcher');
+LOGOS.forEach(function(l,i){
+  var b=document.createElement('button');
+  b.className='sw-b'+(i===0?' on':'');
+  b.type='button';b.textContent=l.label;
+  b.addEventListener('click',function(){
+    current=l;
+    switcher.querySelectorAll('.sw-b').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    render();
+  });
+  switcher.appendChild(b);
+});
+
+function imgHtml(path,style){
+  return '<img src="'+path+'" alt="" '+(style?'style="'+style+'" ':'')+
+         'onerror="this.insertAdjacentHTML(\'afterend\',\'<div class=&quot;miss&quot;>파일 없음<br>'+path+'</div>\');this.remove()">';
+}
+
+function render(){
+  /* 로고 프리뷰 */
+  var grid=document.getElementById('logoGrid');
+  grid.innerHTML=STAGES.map(function(s){
+    return '<div class="logo-cell">'+
+             '<div class="logo-stage '+s.cls+'">'+imgHtml(current.path)+'</div>'+
+             '<div class="logo-cap"><span>'+s.name+'</span><code>'+s.hex+'</code></div>'+
+           '</div>';
+  }).join('');
+
+  /* 사이즈 테스트 */
+  var row=document.getElementById('sizeRow');
+  row.innerHTML=SIZES.map(function(px){
+    return '<div class="size-i">'+imgHtml(current.path,'height:'+px+'px')+
+           '<div class="size-l">'+px+'px</div></div>';
+  }).join('');
+}
+render();
+
+/* ═══ 컬러 팔레트 ═══ */
+var PALETTE=[
+  {g:'Base',    n:'--bg',        v:'#0A0A0B',                 u:'페이지 배경'},
+  {g:'Base',    n:'--surface',   v:'#141416',                 u:'카드 배경'},
+  {g:'Base',    n:'--surface-2', v:'#1C1C1F',                 u:'카드 호버 / 중첩 카드'},
+  {g:'Base',    n:'--line',      v:'rgba(255,255,255,0.08)',  u:'기본 보더'},
+  {g:'Base',    n:'--line-str',  v:'rgba(255,255,255,0.16)',  u:'강한 보더 / 고스트 버튼'},
+  {g:'Text',    n:'--text',      v:'#F5F5F7',                 u:'본문 · 헤딩'},
+  {g:'Text',    n:'--text-sub',  v:'#9AA0A8',                 u:'서브 텍스트 · 설명'},
+  {g:'Text',    n:'--text-mute', v:'#7C828B',                 u:'플레이스홀더 (지정값 #6B7078에서 대비 미달로 상향)'},
+  {g:'Primary', n:'--brand',     v:'#EE4E00',                 u:'CTA · 강조 숫자 · 게이지'},
+  {g:'Primary', n:'--brand-hi',  v:'#FF6B24',                 u:'호버 / 밝은 강조'},
+  {g:'Primary', n:'--brand-dim', v:'#C43F00',                 u:'눌림 / 보더'},
+  {g:'Primary', n:'--brand-tint',v:'rgba(238,78,0,0.10)',     u:'배경 틴트'},
+  {g:'Primary', n:'--brand-glow',v:'rgba(238,78,0,0.28)',     u:'글로우 / 그림자'},
+  {g:'Primary', n:'--on-brand',  v:'#0A0A0B',                 u:'오렌지 위 텍스트 (검정)'},
+  {g:'Blue',    n:'--blue',      v:'#1E10C7',                 u:'히어로 배경 틴트 전용'},
+  {g:'Blue',    n:'--blue-tint', v:'rgba(30,16,199,0.14)',    u:'히어로 그라데이션'}
+];
+document.getElementById('pal').innerHTML=PALETTE.map(function(c){
+  return '<div class="chip">'+
+    '<div class="chip-sw" style="background:'+c.v+'"></div>'+
+    '<div class="chip-b"><div class="chip-n">'+c.n+'</div>'+
+    '<div class="chip-v">'+c.v+'</div>'+
+    '<div class="chip-u">'+c.g+' · '+c.u+'</div></div></div>';
+}).join('');
+
+/* ═══ 대비 계산 (WCAG 2.1 relative luminance) ═══ */
+function hexToRgb(h){
+  h=h.replace('#','');
+  if(h.length===3)h=h.split('').map(function(c){return c+c;}).join('');
+  return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];
+}
+function lum(rgb){
+  var a=rgb.map(function(v){
+    v/=255;
+    return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);
+  });
+  return 0.2126*a[0]+0.7152*a[1]+0.0722*a[2];
+}
+function ratio(fg,bg){
+  var L1=lum(hexToRgb(fg)),L2=lum(hexToRgb(bg));
+  var hi=Math.max(L1,L2),lo=Math.min(L1,L2);
+  return (hi+0.05)/(lo+0.05);
+}
+
+var PAIRS=[
+  {fg:'#F5F5F7',fgN:'--text',      bg:'#0A0A0B',bgN:'--bg'},
+  {fg:'#9AA0A8',fgN:'--text-sub',  bg:'#0A0A0B',bgN:'--bg'},
+  {fg:'#7C828B',fgN:'--text-mute', bg:'#0A0A0B',bgN:'--bg'},
+  {fg:'#6B7078',fgN:'--text-mute (원안)',bg:'#0A0A0B',bgN:'--bg'},
+  {fg:'#F5F5F7',fgN:'--text',      bg:'#141416',bgN:'--surface'},
+  {fg:'#9AA0A8',fgN:'--text-sub',  bg:'#141416',bgN:'--surface'},
+  {fg:'#7C828B',fgN:'--text-mute', bg:'#141416',bgN:'--surface'},
+  {fg:'#F5F5F7',fgN:'--text',      bg:'#1C1C1F',bgN:'--surface-2'},
+  {fg:'#9AA0A8',fgN:'--text-sub',  bg:'#1C1C1F',bgN:'--surface-2'},
+  {fg:'#EE4E00',fgN:'--brand',     bg:'#0A0A0B',bgN:'--bg'},
+  {fg:'#EE4E00',fgN:'--brand',     bg:'#141416',bgN:'--surface'},
+  {fg:'#FF6B24',fgN:'--brand-hi',  bg:'#0A0A0B',bgN:'--bg'},
+  {fg:'#0A0A0B',fgN:'--on-brand',  bg:'#EE4E00',bgN:'--brand'},
+  {fg:'#F5F5F7',fgN:'--text',      bg:'#EE4E00',bgN:'--brand (금지 조합)'},
+  {fg:'#1E10C7',fgN:'--blue',      bg:'#0A0A0B',bgN:'--bg (금지 조합)'}
+];
+
+var fails=0;
+document.getElementById('contrastBody').innerHTML=PAIRS.map(function(p){
+  var r=ratio(p.fg,p.bg);
+  var normal=r>=4.5, large=r>=3;
+  if(!normal)fails++;
+  return '<tr>'+
+    '<td><span class="swatch-dot" style="background:'+p.fg+'"></span><code>'+p.fgN+'</code></td>'+
+    '<td><span class="swatch-dot" style="background:'+p.bg+'"></span><code>'+p.bgN+'</code></td>'+
+    '<td class="ratio">'+r.toFixed(2)+':1</td>'+
+    '<td><span class="badge '+(normal?'b-pass':'b-fail')+'">'+(normal?'PASS':'FAIL')+'</span></td>'+
+    '<td><span class="badge '+(large?(normal?'b-pass':'b-large'):'b-fail')+'">'+(large?'PASS':'FAIL')+'</span></td>'+
+  '</tr>';
+}).join('');
+
+document.getElementById('contrastNote').innerHTML=
+  '일반 텍스트 기준 미달 조합 <b>'+fails+'개</b>. '+
+  '<b>--text-mute</b>는 원안 #6B7078이 3.97:1로 미달이라 <b>#7C828B</b>로 상향했고, placeholder에만 사용합니다. '+
+  '<b>--blue</b>는 다크 배경에서 판독이 불가능하므로 텍스트·버튼·아이콘에 사용하지 않고 히어로 배경 틴트로만 씁니다. '+
+  '오렌지 위 텍스트는 반드시 <b>--on-brand</b>(검정)를 씁니다.';
+
+})();
+</script>
+</body>
+</html>
