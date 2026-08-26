@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <title>매출 누수 진단 | 광고비는 나가는데 매출은 그대로인 사장님께 — MUYI</title>
-<meta name="description" content="문제는 광고가 아니라 구조입니다. 9년, 2,700개 사업장의 데이터로 광고비 누수 지점을 15분 만에 찾아드립니다. 무료 진단 · 계약 강요 없음.">
+<meta name="description" content="문제는 광고가 아니라 구조입니다. 9년, 2,800개 사업장의 데이터로 광고비 누수 지점을 15분 만에 찾아드립니다. 무료 진단 · 계약 강요 없음.">
 <meta name="keywords" content="매출 누수 진단,광고비 절감,지역 마케팅,플레이스 상위노출,소상공인 마케팅,병원 마케팅,미용실 마케팅,필라테스 마케팅,무료 마케팅 진단">
 <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
 <meta name="theme-color" content="#0A0A0B">
@@ -35,12 +35,14 @@
   "@context":"https://schema.org",
   "@type":"FAQPage",
   "mainEntity":[
-    {"@type":"Question","name":"정말 무료인가요?","acceptedAnswer":{"@type":"Answer","text":"진단은 전액 무료입니다. 이후 대행이나 컨설팅을 원하실 경우에만 별도로 안내드립니다."}},
-    {"@type":"Question","name":"계약 안 하면 불편해지지 않나요?","acceptedAnswer":{"@type":"Answer","text":"진단 자료는 그대로 드리고 끝입니다. 스팸 문자나 반복 전화는 드리지 않습니다."}},
+    {"@type":"Question","name":"정말 무료인가요?","acceptedAnswer":{"@type":"Answer","text":"네, 진단은 전액 무료입니다. 이후 대행을 원하실 경우에만 별도로 안내드리며, 강요는 없습니다."}},
+    {"@type":"Question","name":"월 광고비는 최소 얼마부터 가능한가요?","acceptedAnswer":{"@type":"Answer","text":"업종과 상권에 따라 다르지만, 대부분 월 100만 원대부터 시작합니다. 진단 후 예산에 맞는 우선순위를 제안드립니다."}},
+    {"@type":"Question","name":"계약 기간이 정해져 있나요?","acceptedAnswer":{"@type":"Answer","text":"최소 계약 기간을 강요하지 않습니다. 3개월 단위로 성과를 점검하며, 언제든 재검토할 수 있습니다."}},
+    {"@type":"Question","name":"성과가 없으면 어떻게 되나요?","acceptedAnswer":{"@type":"Answer","text":"매달 데이터를 투명하게 공유하고, 기준에 못 미치면 전략을 먼저 재조정합니다. 억지로 끌고 가지 않습니다."}},
+    {"@type":"Question","name":"담당자가 자주 바뀌나요?","acceptedAnswer":{"@type":"Answer","text":"업종 전담 마케터가 처음부터 끝까지 담당합니다. 담당자 교체로 인한 인수인계 리스크가 없습니다."}},
+    {"@type":"Question","name":"우리 업종은 다뤄본 적 없을 것 같은데 괜찮나요?","acceptedAnswer":{"@type":"Answer","text":"9년간 의료·뷰티·외식·교육 등 다양한 업종을 다뤘습니다. 처음 다루는 업종이어도 진단 단계에서 데이터로 먼저 검증합니다."}},
     {"@type":"Question","name":"지방에서도 되나요?","acceptedAnswer":{"@type":"Answer","text":"전국 가능합니다. 전화·화상으로 진행하고 자료는 메일로 발송해드립니다."}},
-    {"@type":"Question","name":"얼마나 걸리나요?","acceptedAnswer":{"@type":"Answer","text":"통화 15분 내외, 자료는 24시간 안에 발송해드립니다."}},
-    {"@type":"Question","name":"광고를 아직 안 하고 있어도 되나요?","acceptedAnswer":{"@type":"Answer","text":"오히려 시작 전이 가장 좋습니다. 처음부터 새는 돈 없이 설계할 수 있습니다."}},
-    {"@type":"Question","name":"어떤 업종이 가능한가요?","acceptedAnswer":{"@type":"Answer","text":"음식점, 미용, 병의원, 피트니스, 학원, 전문직 등 지역 기반 사업장 전반입니다."}}
+    {"@type":"Question","name":"진행 중 리포트는 얼마나 자주 받아볼 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"매월 정기 리포트로 광고 성과와 다음 달 실행 계획을 공유합니다. 요청 시 수시로도 확인 가능합니다."}}
   ]
 }</script>
 
@@ -106,7 +108,7 @@ window.MUYI_GA4_ID   = 'GA4_ID';
   --r-lg:  1.5rem;
   --r-full:999px;
   --pad:   clamp(1.25rem,5vw,6rem);
-  --nav-h: 68px;
+  --nav-h: 132px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -135,9 +137,9 @@ a{color:inherit}
 
 /* ═══ S00. HEADER ═══ */
 #hd{
-  position:fixed;top:0;left:0;right:0;z-index:300;height:var(--nav-h);
+  position:fixed;top:0;left:0;right:0;z-index:300;min-height:var(--nav-h);
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 var(--pad);
+  padding:.9rem var(--pad);
   background:transparent;border-bottom:1px solid transparent;
   transition:background .35s ease,border-color .35s ease,backdrop-filter .35s ease;
 }
@@ -147,7 +149,7 @@ a{color:inherit}
   border-bottom-color:var(--line);
 }
 .hd-logo{display:flex;align-items:center;text-decoration:none;flex-shrink:0}
-.hd-logo img{height:clamp(30px,3.4vw,42px);width:auto;object-fit:contain}
+.hd-logo img{height:clamp(84px,10vw,205px);width:auto;object-fit:contain}
 .hd-logo .fallback{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.35rem;letter-spacing:-.03em;color:var(--text)}
 .hd-cta{
   font-family:inherit;font-size:clamp(.78rem,1.6vw,.86rem);font-weight:700;
@@ -227,27 +229,28 @@ a{color:inherit}
 .trust-n small{font-size:.5em;font-weight:700}
 .trust-l{font-size:clamp(.62rem,1.4vw,.74rem);color:var(--text-sub);margin-top:.4rem;letter-spacing:.03em;word-break:keep-all}
 
-/* ═══ S02. CREDENTIAL MARQUEE ═══ */
-#cred{padding:clamp(2.4rem,5vw,3.4rem) 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--surface)}
+/* ═══ S02. CLIENT LOGO MARQUEE ═══ */
+#cred{padding:clamp(2.4rem,5vw,3.4rem) 0;border-top:1px solid rgba(10,10,26,.08);border-bottom:1px solid rgba(10,10,26,.08);background:#fff}
+.cred-head{padding:0 var(--pad);text-align:center;margin-bottom:clamp(1.4rem,3vw,2rem)}
+.cred-head span{font-family:'Plus Jakarta Sans',sans-serif;font-size:.68rem;font-weight:800;letter-spacing:.2em;color:rgba(10,10,26,.42);text-transform:uppercase}
 .mq{
   overflow:hidden;position:relative;
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
   mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
 }
-.mq-track{display:flex;width:max-content;animation:mqRun 38s linear infinite}
+.mq-track{display:flex;align-items:center;width:max-content;animation:mqRun 38s linear infinite}
 @keyframes mqRun{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .mq-set{display:flex;align-items:center;flex-shrink:0}
-.cred-i{
-  display:flex;align-items:center;gap:.7rem;
-  padding:.7rem 1.15rem;margin:0 .5rem;flex-shrink:0;
-  border:1px solid var(--line);border-radius:var(--r-full);background:var(--surface-2);
-  font-size:clamp(.76rem,1.5vw,.86rem);font-weight:600;color:var(--text-sub);white-space:nowrap;
-  transition:border-color var(--dur) var(--ease),color var(--dur) var(--ease);
+.cred-rows{display:flex;flex-direction:column;gap:.4rem}
+.cred-row .mq-track{animation-duration:42s}
+.cred-row.cred-rev .mq-track{animation-direction:reverse;animation-duration:56s}
+.cred-row:hover .mq-track{animation-play-state:paused}
+.cred-i{display:flex;align-items:center;justify-content:center;height:78px;margin:0 1.8rem;flex-shrink:0}
+.cred-i img{
+  height:100%;width:auto;max-width:190px;object-fit:contain;
+  filter:grayscale(1);mix-blend-mode:multiply;transition:filter var(--dur) var(--ease);
 }
-.cred-i:hover{border-color:var(--brand);color:var(--text)}
-.cred-i img{height:20px;width:auto;object-fit:contain;filter:grayscale(1) brightness(1.7);opacity:.85;transition:filter var(--dur),opacity var(--dur)}
-.cred-i:hover img{filter:none;opacity:1}
-.cred-dot{width:5px;height:5px;border-radius:50%;background:var(--brand);flex-shrink:0}
+.cred-i:hover img{filter:none}
 
 /* ═══ 공통 섹션 ═══ */
 section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
@@ -286,28 +289,25 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 
 /* ═══ S04. 진단 ═══ */
 #diag{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.gauges{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(1rem,2.4vw,2rem);
-  padding:clamp(1.8rem,4vw,3rem) clamp(1rem,3vw,2.5rem);
-  border:1px solid var(--line);border-radius:var(--r-lg);background:var(--bg);
-  margin-bottom:1rem;
-}
-.gauge{text-align:center;min-width:0}
-.gauge-ring{position:relative;width:clamp(96px,17vw,140px);margin:0 auto .95rem;aspect-ratio:1}
-.gauge-ring svg{width:100%;height:100%;transform:rotate(-90deg);display:block}
-.gauge-bg{fill:none;stroke:var(--line);stroke-width:9}
-.gauge-fg{
-  fill:none;stroke:var(--brand);stroke-width:9;stroke-linecap:round;
-  stroke-dasharray:339.29;stroke-dashoffset:339.29;
-  transition:stroke-dashoffset 1.5s cubic-bezier(.22,.9,.28,1);
-  filter:drop-shadow(0 0 7px var(--brand-glow));
-}
-.gauge-val{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-family:'Plus Jakarta Sans',sans-serif;font-variant-numeric:tabular-nums;
-  font-size:clamp(1.6rem,3.6vw,2.4rem);font-weight:800;letter-spacing:-.04em;color:var(--brand);
-}
-.gauge-l{font-size:clamp(.78rem,1.6vw,.9rem);font-weight:600;color:var(--text);word-break:keep-all}
+.diagbars{display:flex;flex-direction:column;gap:.8rem;margin-bottom:.9rem}
+.dbar{padding:clamp(1rem,2vw,1.3rem) clamp(1.1rem,2.4vw,1.6rem);border:1px solid var(--line);border-radius:var(--r-md);background:var(--bg)}
+.dbar-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.75rem}
+.dbar-l{font-size:clamp(.85rem,1.7vw,.96rem);font-weight:700;color:var(--text);word-break:keep-all}
+.dbar-tag{font-size:.7rem;font-weight:800;padding:.28rem .7rem;border-radius:var(--r-full);white-space:nowrap;background:var(--surface-2);border:1px solid var(--line);color:var(--text-sub)}
+.dbar-tag[data-lvl="1"]{color:#FF8B82;border-color:rgba(255,90,78,.32);background:rgba(255,90,78,.08)}
+.dbar-tag[data-lvl="2"]{color:#FFAE7A;border-color:rgba(255,152,0,.3);background:rgba(255,152,0,.08)}
+.dbar-tag[data-lvl="3"]{color:var(--text-sub);border-color:var(--line-str)}
+.dbar-tag[data-lvl="4"]{color:var(--brand-hi);border-color:rgba(238,78,0,.3);background:var(--brand-tint)}
+.dbar-tag[data-lvl="5"]{color:var(--brand);border-color:rgba(238,78,0,.4);background:var(--brand-tint)}
+.dbar-track{display:flex;gap:.4rem}
+.seg{flex:1;height:8px;border-radius:4px;background:var(--line);overflow:hidden;position:relative}
+.seg::after{content:'';position:absolute;inset:0;background:var(--brand);transform:scaleX(0);transform-origin:left;transition:transform .7s var(--ease)}
+.seg:nth-child(1)::after{transition-delay:.05s}
+.seg:nth-child(2)::after{transition-delay:.12s}
+.seg:nth-child(3)::after{transition-delay:.19s}
+.seg:nth-child(4)::after{transition-delay:.26s}
+.seg:nth-child(5)::after{transition-delay:.33s}
+.seg.filled::after{transform:scaleX(1)}
 .gauge-cap{font-size:.76rem;color:var(--text-sub);text-align:center;margin-bottom:clamp(2.2rem,5vw,3.2rem)}
 /* 받아가는 것 */
 .deliv{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.85rem,1.8vw,1.4rem);margin-bottom:clamp(1.8rem,4vw,2.6rem)}
@@ -387,10 +387,20 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 /* ═══ S07. 후기 ═══ */
 #rev{background:var(--bg);padding-left:0;padding-right:0}
 #rev .sec-head{padding:0 var(--pad)}
+.rev-filters{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:clamp(1.6rem,3.4vw,2.4rem)}
+.rf-b{
+  font-family:inherit;font-size:.82rem;font-weight:600;padding:.55rem 1.15rem;border-radius:var(--r-full);
+  background:var(--surface-2);border:1px solid var(--line);color:var(--text-sub);cursor:pointer;
+  transition:all var(--dur) var(--ease);
+}
+.rf-b:hover{border-color:var(--brand);color:var(--text)}
+.rf-b.sel{background:var(--brand);color:var(--on-brand);border-color:var(--brand);font-weight:700}
 .rev-rows{display:flex;flex-direction:column;gap:clamp(.8rem,1.6vw,1.1rem)}
 .rev-row .mq-track{animation-duration:56s}
 .rev-row.rev-rtl .mq-track{animation-direction:reverse}
 .rev-row:hover .mq-track{animation-play-state:paused}
+.rev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem;padding:0 var(--pad)}
+.rev-grid .rev-c{width:auto;margin:0}
 .rev-c{
   width:clamp(268px,74vw,352px);flex-shrink:0;margin:0 .55rem;
   padding:clamp(1.25rem,2.5vw,1.6rem);
@@ -427,6 +437,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 .faq-i.open .faq-ic::after{transform:translateY(-50%) rotate(0);opacity:0}
 .faq-a{overflow:hidden;height:0;transition:height var(--dur) var(--ease)}
 .faq-a-in{padding:0 0 clamp(1.15rem,2.4vw,1.5rem);font-size:clamp(.86rem,1.7vw,.96rem);color:var(--text-sub);line-height:1.85;max-width:64ch;word-break:keep-all}
+.faq-a-in b{color:var(--brand);font-weight:800}
 
 /* ═══ S09. CTA + FORM ═══ */
 #cta{background:var(--bg);position:relative;overflow:hidden}
@@ -446,10 +457,10 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   color:var(--brand);margin-bottom:1.1rem;text-transform:uppercase;
 }
 .step-lb::after{content:'';flex:1;height:1px;background:var(--line)}
-.biz-grid{display:flex;flex-wrap:wrap;gap:.55rem}
+.biz-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.55rem}
 .biz-b{
-  font-family:inherit;font-size:clamp(.85rem,1.8vw,.94rem);font-weight:600;
-  padding:.85rem 1.35rem;border-radius:var(--r-full);cursor:pointer;
+  font-family:inherit;font-size:clamp(.78rem,1.6vw,.86rem);font-weight:600;
+  padding:.85rem .6rem;border-radius:var(--r-md);cursor:pointer;text-align:center;line-height:1.35;
   background:var(--surface-2);border:1px solid var(--line);color:var(--text);
   transition:all var(--dur) var(--ease);
 }
@@ -517,16 +528,40 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 
 /* ═══ S10. FOOTER ═══ */
 #ft{background:var(--surface);border-top:1px solid var(--line);padding:clamp(2.6rem,5vw,3.6rem) var(--pad) clamp(5.5rem,8vw,3.6rem)}
-.ft-in{max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;gap:1.4rem;justify-content:space-between;align-items:flex-start}
-.ft-co{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:.6rem}
-.ft-meta{font-size:.8rem;color:var(--text-sub);line-height:1.9}
-.ft-links{display:flex;gap:1.1rem;flex-wrap:wrap;align-items:center}
-.ft-links button{
-  background:none;border:none;font-family:inherit;font-size:.8rem;color:var(--text-sub);
+.ft-in{max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;gap:2rem;justify-content:space-between;align-items:flex-start}
+.ft-brand{display:flex;align-items:center;gap:.65rem;margin-bottom:.85rem}
+.ft-mark{width:7px;height:22px;border-radius:2px;background:var(--brand);flex-shrink:0}
+.ft-co{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.08rem;font-weight:800;letter-spacing:-.02em;color:var(--text)}
+.ft-meta{font-size:.82rem;color:var(--text-sub);line-height:1.95;margin-bottom:1rem}
+.ft-meta a{color:var(--text-sub);text-decoration:none;transition:color var(--dur) var(--ease)}
+.ft-meta a:hover{color:var(--brand)}
+.ft-legal{display:flex;gap:1.1rem;flex-wrap:wrap;align-items:center}
+.ft-legal button{
+  background:none;border:none;font-family:inherit;font-size:.78rem;color:var(--text-sub);
   cursor:pointer;padding:0;transition:color var(--dur) var(--ease);
 }
-.ft-links button:hover{color:var(--brand)}
+.ft-legal button:hover{color:var(--brand)}
 .ft-sep{width:1px;height:11px;background:var(--line-str)}
+.ft-actions{display:flex;flex-direction:column;align-items:flex-end;gap:.8rem}
+.ft-ic{
+  width:38px;height:38px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line-str);color:var(--text-sub);text-decoration:none;
+  transition:all var(--dur) var(--ease);
+}
+.ft-ic svg{width:18px;height:18px}
+.ft-ic:hover{border-color:var(--brand);color:var(--brand);transform:translateY(-2px)}
+.ft-doc{
+  display:inline-flex;align-items:center;gap:.55rem;font-size:.82rem;font-weight:600;
+  color:var(--text-sub);text-decoration:none;transition:color var(--dur) var(--ease);white-space:nowrap;
+}
+.ft-doc svg{width:16px;height:16px;flex-shrink:0}
+.ft-doc:not(.ft-doc-disabled):hover{color:var(--brand)}
+.ft-doc-disabled{opacity:.4;cursor:default}
+@media (max-width:720px){
+  .ft-in{flex-direction:column}
+  .ft-actions{align-items:flex-start;flex-direction:row;flex-wrap:wrap;gap:1rem}
+}
 
 /* ═══ 모바일 고정 CTA 바 ═══ */
 #mbar{
@@ -571,23 +606,21 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 @media (max-width:1024px){
   .pain-grid,.ind-grid{grid-template-columns:repeat(2,1fr)}
   .deliv,.proof-grid{grid-template-columns:1fr;gap:.9rem}
-  .gauges{gap:.8rem;padding:1.6rem 1rem}
 }
 @media (max-width:720px){
-  #hd{height:60px}
-  :root{--nav-h:60px}
+  #hd{padding:.7rem var(--pad)}
+  :root{--nav-h:92px}
+  .hd-logo img{height:clamp(64px,16vw,92px)}
   .trust{grid-template-columns:repeat(2,1fr)}
   .trust-i:nth-child(3){border-left:none}
   .trust-i:nth-child(n+3){border-top:1px solid var(--line)}
   .pain-grid,.ind-grid{grid-template-columns:1fr;gap:.8rem}
-  .gauges{grid-template-columns:1fr;gap:1.6rem;padding:1.8rem 1.2rem}
-  .gauge-ring{width:104px}
   #mbar{display:flex}
-  .ft-in{flex-direction:column;gap:1.2rem}
   .hero-btns{flex-direction:column;align-items:stretch}
   .btn{width:100%}
   .proof-f{flex-direction:column;align-items:flex-start;gap:.5rem}
   .proof-r{text-align:left}
+  .biz-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media (max-width:380px){
   .rev-c{width:252px}
@@ -600,8 +633,8 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 <!-- ═══════════ S00. HEADER ═══════════ -->
 <header id="hd">
   <a href="/" class="hd-logo" aria-label="MUYI 홈">
-    <img src="assets/logo/logo-white.svg" alt="MUYI"
-         onerror="this.onerror=null;this.src='assets/logo-white.png';this.onerror=function(){this.remove();document.querySelector('.hd-logo').insertAdjacentHTML('beforeend','<span class=\'fallback\'>MUYI</span>');}">
+    <img src="assets/logo/logo-white.png" alt="MUYI"
+         onerror="this.onerror=null;this.remove();document.querySelector('.hd-logo').insertAdjacentHTML('beforeend','<span class=\'fallback\'>MUYI</span>');">
   </a>
   <a href="#cta" class="hd-cta js-scroll">무료 진단받기</a>
 </header>
@@ -617,7 +650,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   <div class="hero-in">
     <span class="eyebrow dsp rise">Local Growth Partner</span>
     <h1 class="hero-h1 dsp rise">광고비는 나가는데,<br>매출은 그대로인 사장님께</h1>
-    <p class="hero-sub rise">문제는 광고가 아니라 구조입니다.<br>9년, 2,700개 사업장의 데이터로 원인부터 찾아드립니다.</p>
+    <p class="hero-sub rise">문제는 광고가 아니라 구조입니다.<br>9년, 2,800개 사업장의 데이터로 원인부터 찾아드립니다.</p>
     <div class="hero-btns rise">
       <a href="#cta" class="btn btn-primary js-scroll">
         내 매장 무료 진단받기
@@ -628,46 +661,36 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
     <p class="micro rise">15분 통화 · 비용 없음 · 계약 강요 없음</p>
     <div class="trust rise">
       <div class="trust-i">
-        <div class="trust-n num"><span class="cnt" data-to="9">0</span><small>년</small></div>
+        <div class="trust-n num"><span class="cnt" data-to="9">0</span><small>년+</small></div>
         <div class="trust-l">업력</div>
       </div>
       <div class="trust-i">
-        <div class="trust-n num"><span class="cnt" data-to="2700">0</span><small>+</small></div>
+        <div class="trust-n num"><span class="cnt" data-to="2800">0</span><small>+</small></div>
         <div class="trust-l">사업장</div>
       </div>
       <div class="trust-i">
-        <!-- TODO: 실제 누적 광고 집행액 확정 후 <span class="cnt" data-to="숫자">로 교체 -->
-        <div class="trust-n num">누적</div>
-        <div class="trust-l">광고 집행</div>
+        <div class="trust-n num"><span class="cnt" data-to="70">0</span><small>억</small></div>
+        <div class="trust-l">누적 광고 집행</div>
       </div>
       <div class="trust-i">
-        <div class="trust-n num">전국</div>
-        <div class="trust-l">서비스</div>
+        <div class="trust-n num"><span class="cnt" data-to="3.2" data-dec="1">0</span><small>배</small></div>
+        <div class="trust-l">평균 매출 성장</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════ S02. CREDENTIAL MARQUEE ═══════════ -->
-<section id="cred" aria-label="크리덴셜">
-  <div class="mq">
-    <div class="mq-track" id="credTrack">
-      <div class="mq-set" data-mq-set>
-        <div class="cred-i"><img src="assets/credential/mss.png" alt="" onerror="this.remove()"><span class="cred-dot"></span>중소벤처기업부 직접 계약 수행</div>
-        <div class="cred-i"><img src="assets/credential/kpf.png" alt="" onerror="this.remove()"><span class="cred-dot"></span>한국언론진흥재단 등록 광고대행사</div>
-        <div class="cred-i"><img src="assets/credential/g2b.png" alt="" onerror="this.remove()"><span class="cred-dot"></span>나라장터 등록업체</div>
-        <div class="cred-i"><img src="assets/credential/naver.png" alt="" onerror="this.remove()"><span class="cred-dot"></span>네이버 광고</div>
-        <div class="cred-i"><img src="assets/credential/meta.png" alt="" onerror="this.remove()"><span class="cred-dot"></span>메타 비즈니스</div>
-        <div class="cred-i"><img src="assets/credential/jeju.png" alt="" onerror="this.remove()"><span class="cred-dot"></span>제주농산물수급관리센터</div>
-      </div>
-    </div>
-  </div>
+<!-- ═══════════ S02. CLIENT LOGO MARQUEE ═══════════ -->
+<section id="cred" aria-label="함께한 클라이언트">
+  <div class="cred-head rise"><span>2,800+ 사업장이 함께했습니다</span></div>
+  <div class="cred-rows" id="credRows"></div>
 </section>
 
 <!-- ═══════════ S03. PAIN ═══════════ -->
 <section id="pain" class="sec">
   <div class="wrap">
     <div class="sec-head mid rise">
+      <span class="eyebrow dsp">Problem</span>
       <h2 class="sec-h2 dsp">마케팅 문제는 채널 하나로 해결되지 않습니다</h2>
       <p class="sec-p">상담 오시는 사장님들의 90%가 같은 지점에서 막혀 있습니다.</p>
     </div>
@@ -713,39 +736,29 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
     <div class="sec-head mid rise">
       <span class="eyebrow dsp">Diagnosis</span>
       <h2 class="sec-h2 dsp">매출 누수 진단</h2>
-      <p class="sec-p">'무료 상담'이 아닙니다. 15분 통화로 세 가지 점수를 매기고, 개선 순서까지 정리해드립니다.</p>
+      <p class="sec-p">'무료 상담'이 아닙니다. 15분 통화로 다섯 가지 항목을 레벨로 진단하고, 개선 순서까지 정리해드립니다.</p>
     </div>
 
-    <div class="gauges rise" id="gauges">
-      <div class="gauge">
-        <div class="gauge-ring">
-          <svg viewBox="0 0 120 120" aria-hidden="true">
-            <circle class="gauge-bg" cx="60" cy="60" r="54"></circle>
-            <circle class="gauge-fg" cx="60" cy="60" r="54" data-score="67"></circle>
-          </svg>
-          <div class="gauge-val num" data-score="67">0</div>
-        </div>
-        <div class="gauge-l">광고 효율 점수</div>
+    <div class="diagbars rise" id="diagbars">
+      <div class="dbar" data-level="3">
+        <div class="dbar-top"><span class="dbar-l">광고 효율</span><span class="dbar-tag"></span></div>
+        <div class="dbar-track"><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
       </div>
-      <div class="gauge">
-        <div class="gauge-ring">
-          <svg viewBox="0 0 120 120" aria-hidden="true">
-            <circle class="gauge-bg" cx="60" cy="60" r="54"></circle>
-            <circle class="gauge-fg" cx="60" cy="60" r="54" data-score="41"></circle>
-          </svg>
-          <div class="gauge-val num" data-score="41">0</div>
-        </div>
-        <div class="gauge-l">지역 검색 노출도</div>
+      <div class="dbar" data-level="2">
+        <div class="dbar-top"><span class="dbar-l">지역 검색 노출도 (플레이스)</span><span class="dbar-tag"></span></div>
+        <div class="dbar-track"><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
       </div>
-      <div class="gauge">
-        <div class="gauge-ring">
-          <svg viewBox="0 0 120 120" aria-hidden="true">
-            <circle class="gauge-bg" cx="60" cy="60" r="54"></circle>
-            <circle class="gauge-fg" cx="60" cy="60" r="54" data-score="58"></circle>
-          </svg>
-          <div class="gauge-val num" data-score="58">0</div>
-        </div>
-        <div class="gauge-l">재방문 설계 수준</div>
+      <div class="dbar" data-level="3">
+        <div class="dbar-top"><span class="dbar-l">재방문 설계 수준</span><span class="dbar-tag"></span></div>
+        <div class="dbar-track"><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
+      </div>
+      <div class="dbar" data-level="2">
+        <div class="dbar-top"><span class="dbar-l">콘텐츠 전환력 (SNS)</span><span class="dbar-tag"></span></div>
+        <div class="dbar-track"><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
+      </div>
+      <div class="dbar" data-level="1">
+        <div class="dbar-top"><span class="dbar-l">AI 검색 노출도</span><span class="dbar-tag"></span></div>
+        <div class="dbar-track"><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
       </div>
     </div>
     <p class="gauge-cap rise">※ 실제 진단 화면 예시입니다</p>
@@ -770,7 +783,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 
     <div class="note rise">
       <p>계약하지 않으셔도 이 자료는 그대로 가져가시면 됩니다.</p>
-      <p>저희도 맞지 않는 곳과 무리하게 진행하지 않습니다.</p>
+      <p>우리는 핏이 안 맞거나 매출로 이어질 자신이 없으면, 저희가 먼저 거절합니다.</p>
     </div>
   </div>
 </section>
@@ -813,6 +826,30 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
         <p class="ind-d">세무·법무·노무. 신뢰를 증명하는 콘텐츠로 상담을 만듭니다</p>
         <div class="ind-tags"><span class="tag">신뢰 콘텐츠</span><span class="tag">상담 신청</span><span class="tag">브랜딩</span></div>
       </article>
+      <article class="ind-c rise">
+        <span class="ind-lb">EDUCATION</span>
+        <h3 class="ind-t">학원·교육</h3>
+        <p class="ind-d">입회 상담부터 등록까지, 학부모가 신뢰할 수 있는 콘텐츠로 설계합니다</p>
+        <div class="ind-tags"><span class="tag">입회 전환</span><span class="tag">커리큘럼 콘텐츠</span><span class="tag">학부모 신뢰</span></div>
+      </article>
+      <article class="ind-c rise">
+        <span class="ind-lb">PET</span>
+        <h3 class="ind-t">반려동물</h3>
+        <p class="ind-d">동물병원·펫샵의 내원·방문을 지역 검색과 리뷰 관리로 늘립니다</p>
+        <div class="ind-tags"><span class="tag">내원 유도</span><span class="tag">지역 검색</span><span class="tag">리뷰 관리</span></div>
+      </article>
+      <article class="ind-c rise">
+        <span class="ind-lb">WEDDING</span>
+        <h3 class="ind-t">웨딩·스튜디오</h3>
+        <p class="ind-d">포트폴리오 노출부터 예약 전환까지, 시즌 수요에 맞춘 캠페인을 설계합니다</p>
+        <div class="ind-tags"><span class="tag">예약 전환</span><span class="tag">포트폴리오 노출</span><span class="tag">시즌 캠페인</span></div>
+      </article>
+      <article class="ind-c rise">
+        <span class="ind-lb">AUTO</span>
+        <h3 class="ind-t">자동차정비</h3>
+        <p class="ind-d">카센터·정비소의 방문 유도와 단골 관리를 플레이스 중심으로 설계합니다</p>
+        <div class="ind-tags"><span class="tag">방문 유도</span><span class="tag">플레이스</span><span class="tag">단골 관리</span></div>
+      </article>
     </div>
   </div>
 </section>
@@ -852,6 +889,24 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
           <div class="proof-f"><span class="proof-dur">4개월</span><span class="proof-r">월 신규 8명 → 23명</span></div>
         </div>
       </article>
+      <article class="proof-c rise">
+        <div class="ph" data-ph="성과 스크린샷 준비 중"><img src="assets/proof/case-04.png" alt="○○ 정육식당 방문 전환 성과" loading="lazy" onerror="this.remove()"></div>
+        <div class="proof-b">
+          <span class="proof-lb">LOCAL</span>
+          <h3 class="proof-t">○○ 정육식당 방문 전환</h3>
+          <p class="proof-d">상권 반경 타겟 광고와 플레이스 리뷰 관리로 방문 전환을 끌어올렸습니다.</p>
+          <div class="proof-f"><span class="proof-dur">2개월</span><span class="proof-r">방문 문의 3.1배</span></div>
+        </div>
+      </article>
+      <article class="proof-c rise">
+        <div class="ph" data-ph="성과 스크린샷 준비 중"><img src="assets/proof/case-05.png" alt="○○ 카페 재방문 설계 성과" loading="lazy" onerror="this.remove()"></div>
+        <div class="proof-b">
+          <span class="proof-lb">LOCAL</span>
+          <h3 class="proof-t">○○ 카페 재방문 설계</h3>
+          <p class="proof-d">SNS 콘텐츠와 리뷰 이벤트로 신규 방문객의 재방문율을 높였습니다.</p>
+          <div class="proof-f"><span class="proof-dur">3개월</span><span class="proof-r">재방문율 22% → 41%</span></div>
+        </div>
+      </article>
     </div>
   </div>
 </section>
@@ -862,50 +917,9 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
     <span class="eyebrow dsp">Reviews</span>
     <h2 class="sec-h2 dsp">진단을 받아본 사장님들</h2>
   </div>
-  <div class="rev-rows">
-    <div class="mq rev-row">
-      <div class="mq-track">
-        <div class="mq-set" data-mq-set>
-          <div class="rev-c">
-            <div class="stars" aria-label="별점 5점"><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg></div>
-            <p class="rev-q">"광고비 어디서 새는지 15분 만에 나오더라고요. 그 자리에서 하나 바로 껐습니다."</p>
-            <div class="rev-m"><span class="rev-nm">김○○ 원장</span><span class="rev-tag">강서구 한의원</span></div>
-          </div>
-          <div class="rev-c">
-            <div class="stars" aria-label="별점 5점"><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg></div>
-            <p class="rev-q">"계약하라는 말 한마디 없어서 오히려 신뢰가 갔습니다. 두 달 뒤에 제가 먼저 연락드렸어요."</p>
-            <div class="rev-m"><span class="rev-nm">이○○ 대표</span><span class="rev-tag">분당 필라테스</span></div>
-          </div>
-          <div class="rev-c">
-            <div class="stars" aria-label="별점 5점"><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg></div>
-            <p class="rev-q">"인스타 매일 올리는 게 답이 아니었더군요. 방향부터 잘못 잡고 있었습니다."</p>
-            <div class="rev-m"><span class="rev-nm">박○○ 사장</span><span class="rev-tag">마포 음식점</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="mq rev-row rev-rtl">
-      <div class="mq-track">
-        <div class="mq-set" data-mq-set>
-          <div class="rev-c">
-            <div class="stars" aria-label="별점 5점"><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg></div>
-            <p class="rev-q">"플레이스가 왜 안 올라가는지 이유를 처음 들었습니다."</p>
-            <div class="rev-m"><span class="rev-nm">최○○ 실장</span><span class="rev-tag">수원 피부과</span></div>
-          </div>
-          <div class="rev-c">
-            <div class="stars" aria-label="별점 5점"><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg></div>
-            <p class="rev-q">"동네 경쟁 업체가 뭘 하는지 데이터로 보니까 감이 잡혔어요."</p>
-            <div class="rev-m"><span class="rev-nm">정○○ 대표</span><span class="rev-tag">인천 학원</span></div>
-          </div>
-          <div class="rev-c">
-            <div class="stars" aria-label="별점 5점"><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg></div>
-            <p class="rev-q">"대행사 세 번 바꿔봤는데, 진단부터 해준 곳은 처음이었습니다."</p>
-            <div class="rev-m"><span class="rev-nm">한○○ 사장</span><span class="rev-tag">고양 정육식당</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div class="rev-filters wrap rise" id="revFilters"></div>
+  <div class="rev-rows" id="revRows"></div>
+  <div class="rev-grid" id="revGrid" hidden></div>
 </section>
 
 <!-- ═══════════ S08. FAQ ═══════════ -->
@@ -918,27 +932,35 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
     <div class="faq-l rise" id="faqList">
       <div class="faq-i">
         <button class="faq-q" type="button" aria-expanded="false">정말 무료인가요?<span class="faq-ic"></span></button>
-        <div class="faq-a"><div class="faq-a-in">진단은 전액 무료입니다. 이후 대행이나 컨설팅을 원하실 경우에만 별도로 안내드립니다.</div></div>
+        <div class="faq-a"><div class="faq-a-in">네, 진단은 <b>전액 무료</b>입니다. 이후 대행을 원하실 경우에만 별도로 안내드리며, 강요는 없습니다.</div></div>
       </div>
       <div class="faq-i">
-        <button class="faq-q" type="button" aria-expanded="false">계약 안 하면 불편해지지 않나요?<span class="faq-ic"></span></button>
-        <div class="faq-a"><div class="faq-a-in">진단 자료는 그대로 드리고 끝입니다. 스팸 문자나 반복 전화는 드리지 않습니다.</div></div>
+        <button class="faq-q" type="button" aria-expanded="false">월 광고비는 최소 얼마부터 가능한가요?<span class="faq-ic"></span></button>
+        <div class="faq-a"><div class="faq-a-in">업종과 상권에 따라 다르지만, 대부분 <b>월 100만 원대</b>부터 시작합니다. 진단 후 예산에 맞는 우선순위를 제안드립니다.</div></div>
+      </div>
+      <div class="faq-i">
+        <button class="faq-q" type="button" aria-expanded="false">계약 기간이 정해져 있나요?<span class="faq-ic"></span></button>
+        <div class="faq-a"><div class="faq-a-in">최소 계약 기간을 강요하지 않습니다. <b>3개월 단위</b>로 성과를 점검하며, 언제든 재검토할 수 있습니다.</div></div>
+      </div>
+      <div class="faq-i">
+        <button class="faq-q" type="button" aria-expanded="false">성과가 없으면 어떻게 되나요?<span class="faq-ic"></span></button>
+        <div class="faq-a"><div class="faq-a-in">매달 데이터를 투명하게 공유하고, 기준에 못 미치면 <b>전략을 먼저 재조정</b>합니다. 억지로 끌고 가지 않습니다.</div></div>
+      </div>
+      <div class="faq-i">
+        <button class="faq-q" type="button" aria-expanded="false">담당자가 자주 바뀌나요?<span class="faq-ic"></span></button>
+        <div class="faq-a"><div class="faq-a-in">업종 전담 마케터가 <b>처음부터 끝까지</b> 담당합니다. 담당자 교체로 인한 인수인계 리스크가 없습니다.</div></div>
+      </div>
+      <div class="faq-i">
+        <button class="faq-q" type="button" aria-expanded="false">우리 업종은 다뤄본 적 없을 것 같은데 괜찮나요?<span class="faq-ic"></span></button>
+        <div class="faq-a"><div class="faq-a-in">9년간 <b>의료·뷰티·외식·교육 등 다양한 업종</b>을 다뤘습니다. 처음 다루는 업종이어도 진단 단계에서 데이터로 먼저 검증합니다.</div></div>
       </div>
       <div class="faq-i">
         <button class="faq-q" type="button" aria-expanded="false">지방에서도 되나요?<span class="faq-ic"></span></button>
         <div class="faq-a"><div class="faq-a-in">전국 가능합니다. 전화·화상으로 진행하고 자료는 메일로 발송해드립니다.</div></div>
       </div>
       <div class="faq-i">
-        <button class="faq-q" type="button" aria-expanded="false">얼마나 걸리나요?<span class="faq-ic"></span></button>
-        <div class="faq-a"><div class="faq-a-in">통화 15분 내외, 자료는 24시간 안에 발송해드립니다.</div></div>
-      </div>
-      <div class="faq-i">
-        <button class="faq-q" type="button" aria-expanded="false">광고를 아직 안 하고 있어도 되나요?<span class="faq-ic"></span></button>
-        <div class="faq-a"><div class="faq-a-in">오히려 시작 전이 가장 좋습니다. 처음부터 새는 돈 없이 설계할 수 있습니다.</div></div>
-      </div>
-      <div class="faq-i">
-        <button class="faq-q" type="button" aria-expanded="false">어떤 업종이 가능한가요?<span class="faq-ic"></span></button>
-        <div class="faq-a"><div class="faq-a-in">음식점, 미용, 병의원, 피트니스, 학원, 전문직 등 지역 기반 사업장 전반입니다.</div></div>
+        <button class="faq-q" type="button" aria-expanded="false">진행 중 리포트는 얼마나 자주 받아볼 수 있나요?<span class="faq-ic"></span></button>
+        <div class="faq-a"><div class="faq-a-in"><b>매월 정기 리포트</b>로 광고 성과와 다음 달 실행 계획을 공유합니다. 요청 시 수시로도 확인 가능합니다.</div></div>
       </div>
     </div>
   </div>
@@ -964,6 +986,9 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
           <button class="biz-b" type="button" data-biz="피트니스">피트니스</button>
           <button class="biz-b" type="button" data-biz="학원·교육">학원·교육</button>
           <button class="biz-b" type="button" data-biz="전문직">전문직</button>
+          <button class="biz-b" type="button" data-biz="반려동물">반려동물</button>
+          <button class="biz-b" type="button" data-biz="웨딩·스튜디오">웨딩·스튜디오</button>
+          <button class="biz-b" type="button" data-biz="자동차정비">자동차정비</button>
           <button class="biz-b" type="button" data-biz="기타">기타</button>
         </div>
       </div>
@@ -1015,16 +1040,29 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 <footer id="ft">
   <div class="ft-in">
     <div>
-      <div class="ft-co">(주)무이코퍼레이션 · 대표 이채원</div>
+      <div class="ft-brand"><span class="ft-mark"></span><span class="ft-co">(주)무이코퍼레이션</span></div>
       <div class="ft-meta">
-        사업자등록번호 481-81-02827<br>
+        대표 이채원 · 사업자등록번호 481-81-02827<br>
         <a href="mailto:info@muyi.co.kr">info@muyi.co.kr</a> · <a href="tel:07088338210">070-8833-8210</a>
       </div>
+      <div class="ft-legal">
+        <button type="button" onclick="openLegal('privacy')">개인정보처리방침</button>
+        <span class="ft-sep"></span>
+        <button type="button" onclick="openLegal('terms')">이용약관</button>
+      </div>
     </div>
-    <div class="ft-links">
-      <button type="button" onclick="openLegal('privacy')">개인정보처리방침</button>
-      <span class="ft-sep"></span>
-      <button type="button" onclick="openLegal('terms')">이용약관</button>
+    <div class="ft-actions">
+      <a class="ft-ic" href="https://www.instagram.com/muyi_official_/" target="_blank" rel="noopener" aria-label="MUYI 인스타그램" title="인스타그램">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1"/></svg>
+      </a>
+      <a class="ft-doc" href="https://www.muyi.co.kr/brochure" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M9 13h6M9 17h6"/></svg>
+        <span>회사 소개서 보기</span>
+      </a>
+      <span class="ft-doc ft-doc-disabled" title="준비 중">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v6h6"/><path d="M9 14h6M9 18h4"/></svg>
+        <span>상품 소개서</span>
+      </span>
     </div>
   </div>
 </footer>
@@ -1047,6 +1085,70 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 (function(){
 'use strict';
 
+/* ══════════ 0. 클라이언트 로고 · 후기 데이터 렌더링 (rise/마퀴 수집보다 먼저 실행) ══════════ */
+var CLIENT_LOGOS=[];
+(function(){
+  for(var i=1;i<=37;i++)CLIENT_LOGOS.push('assets/logos/client-'+(i<10?'0'+i:i)+'.png');
+})();
+
+function renderCredRows(){
+  var wrap=document.getElementById('credRows');
+  if(!wrap)return;
+  var sizes=[8,7,8,7,7],idx=0;
+  var html='';
+  sizes.forEach(function(n,rowI){
+    var slice=CLIENT_LOGOS.slice(idx,idx+n);idx+=n;
+    var items=slice.map(function(src){
+      return '<div class="cred-i"><img src="'+src+'" alt="" loading="lazy" onerror="this.closest(\'.cred-i\').remove()"></div>';
+    }).join('');
+    html+='<div class="mq cred-row'+(rowI%2===1?' cred-rev':'')+'"><div class="mq-track"><div class="mq-set" data-mq-set>'+items+'</div></div></div>';
+  });
+  wrap.innerHTML=html;
+}
+renderCredRows();
+
+var REVIEWS=[
+  {biz:'병의원',name:'김○○ 원장',tag:'강서구 한의원',q:'광고비 어디서 새는지 15분 만에 나오더라고요. 그 자리에서 하나 바로 껐습니다.'},
+  {biz:'피트니스',name:'이○○ 대표',tag:'분당 필라테스',q:'계약하라는 말 한마디 없어서 오히려 신뢰가 갔습니다. 두 달 뒤에 제가 먼저 연락드렸어요.'},
+  {biz:'음식점·카페',name:'박○○ 사장',tag:'마포 음식점',q:'인스타 매일 올리는 게 답이 아니었더군요. 방향부터 잘못 잡고 있었습니다.'},
+  {biz:'미용·뷰티',name:'윤○○ 원장',tag:'잠실 미용실',q:'손님들이 인스타 보고 왔다는 얘기를 처음 들었어요. 콘텐츠 방향을 완전히 바꾼 게 신의 한 수였습니다.'},
+  {biz:'전문직',name:'서○○ 대표',tag:'강남 세무사무소',q:'상담 신청은 늘었는데, 신뢰가 필요한 업종이라 콘텐츠 톤이 제일 걱정이었어요. 그 부분까지 짚어주시더라고요.'},
+  {biz:'음식점·카페',name:'강○○ 점장',tag:'송파 카페',q:'재방문 손님이 눈에 띄게 늘었어요. 신규만 잡던 예산을 재방문 쪽으로 옮긴 게 컸습니다.'},
+  {biz:'병의원',name:'최○○ 실장',tag:'수원 피부과',q:'플레이스가 왜 안 올라가는지 이유를 처음 들었습니다.'},
+  {biz:'학원·교육',name:'정○○ 대표',tag:'인천 학원',q:'동네 경쟁 업체가 뭘 하는지 데이터로 보니까 감이 잡혔어요.'},
+  {biz:'음식점·카페',name:'한○○ 사장',tag:'고양 정육식당',q:'대행사 세 번 바꿔봤는데, 진단부터 해준 곳은 처음이었습니다.'},
+  {biz:'병의원',name:'임○○ 원장',tag:'일산 피부과',q:'의료광고 심의 때문에 늘 조심스러웠는데, 그 기준 안에서 할 수 있는 걸 정확히 아시더라고요.'},
+  {biz:'피트니스',name:'조○○ 대표',tag:'부천 필라테스',q:'체험 등록은 많았는데 정회원 전환이 안 됐던 이유를 짚어주셨어요.'},
+  {biz:'학원·교육',name:'배○○ 원장',tag:'대구 학원',q:'학부모들이 믿고 보내는 콘텐츠가 뭔지 몰랐는데, 방향을 잡아주셨습니다.'}
+];
+var STAR_SVG='<svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg>';
+var STAR5=STAR_SVG+STAR_SVG+STAR_SVG+STAR_SVG+STAR_SVG;
+function reviewCardHtml(r){
+  return '<div class="rev-c" data-biz="'+r.biz+'">'+
+    '<div class="stars" aria-label="별점 5점">'+STAR5+'</div>'+
+    '<p class="rev-q">"'+r.q+'"</p>'+
+    '<div class="rev-m"><span class="rev-nm">'+r.name+'</span><span class="rev-tag">'+r.tag+'</span></div>'+
+  '</div>';
+}
+function renderReviews(){
+  var half=Math.ceil(REVIEWS.length/2);
+  var row1=REVIEWS.slice(0,half),row2=REVIEWS.slice(half);
+  var rowsWrap=document.getElementById('revRows');
+  if(rowsWrap){
+    rowsWrap.innerHTML=
+      '<div class="mq rev-row"><div class="mq-track"><div class="mq-set" data-mq-set>'+row1.map(reviewCardHtml).join('')+'</div></div></div>'+
+      '<div class="mq rev-row rev-rtl"><div class="mq-track"><div class="mq-set" data-mq-set>'+row2.map(reviewCardHtml).join('')+'</div></div></div>';
+  }
+  var filters=document.getElementById('revFilters');
+  if(filters){
+    var cats=['전체','음식점·카페','미용·뷰티','병의원','피트니스','학원·교육','전문직'];
+    filters.innerHTML=cats.map(function(c,i){
+      return '<button class="rf-b'+(i===0?' sel':'')+'" type="button" data-biz="'+(c==='전체'?'':c)+'">'+c+'</button>';
+    }).join('');
+  }
+}
+renderReviews();
+
 /* ══════════ 1. 헤더 스크롤 상태 ══════════ */
 var hd=document.getElementById('hd');
 function onScroll(){
@@ -1055,22 +1157,25 @@ function onScroll(){
 }
 window.addEventListener('scroll',onScroll,{passive:true});
 
-/* ══════════ 2. 등장 애니메이션 + 카운터 ══════════ */
+/* ══════════ 2. 등장 애니메이션 + 카운터 (정수/소수 모두 지원) ══════════ */
 var rises=document.querySelectorAll('.rise');
 var HAS_IO=typeof IntersectionObserver!=='undefined';
+
+function fmtCounter(v,dec){
+  if(dec>0)return v.toFixed(dec);
+  var r=Math.round(v);
+  return r>=1000?r.toLocaleString():r;
+}
 
 /* IO 미지원 브라우저에서 페이지가 통째로 빈 화면이 되지 않도록 즉시 노출 */
 if(!HAS_IO){
   rises.forEach(function(el){el.classList.add('on');});
   document.querySelectorAll('.cnt').forEach(function(el){
-    var t=parseInt(el.getAttribute('data-to'),10);
-    if(!isNaN(t))el.textContent=t>=1000?t.toLocaleString():t;
+    var t=parseFloat(el.getAttribute('data-to'));
+    var dec=parseInt(el.getAttribute('data-dec')||'0',10);
+    if(!isNaN(t))el.textContent=fmtCounter(t,dec);
   });
-  document.querySelectorAll('.gauge-val').forEach(function(v){v.textContent=v.dataset.score;});
-  document.querySelectorAll('.gauge-fg').forEach(function(c){
-    var s=parseInt(c.dataset.score,10),C=2*Math.PI*54;
-    c.style.strokeDasharray=C;c.style.strokeDashoffset=C*(1-s/100);
-  });
+  fillDiagBars();
 }
 
 var io=HAS_IO&&new IntersectionObserver(function(es){
@@ -1079,7 +1184,10 @@ var io=HAS_IO&&new IntersectionObserver(function(es){
     var el=e.target;
     var sibs=el.parentElement?el.parentElement.querySelectorAll(':scope > .rise'):[];
     var idx=Array.prototype.indexOf.call(sibs,el);
-    setTimeout(function(){el.classList.add('on');},Math.max(idx,0)*70);
+    setTimeout(function(){
+      el.classList.add('on');
+      if(el.id==='diagbars')fillDiagBars();
+    },Math.max(idx,0)*70);
     io.unobserve(el);
   });
 },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
@@ -1088,16 +1196,16 @@ if(HAS_IO)rises.forEach(function(el){io.observe(el);});
 function easeOutCubic(t){return 1-Math.pow(1-t,3);}
 function runCounter(el){
   if(el._done)return;el._done=true;
-  var target=parseInt(el.getAttribute('data-to'),10);
+  var target=parseFloat(el.getAttribute('data-to'));
   if(isNaN(target))return;
+  var dec=parseInt(el.getAttribute('data-dec')||'0',10);
   var dur=target>=1000?1800:1200,t0=null;
   function tick(ts){
     if(!t0)t0=ts;
     var p=Math.min((ts-t0)/dur,1);
-    var v=Math.round(easeOutCubic(p)*target);
-    el.textContent=v>=1000?v.toLocaleString():v;
+    el.textContent=fmtCounter(easeOutCubic(p)*target,dec);
     if(p<1)requestAnimationFrame(tick);
-    else el.textContent=target>=1000?target.toLocaleString():target;
+    else el.textContent=fmtCounter(target,dec);
   }
   requestAnimationFrame(tick);
 }
@@ -1108,34 +1216,19 @@ if(HAS_IO){
   document.querySelectorAll('.cnt').forEach(function(el){cntIo.observe(el);});
 }
 
-/* ══════════ 3. 스코어 게이지 ══════════ */
-var CIRC=2*Math.PI*54; /* r=54 → 339.29 */
-document.querySelectorAll('.gauge-fg').forEach(function(c){
-  c.style.strokeDasharray=CIRC;c.style.strokeDashoffset=CIRC;
+/* ══════════ 3. 진단 막대 — 레벨 라벨 + 스크롤 진입 시 채움 ══════════ */
+var LEVEL_TAGS=['위험','주의','보통','양호','우수'];
+document.querySelectorAll('.dbar').forEach(function(bar){
+  var lvl=parseInt(bar.getAttribute('data-level'),10);
+  var tag=bar.querySelector('.dbar-tag');
+  if(tag&&!isNaN(lvl)){tag.textContent=LEVEL_TAGS[lvl-1];tag.setAttribute('data-lvl',lvl);}
 });
-var gaugeEl=document.getElementById('gauges');
-if(gaugeEl&&HAS_IO){
-  var gIo=new IntersectionObserver(function(es){
-    if(!es[0].isIntersecting)return;
-    gIo.disconnect();
-    gaugeEl.querySelectorAll('.gauge-fg').forEach(function(c,i){
-      var s=parseInt(c.dataset.score,10);
-      setTimeout(function(){c.style.strokeDashoffset=CIRC*(1-s/100);},i*160);
-    });
-    gaugeEl.querySelectorAll('.gauge-val').forEach(function(v,i){
-      var s=parseInt(v.dataset.score,10),dur=1500;
-      setTimeout(function(){
-        var t0=performance.now();
-        function tick(now){
-          var p=Math.min((now-t0)/dur,1);
-          v.textContent=Math.round(easeOutCubic(p)*s);
-          if(p<1)requestAnimationFrame(tick);else v.textContent=s;
-        }
-        requestAnimationFrame(tick);
-      },i*160);
-    });
-  },{threshold:.35});
-  gIo.observe(gaugeEl);
+function fillDiagBars(){
+  document.querySelectorAll('.dbar').forEach(function(bar){
+    var lvl=parseInt(bar.getAttribute('data-level'),10);
+    var segs=bar.querySelectorAll('.seg');
+    segs.forEach(function(s,i){if(i<lvl)s.classList.add('filled');});
+  });
 }
 
 /* ══════════ 4. 마퀴 — 세트 복제로 무한 루프 ══════════ */
@@ -1328,6 +1421,28 @@ window.closeLegal=function(){
   document.body.style.overflow='';
 };
 document.addEventListener('keydown',function(e){if(e.key==='Escape')window.closeLegal();});
+
+/* ══════════ 12. 후기 업종 필터 (Free Diagnosis 업종 선택과 동일한 라벨로 동기화) ══════════ */
+var revFilters=document.getElementById('revFilters');
+var revRows=document.getElementById('revRows');
+var revGrid=document.getElementById('revGrid');
+if(revFilters&&revRows&&revGrid){
+  revFilters.addEventListener('click',function(e){
+    var btn=e.target.closest('.rf-b');
+    if(!btn)return;
+    Array.prototype.forEach.call(revFilters.querySelectorAll('.rf-b'),function(b){b.classList.remove('sel');});
+    btn.classList.add('sel');
+    var biz=btn.dataset.biz;
+    if(!biz){
+      revGrid.hidden=true;revGrid.innerHTML='';
+      revRows.hidden=false;
+    }else{
+      var matched=REVIEWS.filter(function(r){return r.biz===biz;});
+      revGrid.innerHTML=matched.map(reviewCardHtml).join('');
+      revRows.hidden=true;revGrid.hidden=false;
+    }
+  });
+}
 
 /* 초기 상태 반영 */
 onScroll();
