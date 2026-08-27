@@ -133,6 +133,11 @@ a{color:inherit}
   .rise{opacity:1;transform:none;transition:none}
   *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   html{scroll-behavior:auto}
+  /* 로고월·후기 롤링은 장식이 아니라 콘텐츠 전달 수단이라 유지한다 */
+  .mq-track{animation-iteration-count:infinite!important}
+  .cred-row .mq-track{animation-duration:42s!important}
+  .cred-row.cred-rev .mq-track{animation-duration:56s!important}
+  .rev-row .mq-track{animation-duration:56s!important}
 }
 
 /* ═══ S00. HEADER ═══ */
@@ -245,12 +250,15 @@ a{color:inherit}
 .cred-row .mq-track{animation-duration:42s}
 .cred-row.cred-rev .mq-track{animation-direction:reverse;animation-duration:56s}
 .cred-row:hover .mq-track{animation-play-state:paused}
-.cred-i{display:flex;align-items:center;justify-content:center;height:78px;margin:0 1.8rem;flex-shrink:0}
+/* 로고는 전부 400x400 투명 PNG로 정규화됨 — 정사각 박스에 담아 정렬 통일 */
+.cred-i{display:flex;align-items:center;justify-content:center;width:96px;height:96px;margin:0 1.1rem;flex-shrink:0}
 .cred-i img{
-  height:100%;width:auto;max-width:190px;object-fit:contain;
-  filter:grayscale(1);mix-blend-mode:multiply;transition:filter var(--dur) var(--ease);
+  width:100%;height:100%;object-fit:contain;
+  filter:grayscale(1);opacity:.66;
+  transition:filter var(--dur) var(--ease),opacity var(--dur) var(--ease);
+  -webkit-user-drag:none;user-select:none;-webkit-user-select:none;pointer-events:none;
 }
-.cred-i:hover img{filter:none}
+.cred-i:hover img{filter:none;opacity:1}
 
 /* ═══ 공통 섹션 ═══ */
 section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
@@ -602,8 +610,84 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 .lm p,.lm li{font-size:.87rem;color:var(--text-sub);line-height:1.85}
 .lm ul{padding-left:1.1rem}
 
+/* ═══ S03. PROBLEM — 세로 스토리라인 ═══ */
+.story{position:relative;max-width:880px;margin:0 auto}
+.story::before{
+  content:'';position:absolute;left:31px;top:20px;bottom:20px;width:2px;
+  background:linear-gradient(180deg,transparent,var(--line-str) 7%,var(--line-str) 93%,transparent);
+}
+.step{position:relative;display:grid;grid-template-columns:64px 1fr;gap:clamp(1rem,2.6vw,1.9rem);padding:clamp(1.1rem,2.5vw,1.7rem) 0}
+.step-ico{
+  position:relative;z-index:1;width:64px;height:64px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:1.65rem;line-height:1;
+  background:var(--surface);border:1px solid var(--line);
+  transition:border-color var(--dur) var(--ease),background var(--dur) var(--ease),transform var(--dur) var(--ease);
+}
+.step:hover .step-ico{border-color:var(--brand);background:var(--surface-2);transform:scale(1.07)}
+.step-b{padding-top:.55rem;min-width:0}
+.step-n{
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:.66rem;font-weight:800;letter-spacing:.2em;
+  color:var(--brand);margin-bottom:.5rem;display:block;
+}
+.step-q{
+  font-size:clamp(1.02rem,2.3vw,1.4rem);font-weight:800;line-height:1.45;letter-spacing:-.02em;
+  color:var(--text);margin-bottom:.65rem;word-break:keep-all;
+}
+.step-a{font-size:clamp(.85rem,1.7vw,.97rem);color:var(--text-sub);line-height:1.85;word-break:keep-all;max-width:58ch}
+.step-a b{color:var(--brand);font-weight:700}
+
+/* ═══ S04. DIAGNOSIS — 손실 금액 · 종합 등급 · 업종 평균 ═══ */
+.diag-hero{
+  text-align:center;padding:clamp(1.6rem,3.6vw,2.6rem) clamp(1.2rem,3vw,2rem);
+  border:1px solid rgba(238,78,0,.3);background:var(--brand-tint);
+  border-radius:var(--r-lg);margin-bottom:.9rem;
+}
+.diag-hero-l{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-sub);font-weight:700;margin-bottom:.7rem}
+.diag-hero-n{
+  font-family:'Plus Jakarta Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums;
+  font-size:clamp(2.3rem,7.5vw,4.4rem);font-weight:800;color:var(--brand);
+  letter-spacing:-.045em;line-height:1;display:flex;align-items:baseline;justify-content:center;gap:.08em;
+}
+.diag-hero-n small{font-size:.34em;font-weight:700}
+.diag-hero-s{font-size:clamp(.82rem,1.6vw,.92rem);color:var(--text-sub);margin-top:.8rem;word-break:keep-all}
+.diag-grade{
+  display:inline-flex;align-items:center;gap:.7rem;margin-top:1.1rem;
+  padding:.55rem 1.2rem;border-radius:var(--r-full);background:var(--bg);border:1px solid var(--line);
+}
+.diag-grade b{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.2rem;font-weight:800;color:var(--brand);letter-spacing:-.02em}
+.diag-grade span{font-size:.8rem;color:var(--text-sub)}
+.dbar-track{position:relative}
+.dbar-avg{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--text-sub);opacity:.5;z-index:2;pointer-events:none}
+.dbar-avg::after{
+  content:'업종 평균';position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);
+  font-size:.58rem;color:var(--text-sub);white-space:nowrap;letter-spacing:.02em;
+}
+.dbar:last-child{padding-bottom:1.5rem}
+
+/* ═══ S05. INDUSTRIES — 업종 필터 + 레퍼런스 ═══ */
+.ind-filters{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:clamp(1.6rem,3.4vw,2.4rem)}
+.ref-wrap{margin-top:clamp(1.6rem,3.4vw,2.2rem)}
+.ref-head{font-size:.86rem;color:var(--text-sub);text-align:center;margin-bottom:1.1rem}
+.ref-head b{color:var(--brand);font-weight:700}
+.ref-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem}
+.ref-c{
+  padding:clamp(1.1rem,2.2vw,1.4rem);border:1px solid var(--line);border-radius:var(--r-md);
+  background:var(--surface);transition:border-color var(--dur) var(--ease),transform var(--dur) var(--ease);
+}
+.ref-c:hover{border-color:var(--brand);transform:translateY(-3px)}
+.ref-top{display:flex;align-items:baseline;justify-content:space-between;gap:.8rem;margin-bottom:.45rem}
+.ref-nm{font-size:.94rem;font-weight:700;color:var(--text);word-break:keep-all}
+.ref-loc{font-size:.73rem;color:var(--text-sub);white-space:nowrap;flex-shrink:0}
+.ref-r{
+  font-family:'Plus Jakarta Sans','Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums;
+  font-size:.96rem;font-weight:800;color:var(--brand);letter-spacing:-.02em;margin-bottom:.4rem;
+}
+.ref-meta{font-size:.76rem;color:var(--text-sub)}
+.ref-note{font-size:.74rem;color:var(--text-sub);text-align:center;margin-top:1.2rem}
+
 /* ═══ 반응형 ═══ */
 @media (max-width:1024px){
+  .ref-grid{grid-template-columns:repeat(2,1fr)}
   .pain-grid,.ind-grid{grid-template-columns:repeat(2,1fr)}
   .deliv,.proof-grid{grid-template-columns:1fr;gap:.9rem}
 }
@@ -621,6 +705,11 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   .proof-f{flex-direction:column;align-items:flex-start;gap:.5rem}
   .proof-r{text-align:left}
   .biz-grid{grid-template-columns:repeat(2,1fr)}
+  .ref-grid{grid-template-columns:1fr}
+  .story::before{left:23px}
+  .step{grid-template-columns:48px 1fr;gap:1rem}
+  .step-ico{width:48px;height:48px;font-size:1.3rem}
+  .step-b{padding-top:.3rem}
 }
 @media (max-width:380px){
   .rev-c{width:252px}
@@ -694,36 +783,54 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
       <h2 class="sec-h2 dsp">마케팅 문제는 채널 하나로 해결되지 않습니다</h2>
       <p class="sec-p">상담 오시는 사장님들의 90%가 같은 지점에서 막혀 있습니다.</p>
     </div>
-    <div class="pain-grid">
-      <article class="pain-c rise">
-        <div class="pain-ico"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg></div>
-        <h3 class="pain-q">"광고는 돌리는데 문의가 없습니다"</h3>
-        <p class="pain-a">광고 소재, 랜딩, 상담 응대까지 퍼널 전체를 점검해 새어나가는 고객을 잡습니다.</p>
+    <div class="story">
+      <article class="step rise">
+        <div class="step-ico" aria-hidden="true">💸</div>
+        <div class="step-b">
+          <span class="step-n">STEP 01</span>
+          <h3 class="step-q">"광고비는 매달 나가는데, 문의는 늘지 않습니다"</h3>
+          <p class="step-a">광고가 안 돌아가는 게 아닙니다. 노출은 되는데 <b>클릭 이후가 끊깁니다.</b> 소재부터 랜딩, 상담 응대까지 퍼널 전체를 뜯어보면 고객이 이탈하는 지점이 한 곳으로 좁혀집니다.</p>
+        </div>
       </article>
-      <article class="pain-c rise">
-        <div class="pain-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div>
-        <h3 class="pain-q">"검색하면 경쟁 가게만 나옵니다"</h3>
-        <p class="pain-a">플레이스, 리뷰, 블로그, 커뮤니티 언급까지 지역 내 정보자산을 통째로 키웁니다.</p>
+      <article class="step rise">
+        <div class="step-ico" aria-hidden="true">🔍</div>
+        <div class="step-b">
+          <span class="step-n">STEP 02</span>
+          <h3 class="step-q">"우리 가게를 검색했는데 경쟁 업체만 뜹니다"</h3>
+          <p class="step-a">플레이스 순위는 리뷰 수만으로 정해지지 않습니다. <b>지역 키워드, 블로그 언급, 방문자 체류 시간까지</b> 묶어서 관리해야 상위로 올라갑니다.</p>
+        </div>
       </article>
-      <article class="pain-c rise">
-        <div class="pain-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></div>
-        <h3 class="pain-q">"인스타는 매일 올리는데 조용합니다"</h3>
-        <p class="pain-a">예쁜 게시물이 아니라 전환으로 이어지는 콘텐츠 구조를 설계합니다.</p>
+      <article class="step rise">
+        <div class="step-ico" aria-hidden="true">📱</div>
+        <div class="step-b">
+          <span class="step-n">STEP 03</span>
+          <h3 class="step-q">"인스타는 매일 올리는데 아무 반응이 없습니다"</h3>
+          <p class="step-a">게시물 개수가 문제가 아닙니다. <b>보는 사람이 예약까지 가는 동선</b>이 없으면 아무리 올려도 팔로워만 늘고 매출은 제자리입니다.</p>
+        </div>
       </article>
-      <article class="pain-c rise">
-        <div class="pain-ico"><svg viewBox="0 0 24 24"><path d="M12 2v20"/><path d="M17 6.5c0-2-2.2-3-5-3s-5 1-5 3 2 3 5 3.5 5 1.5 5 3.5-2.2 3-5 3-5-1-5-3"/></svg></div>
-        <h3 class="pain-q">"어디에 얼마를 써야 할지 모르겠습니다"</h3>
-        <p class="pain-a">업종·상권 데이터로 채널별 예산 배분부터 다시 짭니다.</p>
+      <article class="step rise">
+        <div class="step-ico" aria-hidden="true">🧮</div>
+        <div class="step-b">
+          <span class="step-n">STEP 04</span>
+          <h3 class="step-q">"어디에 얼마를 써야 할지 감이 안 옵니다"</h3>
+          <p class="step-a">업종과 상권마다 돈이 되는 채널이 다릅니다. 같은 100만원도 <b>배분을 바꾸면 결과가 달라집니다.</b> 데이터로 채널별 비중부터 다시 짭니다.</p>
+        </div>
       </article>
-      <article class="pain-c rise">
-        <div class="pain-ico"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg></div>
-        <h3 class="pain-q">"한 번 온 손님이 다시 안 옵니다"</h3>
-        <p class="pain-a">신규 유치에만 쓰이던 예산을 재방문 설계로 돌립니다.</p>
+      <article class="step rise">
+        <div class="step-ico" aria-hidden="true">🔁</div>
+        <div class="step-b">
+          <span class="step-n">STEP 05</span>
+          <h3 class="step-q">"한 번 온 손님이 다시 오지 않습니다"</h3>
+          <p class="step-a">신규 고객을 부르는 비용이 재방문 유도 비용보다 훨씬 큽니다. <b>이미 다녀간 고객을 다시 부르는 설계</b>만 붙여도 광고비를 늘리지 않고 매출이 움직입니다.</p>
+        </div>
       </article>
-      <article class="pain-c rise">
-        <div class="pain-ico"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 4.6 4.6 1.9-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/><path d="M18 15l.9 2.1 2.1.9-2.1.9L18 21l-.9-2.1-2.1-.9 2.1-.9z"/></svg></div>
-        <h3 class="pain-q">"AI에 물어보면 우리 가게가 안 나옵니다"</h3>
-        <p class="pain-a">챗GPT·제미나이 검색 환경에서 발견되는 구조로 정보를 정리합니다.</p>
+      <article class="step rise">
+        <div class="step-ico" aria-hidden="true">🤖</div>
+        <div class="step-b">
+          <span class="step-n">STEP 06</span>
+          <h3 class="step-q">"챗GPT에 물어보면 우리 가게가 안 나옵니다"</h3>
+          <p class="step-a">검색의 무게중심이 AI로 옮겨가고 있습니다. <b>AI가 읽을 수 있는 형태</b>로 정보가 정리돼 있지 않으면 추천 목록에서 통째로 빠집니다.</p>
+        </div>
       </article>
     </div>
     <p class="pain-tail rise">하나라도 해당된다면, <b>진단이 먼저입니다.</b></p>
@@ -735,33 +842,40 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   <div class="wrap">
     <div class="sec-head mid rise">
       <span class="eyebrow dsp">Diagnosis</span>
-      <h2 class="sec-h2 dsp">매출 누수 진단</h2>
-      <p class="sec-p">'무료 상담'이 아닙니다. 15분 통화로 다섯 가지 항목을 레벨로 진단하고, 개선 순서까지 정리해드립니다.</p>
+      <h2 class="sec-h2 dsp">우리 가게 마케팅, 뭐가 문제인지 15분이면 압니다</h2>
+      <p class="sec-p">'무료 상담'이 아닙니다. 광고 효율·플레이스 노출·재방문 설계까지 다섯 항목을 레벨로 진단하고, 어디부터 손댈지 순서까지 정리해드립니다.</p>
+    </div>
+
+    <div class="diag-hero rise">
+      <div class="diag-hero-l">진단 결과 · 월 광고비 300만원 기준</div>
+      <div class="diag-hero-n num"><span class="cnt" data-to="84">0</span><small>만원</small></div>
+      <p class="diag-hero-s">성과 없이 새고 있는 광고비입니다. 채널을 재배분하면 같은 예산으로 문의를 늘릴 수 있습니다.</p>
+      <div class="diag-grade"><b>종합 D등급</b><span>같은 업종 하위 32%</span></div>
     </div>
 
     <div class="diagbars rise" id="diagbars">
-      <div class="dbar" data-level="3">
+      <div class="dbar" data-level="3" data-avg="3">
         <div class="dbar-top"><span class="dbar-l">광고 효율</span><span class="dbar-tag"></span></div>
         <div class="dbar-track"><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
       </div>
-      <div class="dbar" data-level="2">
+      <div class="dbar" data-level="2" data-avg="3">
         <div class="dbar-top"><span class="dbar-l">지역 검색 노출도 (플레이스)</span><span class="dbar-tag"></span></div>
         <div class="dbar-track"><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
       </div>
-      <div class="dbar" data-level="3">
+      <div class="dbar" data-level="3" data-avg="2">
         <div class="dbar-top"><span class="dbar-l">재방문 설계 수준</span><span class="dbar-tag"></span></div>
         <div class="dbar-track"><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
       </div>
-      <div class="dbar" data-level="2">
+      <div class="dbar" data-level="2" data-avg="3">
         <div class="dbar-top"><span class="dbar-l">콘텐츠 전환력 (SNS)</span><span class="dbar-tag"></span></div>
         <div class="dbar-track"><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
       </div>
-      <div class="dbar" data-level="1">
+      <div class="dbar" data-level="1" data-avg="2">
         <div class="dbar-top"><span class="dbar-l">AI 검색 노출도</span><span class="dbar-tag"></span></div>
         <div class="dbar-track"><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
       </div>
     </div>
-    <p class="gauge-cap rise">※ 실제 진단 화면 예시입니다</p>
+    <p class="gauge-cap rise">※ 실제 진단 화면 예시입니다. 수치는 업종·상권에 따라 달라집니다.</p>
 
     <div class="deliv">
       <div class="deliv-i rise">
@@ -794,8 +908,15 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
     <div class="sec-head mid rise">
       <span class="eyebrow dsp">Industries</span>
       <h2 class="sec-h2 dsp">우리 업종도 해본 회사인지 확인해보세요</h2>
+      <p class="sec-p">업종을 선택하면 그 업종에서 실제로 만든 결과만 모아서 보여드립니다.</p>
     </div>
-    <div class="ind-grid">
+    <div class="ind-filters rise" id="indFilters"></div>
+    <div class="ref-wrap" id="refWrap" hidden>
+      <p class="ref-head" id="refHead"></p>
+      <div class="ref-grid" id="refGrid"></div>
+      <p class="ref-note">※ 고객사 요청에 따라 상호는 일부만 표기합니다.</p>
+    </div>
+    <div class="ind-grid" id="indGrid">
       <article class="ind-c rise">
         <span class="ind-lb">MEDICAL</span>
         <h3 class="ind-t">병의원</h3>
@@ -905,6 +1026,42 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
           <h3 class="proof-t">○○ 카페 재방문 설계</h3>
           <p class="proof-d">SNS 콘텐츠와 리뷰 이벤트로 신규 방문객의 재방문율을 높였습니다.</p>
           <div class="proof-f"><span class="proof-dur">3개월</span><span class="proof-r">재방문율 22% → 41%</span></div>
+        </div>
+      </article>
+      <article class="proof-c rise">
+        <div class="ph" data-ph="성과 스크린샷 준비 중"><img src="assets/proof/case-06.png" alt="○○ 한의원 신규 환자 유입 성과" loading="lazy" onerror="this.remove()"></div>
+        <div class="proof-b">
+          <span class="proof-lb">MEDICAL</span>
+          <h3 class="proof-t">○○ 한의원 신규 환자 유입</h3>
+          <p class="proof-d">비효율 키워드를 정리하고 예약 랜딩을 다시 만들어 상담 전환을 끌어올렸습니다.</p>
+          <div class="proof-f"><span class="proof-dur">5개월</span><span class="proof-r">신규 환자 1.9배</span></div>
+        </div>
+      </article>
+      <article class="proof-c rise">
+        <div class="ph" data-ph="성과 스크린샷 준비 중"><img src="assets/proof/case-07.png" alt="○○ 네일샵 예약 전환 성과" loading="lazy" onerror="this.remove()"></div>
+        <div class="proof-b">
+          <span class="proof-lb">BEAUTY</span>
+          <h3 class="proof-t">○○ 네일샵 예약 전환</h3>
+          <p class="proof-d">시술 단가별로 광고를 분리하고 인스타 예약 링크 동선을 정리했습니다.</p>
+          <div class="proof-f"><span class="proof-dur">2개월</span><span class="proof-r">예약 전환율 3.4배</span></div>
+        </div>
+      </article>
+      <article class="proof-c rise">
+        <div class="ph" data-ph="성과 스크린샷 준비 중"><img src="assets/proof/case-08.png" alt="○○ 영어학원 상담 신청 성과" loading="lazy" onerror="this.remove()"></div>
+        <div class="proof-b">
+          <span class="proof-lb">EDUCATION</span>
+          <h3 class="proof-t">○○ 영어학원 상담 신청</h3>
+          <p class="proof-d">학부모 대상 콘텐츠를 새로 짜고 지역 타겟 광고를 학기 일정에 맞췄습니다.</p>
+          <div class="proof-f"><span class="proof-dur">4개월</span><span class="proof-r">월 상담 12건 → 37건</span></div>
+        </div>
+      </article>
+      <article class="proof-c rise">
+        <div class="ph" data-ph="성과 스크린샷 준비 중"><img src="assets/proof/case-09.png" alt="○○ 세무사무소 문의 증대 성과" loading="lazy" onerror="this.remove()"></div>
+        <div class="proof-b">
+          <span class="proof-lb">PROFESSIONAL</span>
+          <h3 class="proof-t">○○ 세무사무소 문의 증대</h3>
+          <p class="proof-d">신뢰를 증명하는 콘텐츠를 쌓고 검색 광고를 업종 키워드 중심으로 재편했습니다.</p>
+          <div class="proof-f"><span class="proof-dur">6개월</span><span class="proof-r">월 문의 2.4배</span></div>
         </div>
       </article>
     </div>
@@ -1149,6 +1306,94 @@ function renderReviews(){
 }
 renderReviews();
 
+/* ══════════ 0-2. 업종별 레퍼런스 ══════════
+   ⚠ 아래 사례는 전부 예시 데이터다. 실제 집행 실적으로 반드시 교체할 것.
+   표시광고법상 검증 불가한 성과를 사실처럼 게시하면 문제가 된다. */
+var REFS={
+  '음식점·카페':[
+    {nm:'○○ 정육식당',loc:'고양',r:'방문 문의 3.1배',meta:'2개월 · 상권 타겟 광고 + 리뷰 관리'},
+    {nm:'○○ 브런치카페',loc:'송파',r:'재방문율 22% → 41%',meta:'3개월 · SNS 콘텐츠 + 리뷰 이벤트'},
+    {nm:'○○ 국밥집',loc:'마포',r:'플레이스 21위 → 3위',meta:'10주 · 지역 키워드 + 플레이스 최적화'},
+    {nm:'○○ 이자카야',loc:'강남',r:'주말 예약 2.6배',meta:'3개월 · 인스타 릴스 + 예약 링크 정비'},
+    {nm:'○○ 베이커리',loc:'분당',r:'월 매출 1.8배',meta:'5개월 · 신메뉴 캠페인 + 단골 쿠폰'},
+    {nm:'○○ 파스타집',loc:'수원',r:'신규 방문 2.2배',meta:'2개월 · 반경 3km 타겟 광고'},
+    {nm:'○○ 삼겹살집',loc:'인천',r:'문의 전화 2.9배',meta:'4개월 · 플레이스 + 블로그 체험단'},
+    {nm:'○○ 디저트카페',loc:'용인',r:'인스타 유입 4.1배',meta:'3개월 · 비주얼 콘텐츠 재설계'},
+    {nm:'○○ 칼국수집',loc:'대전',r:'점심 회전율 1.7배',meta:'6주 · 직장인 타겟 시간대 광고'}
+  ],
+  '미용·뷰티':[
+    {nm:'○○동 미용실',loc:'서울',r:'예약 문의 2.7배',meta:'3개월 · 플레이스 최적화 + 지역 광고'},
+    {nm:'○○ 네일샵',loc:'강서',r:'예약 전환율 3.4배',meta:'2개월 · 단가별 광고 분리'},
+    {nm:'○○ 왁싱샵',loc:'분당',r:'신규 고객 2.3배',meta:'4개월 · 검색 광고 + 후기 관리'},
+    {nm:'○○ 속눈썹샵',loc:'수원',r:'재방문 주기 42일 → 28일',meta:'5개월 · 재방문 리마인드 설계'},
+    {nm:'○○ 피부관리실',loc:'일산',r:'상담 신청 2.8배',meta:'3개월 · 랜딩 개편 + 리타겟팅'},
+    {nm:'○○ 헤어살롱',loc:'부산',r:'플레이스 17위 → 2위',meta:'8주 · 리뷰 + 지역 키워드'},
+    {nm:'○○ 두피케어샵',loc:'인천',r:'회원권 결제 1.9배',meta:'4개월 · 체험 후 전환 동선 개선'}
+  ],
+  '병의원':[
+    {nm:'○○ 치과',loc:'서울',r:'플레이스 14위 → 2위',meta:'6주 · 검색 광고 + 예약 흐름 연결'},
+    {nm:'○○ 한의원',loc:'강서',r:'신규 환자 1.9배',meta:'5개월 · 키워드 정리 + 랜딩 개편'},
+    {nm:'○○ 피부과',loc:'수원',r:'상담 예약 2.5배',meta:'4개월 · 시술별 광고 분리'},
+    {nm:'○○ 정형외과',loc:'대구',r:'월 신환 34명 → 71명',meta:'6개월 · 지역 검색 + 콘텐츠'},
+    {nm:'○○ 안과',loc:'광주',r:'예약 전환율 2.2배',meta:'3개월 · 예약 페이지 재설계'},
+    {nm:'○○ 소아과',loc:'용인',r:'플레이스 유입 3.1배',meta:'10주 · 맘카페 + 플레이스 연계'},
+    {nm:'○○ 산부인과',loc:'부산',r:'상담 문의 1.8배',meta:'5개월 · 심의 통과 콘텐츠 제작'},
+    {nm:'○○ 이비인후과',loc:'인천',r:'재진율 1.6배',meta:'4개월 · 환자 리마인드 설계'}
+  ],
+  '피트니스':[
+    {nm:'○○ 필라테스',loc:'분당',r:'월 신규 8명 → 23명',meta:'4개월 · 체험 리드 소재 개선'},
+    {nm:'○○ 헬스장',loc:'노원',r:'등록 전환율 2.4배',meta:'3개월 · 상담 스크립트 + 리타겟팅'},
+    {nm:'○○ 요가원',loc:'수원',r:'체험 신청 3.2배',meta:'2개월 · 인스타 광고 재설계'},
+    {nm:'○○ 크로스핏',loc:'부산',r:'정회원 전환 1.9배',meta:'5개월 · 체험 후 이탈 방지 설계'},
+    {nm:'○○ PT스튜디오',loc:'강남',r:'문의 2.7배',meta:'3개월 · 트레이너별 콘텐츠'},
+    {nm:'○○ 복싱장',loc:'인천',r:'월 등록 2.1배',meta:'4개월 · 지역 타겟 + 후기'}
+  ],
+  '학원·교육':[
+    {nm:'○○ 영어학원',loc:'용인',r:'월 상담 12건 → 37건',meta:'4개월 · 학부모 콘텐츠 + 학기 캠페인'},
+    {nm:'○○ 수학학원',loc:'대치',r:'입회 상담 2.3배',meta:'5개월 · 설명회 모집 광고'},
+    {nm:'○○ 미술학원',loc:'인천',r:'신규 등록 1.9배',meta:'3개월 · 작품 콘텐츠 + 지역 광고'},
+    {nm:'○○ 코딩학원',loc:'판교',r:'체험 수업 3.4배',meta:'2개월 · 검색 광고 신설'},
+    {nm:'○○ 피아노학원',loc:'수원',r:'플레이스 문의 2.6배',meta:'10주 · 플레이스 + 맘카페'}
+  ],
+  '전문직':[
+    {nm:'○○ 세무사무소',loc:'강남',r:'월 문의 2.4배',meta:'6개월 · 신뢰 콘텐츠 + 검색 광고'},
+    {nm:'○○ 법무사',loc:'서초',r:'상담 신청 1.8배',meta:'4개월 · 업종 키워드 재편'},
+    {nm:'○○ 노무법인',loc:'여의도',r:'기업 문의 2.1배',meta:'5개월 · B2B 콘텐츠 마케팅'},
+    {nm:'○○ 손해사정',loc:'분당',r:'월 상담 2.9배',meta:'3개월 · 사례 콘텐츠 + 랜딩'}
+  ],
+  '반려동물':[
+    {nm:'○○ 동물병원',loc:'송파',r:'내원 문의 2.2배',meta:'4개월 · 지역 검색 + 리뷰 관리'},
+    {nm:'○○ 애견미용실',loc:'일산',r:'예약 1.9배',meta:'3개월 · 플레이스 최적화'},
+    {nm:'○○ 펫호텔',loc:'인천',r:'성수기 예약 2.6배',meta:'2개월 · 시즌 캠페인'},
+    {nm:'○○ 펫샵',loc:'수원',r:'재구매율 1.7배',meta:'5개월 · 단골 리마인드'}
+  ],
+  '웨딩·스튜디오':[
+    {nm:'○○ 웨딩스튜디오',loc:'강남',r:'예약 상담 2.5배',meta:'4개월 · 포트폴리오 노출 + 시즌 광고'},
+    {nm:'○○ 드레스샵',loc:'청담',r:'방문 예약 1.8배',meta:'3개월 · 인스타 콘텐츠 재편'},
+    {nm:'○○ 본식스냅',loc:'수원',r:'문의 3.1배',meta:'2개월 · 검색 광고 신설'}
+  ],
+  '자동차정비':[
+    {nm:'○○ 카센터',loc:'부천',r:'입고 문의 2.3배',meta:'3개월 · 플레이스 + 지역 광고'},
+    {nm:'○○ 정비소',loc:'안산',r:'단골 재방문 1.8배',meta:'5개월 · 정기점검 리마인드'},
+    {nm:'○○ 튜닝샵',loc:'인천',r:'상담 2.7배',meta:'2개월 · 커뮤니티 + 검색 광고'}
+  ],
+  '기타':[
+    {nm:'○○ 사진관',loc:'용인',r:'예약 2.1배',meta:'3개월 · 플레이스 + 시즌 캠페인'},
+    {nm:'○○ 꽃집',loc:'서울',r:'주문 1.9배',meta:'2개월 · 기념일 타겟 광고'},
+    {nm:'○○ 공방',loc:'파주',r:'클래스 신청 2.8배',meta:'4개월 · 체험 콘텐츠'}
+  ]
+};
+var IND_CATS=['전체','음식점·카페','미용·뷰티','병의원','피트니스','학원·교육','전문직','반려동물','웨딩·스튜디오','자동차정비','기타'];
+
+function renderIndFilters(){
+  var el=document.getElementById('indFilters');
+  if(!el)return;
+  el.innerHTML=IND_CATS.map(function(c,i){
+    return '<button class="rf-b'+(i===0?' sel':'')+'" type="button" data-biz="'+(c==='전체'?'':c)+'">'+c+'</button>';
+  }).join('');
+}
+renderIndFilters();
+
 /* ══════════ 1. 헤더 스크롤 상태 ══════════ */
 var hd=document.getElementById('hd');
 function onScroll(){
@@ -1199,7 +1444,7 @@ function runCounter(el){
   var target=parseFloat(el.getAttribute('data-to'));
   if(isNaN(target))return;
   var dec=parseInt(el.getAttribute('data-dec')||'0',10);
-  var dur=target>=1000?1800:1200,t0=null;
+  var dur=5000,t0=null; /* 도달 시간 5초 고정 */
   function tick(ts){
     if(!t0)t0=ts;
     var p=Math.min((ts-t0)/dur,1);
@@ -1223,6 +1468,17 @@ document.querySelectorAll('.dbar').forEach(function(bar){
   var tag=bar.querySelector('.dbar-tag');
   if(tag&&!isNaN(lvl)){tag.textContent=LEVEL_TAGS[lvl-1];tag.setAttribute('data-lvl',lvl);}
 });
+/* 업종 평균 마커 — 5칸 트랙에서 avg 레벨이 끝나는 지점에 세로선 */
+document.querySelectorAll('.dbar').forEach(function(bar){
+  var avg=parseInt(bar.getAttribute('data-avg'),10);
+  var track=bar.querySelector('.dbar-track');
+  if(!track||isNaN(avg))return;
+  var mark=document.createElement('span');
+  mark.className='dbar-avg';
+  mark.style.left=(avg/5*100)+'%';
+  track.appendChild(mark);
+});
+
 function fillDiagBars(){
   document.querySelectorAll('.dbar').forEach(function(bar){
     var lvl=parseInt(bar.getAttribute('data-level'),10);
@@ -1441,6 +1697,39 @@ if(revFilters&&revRows&&revGrid){
       revGrid.innerHTML=matched.map(reviewCardHtml).join('');
       revRows.hidden=true;revGrid.hidden=false;
     }
+  });
+}
+
+/* ══════════ 13. Industries 업종 필터 → 해당 업종 레퍼런스만 노출 ══════════ */
+var indFilters=document.getElementById('indFilters');
+var indGrid=document.getElementById('indGrid');
+var refWrap=document.getElementById('refWrap');
+var refGrid=document.getElementById('refGrid');
+var refHead=document.getElementById('refHead');
+if(indFilters&&indGrid&&refWrap){
+  indFilters.addEventListener('click',function(e){
+    var btn=e.target.closest('.rf-b');
+    if(!btn)return;
+    Array.prototype.forEach.call(indFilters.querySelectorAll('.rf-b'),function(b){b.classList.remove('sel');});
+    btn.classList.add('sel');
+    var biz=btn.dataset.biz;
+    if(!biz){
+      refWrap.hidden=true;refGrid.innerHTML='';
+      indGrid.hidden=false;
+      return;
+    }
+    var list=REFS[biz]||[];
+    refHead.innerHTML=list.length
+      ? '<b>'+biz+'</b> 업종에서 진행한 '+list.length+'건입니다.'
+      : '<b>'+biz+'</b> 업종 사례는 준비 중입니다. 진단 신청하시면 유사 업종 자료로 안내드립니다.';
+    refGrid.innerHTML=list.map(function(r){
+      return '<div class="ref-c">'+
+        '<div class="ref-top"><span class="ref-nm">'+r.nm+'</span><span class="ref-loc">'+r.loc+'</span></div>'+
+        '<div class="ref-r">'+r.r+'</div>'+
+        '<div class="ref-meta">'+r.meta+'</div>'+
+      '</div>';
+    }).join('');
+    indGrid.hidden=true;refWrap.hidden=false;
   });
 }
 
