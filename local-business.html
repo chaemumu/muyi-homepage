@@ -108,7 +108,7 @@ window.MUYI_GA4_ID   = 'GA4_ID';
   --r-lg:  1.5rem;
   --r-full:999px;
   --pad:   clamp(1.25rem,5vw,6rem);
-  --nav-h: 132px;
+  --nav-h: 76px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -145,7 +145,7 @@ a{color:inherit}
 #hd{
   position:fixed;top:0;left:0;right:0;z-index:300;min-height:var(--nav-h);
   display:flex;align-items:center;justify-content:space-between;
-  padding:.9rem var(--pad);
+  padding:.5rem var(--pad);
   background:transparent;border-bottom:1px solid transparent;
   transition:background .35s ease,border-color .35s ease,backdrop-filter .35s ease;
 }
@@ -155,7 +155,7 @@ a{color:inherit}
   border-bottom-color:var(--line);
 }
 .hd-logo{display:flex;align-items:center;text-decoration:none;flex-shrink:0}
-.hd-logo img{height:clamp(84px,10vw,205px);width:auto;object-fit:contain}
+.hd-logo img{height:clamp(46px,4.6vw,64px);width:auto;object-fit:contain}
 .hd-logo .fallback{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.35rem;letter-spacing:-.03em;color:var(--text)}
 .hd-cta{
   font-family:inherit;font-size:clamp(.78rem,1.6vw,.86rem);font-weight:700;
@@ -252,19 +252,15 @@ a{color:inherit}
    앞부분이 급하면 그 지점이 구분선처럼 보인다. */
 #cred::before{
   top:0;
-  background:linear-gradient(180deg,
-    #0A0A0B 0%, #0B0A0A 8%, #110805 16%, #220C04 24%,
-    #3D1503 32%, #642200 40%, #933100 48%, #C44000 56%,
-    #EE4E00 64%, #FF7A38 74%, #FFA678 82%, #FFC9A8 88%,
-    #FFE4D4 93%, #FFF6F1 97%, #fff 100%);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27 numOctaves=%272%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27 opacity=%270.5%27/%3E%3C/svg%3E"),linear-gradient(180deg,#0A0A0B 0%, #0A0A0B 6%, #0C0A0A 11%, #0F0908 15%, #140A06 19%, #1B0B05 23%, #240D04 27%, #301103 31%, #3E1502 35%, #4E1A01 39%, #602000 43%, #742700 47%, #8A2E00 51%, #A23600 55%, #BB3F00 59%, #D44700 63%, #EE4E00 67%, #FA6620 72%, #FF8248 77%, #FF9F70 81%, #FFB795 85%, #FFCCB4 88%, #FFDECB 91%, #FFEBDE 94%, #FFF4EC 97%, #fff 100%);
+  background-size:180px 180px,100% 100%;
+  background-blend-mode:soft-light,normal;
 }
 #cred::after{
   bottom:0;
-  background:linear-gradient(0deg,
-    #0A0A0B 0%, #0B0A0A 8%, #110805 16%, #220C04 24%,
-    #3D1503 32%, #642200 40%, #933100 48%, #C44000 56%,
-    #EE4E00 64%, #FF7A38 74%, #FFA678 82%, #FFC9A8 88%,
-    #FFE4D4 93%, #FFF6F1 97%, #fff 100%);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27 numOctaves=%272%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27 opacity=%270.5%27/%3E%3C/svg%3E"),linear-gradient(0deg,#0A0A0B 0%, #0A0A0B 6%, #0C0A0A 11%, #0F0908 15%, #140A06 19%, #1B0B05 23%, #240D04 27%, #301103 31%, #3E1502 35%, #4E1A01 39%, #602000 43%, #742700 47%, #8A2E00 51%, #A23600 55%, #BB3F00 59%, #D44700 63%, #EE4E00 67%, #FA6620 72%, #FF8248 77%, #FF9F70 81%, #FFB795 85%, #FFCCB4 88%, #FFDECB 91%, #FFEBDE 94%, #FFF4EC 97%, #fff 100%);
+  background-size:180px 180px,100% 100%;
+  background-blend-mode:soft-light,normal;
 }
 @media (max-width:720px){ #cred{--fade:118px} }
 #cred>*{position:relative;z-index:1}
@@ -784,9 +780,9 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   .deliv,.proof-grid{grid-template-columns:1fr;gap:.9rem}
 }
 @media (max-width:720px){
-  #hd{padding:.7rem var(--pad)}
-  :root{--nav-h:92px}
-  .hd-logo img{height:clamp(64px,16vw,92px)}
+  #hd{padding:.45rem var(--pad)}
+  :root{--nav-h:58px}
+  .hd-logo img{height:clamp(38px,9vw,50px)}
   .trust{grid-template-columns:repeat(2,1fr)}
   .trust-i:nth-child(3){border-left:none}
   .trust-i:nth-child(n+3){border-top:1px solid var(--line)}
