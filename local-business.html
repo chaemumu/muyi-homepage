@@ -308,21 +308,32 @@ a{color:inherit}
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
 .doc-ov.on{display:flex}
-.doc-box{position:relative;max-width:820px;width:100%;max-height:92vh;display:flex;flex-direction:column}
-.doc-hd{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.8rem}
-.doc-ti{font-size:clamp(.95rem,2vw,1.1rem);font-weight:700;color:var(--text)}
+/* 증명서는 문서 한 장이 통째로 보이면 충분하다. 확대·스크롤 없이 축소해 담는다. */
+.doc-box{
+  position:relative;max-width:400px;width:100%;max-height:88vh;
+  display:flex;flex-direction:column;
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:clamp(1rem,2.5vw,1.4rem);
+}
+.doc-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:.8rem;margin-bottom:.8rem}
+.doc-ti{font-size:.9rem;font-weight:700;color:var(--text);line-height:1.5;word-break:keep-all}
 .doc-x{
-  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
   background:var(--surface-2);border:1px solid var(--line);color:var(--text);
-  font-size:1.25rem;line-height:1;cursor:pointer;transition:all var(--dur) var(--ease);
+  font-size:1.1rem;line-height:1;cursor:pointer;transition:all var(--dur) var(--ease);
 }
 .doc-x:hover{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
 .doc-img{
-  flex:1;min-height:0;overflow:auto;border-radius:var(--r-md);
+  min-height:0;overflow:hidden;border-radius:var(--r-sm);
   background:#fff;border:1px solid var(--line);
 }
-.doc-img img{width:100%;height:auto;display:block}
-.doc-cap{font-size:.76rem;color:var(--text-sub);margin-top:.7rem;text-align:center}
+/* contain + 확대 차단: 문서 전체가 한눈에 들어오고 드래그·확대가 안 된다 */
+.doc-img img{
+  width:100%;height:auto;max-height:62vh;object-fit:contain;display:block;
+  -webkit-user-drag:none;user-select:none;-webkit-user-select:none;pointer-events:none;
+  -webkit-touch-callout:none;
+}
+.doc-cap{font-size:.72rem;color:var(--text-sub);margin-top:.7rem;text-align:center;line-height:1.6;word-break:keep-all}
 
 /* ═══ 공통 섹션 ═══ */
 section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
