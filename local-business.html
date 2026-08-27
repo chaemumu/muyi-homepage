@@ -237,14 +237,21 @@ a{color:inherit}
    페이드시켜 다크 섹션 사이에 끼인 흰 판때기처럼 보이지 않게 한다. */
 #cred{
   position:relative;overflow:hidden;border:none;
-  padding:clamp(3rem,6vw,4.2rem) 0;
-  background:linear-gradient(180deg,var(--bg) 0%,#fff 11%,#fff 89%,var(--bg) 100%);
+  padding:clamp(4.5rem,8vw,6.5rem) 0;
+  /* 다크에서 흰색으로 바로 넘어가면 경계가 탁한 회색 띠로 보인다.
+     따뜻한 중간톤을 촘촘히 거쳐 브랜드 오렌지와 이어지게 한다. */
+  background:linear-gradient(180deg,
+    #0A0A0B 0%, #100D0C 2.5%, #1E1714 5%, #45332A 8%,
+    #8A6E5C 10%, #CFC0B4 11%, #fff 12%,
+    #fff 91%,
+    #CFC0B4 92%, #8A6E5C 93%, #45332A 95%,
+    #1E1714 97%, #100D0C 98.5%, #0A0A0B 100%);
 }
 #cred::before{
   content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
   background:
-    radial-gradient(78% 52% at 50% 0%,rgba(238,78,0,.16),transparent 70%),
-    radial-gradient(78% 52% at 50% 100%,rgba(238,78,0,.12),transparent 70%);
+    radial-gradient(85% 34% at 50% 0%,rgba(238,78,0,.30),transparent 72%),
+    radial-gradient(85% 34% at 50% 100%,rgba(238,78,0,.24),transparent 72%);
 }
 #cred>*{position:relative;z-index:1}
 .cred-head{padding:0 var(--pad);text-align:center;margin-bottom:clamp(1.4rem,3vw,2rem)}
