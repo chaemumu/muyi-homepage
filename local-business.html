@@ -133,11 +133,9 @@ a{color:inherit}
   .rise{opacity:1;transform:none;transition:none}
   *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   html{scroll-behavior:auto}
-  /* 로고월·후기 롤링은 장식이 아니라 콘텐츠 전달 수단이라 유지한다 */
+  /* 로고월·후기 롤링은 장식이 아니라 콘텐츠 전달 수단이라 유지한다.
+     duration은 JS가 세트 폭에 맞춰 inline !important로 넣는다. */
   .mq-track{animation-iteration-count:infinite!important}
-  .cred-row .mq-track{animation-duration:42s!important}
-  .cred-row.cred-rev .mq-track{animation-duration:56s!important}
-  .rev-row .mq-track{animation-duration:56s!important}
 }
 
 /* ═══ S00. HEADER ═══ */
@@ -252,7 +250,7 @@ a{color:inherit}
 .cred-row:hover .mq-track{animation-play-state:paused}
 /* 로고는 높이 168px 투명 PNG로 정규화됨(폭은 비율대로 가변).
    폭을 고정하면 가로로 긴 텍스트 로고가 눌리므로 높이만 통일한다. */
-.cred-i{display:flex;align-items:center;justify-content:center;height:72px;margin:0 1.7rem;flex-shrink:0}
+.cred-i{display:flex;align-items:center;justify-content:center;height:44px;margin:0 1.35rem;flex-shrink:0}
 .cred-i img{
   height:100%;width:auto;object-fit:contain;
   filter:grayscale(1);opacity:.66;
@@ -1257,7 +1255,8 @@ function renderCredRows(){
   sizes.forEach(function(n,rowI){
     var slice=CLIENT_LOGOS.slice(idx,idx+n);idx+=n;
     var items=slice.map(function(src){
-      return '<div class="cred-i"><img src="'+src+'" alt="" loading="lazy" onerror="this.closest(\'.cred-i\').remove()"></div>';
+      /* lazy로 두면 로드 전 폭이 0으로 측정돼 마퀴가 과다 복제된다 */
+      return '<div class="cred-i"><img src="'+src+'" alt="" decoding="async" onerror="this.closest(\'.cred-i\').remove()"></div>';
     }).join('');
     html+='<div class="mq cred-row'+(rowI%2===1?' cred-rev':'')+'"><div class="mq-track"><div class="mq-set" data-mq-set>'+items+'</div></div></div>';
   });
@@ -1491,16 +1490,44 @@ function fillDiagBars(){
 /* ══════════ 4. 마퀴 — 세트 복제로 무한 루프 ══════════
    애니메이션이 세트 1개 폭(-50%)만 이동하므로, 세트가 뷰포트보다 좁으면
    루프가 되감기는 순간 트랙 오른쪽 끝이 화면 안으로 들어와 빈 공간이 생긴다.
-   세트가 화면보다 넓어질 때까지 아이템을 반복해 채운 뒤 복제한다. */
-document.querySelectorAll('[data-mq-set]').forEach(function(set){
-  var items=Array.prototype.slice.call(set.children);
-  if(!items.length)return;
-  var guard=0;
-  while(set.scrollWidth<window.innerWidth&&guard++<30){
-    items.forEach(function(it){set.appendChild(it.cloneNode(true));});
-  }
-  set.parentElement.appendChild(set.cloneNode(true));
-});
+   세트가 화면보다 넓어질 때까지 아이템을 반복해 채운 뒤 복제한다.
+   세트를 채우면 이동 거리가 늘어나므로, 시간이 아니라 속도(px/초)를 고정해야
+   행마다 체감 속도가 같아진다. */
+var MQ_SPEED={cred:26,credRev:17,rev:40}; /* px/초 */
+var mqReady=false;
+function setupMarquee(){
+  if(mqReady)return;
+  mqReady=true;
+  document.querySelectorAll('[data-mq-set]').forEach(function(set){
+    var items=Array.prototype.slice.call(set.children);
+    if(!items.length)return;
+    var guard=0;
+    while(set.scrollWidth<window.innerWidth&&guard++<30){
+      items.forEach(function(it){set.appendChild(it.cloneNode(true));});
+    }
+    var track=set.parentElement,row=track.parentElement;
+    var travel=set.scrollWidth; /* -50% = 세트 1개 폭 */
+    var speed=row.classList.contains('rev-row')?MQ_SPEED.rev
+             :row.classList.contains('cred-rev')?MQ_SPEED.credRev:MQ_SPEED.cred;
+    track.appendChild(set.cloneNode(true));
+    /* reduced-motion 블록의 전역 !important를 이기려면 inline도 important여야 한다 */
+    track.style.setProperty('animation-duration',Math.round(travel/speed)+'s','important');
+  });
+}
+/* 로고 폭이 파일마다 달라, 이미지가 로드되기 전에 재면 폭이 0으로 잡혀
+   세트가 수십 배로 과다 복제된다. 로드를 기다렸다가 세팅한다. */
+(function(){
+  var imgs=[].slice.call(document.querySelectorAll('#credRows img'));
+  var left=imgs.filter(function(i){return !i.complete;}).length;
+  if(!left){setupMarquee();return;}
+  imgs.forEach(function(i){
+    if(i.complete)return;
+    var done=function(){if(--left<=0)setupMarquee();};
+    i.addEventListener('load',done,{once:true});
+    i.addEventListener('error',done,{once:true});
+  });
+  setTimeout(setupMarquee,4000); /* 일부 이미지가 끝내 안 오면 그냥 진행 */
+})();
 
 /* ══════════ 5. FAQ 아코디언 (한 번에 하나) ══════════ */
 var faqItems=Array.prototype.slice.call(document.querySelectorAll('.faq-i'));
