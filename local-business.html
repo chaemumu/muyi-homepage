@@ -233,7 +233,20 @@ a{color:inherit}
 .trust-l{font-size:clamp(.62rem,1.4vw,.74rem);color:var(--text-sub);margin-top:.4rem;letter-spacing:.03em;word-break:keep-all}
 
 /* ═══ S02. CLIENT LOGO MARQUEE ═══ */
-#cred{padding:clamp(2.4rem,5vw,3.4rem) 0;border-top:1px solid rgba(10,10,26,.08);border-bottom:1px solid rgba(10,10,26,.08);background:#fff}
+/* 로고 판독성 때문에 바탕은 흰색을 유지하되, 위아래를 페이지 배경색으로
+   페이드시켜 다크 섹션 사이에 끼인 흰 판때기처럼 보이지 않게 한다. */
+#cred{
+  position:relative;overflow:hidden;border:none;
+  padding:clamp(3rem,6vw,4.2rem) 0;
+  background:linear-gradient(180deg,var(--bg) 0%,#fff 11%,#fff 89%,var(--bg) 100%);
+}
+#cred::before{
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(78% 52% at 50% 0%,rgba(238,78,0,.16),transparent 70%),
+    radial-gradient(78% 52% at 50% 100%,rgba(238,78,0,.12),transparent 70%);
+}
+#cred>*{position:relative;z-index:1}
 .cred-head{padding:0 var(--pad);text-align:center;margin-bottom:clamp(1.4rem,3vw,2rem)}
 .cred-head span{font-family:'Plus Jakarta Sans',sans-serif;font-size:.68rem;font-weight:800;letter-spacing:.2em;color:rgba(10,10,26,.42);text-transform:uppercase}
 .mq{
