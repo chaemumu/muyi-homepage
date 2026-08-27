@@ -238,23 +238,28 @@ a{color:inherit}
 /* ═══ S02. CLIENT LOGO MARQUEE ═══ */
 /* 로고 판독성 때문에 바탕은 흰색을 유지하되, 위아래를 페이지 배경색으로
    페이드시켜 다크 섹션 사이에 끼인 흰 판때기처럼 보이지 않게 한다. */
+/* 섹션 전체에 그라데이션을 걸면 높이가 바뀔 때마다 전환 구간이 흔들린다.
+   바탕은 흰색으로 두고, 위아래에 높이가 고정된 검정→주황→흰 띠만 얹는다. */
 #cred{
-  position:relative;overflow:hidden;border:none;
-  padding:clamp(4.5rem,8vw,6.5rem) 0;
-  /* 다크에서 흰색으로 바로 넘어가면 경계가 탁한 회색 띠로 보인다.
-     따뜻한 중간톤을 촘촘히 거쳐 브랜드 오렌지와 이어지게 한다. */
-  background:linear-gradient(180deg,
-    #0A0A0B 0%, #100D0C 2.5%, #1E1714 5%, #45332A 8%,
-    #8A6E5C 10%, #CFC0B4 11%, #fff 12%,
-    #fff 91%,
-    #CFC0B4 92%, #8A6E5C 93%, #45332A 95%,
-    #1E1714 97%, #100D0C 98.5%, #0A0A0B 100%);
+  position:relative;overflow:hidden;border:none;background:#fff;
+  padding:clamp(7.5rem,12vw,9.5rem) 0;
+}
+#cred::before,#cred::after{
+  content:'';position:absolute;left:0;right:0;height:104px;z-index:0;pointer-events:none;
 }
 #cred::before{
-  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(85% 34% at 50% 0%,rgba(238,78,0,.30),transparent 72%),
-    radial-gradient(85% 34% at 50% 100%,rgba(238,78,0,.24),transparent 72%);
+  top:0;
+  background:linear-gradient(180deg,
+    #0A0A0B 0%, #2E0E00 14%, #6E2400 28%, #B03A00 40%,
+    #EE4E00 50%, #FF7A38 62%, #FFA678 73%, #FFC9A8 82%,
+    #FFE4D4 90%, #FFF6F1 96%, #fff 100%);
+}
+#cred::after{
+  bottom:0;
+  background:linear-gradient(0deg,
+    #0A0A0B 0%, #2E0E00 14%, #6E2400 28%, #B03A00 40%,
+    #EE4E00 50%, #FF7A38 62%, #FFA678 73%, #FFC9A8 82%,
+    #FFE4D4 90%, #FFF6F1 96%, #fff 100%);
 }
 #cred>*{position:relative;z-index:1}
 .cred-head{padding:0 var(--pad);text-align:center;margin-bottom:clamp(1.4rem,3vw,2rem)}
@@ -859,7 +864,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 <!-- ═══════════ S02-B. 크리덴셜 배지 ═══════════ -->
 <section id="creds" aria-label="보유 인증">
   <div class="cd-row rise" id="cdRow"></div>
-  <p class="cd-note rise">배지를 누르면 원본 문서를 확인하실 수 있습니다.</p>
+  <p class="cd-note rise">※ 매출 순위는 서울 금천구 광고 대행업 기준 · 배지를 누르면 원본 문서를 확인하실 수 있습니다.</p>
 </section>
 
 <!-- ═══════════ S03. PAIN ═══════════ -->
@@ -1510,7 +1515,7 @@ var CREDS=[
   {ic:'🚀',label:'창업기업 확인',img:'assets/credential/startup.png',
    title:'창업기업 확인서',
    cap:'서울지방중소벤처기업청 · 유효기간 2024.07.02 ~ 2027.07.02'},
-  {ic:'📊',label:'금천구 광고대행업 매출 상위 30%',static:true}
+  {ic:'📊',label:'매출 상위 30%',static:true}
 ];
 function renderCreds(){
   var el=document.getElementById('cdRow');
