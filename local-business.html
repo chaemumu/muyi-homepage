@@ -120,6 +120,9 @@ body{
 }
 ::selection{background:var(--brand);color:var(--on-brand)}
 img,video{max-width:100%;display:block}
+/* display를 지정한 요소는 브라우저 기본 [hidden]{display:none}을 덮어써
+   hidden 속성이 무시된다. 필터 토글이 안 먹던 원인. */
+[hidden]{display:none!important}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:4px}
 .wrap{max-width:1180px;margin:0 auto;width:100%}
@@ -281,6 +284,46 @@ a{color:inherit}
 }
 .cred-i:hover img{filter:none;opacity:1}
 
+/* ═══ S02-B. 크리덴셜 배지 ═══ */
+#creds{background:var(--bg);padding:clamp(2.2rem,5vw,3.4rem) var(--pad)}
+.cd-row{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;max-width:960px;margin:0 auto}
+.cd-b{
+  display:inline-flex;align-items:center;gap:.6rem;font-family:inherit;
+  font-size:clamp(.78rem,1.6vw,.88rem);font-weight:600;color:var(--text-sub);
+  padding:.65rem 1.15rem;border-radius:var(--r-full);
+  background:var(--surface);border:1px solid var(--line);cursor:pointer;
+  transition:all var(--dur) var(--ease);white-space:nowrap;
+}
+.cd-b:hover{border-color:var(--brand);color:var(--text);transform:translateY(-2px)}
+.cd-b .cd-ic{font-size:1rem;line-height:1}
+.cd-b.is-static{cursor:default}
+.cd-b.is-static:hover{transform:none}
+.cd-zoom{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;opacity:.5;flex-shrink:0}
+.cd-b:hover .cd-zoom{opacity:1;stroke:var(--brand)}
+.cd-note{text-align:center;font-size:.74rem;color:var(--text-sub);margin-top:1rem}
+/* 문서 모달 */
+.doc-ov{
+  position:fixed;inset:0;z-index:420;display:none;align-items:center;justify-content:center;
+  padding:clamp(1rem,3vw,2rem);background:rgba(5,5,6,.88);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.doc-ov.on{display:flex}
+.doc-box{position:relative;max-width:820px;width:100%;max-height:92vh;display:flex;flex-direction:column}
+.doc-hd{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.8rem}
+.doc-ti{font-size:clamp(.95rem,2vw,1.1rem);font-weight:700;color:var(--text)}
+.doc-x{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+  font-size:1.25rem;line-height:1;cursor:pointer;transition:all var(--dur) var(--ease);
+}
+.doc-x:hover{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.doc-img{
+  flex:1;min-height:0;overflow:auto;border-radius:var(--r-md);
+  background:#fff;border:1px solid var(--line);
+}
+.doc-img img{width:100%;height:auto;display:block}
+.doc-cap{font-size:.76rem;color:var(--text-sub);margin-top:.7rem;text-align:center}
+
 /* ═══ 공통 섹션 ═══ */
 section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 .sec-head{max-width:60ch;margin-bottom:clamp(2.2rem,5vw,3.4rem)}
@@ -441,6 +484,12 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 .stars svg{width:14px;height:14px;fill:var(--brand)}
 .rev-q{font-size:clamp(.85rem,1.7vw,.93rem);color:var(--text);line-height:1.8;margin-bottom:1.05rem;word-break:keep-all}
 .rev-m{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.rev-ava{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:1.05rem;line-height:1;
+  background:var(--surface-2);border:1px solid var(--line);
+}
+.rev-c:hover .rev-ava{border-color:var(--brand)}
 .rev-nm{font-size:.83rem;font-weight:700;color:var(--text)}
 .rev-tag{font-size:.71rem;color:var(--text-sub);padding:.22rem .6rem;border-radius:var(--r-full);background:var(--surface-2);border:1px solid var(--line);white-space:nowrap}
 
@@ -794,6 +843,12 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 <section id="cred" aria-label="함께한 클라이언트">
   <div class="cred-head rise"><span>2,800+ 사업장이 함께했습니다</span></div>
   <div class="cred-rows" id="credRows"></div>
+</section>
+
+<!-- ═══════════ S02-B. 크리덴셜 배지 ═══════════ -->
+<section id="creds" aria-label="보유 인증">
+  <div class="cd-row rise" id="cdRow"></div>
+  <p class="cd-note rise">배지를 누르면 원본 문서를 확인하실 수 있습니다.</p>
 </section>
 
 <!-- ═══════════ S03. PAIN ═══════════ -->
@@ -1251,6 +1306,18 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   <a href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener" class="m-ghost">카카오톡</a>
 </div>
 
+<!-- ═══════════ 인증 문서 모달 ═══════════ -->
+<div class="doc-ov" id="docOv" onclick="if(event.target===this)closeDoc()">
+  <div class="doc-box" role="dialog" aria-modal="true" aria-labelledby="docTi">
+    <div class="doc-hd">
+      <span class="doc-ti" id="docTi"></span>
+      <button class="doc-x" type="button" onclick="closeDoc()" aria-label="닫기">&times;</button>
+    </div>
+    <div class="doc-img"><img id="docImg" src="" alt=""></div>
+    <p class="doc-cap" id="docCap"></p>
+  </div>
+</div>
+
 <!-- ═══════════ LEGAL MODAL ═══════════ -->
 <div class="lm-ov" id="legalOv" onclick="if(event.target===this)closeLegal()">
   <div class="lm" role="dialog" aria-modal="true">
@@ -1302,11 +1369,21 @@ var REVIEWS=[
 ];
 var STAR_SVG='<svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6 .8-4.4 4.2 1.1 6L10 14.8 4.7 17.6l1.1-6L1.4 7.4l6-.8z"/></svg>';
 var STAR5=STAR_SVG+STAR_SVG+STAR_SVG+STAR_SVG+STAR_SVG;
+/* 업종별 아바타 이모지 — 리뷰 카드 대표자 이름 왼쪽 원형 */
+var BIZ_EMOJI={
+  '음식점·카페':'🍽️','미용·뷰티':'💇','병의원':'🩺','피트니스':'🏋️',
+  '학원·교육':'📚','전문직':'📊','반려동물':'🐾','웨딩·스튜디오':'💐',
+  '자동차정비':'🔧','기타':'🏪'
+};
 function reviewCardHtml(r){
+  var emoji=BIZ_EMOJI[r.biz]||'🏪';
   return '<div class="rev-c" data-biz="'+r.biz+'">'+
     '<div class="stars" aria-label="별점 5점">'+STAR5+'</div>'+
     '<p class="rev-q">"'+r.q+'"</p>'+
-    '<div class="rev-m"><span class="rev-nm">'+r.name+'</span><span class="rev-tag">'+r.tag+'</span></div>'+
+    '<div class="rev-m">'+
+      '<span class="rev-ava" aria-hidden="true">'+emoji+'</span>'+
+      '<span class="rev-nm">'+r.name+'</span><span class="rev-tag">'+r.tag+'</span>'+
+    '</div>'+
   '</div>';
 }
 function renderReviews(){
@@ -1406,6 +1483,34 @@ var REFS={
   ]
 };
 var IND_CATS=['전체','음식점·카페','미용·뷰티','병의원','피트니스','학원·교육','전문직','반려동물','웨딩·스튜디오','자동차정비','기타'];
+
+/* ══════════ 0-3. 크리덴셜 배지 ══════════
+   문서 이미지는 개인정보·매출·인원을 모자이크 처리한 사본만 싣는다. */
+var CREDS=[
+  {ic:'🏛️',label:'특허 등록',img:'assets/credential/patent.png',
+   title:'특허증 · 제 10-2818552 호',
+   cap:'생성형 인공지능 모델 기반 마케팅 의뢰자 및 전문가의 매칭 플랫폼 · 2025.06.04 등록'},
+  {ic:'💻',label:'소프트웨어사업자',img:'assets/credential/software.png',
+   title:'소프트웨어사업자 일반 현황 관리확인서',
+   cap:'한국인공지능소프트웨어산업협회 · 컴퓨터관련 서비스업 / 디지털콘텐츠 개발서비스업'},
+  {ic:'🎬',label:'비디오물제작업 신고',img:'assets/credential/video.png',
+   title:'비디오물제작업 신고증 · 제 2026-000022 호',
+   cap:'서울특별시 금천구청 · 제작품목 숏츠 영상 및 M/V급 영상'},
+  {ic:'🚀',label:'창업기업 확인',img:'assets/credential/startup.png',
+   title:'창업기업 확인서',
+   cap:'서울지방중소벤처기업청 · 유효기간 2024.07.02 ~ 2027.07.02'},
+  {ic:'📊',label:'금천구 광고대행업 매출 상위 30%',static:true}
+];
+function renderCreds(){
+  var el=document.getElementById('cdRow');
+  if(!el)return;
+  var zoom='<svg class="cd-zoom" viewBox="0 0 16 16" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>';
+  el.innerHTML=CREDS.map(function(c,i){
+    if(c.static)return '<span class="cd-b is-static"><span class="cd-ic">'+c.ic+'</span>'+c.label+'</span>';
+    return '<button class="cd-b" type="button" data-i="'+i+'"><span class="cd-ic">'+c.ic+'</span>'+c.label+zoom+'</button>';
+  }).join('');
+}
+renderCreds();
 
 function renderIndFilters(){
   var el=document.getElementById('indFilters');
@@ -1607,6 +1712,13 @@ var step1=document.getElementById('step1'),step2=document.getElementById('step2'
 var chipRow=document.getElementById('chipRow'),chipTxt=document.getElementById('chipTxt');
 var industryInput=document.getElementById('f-industry');
 
+/* 업종에 맞는 상호명 예시 — 고정 문구보다 입력 유도가 잘 된다 */
+var STORE_PLACEHOLDER={
+  '음식점·카페':'무이 식당','미용·뷰티':'무이 헤어살롱','병의원':'무이 의원',
+  '피트니스':'무이 필라테스','학원·교육':'무이 학원','전문직':'무이 세무회계',
+  '반려동물':'무이 동물병원','웨딩·스튜디오':'무이 스튜디오','자동차정비':'무이 카센터',
+  '기타':'무이 상사'
+};
 document.getElementById('bizGrid').addEventListener('click',function(e){
   var btn=e.target.closest('.biz-b');
   if(!btn)return;
@@ -1614,6 +1726,7 @@ document.getElementById('bizGrid').addEventListener('click',function(e){
   btn.classList.add('sel');
   industryInput.value=btn.dataset.biz;
   chipTxt.textContent=btn.dataset.biz;
+  storeEl.placeholder=STORE_PLACEHOLDER[btn.dataset.biz]||'무이 상사';
   step1.style.display='none';
   chipRow.style.display='flex';
   step2.classList.add('on');
@@ -1742,6 +1855,31 @@ window.closeLegal=function(){
   document.body.style.overflow='';
 };
 document.addEventListener('keydown',function(e){if(e.key==='Escape')window.closeLegal();});
+
+/* ══════════ 11-2. 인증 문서 모달 ══════════ */
+var docOv=document.getElementById('docOv');
+window.closeDoc=function(){
+  if(!docOv)return;
+  docOv.classList.remove('on');
+  document.body.style.overflow='';
+  document.getElementById('docImg').src='';
+};
+var cdRow=document.getElementById('cdRow');
+if(cdRow&&docOv){
+  cdRow.addEventListener('click',function(e){
+    var btn=e.target.closest('.cd-b[data-i]');
+    if(!btn)return;
+    var c=CREDS[parseInt(btn.dataset.i,10)];
+    if(!c||!c.img)return;
+    document.getElementById('docTi').textContent=c.title;
+    document.getElementById('docCap').textContent=c.cap;
+    var img=document.getElementById('docImg');
+    img.src=c.img;img.alt=c.title;
+    docOv.classList.add('on');
+    document.body.style.overflow='hidden';
+  });
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')window.closeDoc();});
+}
 
 /* ══════════ 12. 후기 업종 필터 (Free Diagnosis 업종 선택과 동일한 라벨로 동기화) ══════════ */
 var revFilters=document.getElementById('revFilters');
