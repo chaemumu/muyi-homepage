@@ -241,26 +241,32 @@ a{color:inherit}
 /* 섹션 전체에 그라데이션을 걸면 높이가 바뀔 때마다 전환 구간이 흔들린다.
    바탕은 흰색으로 두고, 위아래에 높이가 고정된 검정→주황→흰 띠만 얹는다. */
 #cred{
+  --fade:150px;               /* 전환 띠 높이 */
   position:relative;overflow:hidden;border:none;background:#fff;
-  padding:clamp(7.5rem,12vw,9.5rem) 0;
+  padding:calc(var(--fade) + 2.2rem) 0;  /* 콘텐츠가 띠를 침범하지 않도록 항상 띠보다 크게 */
 }
 #cred::before,#cred::after{
-  content:'';position:absolute;left:0;right:0;height:104px;z-index:0;pointer-events:none;
+  content:'';position:absolute;left:0;right:0;height:var(--fade);z-index:0;pointer-events:none;
 }
+/* 초반 검정 구간을 길게 잡아 섹션 경계에서 색이 튀지 않게 한다.
+   앞부분이 급하면 그 지점이 구분선처럼 보인다. */
 #cred::before{
   top:0;
   background:linear-gradient(180deg,
-    #0A0A0B 0%, #2E0E00 14%, #6E2400 28%, #B03A00 40%,
-    #EE4E00 50%, #FF7A38 62%, #FFA678 73%, #FFC9A8 82%,
-    #FFE4D4 90%, #FFF6F1 96%, #fff 100%);
+    #0A0A0B 0%, #0B0A0A 8%, #110805 16%, #220C04 24%,
+    #3D1503 32%, #642200 40%, #933100 48%, #C44000 56%,
+    #EE4E00 64%, #FF7A38 74%, #FFA678 82%, #FFC9A8 88%,
+    #FFE4D4 93%, #FFF6F1 97%, #fff 100%);
 }
 #cred::after{
   bottom:0;
   background:linear-gradient(0deg,
-    #0A0A0B 0%, #2E0E00 14%, #6E2400 28%, #B03A00 40%,
-    #EE4E00 50%, #FF7A38 62%, #FFA678 73%, #FFC9A8 82%,
-    #FFE4D4 90%, #FFF6F1 96%, #fff 100%);
+    #0A0A0B 0%, #0B0A0A 8%, #110805 16%, #220C04 24%,
+    #3D1503 32%, #642200 40%, #933100 48%, #C44000 56%,
+    #EE4E00 64%, #FF7A38 74%, #FFA678 82%, #FFC9A8 88%,
+    #FFE4D4 93%, #FFF6F1 97%, #fff 100%);
 }
+@media (max-width:720px){ #cred{--fade:118px} }
 #cred>*{position:relative;z-index:1}
 .cred-head{padding:0 var(--pad);text-align:center;margin-bottom:clamp(1.4rem,3vw,2rem)}
 .cred-head span{font-family:'Plus Jakarta Sans',sans-serif;font-size:.68rem;font-weight:800;letter-spacing:.2em;color:rgba(10,10,26,.42);text-transform:uppercase}
