@@ -145,7 +145,7 @@ a{color:inherit}
 #hd{
   position:fixed;top:0;left:0;right:0;z-index:300;min-height:var(--nav-h);
   display:flex;align-items:center;justify-content:space-between;
-  padding:.5rem var(--pad);
+  padding:.18rem var(--pad);
   background:transparent;border-bottom:1px solid transparent;
   transition:background .35s ease,border-color .35s ease,backdrop-filter .35s ease,
     min-height .3s var(--ease),padding .3s var(--ease);
@@ -154,11 +154,11 @@ a{color:inherit}
   background:rgba(10,10,11,.82);
   backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
   border-bottom-color:var(--line);
-  min-height:60px;padding:.28rem var(--pad);
+  min-height:60px;padding:.1rem var(--pad);
 }
 #hd.stuck .hd-cta{padding:.5rem clamp(.9rem,2.4vw,1.4rem);font-size:clamp(.74rem,1.5vw,.8rem)}
 .hd-logo{display:flex;align-items:center;text-decoration:none;flex-shrink:0}
-.hd-logo img{height:clamp(46px,4.6vw,64px);width:auto;object-fit:contain}
+.hd-logo img{height:clamp(58px,6vw,78px);width:auto;object-fit:contain}
 .hd-logo .fallback{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.35rem;letter-spacing:-.03em;color:var(--text)}
 .hd-cta{
   font-family:inherit;font-size:clamp(.78rem,1.6vw,.86rem);font-weight:700;
@@ -783,10 +783,10 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   .deliv,.proof-grid{grid-template-columns:1fr;gap:.9rem}
 }
 @media (max-width:720px){
-  #hd{padding:.35rem var(--pad)}
-  #hd.stuck{min-height:50px}
+  #hd{padding:.15rem var(--pad)}
+  #hd.stuck{min-height:50px;padding:.08rem var(--pad)}
   :root{--nav-h:56px}
-  .hd-logo img{height:clamp(38px,9vw,50px)}
+  .hd-logo img{height:clamp(48px,12vw,64px)}
   .trust{grid-template-columns:repeat(2,1fr)}
   .trust-i:nth-child(3){border-left:none}
   .trust-i:nth-child(n+3){border-top:1px solid var(--line)}
