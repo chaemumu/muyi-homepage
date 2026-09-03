@@ -277,8 +277,7 @@ document.getElementById('selfForm').addEventListener('submit',function(e){
   btn.textContent='전송 중...';btn.disabled=true;
   var fd=new FormData(this);
   var data={};fd.forEach(function(v,k){data[k]=v;});
-  // CRM endpoint — replace with actual
-  fetch('https://muyi.co.kr/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+  fetch('https://pacyhanuwuizcxwoggen.supabase.co/functions/v1/contact',{method:'POST',headers:{'Content-Type':'application/json','apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhY3loYW51d3VpemN4d29nZ2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTI2NDgsImV4cCI6MjA5MTI4ODY0OH0.oe39KUtwr-mZ4OsqWQT6Y3USpigQpD825IM14mIFEaY'},body:JSON.stringify(data)})
     .then(function(r){
       if(!r.ok)throw new Error('fail');
       fst.textContent='신청이 완료되었습니다! 24시간 내 연락드리겠습니다.';

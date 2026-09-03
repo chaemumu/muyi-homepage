@@ -3289,15 +3289,26 @@ document.getElementById('form').addEventListener('submit',function(e){
     }
   }catch(err){}
 
-  // 폼 숨기고 팝업 표시
-  form.style.transition='opacity .4s';
-  form.style.opacity='0';
-  setTimeout(function(){
-    form.style.display='none';
+  fetch('https://pacyhanuwuizcxwoggen.supabase.co/functions/v1/contact',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhY3loYW51d3VpemN4d29nZ2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTI2NDgsImV4cCI6MjA5MTI4ODY0OH0.oe39KUtwr-mZ4OsqWQT6Y3USpigQpD825IM14mIFEaY'},
+    body:JSON.stringify({name:d.name,email:d.email,phone:d.phone,type:d.type,message:d.message,source:'index'})
+  }).then(function(r){
+    if(!r.ok)throw new Error('fail');
+    // 폼 숨기고 팝업 표시
+    form.style.transition='opacity .4s';
+    form.style.opacity='0';
+    setTimeout(function(){
+      form.style.display='none';
+      btn.querySelector('span').textContent='무료 진단 신청하기';
+      btn.disabled=false;
+      showSuccessPopup(d.name);
+    },400);
+  }).catch(function(){
     btn.querySelector('span').textContent='무료 진단 신청하기';
     btn.disabled=false;
-    showSuccessPopup(d.name);
-  },400);
+    showFormMsg(st,'전송에 실패했습니다. info@muyi.co.kr로 직접 문의해주세요.','err',6000);
+  });
 });
 
 // Remove invalid state on input

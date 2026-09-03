@@ -684,9 +684,10 @@ function runCountersIn(el){
     var data=new FormData(form);
     var body={};
     data.forEach(function(v,k){body[k]=v;});
-    fetch('/api/contact',{
+    body.source='consult';
+    fetch('https://pacyhanuwuizcxwoggen.supabase.co/functions/v1/contact',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhY3loYW51d3VpemN4d29nZ2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTI2NDgsImV4cCI6MjA5MTI4ODY0OH0.oe39KUtwr-mZ4OsqWQT6Y3USpigQpD825IM14mIFEaY'},
       body:JSON.stringify(body)
     }).then(function(r){
       if(!r.ok)throw new Error('fail');
@@ -694,9 +695,8 @@ function runCountersIn(el){
       fst.textContent='감사합니다! 영업일 기준 24시간 내 연락드리겠습니다.';
       form.reset();
     }).catch(function(){
-      fst.className='fst ok';
-      fst.textContent='감사합니다! 영업일 기준 24시간 내 연락드리겠습니다.';
-      form.reset();
+      fst.className='fst err';
+      fst.textContent='전송에 실패했습니다. info@muyi.co.kr로 직접 문의해주세요.';
     }).finally(function(){
       sbtn.disabled=false;
       sbtn.innerHTML='<span>무료 진단 요청 보내기</span>';
