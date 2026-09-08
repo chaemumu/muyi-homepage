@@ -1,7 +1,68 @@
+# MUYI — https://www.muyi.co.kr
+# AI 크롤러 및 검색엔진 접근 정책 (전체 허용)
+
 User-agent: *
+Allow: /
+
+# 검색엔진
+User-agent: Googlebot
 Allow: /
 
 User-agent: Yeti
 Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Daum
+Allow: /
+
+# AI / LLM 크롤러 (명시적 허용)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+# AI 크롤러용 요약 컨텍스트: https://www.muyi.co.kr/llms.txt
 
 Sitemap: https://www.muyi.co.kr/sitemap.xml

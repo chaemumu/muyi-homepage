@@ -1,21 +1,38 @@
 {
-  "version": 2,
+  "trailingSlash": false,
+  "cleanUrls": false,
   "redirects": [
-    { "source": "/consult", "destination": "/local-business", "permanent": true }
+    { "source": "/consult", "destination": "/local-business", "permanent": true },
+    { "source": "/consult.html", "destination": "/local-business", "permanent": true },
+    { "source": "/enterprise", "destination": "/b2b-marketing", "permanent": true },
+    { "source": "/local-business.html", "destination": "/local-business", "permanent": true },
+    { "source": "/self-employed.html", "destination": "/self-employed", "permanent": true },
+    { "source": "/b2b-marketing.html", "destination": "/b2b-marketing", "permanent": true },
+    { "source": "/public-sector.html", "destination": "/public-sector", "permanent": true },
+    { "source": "/brochure.html", "destination": "/brochure", "permanent": true }
   ],
-  "routes": [
-    { "src": "/robots.txt", "dest": "/robots.txt" },
-    { "src": "/sitemap.xml", "dest": "/sitemap.xml" },
-    { "src": "/navercf8e2c196459dc3679eb7ad7799fb33c.html", "dest": "/navercf8e2c196459dc3679eb7ad7799fb33c.html" },
-    { "src": "/favicon.svg", "dest": "/favicon.svg" },
-    { "src": "/enterprise", "dest": "/enterprise.html" },
-    { "src": "/local-business", "dest": "/local-business.html" },
-    { "src": "/self-employed", "dest": "/self-employed.html" },
-    { "src": "/b2b-marketing", "dest": "/b2b-marketing.html" },
-    { "src": "/public-sector", "dest": "/public-sector.html" },
-    { "src": "/brochure", "dest": "/brochure.html" },
-    { "src": "/assets/(.*)", "dest": "/assets/$1" },
-    { "src": "/cases/(.*)", "dest": "/cases/$1" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/local-business", "destination": "/local-business.html" },
+    { "source": "/self-employed", "destination": "/self-employed.html" },
+    { "source": "/b2b-marketing", "destination": "/b2b-marketing.html" },
+    { "source": "/public-sector", "destination": "/public-sector.html" },
+    { "source": "/brochure", "destination": "/brochure.html" }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/llms.txt",
+      "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
   ]
 }
