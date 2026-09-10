@@ -61,6 +61,12 @@
       "sameAs":[
         "https://www.instagram.com/muyi_official_/",
         "https://pf.kakao.com/_VbxkKG"
+      ],
+      "hasCredential":[
+        {"@type":"EducationalOccupationalCredential","credentialCategory":"특허 등록"},
+        {"@type":"EducationalOccupationalCredential","credentialCategory":"소프트웨어사업자 신고"},
+        {"@type":"EducationalOccupationalCredential","credentialCategory":"비디오물제작업 신고"},
+        {"@type":"EducationalOccupationalCredential","credentialCategory":"창업기업 확인"}
       ]
     },
     {
@@ -454,6 +460,7 @@ a{color:inherit}
 .cd-zoom{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;opacity:.5;flex-shrink:0}
 .cd-b:hover .cd-zoom{opacity:1;stroke:var(--brand)}
 .cd-note{text-align:center;font-size:.74rem;color:var(--text-sub);margin-top:1rem}
+.cd-bio{text-align:center;font-size:.92rem;color:var(--text-main,var(--text));line-height:1.8;max-width:56ch;margin:1.2rem auto 0;padding:0 1rem}
 /* 문서 모달 */
 .doc-ov{
   position:fixed;inset:0;z-index:420;display:none;align-items:center;justify-content:center;
@@ -1025,6 +1032,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
     <span class="cd-b is-static"><span class="cd-ic">📊</span>매출 상위 30%</span>
   </div>
   <p class="cd-note rise">※ 매출 순위는 서울 금천구 광고 대행업 기준 · 배지를 누르면 원본 문서를 확인하실 수 있습니다.</p>
+  <p class="cd-bio rise">MUYI 대표 이채원은 현장에서 9년간 2,800개 이상의 매장을 직접 진단해왔습니다. MUYI는 최소 계약 기간을 요구하지 않고, 광고비와 대행 수수료를 분리해 안내하며, 기존에 다른 대행사를 쓰고 있어도 진단만 받아볼 수 있습니다.</p>
 </section>
 
 <!-- ═══════════ S03. PAIN ═══════════ -->
@@ -1470,6 +1478,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
       <div class="ft-brand"><span class="ft-mark"></span><span class="ft-co">(주)무이코퍼레이션</span></div>
       <div class="ft-meta">
         대표 이채원 · 사업자등록번호 481-81-02827<br>
+        서울특별시 금천구 디지털로 178 퍼블릭 가산 B1313 · 평일 09:00–18:00<br>
         <a href="mailto:info@muyi.co.kr">info@muyi.co.kr</a> · <a href="tel:07088338210">070-8833-8210</a>
       </div>
       <div class="ft-legal">
@@ -1907,6 +1916,7 @@ document.getElementById('bizGrid').addEventListener('click',function(e){
   step1.style.display='none';
   chipRow.style.display='flex';
   step2.classList.add('on');
+  storeEl.focus();
 });
 /* 칩 클릭 → 업종 다시 선택 */
 document.getElementById('chipBtn').addEventListener('click',function(){
@@ -2003,7 +2013,7 @@ form.addEventListener('submit',function(e){
 
 function handleSubmit(){
   /* 1. 유효성 검사 (업종 선택 / 상호명 / 연락처 / 동의) */
-  [storeEl,phoneEl].forEach(function(el){el.classList.remove('bad');});
+  [storeEl,phoneEl].forEach(function(el){el.classList.remove('bad');el.removeAttribute('aria-invalid');el.removeAttribute('aria-describedby');});
   agreeEl.classList.remove('bad');
 
   if(!industryInput.value){
@@ -2013,9 +2023,9 @@ function handleSubmit(){
   }
   var store=storeEl.value.trim();
   var phoneDigits=phoneEl.value.replace(/\D/g,'');
-  if(!store){storeEl.classList.add('bad');storeEl.focus();showStatus('err','상호명을 입력해주세요.');return;}
-  if(phoneDigits.length<10){phoneEl.classList.add('bad');phoneEl.focus();showStatus('err','연락처를 정확히 입력해주세요.');return;}
-  if(!agreeEl.checked){agreeEl.classList.add('bad');agreeEl.focus();showStatus('err','개인정보 수집·이용 동의가 필요합니다.');return;}
+  if(!store){storeEl.classList.add('bad');storeEl.setAttribute('aria-invalid','true');storeEl.setAttribute('aria-describedby','fst');storeEl.focus();showStatus('err','상호명을 입력해주세요.');return;}
+  if(phoneDigits.length<10){phoneEl.classList.add('bad');phoneEl.setAttribute('aria-invalid','true');phoneEl.setAttribute('aria-describedby','fst');phoneEl.focus();showStatus('err','연락처를 정확히 입력해주세요.');return;}
+  if(!agreeEl.checked){agreeEl.classList.add('bad');agreeEl.setAttribute('aria-invalid','true');agreeEl.focus();showStatus('err','개인정보 수집·이용 동의가 필요합니다.');return;}
 
   /* name 필드는 CRM 스키마 호환용 — 상호명을 그대로 넣는다 */
   document.getElementById('f-name').value=store;
