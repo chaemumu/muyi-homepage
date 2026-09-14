@@ -502,23 +502,25 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .cli-case{padding:1.6rem 1.4rem 1.4rem;text-align:left;border:1px solid var(--c-border);border-radius:var(--radius-lg);background:linear-gradient(145deg,#f8f9ff 0%,#eef2ff 100%);box-shadow:var(--shadow-md);position:relative;overflow:hidden}
 .cli-case::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--c-brand),var(--c-accent));border-radius:1.4rem 1.4rem 0 0;opacity:.5;transition:opacity .3s}
 .cli-case:hover::before{opacity:1}
-.cli-case-n{display:block;font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2rem,3vw,2.8rem);font-weight:800;color:#111;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.cli-case-n{display:block;font-family:'Noto Sans KR','DM Sans',sans-serif;font-size:clamp(.92rem,1.3vw,1.15rem);font-weight:800;color:#111;letter-spacing:-.02em;line-height:1.35;word-break:keep-all}
 .cli-case-d{display:block;font-size:.82rem;color:rgba(0,0,0,.48);margin-top:.6rem;letter-spacing:-.01em;font-weight:500;line-height:1.5;font-family:'Noto Sans KR',sans-serif}
 .cli-ti{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2.2rem,4vw,3.4rem);font-weight:800;color:#111;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
 .cli-ti em{color:var(--c-brand);font-style:normal;font-family:'Space Grotesk','DM Sans',sans-serif;font-size:1em;line-height:1;letter-spacing:-.02em;display:inline-block;font-variant-numeric:tabular-nums}
-.cl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:2.5rem 3rem;width:100%;max-width:1300px;justify-items:center}
-.lg{display:flex;align-items:center;justify-content:center;padding:0;border-radius:0;border:none;background:#fff;overflow:hidden}
-.lg img{max-width:240px;max-height:108px;object-fit:contain;-webkit-user-drag:none;user-select:none;pointer-events:none;clip-path:inset(2px 3px 4px 2px)}
-.lg:first-child img{max-width:300px;max-height:140px}
-
-/* LOGO MARQUEE — mobile */
-.cl-marquee-wrap{display:none;flex-direction:column;gap:1.5rem;width:100%;overflow:hidden;mask-image:linear-gradient(90deg,transparent 0%,#000 6%,#000 94%,transparent 100%);-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 6%,#000 94%,transparent 100%)}
-.cl-marquee{display:flex;gap:2.5rem;width:max-content;animation:marqueeScroll 32s linear infinite;will-change:transform}
-.cl-marquee.reverse{animation-direction:reverse}
-.cl-marquee.row3{animation-direction:normal}
-.cl-marquee .lg{flex-shrink:0}
-.cl-marquee .lg img{max-width:280px;max-height:110px;opacity:1;filter:none;transition:opacity .3s}
-@keyframes marqueeScroll{0%{transform:translateX(0)}100%{transform:translateX(-33.333%)}}
+/* ── CLIENTS 마퀴 — 로컬비즈니스와 동일 구조, 블루 톤 ── */
+.cl-rows{display:flex;flex-direction:column;gap:clamp(1.5rem,3vw,2.6rem);width:100%}
+.cl-row{overflow:hidden;position:relative;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.cl-track{display:flex;align-items:center;width:max-content;animation:clMq 48s linear infinite;will-change:transform}
+@keyframes clMq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.cl-set{display:flex;align-items:center;flex-shrink:0}
+.cl-row.rev .cl-track{animation-direction:reverse;animation-duration:62s}
+.cl-row:hover .cl-track,.cl-row:focus-within .cl-track{animation-play-state:paused}
+/* 로고 PNG는 높이 104px로 정규화돼 있어 높이만 맞추면 정렬이 통일된다.
+   가로세로비 1.6 미만인 심볼형은 같은 높이에서 작아 보여 따로 키운다. */
+.cl-i{display:flex;align-items:center;justify-content:center;height:clamp(24px,2.5vw,34px);margin:0 clamp(1rem,2vw,1.9rem);flex-shrink:0}
+.cl-i.is-mark{height:clamp(32px,3.3vw,45px)}
+.cl-i img{height:100%;width:auto;object-fit:contain;filter:grayscale(1);opacity:.58;transition:filter var(--dur-mid) var(--ease-out),opacity var(--dur-mid) var(--ease-out);-webkit-user-drag:none;user-select:none;pointer-events:none}
+.cl-i:hover img{filter:none;opacity:1}
+@media(prefers-reduced-motion:reduce){.cl-track{animation:none}.cl-rows{overflow-x:auto}}
 
 /* CLI-CASES INTERACTION */
 .cli-cases{position:relative}
@@ -892,12 +894,10 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   .cli-ey{font-size:.65rem}
   .cli-ti{font-size:clamp(1.4rem,5.5vw,2rem);word-break:keep-all}
   .cli-sub{font-size:.82rem;line-height:1.6;word-break:keep-all}
-  .cl-grid{display:none}
-  .cl-marquee-wrap{display:flex}
   .cli-cases{grid-template-columns:1fr 1fr;gap:.6rem}
   .cli-case{min-width:0;padding:.8rem}
-  .cli-case-n{font-size:1.1rem}
-  .cli-case-d{font-size:.65rem}
+  .cli-case-n{font-size:.82rem}
+  .cli-case-d{font-size:.64rem;line-height:1.45}
   .lg:first-child img{max-width:100%;max-height:60px}
   .cli-skip{font-size:.82rem;min-height:48px;padding:.7rem 1.6rem}
 
@@ -980,10 +980,9 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   .prob-card-d{font-size:.75rem;line-height:1.5}
   .ss-t{font-size:clamp(1.3rem,5vw,1.7rem)}
   .ss-sub{font-size:.8rem}
-  .cl-marquee .lg img{max-width:220px;max-height:90px}
   .cli-cases{grid-template-columns:1fr 1fr}
   .cli-case{padding:1rem .8rem}
-  .cli-case-n{font-size:clamp(1.2rem,4.5vw,1.6rem)}
+  .cli-case-n{font-size:.8rem}
   .ct-ti{font-size:clamp(1.4rem,5.5vw,2rem)}
   .pt{font-size:.58rem;padding:.45rem .5rem}
 }
@@ -1507,61 +1506,22 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 <!-- CLIENTS -->
 <div class="pnl" id="p-cli">
   <div class="cli-hd">
-    <span class="cli-ey">검증된 성과</span>
-    <h2 class="cli-ti">숫자로 증명한 <em>37+</em>개 브랜드</h2>
-    <p class="cli-sub">브랜드 단계와 업종은 달라도, 실제 성과를 막는 병목은 대부분 비슷합니다.</p>
+    <span class="cli-ey">Clients</span>
+    <h2 class="cli-ti">대기업·공공기관과<br><em>같은 기준</em>으로 일합니다</h2>
+    <p class="cli-sub">브랜드 규모는 달라도 진단·실행·보고 기준은 하나로 운영합니다.</p>
     <div class="cli-cases">
-      <div class="cli-case"><span class="cli-case-n">ROAS 340%</span><span class="cli-case-d">성과형 광고 운영군 기준</span></div>
-      <div class="cli-case"><span class="cli-case-n">+12,000</span><span class="cli-case-d">월간 유입 증가 사례</span></div>
-      <div class="cli-case"><span class="cli-case-n">1.8배</span><span class="cli-case-d">재구매율 개선 사례</span></div>
-      <div class="cli-case"><span class="cli-case-n">6개월</span><span class="cli-case-d">진단 후 체계화 평균</span></div>
+      <div class="cli-case"><span class="cli-case-n">대기업 · 상장사</span><span class="cli-case-d">CJ프레시웨이 · SPC · 덱스터스튜디오 · NHN KCP</span></div>
+      <div class="cli-case"><span class="cli-case-n">정부 · 공공기관</span><span class="cli-case-d">농림축산식품부 · 중소벤처기업부 · 인천광역시</span></div>
+      <div class="cli-case"><span class="cli-case-n">전시 · 협회</span><span class="cli-case-d">COEX · RX · IFS · 대한민국김치협회</span></div>
+      <div class="cli-case"><span class="cli-case-n">프랜차이즈 · 외식</span><span class="cli-case-d">명륜진사갈비 · 타이거슈가 · 복호두</span></div>
     </div>
   </div>
-  <div class="cl-grid">
-<div class="lg"><img src="/assets/logos/client-01.png" alt="CJ프레시웨이" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-02.png" alt="SPC" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-03.png" alt="COEX" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-04.png" alt="DEXTER STUDIOS" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-05.png" alt="NHN KCP" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-06.png" alt="toss" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-07.png" alt="payhere" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-08.png" alt="비벗" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-09.png" alt="RX" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-10.png" alt="인천광역시" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-11.png" alt="농림축산식품부" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-12.png" alt="대한민국김치협회" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-13.png" alt="KFA" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-14.png" alt="IFS" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-15.png" alt="ENLIPLE" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-16.png" alt="CRITEO" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-17.png" alt="Secta9ine" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-18.png" alt="한성대학교" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-19.png" alt="중소벤처기업부" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-20.png" alt="중소기업 옴부즈만" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-21.png" alt="우규" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-22.png" alt="헤비스테이크" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-23.png" alt="#맛있는정하네" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-24.png" alt="청자다방" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-25.png" alt="YUMMY UDON" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-26.png" alt="NANBA UDON" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-27.png" alt="청담물갈비" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-28.png" alt="명륜진사갈비" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-29.png" alt="TIGER SUGAR" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-30.png" alt="파이인더샵" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-31.png" alt="육감만족" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-32.png" alt="범맥주" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-33.png" alt="지즐미육회관" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-34.png" alt="PIZZA DUCK" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-35.png" alt="PORT CAN COFFEE" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-36.png" alt="조선부뚜막" loading="lazy"></div>
-<div class="lg"><img src="/assets/logos/client-37.png" alt="복호두" loading="lazy"></div>
-  </div>
-  <div class="cl-marquee-wrap" id="cl-marquee-wrap">
-    <div class="cl-marquee" id="cl-marquee-row1"></div>
-    <div class="cl-marquee reverse" id="cl-marquee-row2"></div>
-    <div class="cl-marquee row3" id="cl-marquee-row3"></div>
+  <div class="cl-rows" aria-label="함께한 클라이언트">
+    <div class="cl-row"><div class="cl-track"><div class="cl-set"><div class="cl-i"><img src="/assets/logos/client-01.png" alt="CJ프레시웨이 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-02.png" alt="SPC 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-03.png" alt="COEX 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-04.png" alt="DEXTER STUDIOS 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-05.png" alt="NHN KCP 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-06.png" alt="toss 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-07.png" alt="payhere 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-08.png" alt="비벗 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark"><img src="/assets/logos/client-09.png" alt="RX 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-10.png" alt="인천광역시 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-11.png" alt="농림축산식품부 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-12.png" alt="대한민국김치협회 로고" loading="lazy" decoding="async"></div></div><div class="cl-set" aria-hidden="true"><div class="cl-i"><img src="/assets/logos/client-01.png" alt="CJ프레시웨이 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-02.png" alt="SPC 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-03.png" alt="COEX 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-04.png" alt="DEXTER STUDIOS 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-05.png" alt="NHN KCP 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-06.png" alt="toss 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-07.png" alt="payhere 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-08.png" alt="비벗 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark"><img src="/assets/logos/client-09.png" alt="RX 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-10.png" alt="인천광역시 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-11.png" alt="농림축산식품부 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-12.png" alt="대한민국김치협회 로고" loading="lazy" decoding="async"></div></div></div></div>
+    <div class="cl-row rev"><div class="cl-track"><div class="cl-set"><div class="cl-i"><img src="/assets/logos/client-13.png" alt="KFA 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-14.png" alt="IFS 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-15.png" alt="ENLIPLE 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-16.png" alt="CRITEO 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-17.png" alt="Secta9ine 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-18.png" alt="한성대학교 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-19.png" alt="중소벤처기업부 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-20.png" alt="중소기업 옴부즈만 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark"><img src="/assets/logos/client-28.png" alt="명륜진사갈비 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark"><img src="/assets/logos/client-29.png" alt="TIGER SUGAR 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark"><img src="/assets/logos/client-37.png" alt="복호두 로고" loading="lazy" decoding="async"></div></div><div class="cl-set" aria-hidden="true"><div class="cl-i"><img src="/assets/logos/client-13.png" alt="KFA 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-14.png" alt="IFS 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-15.png" alt="ENLIPLE 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-16.png" alt="CRITEO 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-17.png" alt="Secta9ine 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-18.png" alt="한성대학교 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-19.png" alt="중소벤처기업부 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-20.png" alt="중소기업 옴부즈만 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark"><img src="/assets/logos/client-28.png" alt="명륜진사갈비 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark"><img src="/assets/logos/client-29.png" alt="TIGER SUGAR 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark"><img src="/assets/logos/client-37.png" alt="복호두 로고" loading="lazy" decoding="async"></div></div></div></div>
   </div>
 </div>
+
 
 <!-- CASE STUDY DETAIL SECTION -->
 <div class="pnl" id="p-cs">
@@ -3361,29 +3321,6 @@ document.getElementById('form').addEventListener('submit',function(e){
 document.querySelectorAll('.fi,.ft').forEach(function(el){
   el.addEventListener('input',function(){this.classList.remove('invalid');});
 });
-
-// ── LOGO MARQUEE (mobile) ──
-(function(){
-  if(window.innerWidth>767)return;
-  var grid=document.querySelector('.cl-grid');
-  if(!grid)return;
-  var logos=Array.from(grid.querySelectorAll('.lg'));
-  if(!logos.length)return;
-  var row1=document.getElementById('cl-marquee-row1');
-  var row2=document.getElementById('cl-marquee-row2');
-  var row3=document.getElementById('cl-marquee-row3');
-  if(!row1||!row2||!row3)return;
-  // Distribute evenly across 3 rows using round-robin
-  var rows=[row1,row2,row3];
-  logos.forEach(function(lg,i){
-    rows[i%3].appendChild(lg.cloneNode(true));
-  });
-  // Duplicate each row's content 3x for truly seamless infinite loop
-  rows.forEach(function(row){
-    var original=row.innerHTML;
-    row.innerHTML=original+original+original;
-  });
-})();
 
 // ── MAP INITIALIZATION (Leaflet + OpenStreetMap) ──
 var mapInstance=null;
