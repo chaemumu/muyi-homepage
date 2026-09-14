@@ -176,7 +176,6 @@ body.scroll-mode .nc-next:hover{background:#f0f0ff!important;color:#1E10C7!impor
 /* Numbers */
 body.scroll-mode #p-cs .csd-eye,body.scroll-mode #p-cs .csd-title,body.scroll-mode #p-cs .csd-tab,body.scroll-mode #p-cs .csd-cta-row{opacity:1;transform:none}
 body.scroll-mode #p-cs .csd-tab.vis{opacity:1;transform:none}
-body.scroll-mode .ct-map-bg{display:none!important}
 /* Scroll-mode contact layout */
 body.scroll-mode #p-ct .ct-col{width:100%;flex-shrink:0}
 body.scroll-mode #p-ct .ct-col:first-of-type{margin-bottom:1.1rem}
@@ -621,19 +620,14 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 }
 
 /* CONTACT */
-#p-ct{grid-template-columns:1.1fr .9fr;grid-template-rows:1fr auto auto;gap:3rem 5rem;align-items:stretch;padding:var(--nav-h) var(--edge-pad) clamp(2rem,3vw,3rem);max-width:1300px;margin:0 auto;width:100%;position:relative;background:#ffffff;box-shadow:0 0 0 100vmax #ffffff}
-/* Map section — row 2 spanning full width */
-.ct-map-bg{grid-column:1/-1;grid-row:2;width:100%;border-radius:var(--radius-lg);overflow:hidden;opacity:0;transition:opacity 1.2s ease;height:clamp(260px,28vw,360px);position:relative;background:#f0f0f0}
-.ct-map-bg.is-vis{opacity:1;transition-delay:.5s}
-.ct-map-fade{position:absolute;left:0;top:0;bottom:0;width:80px;background:linear-gradient(90deg,#f0f0f0,transparent);z-index:2;pointer-events:none}
-.ct-map-bg svg{width:100%;height:100%;display:block}
+#p-ct{grid-template-columns:1.1fr .9fr;grid-template-rows:1fr auto;gap:3rem 5rem;align-items:stretch;padding:var(--nav-h) var(--edge-pad) clamp(2rem,3vw,3rem);max-width:1300px;margin:0 auto;width:100%;position:relative;background:#ffffff;box-shadow:0 0 0 100vmax #ffffff}
 .ct-brand-links{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
 .ct-brand-btn{display:inline-flex;align-items:center;gap:.5rem;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-decoration:none;border-radius:var(--radius-full);padding:.55rem 1.2rem;transition:all .25s;cursor:pointer;font-family:inherit}
 .ct-insta-btn{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;border:none}
 .ct-insta-btn:hover{opacity:.88;transform:translateY(-1px);box-shadow:0 6px 16px rgba(220,39,67,.35)}
 .ct-dl-btn{background:#1E10C7;color:#fff;border:none}
 .ct-dl-btn:hover{background:#150dab;transform:translateY(-1px);box-shadow:0 6px 16px rgba(30,16,199,.35)}
-.ct-footer{grid-column:1/-1;grid-row:3;padding-top:1.5rem;border-top:1px solid var(--c-border);display:flex;flex-direction:column;gap:.6rem}
+.ct-footer{grid-column:1/-1;grid-row:2;padding-top:1.5rem;border-top:1px solid var(--c-border);display:flex;flex-direction:column;gap:.6rem}
 .ct-footer-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem}
 .ct-footer-links{display:flex;align-items:center;gap:1.2rem}
 .ct-footer-links button{font-size:.78rem;letter-spacing:.04em;color:rgba(10,10,26,.45);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;transition:color .3s}
@@ -645,6 +639,7 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .ct-footer-switch:hover svg{transform:translateX(2px)}
 .ct-footer-meta{font-size:.72rem;color:rgba(10,10,26,.32);letter-spacing:.02em;line-height:1.6}
 .ct-footer-meta span+span::before{content:'·';margin:0 .5rem}
+.ct-footer-addr{font-size:.72rem;color:rgba(10,10,26,.4);letter-spacing:.01em;line-height:1.6;margin-bottom:.3rem}
 /* Legal Modal */
 .legal-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;display:none;align-items:center;justify-content:center;padding:2rem;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .legal-modal-overlay.is-open{display:flex}
@@ -694,6 +689,41 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 .fst.ok{color:#6858ff;display:block}
 .fst.err{color:#D92D20;display:block}
 .fi.invalid,.ft.invalid{border-color:rgba(238,78,0,.6);box-shadow:0 0 12px rgba(238,78,0,.15)}
+
+/* CONTACT — 스텝형 문의 폼 */
+.ct-form-box{border:1px solid var(--c-border);border-radius:var(--radius-lg);background:#f8f9ff;padding:clamp(1.6rem,3vw,2.4rem);display:flex;flex-direction:column}
+.ct-step-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.3rem}
+.ct-step-lb{font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--c-brand)}
+.ct-step-cnt{font-size:.72rem;color:var(--c-subtle);font-variant-numeric:tabular-nums}
+.ct-step-cnt em{font-style:normal;color:var(--c-brand);font-weight:800}
+.ct-step{display:none}
+.ct-step.is-act{display:block;animation:ctStepIn .45s var(--ease-out)}
+@keyframes ctStepIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.ct-step-hint{font-size:.82rem;color:var(--c-subtle);margin-bottom:.9rem;line-height:1.6}
+.ct-chip-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem}
+.ct-chip-row{display:flex;flex-wrap:wrap;gap:.55rem}
+.ct-chip-b{font-family:inherit;text-align:left;padding:.85rem 1rem;border-radius:var(--radius-sm);border:1px solid var(--c-border);background:#fff;color:#0a0a1a;cursor:pointer;transition:all var(--dur-mid) var(--ease-out);font-size:.86rem;font-weight:600;line-height:1.3}
+.ct-chip-b span{display:block;font-size:.68rem;font-weight:500;color:var(--c-subtle);margin-top:.15rem}
+.ct-chip-b:hover{border-color:rgba(30,16,199,.35);transform:translateY(-1px)}
+.ct-chip-b.sel{background:var(--c-brand);border-color:var(--c-brand);color:#fff}
+.ct-chip-b.sel span{color:rgba(255,255,255,.75)}
+.ct-chip-b.sm{padding:.6rem 1.1rem;border-radius:var(--radius-full);font-size:.8rem;font-weight:600}
+.ct-file-drop{display:flex;flex-direction:column;align-items:center;gap:.5rem;border:1.5px dashed rgba(30,16,199,.25);border-radius:var(--radius-md);padding:1.6rem 1rem;color:var(--c-subtle);cursor:pointer;transition:all var(--dur-mid);font-size:.82rem;text-align:center}
+.ct-file-drop:hover{border-color:var(--c-brand);background:rgba(30,16,199,.03)}
+.ct-file-drop svg{color:var(--c-brand)}
+.ct-file-list{margin-top:.9rem;display:flex;flex-direction:column;gap:.5rem;list-style:none}
+.ct-file-item{display:flex;align-items:center;justify-content:space-between;gap:.6rem;background:#fff;border:1px solid var(--c-border);border-radius:var(--radius-sm);padding:.6rem .9rem;font-size:.78rem;color:#0a0a1a}
+.ct-file-item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ct-file-item b{font-weight:600;flex-shrink:0;color:var(--c-subtle);font-size:.72rem;margin-left:.6rem}
+.ct-file-rm{background:none;border:none;color:var(--c-subtle);cursor:pointer;font-size:1rem;line-height:1;flex-shrink:0;padding:.2rem}
+.ct-file-rm:hover{color:#D92D20}
+.ct-step-nav{display:flex;gap:.7rem;margin-top:1.6rem}
+.ct-nav-b{flex:1;padding:.95rem;border-radius:var(--radius-full);border:1px solid var(--c-border);background:#fff;color:#0a0a1a;font-family:inherit;font-size:.88rem;font-weight:700;cursor:pointer;transition:all var(--dur-mid)}
+.ct-nav-b.prev:hover{border-color:rgba(10,10,26,.3)}
+.ct-nav-b.next{background:var(--c-brand);border-color:var(--c-brand);color:#fff;flex:2}
+.ct-nav-b.next:hover{background:var(--c-brand-h)}
+.ct-nav-b.submit{flex:2}
+@media(max-width:380px){.ct-chip-grid{grid-template-columns:1fr}}
 
 /* SERVICE CASE IMAGE */
 .ss{align-items:center;justify-content:center}
@@ -987,8 +1017,6 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   .pt{font-size:.58rem;padding:.45rem .5rem}
 }
 </style>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="" defer></script>
 </head>
 <body>
 <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
@@ -1615,11 +1643,6 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 
 <!-- CONTACT -->
 <div class="pnl" id="p-ct">
-  <!-- Location Map — Google Maps API -->
-  <div class="ct-map-bg" id="ctMapBg" style="position:relative;overflow:hidden;">
-    <div class="ct-map-fade"></div>
-    <div id="mapContainer" style="position:absolute;inset:0;width:100%;height:100%;"></div>
-  </div>
   <div class="ct-col ct-left">
     <span class="ct-eye">영업일 기준 24시간 내 답변</span>
     <h2 class="ct-ti">
@@ -1630,25 +1653,71 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
     <p class="ct-desc">브랜드 전략부터 퍼포먼스까지, 풀퍼널 마케팅 파트너.</p>
     <div class="ct-stats">
       <div class="ct-stat"><span class="ct-stat-val"><span class="ct-stat-num" data-target="500">0</span><span class="ct-stat-unit">+</span></span><span class="ct-stat-label">프로젝트 수행</span></div>
-      <div class="ct-stat"><span class="ct-stat-val"><span class="ct-stat-num" data-target="97">0</span><span class="ct-stat-unit">%</span></span><span class="ct-stat-label">재계약률</span></div>
-      <div class="ct-stat"><span class="ct-stat-val"><span class="ct-stat-num" data-target="340">0</span><span class="ct-stat-unit">%</span></span><span class="ct-stat-label">ROAS 개선</span></div>
+      <div class="ct-stat"><span class="ct-stat-val"><span class="ct-stat-num" data-target="92">0</span><span class="ct-stat-unit">%</span></span><span class="ct-stat-label">재계약률</span></div>
+      <div class="ct-stat"><span class="ct-stat-val"><span class="ct-stat-num" data-target="200">0</span><span class="ct-stat-unit">+</span></span><span class="ct-stat-label">함께한 브랜드</span></div>
     </div>
   </div>
   <div class="ct-col">
-    <form id="form" novalidate>
-      <p class="f-req-note">* 필수 입력 항목</p>
-      <div class="fg"><label class="fl" for="f-name">이름 *</label><input class="fi" id="f-name" type="text" name="name" placeholder="홍길동" autocomplete="name" required></div>
-      <div class="fg"><label class="fl" for="f-email">이메일</label><input class="fi" id="f-email" type="email" name="email" placeholder="hello@brand.com" autocomplete="email"></div>
-      <div class="fg"><label class="fl" for="f-phone">연락처 *</label><input class="fi" id="f-phone" type="tel" name="phone" placeholder="010-0000-0000" autocomplete="tel" required></div>
-      <div class="fg"><label class="fl" for="f-type">문의 유형</label>
-        <select class="fi" id="f-type" name="type">
-          <option>IMC 전략 컨설팅</option><option>퍼포먼스 마케팅</option>
-          <option>콘텐츠 / SNS</option><option>브랜딩</option>
-          <option>공공기관 홍보</option><option>로컬 · 소상공인</option><option>기타 문의</option>
-        </select>
+    <form class="ct-form-box" id="form" novalidate>
+      <div class="ct-step-hd">
+        <span class="ct-step-lb" id="ctStepLb">Step 01 · 문의 종류</span>
+        <span class="ct-step-cnt"><em id="ctStepNow">1</em>/4</span>
       </div>
-      <div class="fg"><label class="fl" for="f-msg">메시지 *</label><textarea class="ft" id="f-msg" name="message" placeholder="프로젝트에 대해 간단히 알려주세요 (10자 이상)" required></textarea></div>
-      <button class="fsub" type="submit" id="sbtn"><span>무료 진단 신청하기</span></button>
+
+      <div class="ct-step is-act" data-step="1">
+        <p class="ct-step-hint">필요한 영역을 모두 선택해주세요. (중복 선택 가능)</p>
+        <div class="ct-chip-grid" id="ctTypeGrid">
+          <button type="button" class="ct-chip-b" data-val="Brand Strategy">Brand Strategy<span>브랜드 전략</span></button>
+          <button type="button" class="ct-chip-b" data-val="Performance Marketing">Performance Marketing<span>퍼포먼스 마케팅</span></button>
+          <button type="button" class="ct-chip-b" data-val="Content &amp; Social">Content &amp; Social<span>콘텐츠·소셜</span></button>
+          <button type="button" class="ct-chip-b" data-val="Identity Design">Identity Design<span>브랜딩·아이덴티티</span></button>
+          <button type="button" class="ct-chip-b" data-val="Integrated Marketing">Integrated Marketing<span>IMC</span></button>
+          <button type="button" class="ct-chip-b" data-val="Public Affairs">Public Affairs<span>공공 홍보</span></button>
+          <button type="button" class="ct-chip-b" data-val="Other">Other<span>기타 문의</span></button>
+        </div>
+      </div>
+
+      <div class="ct-step" data-step="2">
+        <p class="ct-step-hint">희망 진행 기간</p>
+        <div class="ct-chip-row" id="ctDurGrid">
+          <button type="button" class="ct-chip-b sm" data-val="1개월">1개월</button>
+          <button type="button" class="ct-chip-b sm" data-val="3개월">3개월</button>
+          <button type="button" class="ct-chip-b sm" data-val="6개월">6개월</button>
+          <button type="button" class="ct-chip-b sm" data-val="1년 이상">1년 이상</button>
+        </div>
+        <p class="ct-step-hint" style="margin-top:1.4rem">월 예산 범위</p>
+        <div class="ct-chip-row" id="ctBudGrid">
+          <button type="button" class="ct-chip-b sm" data-val="500만원 미만">500만원 미만</button>
+          <button type="button" class="ct-chip-b sm" data-val="500~1,000만원">500~1,000만원</button>
+          <button type="button" class="ct-chip-b sm" data-val="1,000~3,000만원">1,000~3,000만원</button>
+          <button type="button" class="ct-chip-b sm" data-val="3,000만원 이상">3,000만원 이상</button>
+          <button type="button" class="ct-chip-b sm" data-val="협의 필요">협의 필요</button>
+        </div>
+      </div>
+
+      <div class="ct-step" data-step="3">
+        <div class="fg"><label class="fl" for="f-name">담당자 성함 *</label><input class="fi" id="f-name" type="text" name="name" placeholder="홍길동" autocomplete="name" required></div>
+        <div class="fg"><label class="fl" for="f-org">회사/기관명</label><input class="fi" id="f-org" type="text" name="company" placeholder="㈜브랜드명" autocomplete="organization"></div>
+        <div class="fg"><label class="fl" for="f-phone">연락처 *</label><input class="fi" id="f-phone" type="tel" name="phone" placeholder="010-0000-0000" autocomplete="tel" required></div>
+        <div class="fg"><label class="fl" for="f-email">이메일</label><input class="fi" id="f-email" type="email" name="email" placeholder="hello@brand.com" autocomplete="email"></div>
+        <div class="fg"><label class="fl" for="f-msg">프로젝트 내용</label><textarea class="ft" id="f-msg" name="message" placeholder="현재 상황이나 필요한 부분을 간단히 알려주세요"></textarea></div>
+      </div>
+
+      <div class="ct-step" data-step="4">
+        <p class="ct-step-hint">참고할 자료가 있다면 첨부해주세요. (선택, 최대 5개 · 총 10MB)</p>
+        <label class="ct-file-drop" for="f-file">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="22" height="22"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+          <span>파일을 선택하거나 끌어놓으세요 (PNG·JPG·GIF·PPTX·XLSX·DOC·DOCX·HWP·MP4)</span>
+          <input type="file" id="f-file" multiple hidden accept=".png,.jpg,.jpeg,.gif,.pptx,.xlsx,.doc,.docx,.hwp,.mp4">
+        </label>
+        <ul class="ct-file-list" id="ctFileList"></ul>
+      </div>
+
+      <div class="ct-step-nav">
+        <button type="button" class="ct-nav-b prev" id="ctPrev" style="visibility:hidden">이전</button>
+        <button type="button" class="ct-nav-b next" id="ctNext">다음</button>
+        <button class="fsub ct-nav-b submit" type="submit" id="sbtn" style="display:none"><span>문의 제출하기</span></button>
+      </div>
       <div class="fst" id="fst" role="status" aria-live="polite"></div>
     </form>
   </div>
@@ -1673,6 +1742,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
       <a href="/local-business" class="ct-footer-switch">Local Business<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 2.5L8 6l-3.5 3.5"/></svg></a>
     </div>
+    <p class="ct-footer-addr">서울특별시 금천구 디지털로 178 퍼블릭 가산 B1313 · 평일 09:00–18:00</p>
     <div class="ct-footer-meta">
       <span>&copy; MUYI Corporation</span><span>481-81-02827</span><span>info@muyi.co.kr</span><span>070-8833-8210</span>
     </div>
@@ -2154,9 +2224,6 @@ function animCli(){
 }
 
 function animCt(){
-  var mapBg=document.getElementById('ctMapBg');
-  if(mapBg)mapBg.classList.add('is-vis');
-  initMap();
   var l=document.querySelector('#p-ct .ct-col:first-of-type');
   var r=document.querySelector('#p-ct .ct-col:last-of-type');
   document.querySelectorAll('#p-ct .h-line-in').forEach(function(line){
@@ -3194,18 +3261,18 @@ function showSuccessPopup(name){
 
   var ttl=document.createElement('h3');
   ttl.style.cssText='font-family:Syne,"Noto Sans KR",sans-serif;font-size:1.5rem;font-weight:800;color:#0a0a1a;margin-bottom:.6rem;letter-spacing:-.03em';
-  ttl.textContent='문의가 접수됐어요!';
+  ttl.textContent='문의가 접수되었습니다';
 
   var sub=document.createElement('p');
   sub.style.cssText='font-family:"Noto Sans KR","DM Sans",sans-serif;font-size:.92rem;color:rgba(10,10,26,.55);line-height:1.7;margin-bottom:2rem';
-  sub.innerHTML=(name?'<strong style="color:#1E10C7">'+name+'</strong>님, ':'')+'빠른 시일 내에 담당자가 직접 연락드리겠습니다.<br>채널톡 채팅으로도 즉시 상담 가능합니다.';
+  sub.innerHTML=(name?'<strong style="color:#1E10C7">'+name+'</strong>님, ':'')+'남겨주신 내용을 검토한 뒤 영업일 기준 24시간 이내 담당자가 연락드리겠습니다.<br>빠른 상담이 필요하시면 채널톡으로도 문의하실 수 있습니다.';
 
   var btnWrap=document.createElement('div');
   btnWrap.style.cssText='display:flex;flex-direction:column;gap:.75rem';
 
   var chatBtn=document.createElement('button');
   chatBtn.style.cssText='width:100%;padding:1rem;border-radius:12px;background:#1E10C7;color:#fff;border:none;cursor:pointer;font-family:"Noto Sans KR","DM Sans",sans-serif;font-size:.95rem;font-weight:700;transition:background .2s';
-  chatBtn.textContent='채널톡으로 바로 상담하기';
+  chatBtn.textContent='채널톡으로 문의하기';
   chatBtn.onmouseenter=function(){this.style.background='#3428F0';};
   chatBtn.onmouseleave=function(){this.style.background='#1E10C7';};
   chatBtn.onclick=function(){
@@ -3252,126 +3319,172 @@ function showFormMsg(st,msg,type,autoClear){
   if(autoClear)setTimeout(function(){st.textContent='';st.className='fst';},autoClear);
 }
 
-document.getElementById('form').addEventListener('submit',function(e){
-  e.preventDefault();
-  var btn=document.getElementById('sbtn'),st=document.getElementById('fst');
-  var d=Object.fromEntries(new FormData(this));
-  var form=this;
+// CONTACT — 4단계 스텝 폼 (문의종류 다중선택 → 기간·예산 → 담당자정보 → 첨부파일)
+(function(){
+  var form=document.getElementById('form');
+  if(!form)return;
+  var steps=Array.from(form.querySelectorAll('.ct-step'));
+  var stepLb=document.getElementById('ctStepLb'),stepNow=document.getElementById('ctStepNow');
+  var prevBtn=document.getElementById('ctPrev'),nextBtn=document.getElementById('ctNext'),subBtn=document.getElementById('sbtn');
+  var fst=document.getElementById('fst');
+  var cur=1;
+  var LABELS={1:'문의 종류',2:'진행 기간 · 예산',3:'담당자 정보',4:'첨부파일'};
+  var selectedTypes=[],selectedDur='',selectedBud='';
 
-  // 유효성 검사
-  var nameEl=form.querySelector('[name=name]');
-  var emailEl=form.querySelector('[name=email]');
-  var phoneEl=form.querySelector('[name=phone]');
-  var msgEl=form.querySelector('[name=message]');
-  var ok=true;
-  if(!validateField(nameEl,d.name&&d.name.trim().length>0))ok=false;
-  if(!validateField(emailEl,!d.email||/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)))ok=false;
-  if(!validateField(phoneEl,d.phone&&d.phone.replace(/[^0-9]/g,'').length>=10))ok=false;
-  if(!validateField(msgEl,d.message&&d.message.trim().length>=10)){
-    ok=false;showFormMsg(st,'메시지를 최소 10자 이상 입력해주세요.','err',4000);
+  function showStep(n){
+    cur=n;
+    steps.forEach(function(s){s.classList.toggle('is-act',parseInt(s.dataset.step,10)===n);});
+    stepLb.textContent='Step 0'+n+' · '+LABELS[n];
+    stepNow.textContent=n;
+    prevBtn.style.visibility=n===1?'hidden':'visible';
+    nextBtn.style.display=n===4?'none':'block';
+    subBtn.style.display=n===4?'block':'none';
+    fst.className='fst';fst.textContent='';
   }
-  if(!ok&&!st.textContent){showFormMsg(st,'필수 항목을 확인해주세요.','err',4000);return;}
-  if(!ok)return;
 
-  btn.querySelector('span').textContent='전송 중...';btn.disabled=true;
+  function toggleMulti(btn,list){
+    var v=btn.dataset.val;var i=list.indexOf(v);
+    if(i>=0){list.splice(i,1);btn.classList.remove('sel');}
+    else{list.push(v);btn.classList.add('sel');}
+  }
+  function selectSingle(btn,grid){
+    grid.querySelectorAll('.ct-chip-b').forEach(function(b){b.classList.remove('sel');});
+    btn.classList.add('sel');
+    return btn.dataset.val;
+  }
 
-  // 채널톡으로 문의 정보 전달
-  try{
-    if(window.ChannelIO){
-      ChannelIO('updateUser',{
-        profile:{
-          name:d.name,
-          mobileNumber:d.phone.replace(/[^0-9]/g,''),
-          email:d.email||undefined
-        }
-      });
-      ChannelIO('track','lead_submit',{
-        inquiry_type:d.type||'기타 문의',
-        message:d.message,
-        name:d.name,
-        phone:d.phone
-      });
-      trackEvent('lead_submit',{inquiry_type:d.type||'기타 문의'});
-    }
-  }catch(err){}
-
-  fetch('https://pacyhanuwuizcxwoggen.supabase.co/functions/v1/contact',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhY3loYW51d3VpemN4d29nZ2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTI2NDgsImV4cCI6MjA5MTI4ODY0OH0.oe39KUtwr-mZ4OsqWQT6Y3USpigQpD825IM14mIFEaY'},
-    body:JSON.stringify({name:d.name,email:d.email,phone:d.phone,type:d.type,message:d.message,source:'index'})
-  }).then(function(r){
-    if(!r.ok)throw new Error('fail');
-    // 폼 숨기고 팝업 표시
-    form.style.transition='opacity .4s';
-    form.style.opacity='0';
-    setTimeout(function(){
-      form.style.display='none';
-      btn.querySelector('span').textContent='무료 진단 신청하기';
-      btn.disabled=false;
-      showSuccessPopup(d.name);
-    },400);
-  }).catch(function(){
-    btn.querySelector('span').textContent='무료 진단 신청하기';
-    btn.disabled=false;
-    showFormMsg(st,'전송에 실패했습니다. info@muyi.co.kr로 직접 문의해주세요.','err',6000);
+  var typeGrid=document.getElementById('ctTypeGrid');
+  typeGrid.addEventListener('click',function(e){
+    var b=e.target.closest('.ct-chip-b');if(!b)return;
+    toggleMulti(b,selectedTypes);
   });
-});
+  var durGrid=document.getElementById('ctDurGrid');
+  durGrid.addEventListener('click',function(e){
+    var b=e.target.closest('.ct-chip-b');if(!b)return;
+    selectedDur=selectSingle(b,durGrid);
+  });
+  var budGrid=document.getElementById('ctBudGrid');
+  budGrid.addEventListener('click',function(e){
+    var b=e.target.closest('.ct-chip-b');if(!b)return;
+    selectedBud=selectSingle(b,budGrid);
+  });
+
+  // 첨부파일 (선택, 최대 5개 · 총 10MB)
+  var fileInput=document.getElementById('f-file'),fileList=document.getElementById('ctFileList');
+  var ALLOWED_EXT=['png','jpg','jpeg','gif','pptx','xlsx','doc','docx','hwp','mp4'];
+  var MAX_TOTAL=10*1024*1024,MAX_FILES=5;
+  var pickedFiles=[];
+
+  function fmtSize(b){return b<1024*1024?Math.round(b/1024)+'KB':(b/1024/1024).toFixed(1)+'MB';}
+  function totalSize(){return pickedFiles.reduce(function(s,f){return s+f.size;},0);}
+  function renderFiles(){
+    fileList.innerHTML='';
+    pickedFiles.forEach(function(f,i){
+      var li=document.createElement('li');li.className='ct-file-item';
+      var nameSpan=document.createElement('span');nameSpan.textContent=f.name;
+      var sizeB=document.createElement('b');sizeB.textContent=fmtSize(f.size);
+      var rm=document.createElement('button');rm.type='button';rm.className='ct-file-rm';rm.setAttribute('aria-label','삭제');rm.textContent='×';
+      rm.onclick=function(){pickedFiles.splice(i,1);renderFiles();};
+      li.appendChild(nameSpan);li.appendChild(sizeB);li.appendChild(rm);
+      fileList.appendChild(li);
+    });
+  }
+  fileInput.addEventListener('change',function(){
+    var picked=Array.from(fileInput.files);
+    fileInput.value='';
+    for(var i=0;i<picked.length;i++){
+      var f=picked[i];
+      var ext=(f.name.split('.').pop()||'').toLowerCase();
+      if(ALLOWED_EXT.indexOf(ext)<0){showFormMsg(fst,f.name+'은(는) 지원하지 않는 형식입니다.','err',4000);continue;}
+      if(pickedFiles.length>=MAX_FILES){showFormMsg(fst,'첨부파일은 최대 '+MAX_FILES+'개까지 가능합니다.','err',4000);break;}
+      if(totalSize()+f.size>MAX_TOTAL){showFormMsg(fst,'첨부파일 총 용량은 10MB를 넘을 수 없습니다.','err',4000);continue;}
+      pickedFiles.push(f);
+    }
+    renderFiles();
+  });
+
+  prevBtn.addEventListener('click',function(){if(cur>1)showStep(cur-1);});
+  nextBtn.addEventListener('click',function(){
+    if(cur===1&&!selectedTypes.length){showFormMsg(fst,'문의 종류를 하나 이상 선택해주세요.','err',3000);return;}
+    if(cur===2&&(!selectedDur||!selectedBud)){showFormMsg(fst,'기간과 예산을 모두 선택해주세요.','err',3000);return;}
+    if(cur===3){
+      var nameEl=form.querySelector('[name=name]'),phoneEl=form.querySelector('[name=phone]'),emailEl=form.querySelector('[name=email]');
+      var okName=validateField(nameEl,nameEl.value.trim().length>0);
+      var okPhone=validateField(phoneEl,phoneEl.value.replace(/[^0-9]/g,'').length>=10);
+      var okEmail=validateField(emailEl,!emailEl.value||/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value));
+      if(!okName||!okPhone||!okEmail){showFormMsg(fst,'담당자 정보를 확인해주세요.','err',3000);return;}
+    }
+    if(cur<4)showStep(cur+1);
+  });
+
+  // Supabase Storage 업로드 (비공개 attachments 버킷, anon은 업로드만 가능)
+  var ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhY3loYW51d3VpemN4d29nZ2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTI2NDgsImV4cCI6MjA5MTI4ODY0OH0.oe39KUtwr-mZ4OsqWQT6Y3USpigQpD825IM14mIFEaY';
+  function uploadFile(f){
+    var ext=(f.name.split('.').pop()||'bin').toLowerCase();
+    var path='contact/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
+    return fetch('https://pacyhanuwuizcxwoggen.supabase.co/storage/v1/object/attachments/'+path,{
+      method:'POST',
+      headers:{'apikey':ANON_KEY,'Authorization':'Bearer '+ANON_KEY,'Content-Type':f.type||'application/octet-stream'},
+      body:f
+    }).then(function(r){
+      if(!r.ok)throw new Error('upload fail');
+      return {path:path,name:f.name,size:f.size};
+    });
+  }
+
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var nameEl=form.querySelector('[name=name]'),phoneEl=form.querySelector('[name=phone]'),emailEl=form.querySelector('[name=email]'),orgEl=form.querySelector('[name=company]'),msgEl=form.querySelector('[name=message]');
+    var name=nameEl.value.trim(),phone=phoneEl.value.trim(),email=emailEl.value.trim(),org=orgEl.value.trim(),message=msgEl.value.trim();
+    var typeStr=selectedTypes.join(', ');
+
+    subBtn.disabled=true;subBtn.querySelector('span').textContent='전송 중...';
+    fst.className='fst';fst.textContent='';
+
+    // 채널톡으로 문의 정보 전달
+    try{
+      if(window.ChannelIO){
+        ChannelIO('updateUser',{profile:{name:name,mobileNumber:phone.replace(/[^0-9]/g,''),email:email||undefined}});
+        ChannelIO('track','lead_submit',{inquiry_type:typeStr||'기타 문의',message:message,name:name,phone:phone});
+        trackEvent('lead_submit',{inquiry_type:typeStr||'기타 문의'});
+      }
+    }catch(err){}
+
+    Promise.all(pickedFiles.map(uploadFile))
+      .then(function(uploaded){
+        return fetch('https://pacyhanuwuizcxwoggen.supabase.co/functions/v1/contact',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','apikey':ANON_KEY},
+          body:JSON.stringify({
+            name:name,phone:phone,email:email||undefined,company:org||undefined,message:message,
+            type:typeStr,duration:selectedDur,budget:selectedBud,
+            source:'index-b2b-contact',files:uploaded
+          })
+        });
+      })
+      .then(function(r){
+        if(!r.ok)throw new Error('fail');
+        form.style.transition='opacity .4s';
+        form.style.opacity='0';
+        setTimeout(function(){
+          form.style.display='none';
+          showSuccessPopup(name);
+        },400);
+      })
+      .catch(function(){
+        subBtn.disabled=false;subBtn.querySelector('span').textContent='문의 제출하기';
+        showFormMsg(fst,'전송에 실패했습니다. info@muyi.co.kr로 직접 문의해주세요.','err',6000);
+      });
+  });
+
+  showStep(1);
+})();
 
 // Remove invalid state on input
 document.querySelectorAll('.fi,.ft').forEach(function(el){
   el.addEventListener('input',function(){this.classList.remove('invalid');});
 });
 
-// ── MAP INITIALIZATION (Leaflet + OpenStreetMap) ──
-var mapInstance=null;
-function initMap(){
-  if(mapInstance)return;
-  var container=document.getElementById('mapContainer');
-  if(!container||typeof L==='undefined')return;
-
-  // 서울특별시 금천구 디지털로 178 퍼블릭 가산 B1313
-  var lat=37.47570, lng=126.88610;
-
-  mapInstance=L.map(container,{
-    center:[lat,lng],
-    zoom:16,
-    zoomControl:true,
-    attributionControl:false,
-    scrollWheelZoom:true
-  });
-
-  // CartoDB Positron — 간결한 회색 타일
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
-    maxZoom:19
-  }).addTo(mapInstance);
-
-  // 파란색 커스텀 마커 (#1E10C7)
-  var markerSvg='<svg width="46" height="60" viewBox="0 0 46 60" xmlns="http://www.w3.org/2000/svg"><path d="M23 0C13.6 0 6 7.6 6 17c0 12 17 43 17 43S40 29 40 17C40 7.6 32.4 0 23 0z" fill="#1E10C7" stroke="#fff" stroke-width="2"/><circle cx="23" cy="17" r="6.5" fill="#ffffff"/></svg>';
-  var icon=L.divIcon({
-    html:markerSvg,
-    className:'',
-    iconSize:[46,60],
-    iconAnchor:[23,60],
-    popupAnchor:[0,-60]
-  });
-
-  L.marker([lat,lng],{icon:icon})
-    .addTo(mapInstance)
-    .bindPopup('<b>MUYI</b><br>서울시 금천구 디지털로 178 퍼블릭 가산 B1313');
-
-  // MUYI 라벨 — 마커 옆에 항상 표시
-  var label=L.divIcon({
-    html:'<div style="font-family:Space Grotesk,DM Sans,sans-serif;font-size:13px;font-weight:700;color:#1E10C7;white-space:nowrap;text-shadow:0 0 4px #fff,0 0 4px #fff,0 0 4px #fff">MUYI</div>',
-    className:'',
-    iconSize:[50,20],
-    iconAnchor:[-8,28]
-  });
-  L.marker([lat,lng],{icon:label,interactive:false}).addTo(mapInstance);
-
-  // Fix tiles not loading when container was hidden
-  setTimeout(function(){mapInstance.invalidateSize();},300);
-  setTimeout(function(){mapInstance.invalidateSize();},1000);
-}
 </script>
 
 <!-- ── MUYI 상담 위젯: 채널톡 + 카카오톡 ── -->
