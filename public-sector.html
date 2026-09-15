@@ -91,8 +91,11 @@ body{font-family:'Noto Sans KR','DM Sans',sans-serif;background:var(--c-bg);colo
 .process-step p{font-size:.78rem;color:var(--c-subtle)}
 /* Credentials */
 .cred-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
-.cred-card{padding:1.4rem;border:1px solid var(--c-border);border-radius:var(--radius-md);display:flex;align-items:flex-start;gap:1rem;background:#fff}
-.cred-icon{width:36px;height:36px;border-radius:50%;background:rgba(30,16,199,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem}
+.cred-card{padding:1.4rem;border:1px solid var(--c-border);border-radius:var(--radius-md);display:flex;align-items:flex-start;gap:1rem;background:#fff;transition:border-color .25s,box-shadow .25s,transform .25s}
+/* 누르는 기능은 없지만 마우스를 올리면 살짝 떠오르며 강조 */
+.cred-card:hover{border-color:rgba(30,16,199,.35);box-shadow:0 10px 24px rgba(30,16,199,.08);transform:translateY(-3px)}
+.cred-icon{width:36px;height:36px;border-radius:50%;background:rgba(30,16,199,.08);color:#1E10C7;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem;transition:background .25s,color .25s}
+.cred-card:hover .cred-icon{background:rgba(30,16,199,.16)}
 .cred-text h4{font-size:.95rem;font-weight:700;margin-bottom:.2rem}
 .cred-text p{font-size:.82rem;color:var(--c-text)}
 /* FAQ */
@@ -137,12 +140,6 @@ select.lp-fi{appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='ht
     <a href="#form" class="lp-cta-main">제안서 요청하기 →</a>
   </section>
 
-  <div class="lp-stats">
-    <div class="lp-stat"><div class="lp-stat-n">30<em>+</em></div><div class="lp-stat-l">공공 프로젝트 수행</div></div>
-    <div class="lp-stat"><div class="lp-stat-n">15<em>+</em></div><div class="lp-stat-l">기관 협업 경험</div></div>
-    <div class="lp-stat"><div class="lp-stat-n">95<em>%</em></div><div class="lp-stat-l">사업 완수율</div></div>
-    <div class="lp-stat"><div class="lp-stat-n">7<em>년</em></div><div class="lp-stat-l">업력</div></div>
-  </div>
 
   <section class="lp-section">
     <div class="lp-section-eye">Service Areas</div>
@@ -160,6 +157,9 @@ select.lp-fi{appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='ht
   <section class="lp-section">
     <div class="lp-section-eye">Track Record</div>
     <h2>주요 수행 실적</h2>
+    <div class="cred-grid" style="margin-bottom:1.4rem">
+      <div class="cred-card"><div class="cred-icon">🪧</div><div class="cred-text"><h4>인천광역시 옥외광고 집행</h4><p>GOAD 정부광고 시스템을 통한 지자체 옥외광고 운영</p></div></div>
+    </div>
     <p style="font-size:.95rem;color:var(--c-text);line-height:1.8">MUYI는 정책 홍보, 지자체 SNS 운영, 관광·행사 홍보, 공공기관 콘텐츠 제작 용역을 수행해 왔습니다.<br>기관별 상세 수행 실적과 산출물은 <strong>제안서 요청 시 개별 공유</strong>해 드립니다.</p>
   </section>
 
@@ -179,10 +179,13 @@ select.lp-fi{appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='ht
     <div class="lp-section-eye">Credentials</div>
     <h2>자격 및 인증</h2>
     <div class="cred-grid">
-      <div class="cred-card"><div class="cred-icon">&#9989;</div><div class="cred-text"><h4>사업자등록</h4><p>정식 법인 사업자 등록 완료</p></div></div>
-      <div class="cred-card"><div class="cred-icon">&#9989;</div><div class="cred-text"><h4>조달등록</h4><p>나라장터 조달등록 업체</p></div></div>
-      <div class="cred-card"><div class="cred-icon">&#9989;</div><div class="cred-text"><h4>공공 수행 실적</h4><p>30건 이상 공공 프로젝트 수행</p></div></div>
-      <div class="cred-card"><div class="cred-icon">&#9989;</div><div class="cred-text"><h4>보안 서약</h4><p>공공기관 보안 규정 준수</p></div></div>
+      <div class="cred-card"><div class="cred-icon">🏢</div><div class="cred-text"><h4>나라장터 등록</h4><p>조달청 입찰참가자격 · 광고대행업, 영상제작</p></div></div>
+      <div class="cred-card"><div class="cred-icon">📢</div><div class="cred-text"><h4>GOAD 정부광고 매체사</h4><p>한국언론진흥재단 정부광고 통합지원시스템 등록</p></div></div>
+      <div class="cred-card"><div class="cred-icon">✅</div><div class="cred-text"><h4>직접생산확인 · 영상제작</h4><p>중소기업 직접생산확인 · 유효기간 2028.05</p></div></div>
+      <div class="cred-card"><div class="cred-icon">🚀</div><div class="cred-text"><h4>공공조달 창업기업</h4><p>창업기업 확인 · 서울지방중소벤처기업청</p></div></div>
+      <div class="cred-card"><div class="cred-icon">🏛️</div><div class="cred-text"><h4>특허 등록</h4><p>AI 기반 마케팅 매칭 플랫폼 · 제10-2818552호</p></div></div>
+      <div class="cred-card"><div class="cred-icon">💻</div><div class="cred-text"><h4>소프트웨어사업자</h4><p>한국인공지능소프트웨어산업협회</p></div></div>
+      <div class="cred-card"><div class="cred-icon">🎬</div><div class="cred-text"><h4>비디오물제작업 신고</h4><p>숏폼·M/V급 영상 제작 · 금천구청</p></div></div>
     </div>
   </section>
 
