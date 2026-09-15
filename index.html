@@ -260,19 +260,24 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .nav-lnk::after{content:'';position:absolute;bottom:-.2rem;left:0;width:0;height:1.5px;background:var(--c-brand);transition:width var(--dur-mid) var(--ease-out)}
 .nav-lnk:hover{color:#0a0a1a}
 .nav-lnk:hover::after{width:100%}
-.nav-switch{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:rgba(10,10,26,.45);text-decoration:none;font-weight:600;font-family:inherit;border:1px solid rgba(10,10,26,.12);padding:.5rem 1.2rem;border-radius:var(--radius-full);transition:all .25s}
-.nav-switch:hover{color:var(--c-brand);border-color:rgba(30,16,199,.25);background:rgba(30,16,199,.04)}
-.nav-dark .nav-switch{color:rgba(200,210,255,.5);border-color:rgba(200,210,255,.15)}
-.nav-dark .nav-switch:hover{color:#fff;border-color:rgba(200,210,255,.3)}
+/* 로컬 비즈니스(주황 브랜드 페이지)로 가는 버튼 — 주황을 채도 낮춰 톤 다운 */
+.nav-switch{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:#B4581F;text-decoration:none;font-weight:700;font-family:inherit;border:1px solid #F1D3BC;background:#FFF5EE;padding:.5rem 1.2rem;border-radius:var(--radius-full);transition:all .25s}
+.nav-switch:hover{color:#9A4712;border-color:#E8B994;background:#FDE9DA}
+.nav-dark .nav-switch{color:#F2B68C;border-color:rgba(242,182,140,.3);background:rgba(238,78,0,.08)}
+.nav-dark .nav-switch:hover{color:#FFD2B2;border-color:rgba(242,182,140,.55);background:rgba(238,78,0,.14)}
 .nav-cta{font-size:var(--text-sm);letter-spacing:.08em;text-transform:uppercase;padding:.78rem 2.2rem;border:none;border-radius:var(--radius-full);color:var(--c-white);cursor:pointer;font-weight:700;font-family:inherit;transition:all var(--dur-mid) var(--ease-out);background:var(--c-brand);box-shadow:0 4px 20px rgba(30,16,199,.25)}
 .nav-cta:hover{background:var(--c-brand-h);transform:translateY(-2px);box-shadow:0 8px 32px rgba(30,16,199,.35)}
 .nav-cta:active{transform:translateY(0) scale(.97);transition-duration:80ms}
 
 /* BACK */
-#back{position:fixed;left:3rem;top:50%;transform:translateY(-50%);z-index:150;opacity:0;pointer-events:none;transition:opacity .4s;cursor:pointer;mix-blend-mode:normal}
-#back.vis{opacity:1;pointer-events:auto}
-.back-inner{display:flex;flex-direction:column;align-items:center;gap:.6rem;color:rgba(10,10,26,.55);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500;writing-mode:vertical-rl;transform:rotate(180deg);transition:color .3s}
-#back:hover .back-inner{color:rgba(10,10,26,.8)}
+.nav-l{display:flex;align-items:center;gap:1.2rem}
+#back{display:inline-flex;align-items:center;gap:.5rem;height:44px;padding:0 1.15rem 0 .9rem;border-radius:var(--radius-full);border:1px solid rgba(10,10,26,.14);background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#0a0a1a;font:700 .82rem/1 'Noto Sans KR','DM Sans',sans-serif;letter-spacing:-.01em;cursor:pointer;opacity:0;pointer-events:none;transform:translateX(-8px);transition:opacity .35s,transform .35s var(--ease-out),background .25s,border-color .25s,color .25s;box-shadow:var(--shadow-sm)}
+#back.vis{opacity:1;pointer-events:auto;transform:none}
+#back svg{width:15px;height:15px;transition:transform .25s var(--ease-out)}
+#back:hover{border-color:rgba(30,16,199,.35);color:var(--c-brand)}
+#back:hover svg{transform:translateX(-3px)}
+.nav-dark #back{background:rgba(255,255,255,.08);border-color:rgba(200,210,255,.24);color:#fff;box-shadow:none}
+.nav-dark #back:hover{background:rgba(255,255,255,.16);color:#fff;border-color:rgba(200,210,255,.45)}
 
 /* PROGRESS */
 #prog{position:fixed;bottom:1.6rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;z-index:150;opacity:0;transition:opacity .4s;pointer-events:none;background-color:rgba(10,10,26,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:100px;padding:4px;border:1px solid rgba(140,162,255,.12)}
@@ -327,6 +332,21 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .h-stat-l{font-size:var(--text-xs);letter-spacing:.08em;text-transform:uppercase;color:rgba(205,214,255,.6);margin-top:.5rem;font-weight:600;white-space:nowrap}
 .h-stat-ctx{display:none}
 
+/* 데스크톱 패널 모드: 로고(145px) 아래에서 시작하고 하단 네비 위에서 끝나게.
+   글자 크기를 가로폭뿐 아니라 세로 높이에도 묶어 낮은 화면(1280×720)에서도 넘치지 않는다 */
+@media(min-width:768px){
+  body:not(.scroll-mode) #p-hero{padding-top:184px;padding-bottom:6.2rem}
+  body:not(.scroll-mode) .h-eye{margin-bottom:clamp(1.2rem,2.6vh,2rem)}
+  body:not(.scroll-mode) .h-title{font-size:clamp(2.6rem,min(6vw,7.8vh),7rem);line-height:1.04;margin-bottom:clamp(.6rem,1.6vh,1.6rem)}
+  body:not(.scroll-mode) .h-sub{font-size:clamp(.9rem,1.9vh,1.15rem);margin-bottom:clamp(1rem,3vh,2.6rem)}
+  body:not(.scroll-mode) .h-enter{padding:clamp(.85rem,1.8vh,1.3rem) 3rem}
+  body:not(.scroll-mode) .h-stats{margin-top:clamp(1rem,2.6vh,3rem)}
+  body:not(.scroll-mode) .h-stat{padding:clamp(.8rem,1.9vh,1.8rem) 2.2rem}
+  body:not(.scroll-mode) .h-stat-n{font-size:clamp(1.8rem,min(3.6vw,4.4vh),3.2rem)}
+  /* 하단 네비가 이미 다음 섹션 이동을 맡으므로 데스크톱에선 스크롤 안내를 숨겨 겹침 제거 */
+  body:not(.scroll-mode) .scroll-hint{display:none}
+}
+
 /* SCROLL DOWN INDICATOR */
 .scroll-hint{position:absolute;bottom:2.4rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.7rem;cursor:pointer;pointer-events:auto;opacity:0;transition:opacity var(--dur-slow)}
 .scroll-hint-txt{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(205,214,255,.55);font-weight:700;transition:color var(--dur-mid)}
@@ -338,7 +358,6 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 
 /* ORBIT HINT & NAV */
 #p-orbit{flex-direction:column;align-items:center;justify-content:flex-end;padding:var(--nav-h) var(--edge-pad) 2.5rem;gap:.7rem}
-.o-hint{font-size:.95rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(10,10,26,.4);font-weight:600;opacity:0;margin-top:auto;margin-bottom:.2rem}
 .orbit-nav{display:flex;flex-direction:column;gap:.65rem;opacity:0;width:min(780px,100% - 3rem)}
 .orbit-detail-wrap{display:none}
 .orbit-btn{position:relative;display:flex;flex-direction:row;align-items:center;gap:1.2rem;padding:1.6rem 2rem;border:1px solid var(--c-border);border-radius:var(--radius-md);font-family:inherit;background:#f6f7ff;backdrop-filter:blur(18px);cursor:pointer;transition:all var(--dur-mid) var(--ease-out);pointer-events:auto;text-align:left;width:100%;overflow:hidden;box-shadow:var(--shadow-sm)}
@@ -450,11 +469,15 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .svc-item:hover .svc-arrow{color:var(--c-brand);transform:translateX(6px)}
 .svc-num{display:none}
 /* Preview panel */
-.svc-preview{width:clamp(260px,38%,520px);position:relative;overflow:hidden;flex-shrink:0;align-self:stretch;min-height:100%}
+.svc-preview{width:clamp(340px,49%,680px);position:relative;overflow:hidden;flex-shrink:0;align-self:stretch;min-height:100%}
 .svc-prev-img{position:absolute;inset:0;clip-path:inset(0 100% 0 0);transition:clip-path .55s cubic-bezier(.77,0,.175,1)}
 .svc-prev-img.show{clip-path:inset(0 0% 0 0)}
-.svc-prev-img img{width:100%;height:100%;object-fit:cover;will-change:transform;transition:transform .1s linear}
-.svc-prev-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(30,16,199,.55) 0%,rgba(5,3,40,.75) 100%)}
+/* 케이스 이미지 안에 설명 텍스트가 있어 잘리면 안 된다 → 원본 비율 그대로(contain) 두고,
+   남는 위아래 공간은 같은 이미지를 흐리게 깔아 채운다. 파랑 틴트는 쓰지 않는다 */
+.svc-prev-img{background:#0b0b12}
+.svc-prev-img::before{content:'';position:absolute;inset:-40px;background:var(--prev-bg) center/cover no-repeat;filter:blur(26px) brightness(.5) saturate(1.1)}
+.svc-prev-img img{position:relative;width:100%;height:100%;object-fit:contain;will-change:transform;transition:transform .1s linear}
+.svc-prev-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(6,6,14,.86) 0%,rgba(6,6,14,.4) 22%,rgba(6,6,14,0) 42%)}
 .svc-prev-badge{position:absolute;bottom:2.4rem;left:2rem;right:2rem;color:#fff;opacity:0;transform:translateY(10px);transition:opacity .4s,transform .4s}
 .svc-prev-badge.show{opacity:1;transform:translateY(0)}
 .svc-prev-kpi{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:700;letter-spacing:-.04em;line-height:1;margin-bottom:.4rem;font-variant-numeric:tabular-nums}
@@ -521,6 +544,15 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .cl-i.is-mark{height:clamp(38px,3.6vw,52px)}
 .cl-i img{height:100%;width:auto;object-fit:contain;filter:grayscale(1);opacity:.58;transition:filter var(--dur-mid) var(--ease-out),opacity var(--dur-mid) var(--ease-out);-webkit-user-drag:none;user-select:none;pointer-events:none}
 .cl-i:hover img{filter:none;opacity:1}
+.cl-i{transition:opacity .35s var(--ease-out)}
+.cl-rows.is-filter .cl-track{animation-play-state:paused}
+.cl-rows.is-filter .cl-i{opacity:.12}
+.cl-rows.is-filter .cl-i.on{opacity:1}
+.cl-rows.is-filter .cl-i.on img{filter:none;opacity:1}
+button.cli-case{font-family:inherit;width:100%;cursor:pointer;color:inherit}
+.cli-case.on{border-color:rgba(30,16,199,.35);background:linear-gradient(180deg,#eef1ff 0%,#e3e8ff 100%);transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.cli-case.on .cli-case-n{color:var(--c-brand)}
+.cli-case.on::after{transform:scaleX(1)}
 @media(prefers-reduced-motion:reduce){.cl-track{animation:none}.cl-rows{overflow-x:auto}}
 /* 세로가 낮은 노트북(≤820px)에서도 4줄 로고가 하단 네비에 안 걸리도록 헤더·로고를 압축 */
 @media(max-height:820px) and (min-width:768px){#p-cli{padding-top:calc(var(--nav-h) - .6rem)}.cli-ti{font-size:clamp(1.8rem,3.2vw,2.6rem)}.cli-sub{margin-top:.4rem}.cli-hd{margin-bottom:1.1rem}.cli-cases{margin-top:1rem}.cli-case{padding:.8rem 1.1rem}.cl-rows{gap:.75rem}.cl-i{height:26px}.cl-i.is-mark{height:34px}}
@@ -637,13 +669,31 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .ct-footer-links button{font-size:.78rem;letter-spacing:.04em;color:rgba(10,10,26,.45);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;transition:color .3s}
 .ct-footer-links button:hover{color:var(--c-brand)}
 .ct-footer-links .ft-sep{width:1px;height:10px;background:rgba(10,10,26,.12)}
-.ct-footer-switch{display:inline-flex;align-items:center;gap:.45rem;font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--c-brand);text-decoration:none;border:1px solid rgba(30,16,199,.2);border-radius:var(--radius-full);padding:.35rem .9rem .35rem .7rem;transition:all .25s;background:rgba(30,16,199,.04)}
-.ct-footer-switch:hover{background:var(--c-brand);color:#fff;border-color:var(--c-brand);transform:translateY(-1px);box-shadow:0 4px 12px rgba(30,16,199,.2)}
+.ct-footer-switch{display:inline-flex;align-items:center;gap:.45rem;font-size:.8rem;font-weight:700;letter-spacing:-.01em;color:#B4581F;text-decoration:none;border:1px solid #F1D3BC;border-radius:var(--radius-full);padding:.55rem 1rem .55rem 1.1rem;transition:all .25s;background:#FFF5EE;font-family:'Noto Sans KR','DM Sans',sans-serif;white-space:nowrap}
+.ct-footer-switch:hover{background:#FDE9DA;color:#9A4712;border-color:#E8B994;transform:translateY(-1px)}
 .ct-footer-switch svg{width:12px;height:12px;transition:transform .25s}
 .ct-footer-switch:hover svg{transform:translateX(2px)}
 .ct-footer-meta{font-size:.72rem;color:rgba(10,10,26,.32);letter-spacing:.02em;line-height:1.6}
 .ct-footer-meta span+span::before{content:'·';margin:0 .5rem}
-.ct-footer-addr{font-size:.72rem;color:rgba(10,10,26,.4);letter-spacing:.01em;line-height:1.6;margin-bottom:.3rem}
+.ct-footer-meta{margin:0}
+.ct-footer-meta+.ct-footer-meta{margin-top:.15rem}
+.ct-ft-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.ct-ft-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:.6rem 1.5rem;flex-wrap:wrap;padding-top:.9rem;border-top:1px dashed rgba(10,10,26,.08)}
+.ct-ft-cards{display:flex;gap:.7rem;flex-wrap:wrap}
+/* 파랑이 많은 페이지라 링크 카드는 먹색으로 대비를 준다 */
+.ct-ft-card{display:flex;align-items:center;gap:.8rem;min-width:260px;padding:.7rem 1rem .7rem .7rem;border-radius:14px;background:#0f0f1a;color:#fff;text-decoration:none;box-shadow:0 6px 20px rgba(10,10,26,.14);transition:transform .3s var(--ease-out),box-shadow .3s,background .3s}
+.ct-ft-card:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(10,10,26,.22);background:#17172a}
+.ct-ft-ic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ct-ft-ic svg{width:20px;height:20px}
+.ct-ft-ic-doc{background:#fff;color:#0f0f1a}
+.ct-ft-ic-ig{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%);color:#fff}
+.ct-ft-tx{display:flex;flex-direction:column;gap:.15rem;line-height:1.2;font-family:'Noto Sans KR','DM Sans',sans-serif}
+.ct-ft-tx b{font-size:.92rem;font-weight:700;letter-spacing:-.01em}
+.ct-ft-tx small{font-size:.72rem;color:rgba(255,255,255,.58)}
+.ct-ft-go{margin-left:auto;padding-left:.6rem;font-size:1rem;color:rgba(255,255,255,.55);transition:transform .3s var(--ease-out),color .3s}
+.ct-ft-card:hover .ct-ft-go{transform:translateX(4px);color:#fff}
+.ct-ft-copy{font-size:.72rem;color:rgba(10,10,26,.32)}
+@media(max-width:767px){.ct-ft-card{min-width:0;flex:1 1 100%}.ct-ft-top{align-items:stretch}.ct-footer-switch{justify-content:center}}
 /* Legal Modal */
 .legal-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;display:none;align-items:center;justify-content:center;padding:2rem;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .legal-modal-overlay.is-open{display:flex}
@@ -658,9 +708,11 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .ct-col{position:relative;z-index:1}
 .ct-col:first-of-type{grid-column:1;grid-row:1}
 .ct-col:last-of-type{grid-column:2;grid-row:1}
-#p-ct{overflow-y:auto;padding-bottom:7rem}
-.ct-eye{display:block;font-size:var(--text-xs);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--c-brand);margin-bottom:1.2rem;font-weight:700}
-.ct-ti{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2.8rem,5.2vw,4.8rem);font-weight:700;line-height:1.16;letter-spacing:-.05em;color:#0a0a1a;margin-bottom:1.6rem;position:relative;overflow:visible;max-width:16ch;padding:.02em 0 .08em}
+#p-ct{overflow-y:auto;padding-bottom:5.6rem}
+/* 기존 position:relative 때문에 패널이 화면보다 길어지며 푸터가 잘렸다 → 화면 크기에 고정하고 내부 스크롤 */
+body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;gap:clamp(1.4rem,3vh,2.6rem) clamp(2.4rem,4vw,4.5rem)}
+.ct-eye{display:block;font-size:var(--text-xs);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--c-brand);margin-bottom:.9rem;font-weight:700}
+.ct-ti{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2.2rem,min(4vw,6.6vh),3.8rem);font-weight:700;line-height:1.16;letter-spacing:-.05em;color:#0a0a1a;margin-bottom:1.1rem;position:relative;overflow:visible;max-width:16ch;padding:.02em 0 .08em}
 .ct-ti .h-line{display:block;overflow:visible;padding:.04em 0}
 .ct-ti .h-line-in{display:inline-block;position:relative;transform-origin:center bottom}
 .ct-ti .h-title-grad{display:inline-block;color:#0a0a1a;-webkit-text-fill-color:#0a0a1a;background:none;-webkit-background-clip:unset;background-clip:unset}
@@ -668,22 +720,25 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .ct-left{display:flex;flex-direction:column}
 .ct-desc{font-size:1rem;line-height:1.7;color:var(--c-subtle);margin-bottom:0;word-break:keep-all}
 .ct-stats{display:flex;gap:.8rem;padding-bottom:.5rem;margin-top:auto}
-.ct-stat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;background:#f4f5ff;border:1px solid rgba(30,16,199,.08);border-radius:12px;padding:1.2rem .5rem;text-align:center;min-width:0}
-.ct-stat-val{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:2.8rem;font-weight:700;color:var(--c-brand);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
+.ct-stat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;background:#f4f5ff;border:1px solid rgba(30,16,199,.08);border-radius:12px;padding:.9rem .5rem;text-align:center;min-width:0}
+.ct-stat-val{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(1.9rem,min(3vw,4.4vh),2.6rem);font-weight:700;color:var(--c-brand);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
 .ct-stat-val .ct-stat-unit{font-size:1.6rem;font-weight:700}
 .ct-stat-num{display:inline-block;text-align:right}
 .ct-stat-label{font-size:.72rem;color:var(--c-subtle);letter-spacing:.02em;line-height:1.3}
-.fg{margin-bottom:1rem}
+.fg{margin-bottom:.85rem}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:0 .8rem}
+@media(max-width:560px){.fg-row{grid-template-columns:1fr}}
+.req{color:var(--c-brand);font-weight:800;margin-left:.15rem}
 .f-req-note{text-align:right;font-size:.68rem;color:rgba(10,10,26,.38);letter-spacing:.04em;margin-bottom:.9rem;font-family:'Space Grotesk','DM Sans',sans-serif;font-weight:500}
 .fl{display:block;font-size:var(--text-xs);letter-spacing:.04em;color:var(--c-subtle);margin-bottom:.4rem;font-weight:600;font-family:'Noto Sans KR','DM Sans',sans-serif}
-.fi,.ft{width:100%;background:#f6f7ff;border:1px solid rgba(30,16,199,.12);border-radius:var(--radius-sm);color:#0a0a1a;padding:.9rem 1.2rem;font-family:inherit;font-size:var(--text-base);outline:none;transition:border-color var(--dur-mid),background var(--dur-mid),box-shadow var(--dur-mid);-webkit-appearance:none}
+.fi,.ft{width:100%;background:#f6f7ff;border:1px solid rgba(30,16,199,.12);border-radius:var(--radius-sm);color:#0a0a1a;padding:.78rem 1rem;font-family:inherit;font-size:var(--text-base);outline:none;transition:border-color var(--dur-mid),background var(--dur-mid),box-shadow var(--dur-mid);-webkit-appearance:none}
 select.fi{background:#f4f6ff;color:#0a0a1a;cursor:pointer}
 select.fi option{background:#f4f6ff;color:#0a0a1a}
 select.fi:hover{border-color:rgba(30,16,199,.5)}
 select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 .fi:focus,.ft:focus{border-color:rgba(30,16,199,.6);background:#eef1ff;box-shadow:0 0 20px rgba(30,16,199,.15)}
 .fi::placeholder,.ft::placeholder{color:rgba(10,10,26,.3)}
-.ft{resize:vertical;min-height:100px}
+.ft{resize:vertical;min-height:84px}
 .fsub{width:100%;padding:1.15rem;background:var(--c-brand);color:var(--c-white);border:none;border-radius:var(--radius-full);cursor:pointer;font-family:inherit;font-size:var(--text-base);letter-spacing:.04em;text-transform:none;font-weight:700;transition:all var(--dur-mid) var(--ease-out);box-shadow:0 4px 20px rgba(30,16,199,.3);position:relative;overflow:hidden}
 .fsub::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.1) 0%,transparent 50%);opacity:0;transition:opacity var(--dur-mid)}
 .fsub:hover{background:var(--c-brand-h);transform:translateY(-2px);box-shadow:0 8px 32px rgba(30,16,199,.35)}
@@ -695,19 +750,30 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 .fi.invalid,.ft.invalid{border-color:rgba(238,78,0,.6);box-shadow:0 0 12px rgba(238,78,0,.15)}
 
 /* CONTACT — 스텝형 문의 폼 */
-.ct-form-box{border:1px solid var(--c-border);border-radius:var(--radius-lg);background:#f8f9ff;padding:clamp(1.6rem,3vw,2.4rem);display:flex;flex-direction:column}
-.ct-step-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.3rem}
-.ct-step-lb{font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--c-brand)}
-.ct-step-cnt{font-size:.72rem;color:var(--c-subtle);font-variant-numeric:tabular-nums}
-.ct-step-cnt em{font-style:normal;color:var(--c-brand);font-weight:800}
+.ct-form-box{border:1px solid var(--c-border);border-radius:var(--radius-lg);background:#f8f9ff;padding:clamp(1.3rem,2.2vw,2rem);display:flex;flex-direction:column}
+/* 단계 표시줄: 4칸 진행 바 + 단계 이름. 끝낸 단계는 눌러서 돌아갈 수 있다 */
+.ct-stepper{display:grid;grid-template-columns:repeat(4,1fr);gap:.45rem;list-style:none;margin:0 0 1.3rem;padding:0}
+.ct-stepper button{width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:.5rem;background:none;border:none;padding:0;font:inherit;text-align:left;color:rgba(10,10,26,.38);cursor:default}
+.ct-stepper button::before{content:'';display:block;width:100%;height:3px;border-radius:3px;background:rgba(30,16,199,.12);transition:background .35s var(--ease-out)}
+.ct-stepper span{font-size:.74rem;font-weight:700;letter-spacing:-.01em;white-space:nowrap;font-family:'Noto Sans KR','DM Sans',sans-serif}
+.ct-stepper li.is-cur button{color:var(--c-brand)}
+.ct-stepper li.is-cur button::before{background:var(--c-brand)}
+.ct-stepper li.is-done button{color:#0a0a1a;cursor:pointer}
+.ct-stepper li.is-done button::before{background:rgba(30,16,199,.42)}
+.ct-stepper li.is-done span::before{content:'✓ ';color:var(--c-brand)}
+.ct-stepper li.is-done button:hover span{color:var(--c-brand)}
+.ct-count{margin-left:auto;font-size:.74rem;font-weight:800;color:var(--c-brand);white-space:nowrap}
+.ct-opt{display:inline-block;margin-left:.3rem;padding:.08rem .45rem;border-radius:var(--radius-full);background:rgba(10,10,26,.06);font-size:.68rem;font-weight:700;color:rgba(10,10,26,.5);vertical-align:1px}
+.ct-req-note{font-size:.72rem;color:rgba(10,10,26,.45);margin-top:1rem;font-family:'Noto Sans KR','DM Sans',sans-serif}
+@media(max-width:420px){.ct-stepper span{font-size:.64rem}}
 .ct-steps{display:grid;flex:1}
 .ct-step{grid-area:1/1;visibility:hidden;opacity:0;pointer-events:none}
 .ct-step.is-act{visibility:visible;opacity:1;pointer-events:auto;animation:ctStepIn .45s var(--ease-out)}
 @keyframes ctStepIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.ct-step-hint{font-size:.82rem;color:var(--c-subtle);margin-bottom:.9rem;line-height:1.6}
+.ct-step-hint{display:flex;align-items:baseline;gap:.2rem;flex-wrap:wrap;font-size:.84rem;color:rgba(10,10,26,.62);font-weight:600;margin-bottom:.8rem;line-height:1.6;font-family:'Noto Sans KR','DM Sans',sans-serif}
 .ct-chip-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem}
 .ct-chip-row{display:flex;flex-wrap:wrap;gap:.55rem}
-.ct-chip-b{font-family:inherit;text-align:left;padding:.85rem 1rem;border-radius:var(--radius-sm);border:1px solid var(--c-border);background:#fff;color:#0a0a1a;cursor:pointer;transition:all var(--dur-mid) var(--ease-out);font-size:.86rem;font-weight:600;line-height:1.3}
+.ct-chip-b{font-family:inherit;text-align:left;padding:.72rem .95rem;border-radius:var(--radius-sm);border:1px solid var(--c-border);background:#fff;color:#0a0a1a;cursor:pointer;transition:all var(--dur-mid) var(--ease-out);font-size:.86rem;font-weight:600;line-height:1.3}
 .ct-chip-b span{display:block;font-size:.68rem;font-weight:500;color:var(--c-subtle);margin-top:.15rem}
 .ct-chip-b:hover{border-color:rgba(30,16,199,.35);transform:translateY(-1px)}
 .ct-chip-b.sel{background:var(--c-brand);border-color:var(--c-brand);color:#fff}
@@ -722,7 +788,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 .ct-file-item b{font-weight:600;flex-shrink:0;color:var(--c-subtle);font-size:.72rem;margin-left:.6rem}
 .ct-file-rm{background:none;border:none;color:var(--c-subtle);cursor:pointer;font-size:1rem;line-height:1;flex-shrink:0;padding:.2rem}
 .ct-file-rm:hover{color:#D92D20}
-.ct-step-nav{display:flex;gap:.7rem;margin-top:1.6rem}
+.ct-step-nav{display:flex;gap:.7rem;margin-top:.7rem}
 /* 오류 문구가 뜨고 사라질 때 박스 높이가 출렁이지 않도록 자리를 미리 확보 */
 #p-ct .fst{display:block;min-height:1.4em;visibility:hidden}
 #p-ct .fst.ok,#p-ct .fst.err{visibility:visible}
@@ -731,6 +797,14 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 .ct-nav-b.next{background:var(--c-brand);border-color:var(--c-brand);color:#fff;flex:2}
 .ct-nav-b.next:hover{background:var(--c-brand-h)}
 .ct-nav-b.submit{flex:2}
+.ct-nav-b.next{display:flex;align-items:center;justify-content:center;gap:.45rem}
+.ct-nav-b.next small{font-size:.76rem;font-weight:600;opacity:.78}
+.ct-nav-b.next i{font-style:normal;transition:transform .25s var(--ease-out)}
+.ct-nav-b.next:hover i{transform:translateX(3px)}
+/* 조건을 채우기 전엔 흐리게 — 눌러도 넘어가지 않고 무엇이 빠졌는지 알려준다 */
+.ct-nav-b.next.is-off{background:#c7cbef;border-color:#c7cbef;cursor:not-allowed}
+.ct-nav-b.next.is-off:hover{background:#c7cbef}
+.ct-nav-b.next.is-off i{transform:none}
 @media(max-width:380px){.ct-chip-grid{grid-template-columns:1fr}}
 
 /* SERVICE CASE IMAGE */
@@ -785,7 +859,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 @media(max-width:1279px){
   :root{--nav-h:90px;--edge-pad:clamp(1.8rem,4vw,4rem)}
   .svc-en{font-size:clamp(1.6rem,3vw,2.8rem)}
-  .svc-preview{width:clamp(220px,32%,380px)}
+  .svc-preview{width:clamp(280px,42%,500px)}
   .ss-wrap{max-width:100%;gap:2rem}
   .ss-c{flex:0 0 clamp(250px,32%,320px)}
   .ss-case-img{flex:1 1 0}
@@ -825,7 +899,6 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   #back{display:none}
   #p-orbit{padding:2.8rem var(--edge-pad) 2.8rem;justify-content:flex-start;gap:.9rem;flex-direction:column;align-items:stretch}
   #p-orbit::before{content:'DIAGNOSIS';display:block;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--c-brand);font-weight:700;margin-bottom:.1rem}
-  .o-hint{font-size:clamp(1.15rem,4.8vw,1.5rem);letter-spacing:-.03em;margin:0 0 1rem;text-align:left;color:#0a0a1a;font-weight:800;font-family:'Noto Sans KR',sans-serif;text-transform:none;line-height:1.3;opacity:1!important;word-break:keep-all}
   .orbit-nav{flex-direction:column;gap:.5rem;padding:0;width:100%;opacity:1!important}
   .orbit-btn{min-width:auto;flex-direction:row;align-items:center;gap:.85rem;padding:1rem 1rem 1rem 1.2rem;border-radius:.9rem;min-height:auto;border:1px solid rgba(10,10,26,.09);background:#f9f9fc;box-shadow:none;position:relative;overflow:hidden;transform:none!important;transition:background .18s,border-color .18s,box-shadow .18s}
   .orbit-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--glow-color,var(--c-brand));border-radius:0 2px 2px 0;opacity:.5;transition:opacity .18s}
@@ -1050,14 +1123,16 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 </div>
 
 <nav id="nav">
-  <div class="logo" id="logo-btn"><img src="/assets/logo-white.png" alt="MUYI" class="logo-img"></div>
+  <div class="nav-l">
+    <div class="logo" id="logo-btn"><img src="/assets/logo-white.png" alt="MUYI" class="logo-img"></div>
+    <button type="button" id="back" aria-label="이전 화면으로"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg><span id="back-lb">이전</span></button>
+  </div>
   <div class="nav-r">
 <a class="nav-switch" href="/local-business">Local Business</a>
 <button class="nav-cta" id="ct-nav">문의하기</button>
   </div>
 </nav>
 
-<div id="back"><div class="back-inner">Back</div></div>
 
 <div id="prog">
   <div id="prog-slider"></div>
@@ -1138,7 +1213,6 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 
 <!-- ORBIT VIEW -->
 <div class="pnl" id="p-orbit">
-  <div class="o-hint" id="o-hint">지금 브랜드가 멈춰 있는 지점을 선택하세요</div>
   <div class="orbit-nav" id="orbit-nav">
     <button type="button" class="orbit-btn orbit-btn-main" data-node="core" onclick="window._go('core')">
       <span class="orbit-btn-index">01</span>
@@ -1544,20 +1618,20 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 <div class="pnl" id="p-cli">
   <div class="cli-hd">
     <span class="cli-ey">Clients</span>
-    <h2 class="cli-ti">대기업·공공기관과<br><em>같은 기준</em>으로 일합니다</h2>
+    <h2 class="cli-ti">규모가 달라도,<br><em>성장의 구조</em>는 같습니다</h2>
     <p class="cli-sub">브랜드 규모는 달라도 진단·실행·보고 기준은 하나로 운영합니다.</p>
     <div class="cli-cases">
-      <div class="cli-case"><span class="cli-case-n">대기업 · 상장사</span><span class="cli-case-d">CJ프레시웨이 · SPC · 덱스터스튜디오 · NHN KCP</span></div>
-      <div class="cli-case"><span class="cli-case-n">정부 · 공공기관</span><span class="cli-case-d">농림축산식품부 · 중소벤처기업부 · 인천광역시</span></div>
-      <div class="cli-case"><span class="cli-case-n">전시 · 협회</span><span class="cli-case-d">COEX · RX · IFS · 대한민국김치협회</span></div>
-      <div class="cli-case"><span class="cli-case-n">프랜차이즈 · 외식</span><span class="cli-case-d">명륜진사갈비 · 타이거슈가 · 복호두</span></div>
+      <button type="button" class="cli-case" data-cat="corp"><span class="cli-case-n">기업 · 플랫폼</span><span class="cli-case-d">Enterprise &amp; Platform</span></button>
+      <button type="button" class="cli-case" data-cat="gov"><span class="cli-case-n">정부 · 공공기관</span><span class="cli-case-d">Government &amp; Public</span></button>
+      <button type="button" class="cli-case" data-cat="expo"><span class="cli-case-n">전시 · 협회</span><span class="cli-case-d">Exhibition &amp; Association</span></button>
+      <button type="button" class="cli-case" data-cat="fnb"><span class="cli-case-n">F&amp;B · 프랜차이즈</span><span class="cli-case-d">Food &amp; Franchise</span></button>
     </div>
   </div>
   <div class="cl-rows" aria-label="함께한 클라이언트">
-    <div class="cl-row"><div class="cl-track"><div class="cl-set"><div class="cl-i"><img src="/assets/logos/client-38.png" alt="서울신용보증재단 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark"><img src="/assets/logos/client-28.png" alt="명륜진사갈비 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-18.png" alt="한성대학교 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-02.png" alt="SPC 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-07.png" alt="payhere 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-04.png" alt="DEXTER STUDIOS 로고" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-38.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-28.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-18.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-02.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-07.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-04.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-38.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-28.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-18.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-02.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-07.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-04.png" alt="" loading="lazy" decoding="async"></div></div><div class="cl-set" aria-hidden="true"><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-38.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-28.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-18.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-02.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-07.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-04.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-38.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-28.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-18.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-02.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-07.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-04.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-38.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-28.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-18.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-02.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-07.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-04.png" alt="" loading="lazy" decoding="async"></div></div></div></div>
-    <div class="cl-row rev"><div class="cl-track"><div class="cl-set"><div class="cl-i"><img src="/assets/logos/client-20.png" alt="중소기업 옴부즈만 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark"><img src="/assets/logos/client-37.png" alt="복호두 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-12.png" alt="대한민국김치협회 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-06.png" alt="toss 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-16.png" alt="CRITEO 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-01.png" alt="CJ프레시웨이 로고" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-20.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-37.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-12.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-06.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-16.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-01.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-20.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-37.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-12.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-06.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-16.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-01.png" alt="" loading="lazy" decoding="async"></div></div><div class="cl-set" aria-hidden="true"><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-20.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-37.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-12.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-06.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-16.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-01.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-20.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-37.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-12.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-06.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-16.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-01.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-20.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-37.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-12.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-06.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-16.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-01.png" alt="" loading="lazy" decoding="async"></div></div></div></div>
-    <div class="cl-row"><div class="cl-track"><div class="cl-set"><div class="cl-i"><img src="/assets/logos/client-13.png" alt="KFA 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark"><img src="/assets/logos/client-29.png" alt="TIGER SUGAR 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-05.png" alt="NHN KCP 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-08.png" alt="비벗 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-15.png" alt="ENLIPLE 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-17.png" alt="Secta9ine 로고" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-13.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-29.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-05.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-08.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-15.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-17.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-13.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-29.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-05.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-08.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-15.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-17.png" alt="" loading="lazy" decoding="async"></div></div><div class="cl-set" aria-hidden="true"><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-13.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-29.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-05.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-08.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-15.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-17.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-13.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-29.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-05.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-08.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-15.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-17.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-13.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-29.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-05.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-08.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-15.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-17.png" alt="" loading="lazy" decoding="async"></div></div></div></div>
-    <div class="cl-row rev"><div class="cl-track"><div class="cl-set"><div class="cl-i"><img src="/assets/logos/client-14.png" alt="IFS 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark"><img src="/assets/logos/client-09.png" alt="RX 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-19.png" alt="중소벤처기업부 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-03.png" alt="COEX 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-10.png" alt="인천광역시 로고" loading="lazy" decoding="async"></div><div class="cl-i"><img src="/assets/logos/client-11.png" alt="농림축산식품부 로고" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-14.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-09.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-19.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-03.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-10.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-11.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-14.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-09.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-19.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-03.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-10.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-11.png" alt="" loading="lazy" decoding="async"></div></div><div class="cl-set" aria-hidden="true"><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-14.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-09.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-19.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-03.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-10.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-11.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-14.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-09.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-19.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-03.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-10.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-11.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-14.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" aria-hidden="true"><img src="/assets/logos/client-09.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-19.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-03.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-10.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" aria-hidden="true"><img src="/assets/logos/client-11.png" alt="" loading="lazy" decoding="async"></div></div></div></div>
+    <div class="cl-row"><div class="cl-track"><div class="cl-set"><div class="cl-i" data-cat="gov"><img src="/assets/logos/client-38.png" alt="서울신용보증재단 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb"><img src="/assets/logos/client-28.png" alt="명륜진사갈비 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov"><img src="/assets/logos/client-18.png" alt="한성대학교 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="fnb"><img src="/assets/logos/client-02.png" alt="SPC 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp"><img src="/assets/logos/client-07.png" alt="payhere 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp"><img src="/assets/logos/client-04.png" alt="DEXTER STUDIOS 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-38.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-28.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-18.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-02.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-07.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-04.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-38.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-28.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-18.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-02.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-07.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-04.png" alt="" loading="lazy" decoding="async"></div></div><div class="cl-set" aria-hidden="true"><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-38.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-28.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-18.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-02.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-07.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-04.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-38.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-28.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-18.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-02.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-07.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-04.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-38.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-28.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-18.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-02.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-07.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-04.png" alt="" loading="lazy" decoding="async"></div></div></div></div>
+    <div class="cl-row rev"><div class="cl-track"><div class="cl-set"><div class="cl-i" data-cat="gov"><img src="/assets/logos/client-20.png" alt="중소기업 옴부즈만 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb"><img src="/assets/logos/client-37.png" alt="복호두 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo"><img src="/assets/logos/client-12.png" alt="대한민국김치협회 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp"><img src="/assets/logos/client-06.png" alt="toss 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp"><img src="/assets/logos/client-16.png" alt="CRITEO 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="fnb"><img src="/assets/logos/client-01.png" alt="CJ프레시웨이 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-20.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-37.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-12.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-06.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-16.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-01.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-20.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-37.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-12.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-06.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-16.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-01.png" alt="" loading="lazy" decoding="async"></div></div><div class="cl-set" aria-hidden="true"><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-20.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-37.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-12.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-06.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-16.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-01.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-20.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-37.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-12.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-06.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-16.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-01.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-20.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-37.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-12.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-06.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-16.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-01.png" alt="" loading="lazy" decoding="async"></div></div></div></div>
+    <div class="cl-row"><div class="cl-track"><div class="cl-set"><div class="cl-i" data-cat="expo"><img src="/assets/logos/client-13.png" alt="KFA 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb"><img src="/assets/logos/client-29.png" alt="TIGER SUGAR 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp"><img src="/assets/logos/client-05.png" alt="NHN KCP 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp"><img src="/assets/logos/client-08.png" alt="비벗 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp"><img src="/assets/logos/client-15.png" alt="ENLIPLE 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp"><img src="/assets/logos/client-17.png" alt="Secta9ine 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-13.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-29.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-05.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-08.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-15.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-17.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-13.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-29.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-05.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-08.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-15.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-17.png" alt="" loading="lazy" decoding="async"></div></div><div class="cl-set" aria-hidden="true"><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-13.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-29.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-05.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-08.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-15.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-17.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-13.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-29.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-05.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-08.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-15.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-17.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-13.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="fnb" aria-hidden="true"><img src="/assets/logos/client-29.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-05.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-08.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-15.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="corp" aria-hidden="true"><img src="/assets/logos/client-17.png" alt="" loading="lazy" decoding="async"></div></div></div></div>
+    <div class="cl-row rev"><div class="cl-track"><div class="cl-set"><div class="cl-i" data-cat="expo"><img src="/assets/logos/client-14.png" alt="IFS 로고" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="expo"><img src="/assets/logos/client-09.png" alt="RX 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov"><img src="/assets/logos/client-19.png" alt="중소벤처기업부 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo"><img src="/assets/logos/client-03.png" alt="COEX 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov"><img src="/assets/logos/client-10.png" alt="인천광역시 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov"><img src="/assets/logos/client-11.png" alt="농림축산식품부 로고" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-14.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-09.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-19.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-03.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-10.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-11.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-14.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-09.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-19.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-03.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-10.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-11.png" alt="" loading="lazy" decoding="async"></div></div><div class="cl-set" aria-hidden="true"><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-14.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-09.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-19.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-03.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-10.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-11.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-14.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-09.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-19.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-03.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-10.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-11.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-14.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i is-mark" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-09.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-19.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="expo" aria-hidden="true"><img src="/assets/logos/client-03.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-10.png" alt="" loading="lazy" decoding="async"></div><div class="cl-i" data-cat="gov" aria-hidden="true"><img src="/assets/logos/client-11.png" alt="" loading="lazy" decoding="async"></div></div></div></div>
   </div>
 </div>
 
@@ -1670,14 +1744,16 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   </div>
   <div class="ct-col">
     <form class="ct-form-box" id="form" novalidate>
-      <div class="ct-step-hd">
-        <span class="ct-step-lb" id="ctStepLb">Step 01 · 문의 종류</span>
-        <span class="ct-step-cnt"><em id="ctStepNow">1</em>/4</span>
-      </div>
+      <ol class="ct-stepper" id="ctStepper" aria-label="문의 단계">
+        <li data-s="1"><button type="button"><span>문의 종류</span></button></li>
+        <li data-s="2"><button type="button"><span>기간·예산</span></button></li>
+        <li data-s="3"><button type="button"><span>담당자 정보</span></button></li>
+        <li data-s="4"><button type="button"><span>첨부 파일</span></button></li>
+      </ol>
 
       <div class="ct-steps">
       <div class="ct-step is-act" data-step="1">
-        <p class="ct-step-hint">필요한 영역을 모두 선택해주세요. (중복 선택 가능)</p>
+        <p class="ct-step-hint">필요한 영역을 모두 골라주세요<span class="req">*</span><span class="ct-opt">중복 선택</span><b class="ct-count" id="ctTypeCount"></b></p>
         <div class="ct-chip-grid" id="ctTypeGrid">
           <button type="button" class="ct-chip-b" data-val="Brand Strategy">Brand Strategy<span>브랜드 전략</span></button>
           <button type="button" class="ct-chip-b" data-val="Performance Marketing">Performance Marketing<span>퍼포먼스 마케팅</span></button>
@@ -1690,14 +1766,14 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
 
       <div class="ct-step" data-step="2">
-        <p class="ct-step-hint">희망 진행 기간</p>
+        <p class="ct-step-hint">희망 진행 기간<span class="req">*</span></p>
         <div class="ct-chip-row" id="ctDurGrid">
           <button type="button" class="ct-chip-b sm" data-val="1개월">1개월</button>
           <button type="button" class="ct-chip-b sm" data-val="3개월">3개월</button>
           <button type="button" class="ct-chip-b sm" data-val="6개월">6개월</button>
           <button type="button" class="ct-chip-b sm" data-val="1년 이상">1년 이상</button>
         </div>
-        <p class="ct-step-hint" style="margin-top:1.4rem">월 예산 범위</p>
+        <p class="ct-step-hint" style="margin-top:1.3rem">월 예산 범위<span class="req">*</span></p>
         <div class="ct-chip-row" id="ctBudGrid">
           <button type="button" class="ct-chip-b sm" data-val="500만원 미만">500만원 미만</button>
           <button type="button" class="ct-chip-b sm" data-val="500~1,000만원">500~1,000만원</button>
@@ -1708,15 +1784,19 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
 
       <div class="ct-step" data-step="3">
-        <div class="fg"><label class="fl" for="f-name">담당자 성함 *</label><input class="fi" id="f-name" type="text" name="name" placeholder="홍길동" autocomplete="name" required></div>
-        <div class="fg"><label class="fl" for="f-org">회사/기관명</label><input class="fi" id="f-org" type="text" name="company" placeholder="㈜브랜드명" autocomplete="organization"></div>
-        <div class="fg"><label class="fl" for="f-phone">연락처 *</label><input class="fi" id="f-phone" type="tel" name="phone" placeholder="010-0000-0000" autocomplete="tel" required></div>
-        <div class="fg"><label class="fl" for="f-email">이메일</label><input class="fi" id="f-email" type="email" name="email" placeholder="hello@brand.com" autocomplete="email"></div>
+        <div class="fg-row">
+          <div class="fg"><label class="fl" for="f-name">담당자 성함<span class="req">*</span></label><input class="fi" id="f-name" type="text" name="name" placeholder="홍길동" autocomplete="name" required aria-required="true"></div>
+          <div class="fg"><label class="fl" for="f-org">회사/기관명</label><input class="fi" id="f-org" type="text" name="company" placeholder="㈜브랜드명" autocomplete="organization"></div>
+        </div>
+        <div class="fg-row">
+          <div class="fg"><label class="fl" for="f-phone">연락처<span class="req">*</span></label><input class="fi" id="f-phone" type="tel" name="phone" placeholder="010-0000-0000" autocomplete="tel" required aria-required="true"></div>
+          <div class="fg"><label class="fl" for="f-email">이메일</label><input class="fi" id="f-email" type="email" name="email" placeholder="hello@brand.com" autocomplete="email"></div>
+        </div>
         <div class="fg"><label class="fl" for="f-msg">프로젝트 내용</label><textarea class="ft" id="f-msg" name="message" placeholder="현재 상황이나 필요한 부분을 간단히 알려주세요"></textarea></div>
       </div>
 
       <div class="ct-step" data-step="4">
-        <p class="ct-step-hint">참고할 자료가 있다면 첨부해주세요. (선택, 최대 5개 · 총 10MB)</p>
+        <p class="ct-step-hint">참고할 자료가 있다면 첨부해주세요<span class="ct-opt">선택</span><span style="font-weight:500;color:rgba(10,10,26,.45)">· 최대 5개, 총 10MB</span></p>
         <label class="ct-file-drop" for="f-file">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="22" height="22"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
           <span>파일을 선택하거나 끌어놓으세요 (PNG·JPG·GIF·PPTX·XLSX·DOC·DOCX·HWP·MP4)</span>
@@ -1726,6 +1806,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
       </div>
 
+      <p class="ct-req-note"><span class="req" style="margin:0 .2rem 0 0">*</span>표시는 필수 입력 항목입니다</p>
       <div class="ct-step-nav">
         <button type="button" class="ct-nav-b prev" id="ctPrev" style="visibility:hidden">이전</button>
         <button type="button" class="ct-nav-b next" id="ctNext">다음</button>
@@ -1735,29 +1816,33 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
     </form>
   </div>
   <div class="ct-footer">
-    <div class="ct-brand-links">
-      <a href="https://www.instagram.com/muyi_official_/" target="_blank" rel="noopener" class="ct-brand-btn ct-insta-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
-        Instagram
-      </a>
-      <a href="/brochure" target="_blank" rel="noopener" class="ct-brand-btn ct-dl-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        회사소개서 보기
-      </a>
-    </div>
-    <div class="ct-footer-row">
-      <div class="ct-footer-links">
-        <button onclick="openLegalModal('privacy')">개인정보처리방침</button>
-        <span class="ft-sep"></span>
-        <button onclick="openLegalModal('terms')">이용약관</button>
-        <span class="ft-sep"></span>
-        <button onclick="window._go&&window._go('ct')">문의하기</button>
+    <div class="ct-ft-top">
+      <div class="ct-ft-cards">
+        <a class="ct-ft-card" href="/brochure" target="_blank" rel="noopener">
+          <span class="ct-ft-ic ct-ft-ic-doc" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
+          <span class="ct-ft-tx"><b>회사소개서</b><small>MUYI가 일하는 방식을 한 번에</small></span>
+          <span class="ct-ft-go" aria-hidden="true">→</span>
+        </a>
+        <a class="ct-ft-card" href="https://www.instagram.com/muyi_official_/" target="_blank" rel="noopener">
+          <span class="ct-ft-ic ct-ft-ic-ig" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></svg></span>
+          <span class="ct-ft-tx"><b>인스타그램</b><small>최근 캠페인과 현장 기록</small></span>
+          <span class="ct-ft-go" aria-hidden="true">→</span>
+        </a>
       </div>
-      <a href="/local-business" class="ct-footer-switch">Local Business<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 2.5L8 6l-3.5 3.5"/></svg></a>
+      <a href="/local-business" class="ct-footer-switch">로컬 비즈니스 마케팅<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 2.5L8 6l-3.5 3.5"/></svg></a>
     </div>
-    <p class="ct-footer-addr">서울특별시 금천구 디지털로 178 퍼블릭 가산 B1313 · 평일 09:00–18:00</p>
-    <div class="ct-footer-meta">
-      <span>&copy; MUYI Corporation</span><span>481-81-02827</span><span>info@muyi.co.kr</span><span>070-8833-8210</span>
+    <div class="ct-ft-bottom">
+      <div class="ct-ft-info">
+        <p class="ct-footer-meta"><span>주식회사 무이코퍼레이션</span><span>대표 이채원</span><span>사업자등록번호 481-81-02827</span><span>통신판매업신고 제2024-서울금천-1765호</span></p>
+        <p class="ct-footer-meta"><span>서울특별시 금천구 디지털로 178 퍼블릭 가산 B1313</span><span>info@muyi.co.kr</span><span>070-8833-8210</span><span>평일 09:00–18:00</span></p>
+      </div>
+      <div class="ct-footer-links">
+        <button type="button" onclick="openLegalModal('privacy')">개인정보처리방침</button>
+        <span class="ft-sep"></span>
+        <button type="button" onclick="openLegalModal('terms')">이용약관</button>
+        <span class="ft-sep"></span>
+        <span class="ct-ft-copy">&copy; MUYI Corporation</span>
+      </div>
     </div>
   </div>
 </div>
@@ -1899,9 +1984,10 @@ function scrollToState(ns,pushHist){
   if(target){target.scrollIntoView({behavior:'smooth',block:'start'});}
 }
 
-function goto(ns){
+function goto(ns,fromPop){
   if(SCROLL_MODE){scrollToState(ns);return;}
   if(ns===cur)return;
+  if(!fromPop){try{history.pushState({s:ns},'');}catch(e){}}
   if(ns===S.ORBIT||ns===S.HERO||ns===S.PROB)activeN=null;
   hist.push(cur);
   var prev=cur; cur=ns;
@@ -1912,7 +1998,21 @@ function goto(ns){
   updateNav(ns);
   updateProg(ns);
 }
-window._go=goto; // global for inline handlers
+window._go=function(ns){goto(ns);}; // global for inline handlers
+
+/* 브라우저 뒤로/앞으로 가기(마우스 사이드 버튼 포함)를 패널 이동에 연결 */
+try{history.replaceState({s:S.HERO},'');}catch(e){}
+function navBack(){
+  if(!SCROLL_MODE&&hist.length&&history.state&&history.state.s&&history.state.s!==S.HERO){history.back();}
+  else goBack();
+}
+window.addEventListener('popstate',function(e){
+  if(SCROLL_MODE)return;
+  var t=(e.state&&e.state.s)||S.HERO;
+  if(t===cur)return;
+  if(hist.length&&hist[hist.length-1]===t)goBack();
+  else goto(t,true);
+});
 
 function goBack(){
   if(SCROLL_MODE){
@@ -2319,7 +2419,12 @@ function updateNav(s){
   if(nav)nav.classList.toggle('nav-dark',isDarkPage);
   var bk=document.getElementById('back');
   if(isHero||hist.length===0){bk.classList.remove('vis');}
-  else{bk.classList.add('vis');}
+  else{
+    var to=hist[hist.length-1];
+    var BACK_LB={hero:'홈',prob:'문제 진단',orbit:'오르빗',core:'오르빗',mom:'오르빗',orb:'오르빗',svc:'서비스 목록',cli:'클라이언츠',ct:'문의하기'};
+    document.getElementById('back-lb').textContent=BACK_LB[to]||(/^s\d$/.test(to)?'서비스 상세':'이전');
+    bk.classList.add('vis');
+  }
 }
 function updateProg(s){
   if(SCROLL_MODE){
@@ -2925,7 +3030,7 @@ document.getElementById('logo-btn').addEventListener('click',function(){goto(S.H
 document.getElementById('enter-btn').addEventListener('click',function(){goto(S.CT);});
 var exploreBtn=document.getElementById('explore-btn');if(exploreBtn)exploreBtn.addEventListener('click',function(){goto(S.PROB);});
 document.getElementById('ct-nav').addEventListener('click',function(){goto(S.CT);});
-document.getElementById('back').addEventListener('click',goBack);
+document.getElementById('back').addEventListener('click',navBack);
 document.getElementById('core-nx').addEventListener('click',function(){goto(S.MOM);});
 document.getElementById('mom-nx').addEventListener('click',function(){goto(S.ORB);});
 document.getElementById('orb-nx').addEventListener('click',function(){goto(S.SVC);});
@@ -2936,6 +3041,7 @@ document.getElementById('orb-nx').addEventListener('click',function(){goto(S.SVC
   var prevImgs=document.querySelectorAll('.svc-prev-img');
   var prevBadges=document.querySelectorAll('.svc-prev-badge');
   var previewPanel=document.querySelector('.svc-preview');
+  prevImgs.forEach(function(p){var im=p.querySelector('img');if(im)p.style.setProperty('--prev-bg','url("'+im.getAttribute('src')+'")');});
   var activeIdx=-1;
 
   // 모바일은 hover가 없어 lazy 트리거가 안 걸림 → 초기 렌더 끝난 뒤 유휴 시간에 전부 로드
@@ -3054,6 +3160,12 @@ var FULL_SEQ=['hero','prob','orbit','core','mom','orb','svc','cli','ct'];
 var lastW=0;
 window.addEventListener('wheel',function(e){
   if(SCROLL_MODE)return;
+  // 패널 안에 스크롤할 내용이 남아 있으면 먼저 스크롤하고, 끝에 닿았을 때만 섹션 이동
+  var pe=document.getElementById(PMAP[cur]);
+  if(pe&&/(auto|scroll)/.test(getComputedStyle(pe).overflowY)&&pe.scrollHeight>pe.clientHeight+4){
+    if(e.deltaY>0&&pe.scrollTop+pe.clientHeight<pe.scrollHeight-4){lastW=Date.now();return;}
+    if(e.deltaY<0&&pe.scrollTop>4){lastW=Date.now();return;}
+  }
   var now=Date.now();if(now-lastW<400)return;lastW=now;
   // 케이스 섹션: 슬라이드를 모두 본 뒤에만 섹션 이동
   if(cur==='case'&&window.csStep&&window.csStep(e.deltaY>0?1:-1))return;
@@ -3084,7 +3196,7 @@ window.addEventListener('wheel',function(e){
 // Keyboard navigation
 document.addEventListener('keydown',function(e){
   if(SCROLL_MODE)return;
-  if(e.key==='Escape'){goBack();return;}
+  if(e.key==='Escape'){if(document.getElementById('legalModal').classList.contains('is-open'))return;navBack();return;}
   var idx=FULL_SEQ.indexOf(cur);
   if(e.key==='ArrowDown'||e.key==='ArrowRight'){
     if(cur==='case'&&window.csStep&&window.csStep(1))return;
@@ -3332,28 +3444,79 @@ function showFormMsg(st,msg,type,autoClear){
   if(autoClear)setTimeout(function(){st.textContent='';st.className='fst';},autoClear);
 }
 
+// CLIENTS — 분야 카드에 마우스를 올리면 그 분야 로고만 불이 켜진다
+(function(){
+  var rows=document.querySelector('.cl-rows');if(!rows)return;
+  var cards=document.querySelectorAll('.cli-case[data-cat]'),logos=rows.querySelectorAll('.cl-i');
+  var touch=window.matchMedia('(hover:none)').matches;
+  function light(cat){
+    rows.classList.toggle('is-filter',!!cat);
+    logos.forEach(function(l){l.classList.toggle('on',l.getAttribute('data-cat')===cat);});
+    cards.forEach(function(c){c.classList.toggle('on',c.getAttribute('data-cat')===cat);});
+  }
+  cards.forEach(function(c){
+    var cat=c.getAttribute('data-cat');
+    c.addEventListener('mouseenter',function(){if(!touch)light(cat);});
+    c.addEventListener('mouseleave',function(){if(!touch)light(null);});
+    c.addEventListener('focus',function(){light(cat);});
+    c.addEventListener('blur',function(){light(null);});
+    c.addEventListener('click',function(){if(touch)light(c.classList.contains('on')?null:cat);});
+  });
+})();
+
 // CONTACT — 4단계 스텝 폼 (문의종류 다중선택 → 기간·예산 → 담당자정보 → 첨부파일)
 (function(){
   var form=document.getElementById('form');
   if(!form)return;
   var steps=Array.from(form.querySelectorAll('.ct-step'));
-  var stepLb=document.getElementById('ctStepLb'),stepNow=document.getElementById('ctStepNow');
+  var stepper=document.querySelectorAll('#ctStepper li'),typeCount=document.getElementById('ctTypeCount');
   var prevBtn=document.getElementById('ctPrev'),nextBtn=document.getElementById('ctNext'),subBtn=document.getElementById('sbtn');
   var fst=document.getElementById('fst');
   var cur=1;
-  var LABELS={1:'문의 종류',2:'진행 기간 · 예산',3:'담당자 정보',4:'첨부파일'};
+  var NEXT_TO={1:'기간·예산 선택',2:'담당자 정보 입력',3:'첨부 파일'};
   var selectedTypes=[],selectedDur='',selectedBud='';
 
+  function stepValid(n){
+    if(n===1)return selectedTypes.length>0;
+    if(n===2)return !!(selectedDur&&selectedBud);
+    if(n===3){
+      var nm=form.querySelector('[name=name]').value.trim(),ph=form.querySelector('[name=phone]').value.replace(/[^0-9]/g,''),em=form.querySelector('[name=email]').value.trim();
+      return nm.length>0&&ph.length>=10&&(!em||/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em));
+    }
+    return true;
+  }
+  function refreshNext(){
+    if(cur<4)nextBtn.innerHTML='다음 <small>· '+NEXT_TO[cur]+'</small> <i>→</i>';
+    var ok=stepValid(cur);
+    nextBtn.classList.toggle('is-off',!ok);
+    nextBtn.setAttribute('aria-disabled',ok?'false':'true');
+    typeCount.textContent=selectedTypes.length?selectedTypes.length+'개 선택됨':'';
+  }
   function showStep(n){
     cur=n;
     steps.forEach(function(s){s.classList.toggle('is-act',parseInt(s.dataset.step,10)===n);});
-    stepLb.textContent='Step 0'+n+' · '+LABELS[n];
-    stepNow.textContent=n;
+    stepper.forEach(function(li){
+      var k=parseInt(li.getAttribute('data-s'),10);
+      li.classList.toggle('is-cur',k===n);
+      li.classList.toggle('is-done',k<n);
+      if(k===n)li.setAttribute('aria-current','step');else li.removeAttribute('aria-current');
+    });
     prevBtn.style.visibility=n===1?'hidden':'visible';
-    nextBtn.style.display=n===4?'none':'block';
+    nextBtn.style.display=n===4?'none':'flex';
     subBtn.style.display=n===4?'block':'none';
     fst.className='fst';fst.textContent='';
+    refreshNext();
+    if(n===3){var f=form.querySelector('[name=name]');if(f&&!f.value)setTimeout(function(){f.focus({preventScroll:true});},350);}
   }
+  stepper.forEach(function(li){
+    li.querySelector('button').addEventListener('click',function(){
+      var k=parseInt(li.getAttribute('data-s'),10);
+      if(k<cur)showStep(k);
+    });
+  });
+  ['name','phone','email'].forEach(function(nm){
+    var el=form.querySelector('[name='+nm+']');if(el)el.addEventListener('input',refreshNext);
+  });
 
   function toggleMulti(btn,list){
     var v=btn.dataset.val;var i=list.indexOf(v);
@@ -3370,17 +3533,27 @@ function showFormMsg(st,msg,type,autoClear){
   typeGrid.addEventListener('click',function(e){
     var b=e.target.closest('.ct-chip-b');if(!b)return;
     toggleMulti(b,selectedTypes);
+    refreshNext();
   });
   var durGrid=document.getElementById('ctDurGrid');
   durGrid.addEventListener('click',function(e){
     var b=e.target.closest('.ct-chip-b');if(!b)return;
     selectedDur=selectSingle(b,durGrid);
+    afterPick();
   });
   var budGrid=document.getElementById('ctBudGrid');
   budGrid.addEventListener('click',function(e){
     var b=e.target.closest('.ct-chip-b');if(!b)return;
     selectedBud=selectSingle(b,budGrid);
+    afterPick();
   });
+  // 기간과 예산을 둘 다 고르면 잠깐 선택 상태를 보여준 뒤 다음 단계로 자동 이동
+  var autoT=null;
+  function afterPick(){
+    refreshNext();
+    clearTimeout(autoT);
+    if(cur===2&&stepValid(2))autoT=setTimeout(function(){if(cur===2&&stepValid(2))showStep(3);},480);
+  }
 
   // 첨부파일 (선택, 최대 5개 · 총 10MB)
   var fileInput=document.getElementById('f-file'),fileList=document.getElementById('ctFileList');
@@ -3525,10 +3698,38 @@ document.querySelectorAll('.fi,.ft').forEach(function(el){
   opacity:0;transition:opacity .2s;
 }
 #muyi-kakao-btn:hover::before{opacity:1}
+/* 채널톡 기본 버튼은 크기·그림자가 달라 숨기고 같은 규격의 버튼으로 교체 */
+#muyi-chat-btn{
+  position:fixed;bottom:1.6rem;right:1.4rem;z-index:9990;
+  width:52px;height:52px;border-radius:50%;
+  background:#1E10C7;border:none;cursor:pointer;padding:0;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(0,0,0,.18);
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s,background .25s;
+}
+#muyi-chat-btn:hover{transform:scale(1.1);box-shadow:0 8px 24px rgba(0,0,0,.22);background:#3428F0}
+#muyi-chat-btn svg{width:24px;height:24px}
+#muyi-chat-btn::before{
+  content:'채팅 상담';
+  position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);
+  white-space:nowrap;background:rgba(10,10,26,.82);color:#fff;
+  font-size:.72rem;font-family:'Noto Sans KR','DM Sans',sans-serif;
+  padding:.35rem .7rem;border-radius:.4rem;pointer-events:none;
+  opacity:0;transition:opacity .2s;
+}
+#muyi-chat-btn:hover::before{opacity:1}
+#muyi-kakao-btn{bottom:calc(1.6rem + 52px + 12px)}
 @media(max-width:480px){
-  #muyi-kakao-btn{bottom:5.2rem;right:1rem;width:46px;height:46px}
+  #muyi-kakao-btn,#muyi-chat-btn{right:1rem;width:46px;height:46px}
+  #muyi-chat-btn{bottom:1rem}
+  #muyi-kakao-btn{bottom:calc(1rem + 46px + 10px)}
 }
 </style>
+
+<!-- 채팅 상담 버튼 (채널톡 메신저 열기) -->
+<button id="muyi-chat-btn" aria-label="채팅으로 상담하기" title="채팅 상담">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01"/></svg>
+</button>
 
 <!-- 카카오톡 채널 플로팅 버튼 -->
 <button id="muyi-kakao-btn" aria-label="카카오톡으로 상담하기" title="카카오톡 상담">
@@ -3575,6 +3776,7 @@ function trackEvent(name, params) {
     pluginKey: key,
     language: 'ko',
     zIndex: 9980,
+    hideChannelButtonOnBoot: true,
     // 채널톡 버튼 기본 위치: 우측 하단 (관리자 페이지에서도 조정 가능)
   });
 
@@ -3587,6 +3789,16 @@ function trackEvent(name, params) {
   ChannelIO('onBoot', function() {
     var kakaoBtn = document.getElementById('muyi-kakao-btn');
     if (kakaoBtn) kakaoBtn.classList.add('visible');
+  });
+})();
+
+// ── 채팅 상담 버튼 ──
+(function() {
+  var btn = document.getElementById('muyi-chat-btn');
+  if (!btn) return;
+  btn.addEventListener('click', function() {
+    if (window.ChannelIO) ChannelIO('showMessenger');
+    else window.open(MUYI_CONFIG.kakaoUrl, '_blank', 'noopener,noreferrer');
   });
 })();
 
