@@ -680,18 +680,20 @@ button.cli-case{font-family:inherit;width:100%;cursor:pointer;color:inherit}
 .ct-ft-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
 .ct-ft-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:.6rem 1.5rem;flex-wrap:wrap;padding-top:.9rem;border-top:1px dashed rgba(10,10,26,.08)}
 .ct-ft-cards{display:flex;gap:.7rem;flex-wrap:wrap}
-/* 파랑이 많은 페이지라 링크 카드는 먹색으로 대비를 준다 */
-.ct-ft-card{display:flex;align-items:center;gap:.8rem;min-width:260px;padding:.7rem 1rem .7rem .7rem;border-radius:14px;background:#0f0f1a;color:#fff;text-decoration:none;box-shadow:0 6px 20px rgba(10,10,26,.14);transition:transform .3s var(--ease-out),box-shadow .3s,background .3s}
-.ct-ft-card:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(10,10,26,.22);background:#17172a}
-.ct-ft-ic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ct-ft-ic svg{width:20px;height:20px}
-.ct-ft-ic-doc{background:#fff;color:#0f0f1a}
+/* 흰 카드 + 서비스별 색 아이콘. 마우스를 올리면 테두리·화살표가 그 서비스 색(--hc)으로 */
+.ct-ft-card{display:flex;align-items:center;gap:.75rem;min-width:240px;padding:.55rem .95rem .55rem .55rem;border-radius:14px;background:#fff;border:1px solid rgba(10,10,26,.1);color:#0a0a1a;text-decoration:none;box-shadow:var(--shadow-sm);transition:transform .3s var(--ease-out),box-shadow .3s,border-color .3s}
+.ct-ft-card:hover{transform:translateY(-2px);border-color:var(--hc,#1E10C7);box-shadow:0 10px 24px rgba(10,10,26,.08)}
+.ct-ft-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ct-ft-ic svg{width:19px;height:19px}
+.ct-ft-ic-doc{background:#EEF0FF;color:#1E10C7}
+.ct-ft-ic-yt{background:#FF0033;color:#fff}
+.ct-ft-ic-yt svg{width:20px;height:20px}
 .ct-ft-ic-ig{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%);color:#fff}
 .ct-ft-tx{display:flex;flex-direction:column;gap:.15rem;line-height:1.2;font-family:'Noto Sans KR','DM Sans',sans-serif}
 .ct-ft-tx b{font-size:.92rem;font-weight:700;letter-spacing:-.01em}
-.ct-ft-tx small{font-size:.72rem;color:rgba(255,255,255,.58)}
-.ct-ft-go{margin-left:auto;padding-left:.6rem;font-size:1rem;color:rgba(255,255,255,.55);transition:transform .3s var(--ease-out),color .3s}
-.ct-ft-card:hover .ct-ft-go{transform:translateX(4px);color:#fff}
+.ct-ft-tx small{font-size:.72rem;color:rgba(10,10,26,.5)}
+.ct-ft-go{margin-left:auto;padding-left:.6rem;font-size:1rem;color:rgba(10,10,26,.3);transition:transform .3s var(--ease-out),color .3s}
+.ct-ft-card:hover .ct-ft-go{transform:translateX(4px);color:var(--hc,#1E10C7)}
 .ct-ft-copy{font-size:.72rem;color:rgba(10,10,26,.32)}
 @media(max-width:767px){.ct-ft-card{min-width:0;flex:1 1 100%}.ct-ft-top{align-items:stretch}.ct-footer-switch{justify-content:center}}
 /* Legal Modal */
@@ -710,7 +712,25 @@ button.cli-case{font-family:inherit;width:100%;cursor:pointer;color:inherit}
 .ct-col:last-of-type{grid-column:2;grid-row:1}
 #p-ct{overflow-y:auto;padding-bottom:5.6rem}
 /* 기존 position:relative 때문에 패널이 화면보다 길어지며 푸터가 잘렸다 → 화면 크기에 고정하고 내부 스크롤 */
-body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;gap:clamp(1.4rem,3vh,2.6rem) clamp(2.4rem,4vw,4.5rem)}
+body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;gap:clamp(1.2rem,2.4vh,2.2rem) clamp(2.4rem,4vw,4.5rem)}
+/* 헤더 버튼·로고(아래끝 164px)와 겹치지 않도록 로고 아래에서 시작하고, 한 화면에 들어가게 압축 */
+@media(min-width:768px){
+  body:not(.scroll-mode) #p-ct{padding-top:184px;padding-bottom:4.9rem}
+  body:not(.scroll-mode) #p-ct .ct-eye{margin-bottom:.7rem}
+  body:not(.scroll-mode) #p-ct .ct-ti{font-size:clamp(1.9rem,min(3.1vw,5.2vh),3rem);max-width:none;margin-bottom:.8rem}
+  body:not(.scroll-mode) #p-ct .ct-stat{padding:.75rem .5rem}
+  body:not(.scroll-mode) #p-ct .ct-stat-val{font-size:clamp(1.6rem,min(2.6vw,3.8vh),2.3rem)}
+  body:not(.scroll-mode) #p-ct .ct-form-box{padding:clamp(1.1rem,1.8vw,1.5rem)}
+  body:not(.scroll-mode) #p-ct .ct-stepper{margin-bottom:.9rem}
+  body:not(.scroll-mode) #p-ct .ct-step-hint{margin-bottom:.6rem}
+  body:not(.scroll-mode) #p-ct .ct-chip-grid{gap:.5rem}
+  body:not(.scroll-mode) #p-ct .ct-chip-b{padding:.55rem .9rem}
+  body:not(.scroll-mode) #p-ct .fg{margin-bottom:.65rem}
+  body:not(.scroll-mode) #p-ct .ft{min-height:64px}
+  body:not(.scroll-mode) #p-ct .ct-req-note{margin-top:.6rem}
+  body:not(.scroll-mode) #p-ct .ct-footer{padding-top:1rem;gap:.6rem}
+  body:not(.scroll-mode) #p-ct .ct-ft-bottom{padding-top:.7rem}
+}
 .ct-eye{display:block;font-size:var(--text-xs);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--c-brand);margin-bottom:.9rem;font-weight:700}
 .ct-ti{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2.2rem,min(4vw,6.6vh),3.8rem);font-weight:700;line-height:1.16;letter-spacing:-.05em;color:#0a0a1a;margin-bottom:1.1rem;position:relative;overflow:visible;max-width:16ch;padding:.02em 0 .08em}
 .ct-ti .h-line{display:block;overflow:visible;padding:.04em 0}
@@ -1731,8 +1751,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   <div class="ct-col ct-left">
     <span class="ct-eye">영업일 기준 24시간 내 답변</span>
     <h2 class="ct-ti">
-      <span class="h-line"><span class="h-line-in h-title-grad">무이와 함께</span></span>
-      <span class="h-line"><span class="h-line-in h-title-grad">성장 구조를</span></span>
+      <span class="h-line"><span class="h-line-in h-title-grad">무이와 함께 성장 구조를</span></span>
       <span class="h-line"><span class="h-line-in h-title-grad">설계하세요.</span></span>
     </h2>
     <p class="ct-desc">브랜드 전략부터 퍼포먼스까지, 풀퍼널 마케팅 파트너.</p>
@@ -1818,18 +1837,22 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   <div class="ct-footer">
     <div class="ct-ft-top">
       <div class="ct-ft-cards">
-        <a class="ct-ft-card" href="/brochure" target="_blank" rel="noopener">
+        <a class="ct-ft-card" href="/brochure" target="_blank" rel="noopener" style="--hc:#1E10C7">
           <span class="ct-ft-ic ct-ft-ic-doc" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
           <span class="ct-ft-tx"><b>회사소개서</b><small>MUYI가 일하는 방식을 한 번에</small></span>
           <span class="ct-ft-go" aria-hidden="true">→</span>
         </a>
-        <a class="ct-ft-card" href="https://www.instagram.com/muyi_official_/" target="_blank" rel="noopener">
+        <a class="ct-ft-card" href="https://www.instagram.com/muyi_official_/" target="_blank" rel="noopener" style="--hc:#D6249F">
           <span class="ct-ft-ic ct-ft-ic-ig" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></svg></span>
           <span class="ct-ft-tx"><b>인스타그램</b><small>최근 캠페인과 현장 기록</small></span>
           <span class="ct-ft-go" aria-hidden="true">→</span>
         </a>
+        <a class="ct-ft-card" href="https://www.youtube.com/@muyicorp" target="_blank" rel="noopener" style="--hc:#FF0033">
+          <span class="ct-ft-ic ct-ft-ic-yt" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 8.2v7.6L16 12z"/></svg></span>
+          <span class="ct-ft-tx"><b>유튜브</b><small>마케팅 용어, 1분 숏폼으로</small></span>
+          <span class="ct-ft-go" aria-hidden="true">→</span>
+        </a>
       </div>
-      <a href="/local-business" class="ct-footer-switch">로컬 비즈니스 마케팅<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 2.5L8 6l-3.5 3.5"/></svg></a>
     </div>
     <div class="ct-ft-bottom">
       <div class="ct-ft-info">
