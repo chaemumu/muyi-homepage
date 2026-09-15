@@ -743,20 +743,15 @@ body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;gap:clamp(1
 .ct-desc{font-size:1rem;line-height:1.7;color:var(--c-subtle);margin-bottom:0;word-break:keep-all}
 .ct-stats{display:flex;gap:.8rem;padding-bottom:.5rem;margin-top:auto}
 .ct-creds{margin-top:clamp(1rem,2.4vh,1.6rem)}
+.ct-cred-row{display:flex;flex-wrap:wrap;gap:.5rem}
+.ct-cred{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1rem .55rem .7rem;border-radius:999px;border:1px solid rgba(30,16,199,.12);background:#fff;font:600 .82rem/1.2 'Noto Sans KR','DM Sans',sans-serif;color:#0a0a1a;letter-spacing:-.01em;white-space:nowrap}
+.ct-cred-ic{width:24px;height:24px;flex-shrink:0;border-radius:50%;background:#EEF0FF;color:#1E10C7;display:flex;align-items:center;justify-content:center}
+.ct-cred-ic svg{width:14px;height:14px}
 .ct-creds-lb{font:700 .7rem/1.4 'Noto Sans KR','DM Sans',sans-serif;color:rgba(10,10,26,.42);letter-spacing:.02em;margin-bottom:.55rem}
-.ct-cred-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
-.ct-cred{display:flex;align-items:center;gap:.65rem;min-width:0;padding:.6rem .75rem;border-radius:12px;border:1px solid rgba(30,16,199,.1);background:#fff;text-align:left;font-family:inherit;color:#0a0a1a;cursor:pointer;transition:border-color .25s,box-shadow .25s,transform .25s var(--ease-out)}
-.ct-cred:hover{border-color:rgba(30,16,199,.38);box-shadow:0 8px 20px rgba(30,16,199,.08);transform:translateY(-2px)}
-.ct-cred-ic{width:34px;height:34px;flex-shrink:0;border-radius:9px;background:#EEF0FF;color:#1E10C7;display:flex;align-items:center;justify-content:center}
-.ct-cred-ic svg{width:18px;height:18px}
-.ct-cred-tx{display:flex;flex-direction:column;gap:.1rem;min-width:0;font-family:'Noto Sans KR','DM Sans',sans-serif;line-height:1.25}
-.ct-cred-tx b{font-size:.8rem;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ct-cred-tx small{font-size:.68rem;color:rgba(10,10,26,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(min-width:768px){
   body:not(.scroll-mode) #p-ct{align-items:start}
   body:not(.scroll-mode) #p-ct .ct-stats{margin-top:clamp(.9rem,2vh,1.3rem)}
 }
-@media(max-width:380px){.ct-cred-grid{grid-template-columns:1fr}}
 .ct-stat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;background:#f4f5ff;border:1px solid rgba(30,16,199,.08);border-radius:12px;padding:.9rem .5rem;text-align:center;min-width:0}
 .ct-stat-val{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(1.9rem,min(3vw,4.4vh),2.6rem);font-weight:700;color:var(--c-brand);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
 .ct-stat-val .ct-stat-unit{font-size:1.6rem;font-weight:700}
@@ -1772,13 +1767,13 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       <span class="h-line"><span class="h-line-in h-title-grad">설계하세요.</span></span>
     </h2>
     <p class="ct-desc">브랜드 전략부터 퍼포먼스까지, 풀퍼널 마케팅 파트너.</p>
-    <div class="ct-creds" aria-label="보유 인증">
-      <p class="ct-creds-lb">보유 인증 · 누르면 원본 문서를 볼 수 있어요</p>
-      <div class="ct-cred-grid">
-        <button type="button" class="ct-cred" data-img="assets/credential/patent.png" data-ti="특허증 · 제10-2818552호" data-cap="생성형 인공지능 모델 기반 마케팅 의뢰자 및 전문가의 매칭 플랫폼 · 2025.06.04 등록"><span class="ct-cred-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><path d="M8.5 13.2 7 21l5-2.6L17 21l-1.5-7.8"/></svg></span><span class="ct-cred-tx"><b>특허 등록</b><small>AI 기반 마케팅 매칭 플랫폼</small></span></button>
-        <button type="button" class="ct-cred" data-img="assets/credential/software.png" data-ti="소프트웨어사업자 일반 현황 관리확인서" data-cap="한국인공지능소프트웨어산업협회 · 컴퓨터관련 서비스업 / 디지털콘텐츠 개발서비스업"><span class="ct-cred-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M9 9l-2 2 2 2M15 9l2 2-2 2"/></svg></span><span class="ct-cred-tx"><b>소프트웨어사업자</b><small>한국인공지능소프트웨어산업협회</small></span></button>
-        <button type="button" class="ct-cred" data-img="assets/credential/video.png" data-ti="비디오물제작업 신고증 · 제2026-000022호" data-cap="서울특별시 금천구청 · 제작품목 숏츠 영상 및 M/V급 영상"><span class="ct-cred-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/></svg></span><span class="ct-cred-tx"><b>비디오물제작업 신고</b><small>숏폼·M/V급 영상 제작</small></span></button>
-        <button type="button" class="ct-cred" data-img="assets/credential/startup.png" data-ti="창업기업 확인서" data-cap="서울지방중소벤처기업청 · 유효기간 2024.07.02 ~ 2027.07.02"><span class="ct-cred-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15c-1.5-1.5-2.5-4-2-7 3-2.5 7-3.5 9.5-3.5 0 2.5-1 6.5-3.5 9.5-3 .5-5.5-.5-7-2"/><path d="M9 13 5 14l-2 4 4-1 1-4M14.5 9.5h.01"/></svg></span><span class="ct-cred-tx"><b>창업기업 확인</b><small>서울지방중소벤처기업청</small></span></button>
+    <div class="ct-creds">
+      <p class="ct-creds-lb">보유 인증</p>
+      <div class="ct-cred-row">
+        <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><path d="M8.5 13.2 7 21l5-2.6L17 21l-1.5-7.8"/></svg></span>특허 등록</span>
+        <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M9 9l-2 2 2 2M15 9l2 2-2 2"/></svg></span>소프트웨어사업자</span>
+        <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/></svg></span>비디오물제작업 신고</span>
+        <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15c-1.5-1.5-2.5-4-2-7 3-2.5 7-3.5 9.5-3.5 0 2.5-1 6.5-3.5 9.5-3 .5-5.5-.5-7-2"/><path d="M9 13 5 14l-2 4 4-1 1-4M14.5 9.5h.01"/></svg></span>공공조달 창업기업 확인</span>
       </div>
     </div>
     <div class="ct-stats">
@@ -3244,7 +3239,7 @@ window.addEventListener('wheel',function(e){
 // Keyboard navigation
 document.addEventListener('keydown',function(e){
   if(SCROLL_MODE)return;
-  if(e.key==='Escape'){if(document.getElementById('legalModal').classList.contains('is-open'))return;var cd=document.getElementById('cdOv');if(cd&&!cd.hidden)return;navBack();return;}
+  if(e.key==='Escape'){if(document.getElementById('legalModal').classList.contains('is-open'))return;navBack();return;}
   var idx=FULL_SEQ.indexOf(cur);
   if(e.key==='ArrowDown'||e.key==='ArrowRight'){
     if(cur==='case'&&window.csStep&&window.csStep(1))return;
@@ -3511,23 +3506,6 @@ function showFormMsg(st,msg,type,autoClear){
     c.addEventListener('click',function(){if(touch)light(c.classList.contains('on')?null:cat);});
   });
 })();
-
-// CONTACT — 보유 인증 카드: 누르면 원본 문서 사본을 팝업으로 (팝업 마크업이 스크립트 뒤에 있어 DOM 로드 후 연결)
-document.addEventListener('DOMContentLoaded',function(){
-  var ov=document.getElementById('cdOv');if(!ov)return;
-  var img=document.getElementById('cdImg'),ti=document.getElementById('cdTi'),cap=document.getElementById('cdCap');
-  var last=null;
-  function open(btn){
-    last=btn;
-    img.src=btn.getAttribute('data-img');img.alt=btn.getAttribute('data-ti');
-    ti.textContent=btn.getAttribute('data-ti');cap.textContent=btn.getAttribute('data-cap');
-    ov.hidden=false;document.getElementById('cdX').focus();
-  }
-  window.closeCred=function(){if(ov.hidden)return;ov.hidden=true;if(last)last.focus();};
-  document.querySelectorAll('.ct-cred').forEach(function(b){b.addEventListener('click',function(){open(b);});});
-  document.getElementById('cdX').addEventListener('click',window.closeCred);
-  ov.addEventListener('click',function(e){if(e.target===ov)window.closeCred();});
-});
 
 // CONTACT — 4단계 스텝 폼 (문의종류 다중선택 → 기간·예산 → 담당자정보 → 첨부파일)
 (function(){
@@ -3884,28 +3862,6 @@ function trackEvent(name, params) {
 })();
 </script>
 
-<!-- 인증 문서 팝업 -->
-<div class="cd-ov" id="cdOv" hidden>
-  <div class="cd-box" role="dialog" aria-modal="true" aria-labelledby="cdTi">
-    <div class="cd-hd"><span id="cdTi"></span><button type="button" class="cd-x" id="cdX" aria-label="닫기">&times;</button></div>
-    <div class="cd-img"><img id="cdImg" src="" alt=""></div>
-    <p class="cd-cap" id="cdCap"></p>
-  </div>
-</div>
-<style>
-.cd-ov{position:fixed;inset:0;z-index:10001;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:rgba(10,10,26,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
-.cd-ov[hidden]{display:none}
-.cd-box{background:#fff;border-radius:18px;width:min(420px,100%);padding:1rem 1rem 1.1rem;box-shadow:0 30px 80px rgba(10,10,26,.25);animation:cdIn .35s cubic-bezier(.16,1,.3,1)}
-@keyframes cdIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
-.cd-hd{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.1rem .2rem .7rem;font:700 .9rem/1.35 'Noto Sans KR','DM Sans',sans-serif;color:#0a0a1a}
-.cd-x{width:32px;height:32px;flex-shrink:0;border:none;border-radius:50%;background:rgba(10,10,26,.06);font-size:1.2rem;line-height:1;cursor:pointer;color:rgba(10,10,26,.55)}
-.cd-x:hover{background:rgba(10,10,26,.12);color:#0a0a1a}
-.cd-img{border-radius:10px;overflow:hidden;background:#f4f5f9;display:flex;justify-content:center}
-/* 문서 사본은 한 장이 스크롤 없이 보이게 줄이고, 끌어서 저장·확대를 막는다 */
-.cd-img img{display:block;max-width:100%;max-height:62vh;object-fit:contain;-webkit-user-drag:none;user-select:none;pointer-events:none;-webkit-touch-callout:none}
-.cd-cap{margin:.7rem .2rem 0;font:500 .76rem/1.6 'Noto Sans KR','DM Sans',sans-serif;color:rgba(10,10,26,.55);word-break:keep-all}
-</style>
-
 <!-- Legal Modals -->
 <div class="legal-modal-overlay" id="legalModal" onclick="if(event.target===this)closeLegalModal()">
   <div class="legal-modal">
@@ -3920,7 +3876,7 @@ terms:'<h2>이용약관</h2><p>본 웹사이트는 주식회사 무이코퍼레�
 };
 function openLegalModal(t){document.getElementById('legalContent').innerHTML=_legalData[t];document.getElementById('legalModal').classList.add('is-open');document.body.style.overflow='hidden'}
 function closeLegalModal(){document.getElementById('legalModal').classList.remove('is-open');document.body.style.overflow=''}
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeLegalModal();if(window.closeCred)closeCred();}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLegalModal()});
 </script>
 </body>
 </html>
