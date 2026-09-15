@@ -2896,11 +2896,34 @@ var heroMouseTarget={x:0,y:0},heroMouseCurrent={x:0,y:0};
 
 // 오르빗 행성용 프레넬 발광 머티리얼 — 히어로 구체와 같은 입체감(가장자리가 밝게 빛남)을 색만 바꿔 사용
 var orbGlowMats=[];
-function makeGlowMat(core,mid,rim,accent){
+function makeGlowMat(core,mid,rim,accent,spin){
   var m=new THREE.ShaderMaterial({
-    uniforms:{time:{value:0},cCore:{value:new THREE.Color(core)},cMid:{value:new THREE.Color(mid)},cRim:{value:new THREE.Color(rim)},cAcc:{value:new THREE.Color(accent)}},
-    vertexShader:'varying vec3 vN;varying vec3 vV;void main(){vN=normalize(normalMatrix*normal);vec4 mv=modelViewMatrix*vec4(position,1.0);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
-    fragmentShader:'uniform float time;uniform vec3 cCore;uniform vec3 cMid;uniform vec3 cRim;uniform vec3 cAcc;varying vec3 vN;varying vec3 vV;void main(){float f=pow(1.0-max(dot(vN,vV),0.0),2.6);vec3 col=mix(cCore,cMid,smoothstep(0.0,0.35,f));col=mix(col,cRim,smoothstep(0.3,0.7,f));col=mix(col,cAcc,smoothstep(0.72,1.0,f));col*=0.94+0.06*sin(time*1.4);col+=f*f*cAcc*0.55;gl_FragColor=vec4(col,1.0);}'
+    uniforms:{time:{value:0},spin:{value:spin||.3},cCore:{value:new THREE.Color(core)},cMid:{value:new THREE.Color(mid)},cRim:{value:new THREE.Color(rim)},cAcc:{value:new THREE.Color(accent)}},
+    vertexShader:'varying vec3 vN;varying vec3 vV;varying vec3 vP;void main(){vP=normalize(position);vN=normalize(normalMatrix*normal);vec4 mv=modelViewMatrix*vec4(position,1.0);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
+    // 이미지 없이 셰이더 안에서 값 노이즈로 표면 무늬를 만들고 time*spin 만큼 Y축으로 돌려 자전을 표현
+    fragmentShader:[
+      'uniform float time;uniform float spin;uniform vec3 cCore;uniform vec3 cMid;uniform vec3 cRim;uniform vec3 cAcc;',
+      'varying vec3 vN;varying vec3 vV;varying vec3 vP;',
+      'float hs(vec3 p){p=fract(p*.3183099+.1);p*=17.0;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}',
+      'float vn(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.0-2.0*f);',
+      ' return mix(mix(mix(hs(i),hs(i+vec3(1,0,0)),f.x),mix(hs(i+vec3(0,1,0)),hs(i+vec3(1,1,0)),f.x),f.y),',
+      '            mix(mix(hs(i+vec3(0,0,1)),hs(i+vec3(1,0,1)),f.x),mix(hs(i+vec3(0,1,1)),hs(i+vec3(1,1,1)),f.x),f.y),f.z);}',
+      'void main(){',
+      ' float a=time*spin;vec3 q=vec3(vP.x*cos(a)-vP.z*sin(a),vP.y,vP.x*sin(a)+vP.z*cos(a));',
+      ' float fb=vn(q*2.6)*.55+vn(q*5.8)*.3+vn(q*12.0)*.15;',
+      ' float band=sin(q.y*8.0+fb*5.0)*.5+.5;',
+      ' float surf=mix(fb,band,.5);',
+      ' float f=pow(1.0-max(dot(vN,vV),0.0),2.6);',
+      ' vec3 col=mix(cCore,cMid,smoothstep(.25,.85,surf));',
+      ' col=mix(col,cRim,smoothstep(.72,.95,surf)*.35);',
+      ' float lam=max(dot(vN,normalize(vec3(-.55,.45,.7))),0.0);',
+      ' col*=.28+.95*lam;',
+      ' col=mix(col,cRim,smoothstep(.35,.75,f));',
+      ' col=mix(col,cAcc,smoothstep(.75,1.0,f));',
+      ' col+=f*f*cAcc*.5;',
+      ' gl_FragColor=vec4(col,1.0);',
+      '}'
+    ].join(String.fromCharCode(10))
   });
   orbGlowMats.push(m);return m;
 }
@@ -2961,7 +2984,7 @@ var ringMeshes=[],pulseShells=[],linkLines=[];
   // Core sphere — flat (no shading)
   coreMesh=new THREE.Mesh(
     new THREE.SphereGeometry(.62,64,64),
-    makeGlowMat(0x0a0624,0x1a10a0,0x4a3cf5,0x9fb0ff)
+    makeGlowMat(0x0a0624,0x2a1cc8,0x4a3cf5,0x9fb0ff,.22)
   );
   coreMesh._id='core';coreMesh._label='Core';coreMesh._desc='브랜드 기준점과 메시지를 다시 세웁니다'; orbitGrp.add(coreMesh); nodeMeshes.push(coreMesh);
 
@@ -2976,7 +2999,7 @@ var ringMeshes=[],pulseShells=[],linkLines=[];
   r1.rotation.x=Math.PI*.16; r1.rotation.z=Math.PI*.04; r1._baseZ=Math.PI*.04; r1._spd=.18; orbitGrp.add(r1); ringMeshes.push(r1);
 
   // Momentum sphere — flat (no shading)
-  momMesh=new THREE.Mesh(new THREE.SphereGeometry(.27,48,48),makeGlowMat(0x140a3a,0x5a44e8,0x9a8cff,0xd6ceff));
+  momMesh=new THREE.Mesh(new THREE.SphereGeometry(.27,48,48),makeGlowMat(0x140a3a,0x6a54ff,0x9a8cff,0xd6ceff,.55));momMesh.rotation.z=.35;
   momMesh._id='mom';momMesh._label='Momentum';momMesh._desc='광고와 콘텐츠 성과를 실제 매출로 연결합니다'; momMesh._r=2.2; momMesh._a=.8; momMesh._tilt=Math.PI*.16; momMesh._spd=.65;
   orbitGrp.add(momMesh); nodeMeshes.push(momMesh);
   var momShell=new THREE.Mesh(new THREE.SphereGeometry(.294,18,18),new THREE.MeshBasicMaterial({color:0x6858ff,transparent:true,opacity:.1,depthWrite:false}));
@@ -2989,9 +3012,11 @@ var ringMeshes=[],pulseShells=[],linkLines=[];
   r3.rotation.x=Math.PI*.31; r3.rotation.z=Math.PI*.11; r3._baseZ=Math.PI*.11; r3._spd=.09; orbitGrp.add(r3); ringMeshes.push(r3);
 
   // Orbit sphere — flat (no shading) — keep orange
-  orbMesh=new THREE.Mesh(new THREE.SphereGeometry(.24,48,48),makeGlowMat(0x2a0a00,0xc03e00,0xff7a2e,0xffc49a));
+  orbMesh=new THREE.Mesh(new THREE.SphereGeometry(.24,48,48),makeGlowMat(0x2a0a00,0xd84a08,0xff7a2e,0xffc49a,.4));orbMesh.rotation.z=-.42;
   orbMesh._id='orb';orbMesh._label='Orbit';orbMesh._desc='유입, 전환, 재방문이 이어지는 성장 궤도를 만듭니다'; orbMesh._r=3.8; orbMesh._a=2.5; orbMesh._tilt=Math.PI*.24; orbMesh._spd=.32;
   orbitGrp.add(orbMesh); nodeMeshes.push(orbMesh);
+  var orbRing=new THREE.Mesh(new THREE.RingGeometry(.34,.5,64),new THREE.MeshBasicMaterial({color:0xffa060,transparent:true,opacity:.35,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));
+  orbRing.rotation.x=Math.PI*.42;orbMesh.add(orbRing);
   var orbShell=new THREE.Mesh(new THREE.SphereGeometry(.263,18,18),new THREE.MeshBasicMaterial({color:0xEE4E00,transparent:true,opacity:.1,depthWrite:false}));
   orbitGrp.add(orbShell); pulseShells.push({mesh:orbShell,target:orbMesh,base:1,amp:0,spd:1});
   // no link lines
