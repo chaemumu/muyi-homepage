@@ -475,6 +475,7 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 /* 미리보기는 글씨 없는 원본 사진(cases/clean)으로 칸을 꽉 채운다. 설명 글씨 버전은 상세 페이지에서 보여준다.
    파랑 틴트는 쓰지 않고 하단 뱃지 영역만 어둡게 */
 .svc-prev-img{background:#0b0b12}
+.svc-prev-img picture{display:contents}
 .svc-prev-img img{position:relative;width:100%;height:100%;object-fit:cover;will-change:transform;transition:transform .1s linear}
 .svc-prev-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(6,6,14,.74) 0%,rgba(6,6,14,.32) 26%,rgba(6,6,14,0) 50%)}
 /* 하단 뱃지 영역만 점점 흐려지게 — 아래로 갈수록 강한 블러(마스크로 경계 없이 이어짐) */
@@ -1430,7 +1431,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   </div>
   <div class="svc-preview">
     <div class="svc-prev-img" data-pi="0">
-      <img src="cases/clean/spc-secta9ine.jpg" alt="Secta9ine SPC 전략 케이스" width="1779" height="1000" style="object-position:55% 50%" loading="lazy" decoding="async">
+      <picture><source media="(max-width:767px)" srcset="cases/clean/spc-secta9ine-m.jpg"><img src="cases/clean/spc-secta9ine.jpg" alt="Secta9ine SPC 전략 케이스" width="1350" height="1500" loading="lazy" decoding="async"></picture>
       <div class="svc-prev-overlay"></div>
       <div class="svc-prev-badge">
         <div class="svc-prev-kpi">Secta9ine</div>
@@ -1439,7 +1440,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
     </div>
     <div class="svc-prev-img" data-pi="1">
-      <img src="cases/clean/coex-ifs.jpg" alt="IFS COEX 퍼포먼스 케이스" width="1778" height="1000" style="object-position:42% 50%" loading="lazy" decoding="async">
+      <picture><source media="(max-width:767px)" srcset="cases/clean/coex-ifs-m.jpg"><img src="cases/clean/coex-ifs.jpg" alt="IFS COEX 퍼포먼스 케이스" width="1350" height="1500" loading="lazy" decoding="async"></picture>
       <div class="svc-prev-overlay"></div>
       <div class="svc-prev-badge">
         <div class="svc-prev-kpi">IFS 박람회</div>
@@ -1448,7 +1449,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
     </div>
     <div class="svc-prev-img" data-pi="2">
-      <img src="cases/clean/cj-haengdamdo.jpg" alt="행담도 CJ프레시웨이 콘텐츠 케이스" width="1778" height="1000" style="object-position:45% 50%" loading="lazy" decoding="async">
+      <picture><source media="(max-width:767px)" srcset="cases/clean/cj-haengdamdo-m.jpg"><img src="cases/clean/cj-haengdamdo.jpg" alt="행담도 CJ프레시웨이 콘텐츠 케이스" width="1350" height="1500" loading="lazy" decoding="async"></picture>
       <div class="svc-prev-overlay"></div>
       <div class="svc-prev-badge">
         <div class="svc-prev-kpi">행담도</div>
@@ -1457,7 +1458,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
     </div>
     <div class="svc-prev-img" data-pi="3">
-      <img src="cases/clean/hangaon.jpg" alt="한가온 브랜딩 케이스" width="1778" height="1000" style="object-position:63% 50%" loading="lazy" decoding="async">
+      <picture><source media="(max-width:767px)" srcset="cases/clean/hangaon-m.jpg"><img src="cases/clean/hangaon.jpg" alt="한가온 브랜딩 케이스" width="1350" height="1500" loading="lazy" decoding="async"></picture>
       <div class="svc-prev-overlay"></div>
       <div class="svc-prev-badge">
         <div class="svc-prev-kpi">한가온</div>
@@ -1466,7 +1467,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
     </div>
     <div class="svc-prev-img" data-pi="4">
-      <img src="cases/clean/flashback-gyerim.jpg" alt="Flashback Gyerim IMC 케이스" width="1567" height="1000" style="object-position:57% 50%" loading="lazy" decoding="async">
+      <picture><source media="(max-width:767px)" srcset="cases/clean/flashback-gyerim-m.jpg"><img src="cases/clean/flashback-gyerim.jpg" alt="Flashback Gyerim IMC 케이스" width="1350" height="1500" loading="lazy" decoding="async"></picture>
       <div class="svc-prev-overlay"></div>
       <div class="svc-prev-badge">
         <div class="svc-prev-kpi">Flashback</div>
@@ -1475,7 +1476,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
     </div>
     <div class="svc-prev-img" data-pi="5">
-      <img src="cases/clean/kimchi-festival.jpg" alt="김장김치 축제 공공홍보 케이스" width="1778" height="1000" style="object-position:55% 50%" loading="lazy" decoding="async">
+      <picture><source media="(max-width:767px)" srcset="cases/clean/kimchi-festival-m.jpg"><img src="cases/clean/kimchi-festival.jpg" alt="김장김치 축제 공공홍보 케이스" width="1350" height="1500" loading="lazy" decoding="async"></picture>
       <div class="svc-prev-overlay"></div>
       <div class="svc-prev-badge">
         <div class="svc-prev-kpi">김장김치 축제</div>
@@ -1484,7 +1485,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
     </div>
     <div class="svc-prev-img" data-pi="6">
-      <img src="cases/clean/bokhodu.jpg" alt="복호두 로컬 마케팅 케이스" width="1778" height="1000" style="object-position:52% 50%" loading="lazy" decoding="async">
+      <picture><source media="(max-width:767px)" srcset="cases/clean/bokhodu-m.jpg"><img src="cases/clean/bokhodu.jpg" alt="복호두 로컬 마케팅 케이스" width="1350" height="1500" loading="lazy" decoding="async"></picture>
       <div class="svc-prev-overlay"></div>
       <div class="svc-prev-badge">
         <div class="svc-prev-kpi">복호두</div>
