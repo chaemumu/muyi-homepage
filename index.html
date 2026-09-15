@@ -2909,12 +2909,8 @@ function addHalo(parentGrp,target,size,color,opacity){
   var h=new THREE.Mesh(new THREE.SphereGeometry(size,24,24),new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:opacity,depthWrite:false,side:THREE.BackSide,blending:THREE.AdditiveBlending}));
   parentGrp.add(h);return h;
 }
-// 궤도 링을 따라 흐르는 입자 — 링의 자식으로 붙여 링 회전에 따라 자연스럽게 공전
+// 궤도 링 빛번짐 — 링 위 점 입자는 궤도가 점박이처럼 보여 제거
 function addRingStream(ring,radius,count,color,size,opacity){
-  var g=new THREE.BufferGeometry(),p=new Float32Array(count*3);
-  for(var i=0;i<count;i++){var a=Math.random()*Math.PI*2,rr=radius+(Math.random()-.5)*.14;p[i*3]=rr*Math.cos(a);p[i*3+1]=rr*Math.sin(a);p[i*3+2]=(Math.random()-.5)*.1;}
-  g.setAttribute('position',new THREE.BufferAttribute(p,3));
-  ring.add(new THREE.Points(g,new THREE.PointsMaterial({color:color,size:size,transparent:true,opacity:opacity,depthWrite:false,sizeAttenuation:true,blending:THREE.AdditiveBlending})));
   // 링 자체에도 두꺼운 반투명 쌍둥이를 겹쳐 빛번짐처럼 보이게
   ring.add(new THREE.Mesh(new THREE.TorusGeometry(radius,.05,8,160),new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:.05,depthWrite:false,blending:THREE.AdditiveBlending})));
 }
@@ -3000,15 +2996,12 @@ var ringMeshes=[],pulseShells=[],linkLines=[];
   addRingStream(r1,2.2,90,0x6858ff,.045,.55);
   addRingStream(r2,3.8,120,0x8CA2FF,.04,.45);
   addRingStream(r3,4.75,140,0x8CA2FF,.032,.32);
-  // 행성 잔상
-  addTrail(orbitGrp,momMesh,0x8068ff,48);
-  addTrail(orbitGrp,orbMesh,0xEE4E00,48);
   // 궤도계를 감싸는 먼지 입자 — 깊이감
   (function(){
-    var n=420,g=new THREE.BufferGeometry(),p=new Float32Array(n*3);
+    var n=120,g=new THREE.BufferGeometry(),p=new Float32Array(n*3);
     for(var i=0;i<n;i++){var r=5.6+Math.random()*5.5,th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1);p[i*3]=r*Math.sin(ph)*Math.cos(th);p[i*3+1]=r*Math.cos(ph)*.55;p[i*3+2]=r*Math.sin(ph)*Math.sin(th);}
     g.setAttribute('position',new THREE.BufferAttribute(p,3));
-    orbitGrp.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x8CA2FF,size:.035,transparent:true,opacity:.35,depthWrite:false,sizeAttenuation:true,blending:THREE.AdditiveBlending})));
+    orbitGrp.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x8CA2FF,size:.035,transparent:true,opacity:.28,depthWrite:false,sizeAttenuation:true,blending:THREE.AdditiveBlending})));
   })();
 
   // Mini dots ring 1
