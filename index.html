@@ -767,8 +767,10 @@ body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;align-conte
 .ct-ti .h-line:last-child .h-title-grad{color:#1E10C7;-webkit-text-fill-color:#1E10C7}
 .ct-left{display:flex;flex-direction:column}
 .ct-desc{font-size:1rem;line-height:1.7;color:var(--c-subtle);margin-bottom:0;word-break:keep-all}
-.ct-stats{display:flex;align-items:baseline;flex-wrap:wrap;gap:.55rem .9rem;padding-bottom:.5rem;margin-top:auto}
-.ct-stats-sep{width:1px;height:.85em;align-self:center;background:rgba(10,10,26,.14)}
+.ct-eyeline{margin-bottom:.7rem}
+.ct-form-note{margin-bottom:.9rem}
+.ct-stats{display:flex;align-items:center;flex-wrap:wrap;gap:.7rem 1.1rem;padding-bottom:.5rem;margin-top:auto}
+.ct-stats-sep{width:1px;height:1.8rem;align-self:center;background:rgba(10,10,26,.14)}
 .ct-creds{margin-top:clamp(1rem,2.4vh,1.6rem)}
 .ct-cred-row{display:flex;flex-wrap:wrap;gap:.45rem}
 /* 로컬비즈니스 페이지 배지와 같은 형태 — 흰 배경이라 옅은 회청색 바탕과 테두리로 구분 */
@@ -781,7 +783,7 @@ body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;align-conte
   body:not(.scroll-mode) #p-ct{align-items:start}
   body:not(.scroll-mode) #p-ct .ct-stats{margin-top:clamp(.9rem,2vh,1.3rem)}
 }
-.ct-stat{display:inline-flex;align-items:baseline;gap:.4rem;min-width:0}
+.ct-stat{display:inline-flex;flex-direction:column;align-items:flex-start;gap:.1rem;min-width:0}
 .ct-stat-val{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(1.9rem,min(3vw,4.4vh),2.6rem);font-weight:700;color:var(--c-brand);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
 .ct-stat-val .ct-stat-unit{font-size:1.6rem;font-weight:700}
 .ct-stat-num{display:inline-block;text-align:right}
@@ -1795,12 +1797,11 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 <!-- CONTACT -->
 <div class="pnl" id="p-ct">
   <div class="ct-col ct-left">
-    <span class="ct-eye">영업일 기준 24시간 내 답변</span>
+    <p class="ct-desc ct-eyeline">브랜드 전략부터 퍼포먼스까지, 풀퍼널 마케팅 파트너.</p>
     <h2 class="ct-ti">
       <span class="h-line"><span class="h-line-in h-title-grad">무이와 함께 성장 구조를</span></span>
       <span class="h-line"><span class="h-line-in h-title-grad">설계하세요.</span></span>
     </h2>
-    <p class="ct-desc">브랜드 전략부터 퍼포먼스까지, 풀퍼널 마케팅 파트너.</p>
     <div class="ct-creds">
       <p class="ct-creds-lb">보유 인증 · 공공사업 자격</p>
       <div class="ct-cred-row">
@@ -1823,6 +1824,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   </div>
   <div class="ct-col">
     <form class="ct-form-box" id="form" novalidate>
+      <p class="ct-eye ct-form-note">영업일 기준 24시간 내 답변</p>
       <ol class="ct-stepper" id="ctStepper" aria-label="문의 단계">
         <li data-s="1"><button type="button"><b class="ct-step-num">1</b><span>문의 종류</span></button></li>
         <li data-s="2"><button type="button"><b class="ct-step-num">2</b><span>기간·예산</span></button></li>
