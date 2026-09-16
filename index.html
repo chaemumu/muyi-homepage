@@ -781,7 +781,9 @@ body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;align-conte
 .ct-creds-lb{font:700 .7rem/1.4 'Noto Sans KR','DM Sans',sans-serif;color:rgba(10,10,26,.42);letter-spacing:.02em;margin-bottom:.45rem}
 @media(min-width:768px){
   body:not(.scroll-mode) #p-ct{align-items:start}
-  body:not(.scroll-mode) #p-ct .ct-stats{margin-top:clamp(.9rem,2vh,1.3rem)}
+  /* 좌측 칼럼만 폼 높이만큼 늘려서 margin-top:auto인 통계가 폼 하단과
+     같은 높이에서 끝나게 함 — 안 그러면 짧은 좌측 칼럼 아래에 빈 공간만 남는다 */
+  body:not(.scroll-mode) #p-ct .ct-left{align-self:stretch}
 }
 .ct-stat{display:inline-flex;flex-direction:column;align-items:center;gap:.15rem;min-width:0}
 .ct-stat-val{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2.2rem,min(3.6vw,5.2vh),3.1rem);font-weight:700;color:var(--c-brand);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
