@@ -678,14 +678,14 @@ button.cli-case{font-family:inherit;width:100%;cursor:pointer;color:inherit}
 }
 
 /* CONTACT */
-#p-ct{grid-template-columns:1.1fr .9fr;grid-template-rows:auto auto;gap:3rem 5rem;align-items:stretch;padding:var(--nav-h) var(--edge-pad) clamp(2rem,3vw,3rem);max-width:1300px;margin:0 auto;width:100%;position:relative;background:#ffffff;box-shadow:0 0 0 100vmax #ffffff}
+#p-ct{grid-template-columns:1.1fr .9fr;grid-template-rows:auto auto;gap:.9rem 5rem;align-items:stretch;padding:var(--nav-h) var(--edge-pad) clamp(2rem,3vw,3rem);max-width:1300px;margin:0 auto;width:100%;position:relative;background:#ffffff;box-shadow:0 0 0 100vmax #ffffff}
 .ct-brand-links{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
 .ct-brand-btn{display:inline-flex;align-items:center;gap:.5rem;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-decoration:none;border-radius:var(--radius-full);padding:.55rem 1.2rem;transition:all .25s;cursor:pointer;font-family:inherit}
 .ct-insta-btn{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;border:none}
 .ct-insta-btn:hover{opacity:.88;transform:translateY(-1px);box-shadow:0 6px 16px rgba(220,39,67,.35)}
 .ct-dl-btn{background:#1E10C7;color:#fff;border:none}
 .ct-dl-btn:hover{background:#150dab;transform:translateY(-1px);box-shadow:0 6px 16px rgba(30,16,199,.35)}
-.ct-footer{grid-column:1/-1;grid-row:2;padding-top:1.5rem;border-top:1px solid var(--c-border);display:flex;flex-direction:column;gap:1.1rem}
+.ct-footer{grid-column:1/-1;grid-row:2;padding-top:.8rem;border-top:1px solid var(--c-border);display:flex;flex-direction:column;gap:1.3rem}
 .ct-footer-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem}
 .ct-footer-links{display:flex;align-items:center;gap:1.2rem}
 .ct-footer-links button{font-size:.78rem;letter-spacing:.04em;color:rgba(10,10,26,.45);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;transition:color .3s}
@@ -700,7 +700,7 @@ button.cli-case{font-family:inherit;width:100%;cursor:pointer;color:inherit}
 .ct-footer-meta{margin:0}
 .ct-footer-meta+.ct-footer-meta{margin-top:.15rem}
 .ct-ft-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
-.ct-ft-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:.6rem 1.5rem;flex-wrap:wrap;padding-top:1.1rem;border-top:1px dashed rgba(10,10,26,.08)}
+.ct-ft-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:.6rem 1.5rem;flex-wrap:wrap;padding-top:1.3rem;border-top:1px dashed rgba(10,10,26,.08)}
 .ct-ft-cards{display:flex;gap:.4rem 2rem;flex-wrap:wrap}
 /* 흰 카드 + 서비스별 색 아이콘. 마우스를 올리면 테두리·화살표가 그 서비스 색(--hc)으로 */
 /* 박스 없이 아이콘 + 텍스트 링크. 마우스를 올리면 제목이 서비스 색(--hc)으로, 화살표가 밀려남 */
@@ -739,16 +739,18 @@ button.cli-case{font-family:inherit;width:100%;cursor:pointer;color:inherit}
 .ct-col:last-of-type{grid-column:2;grid-row:1}
 #p-ct{overflow-y:auto;padding-bottom:5.6rem}
 /* 기존 position:relative 때문에 패널이 화면보다 길어지며 푸터가 잘렸다 → 화면 크기에 고정하고 내부 스크롤 */
-body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;gap:clamp(1.2rem,2.4vh,2.2rem) clamp(2.4rem,4vw,4.5rem)}
+/* align-content:start 필수 — 없으면 auto 트랙도 컨테이너 남는 높이만큼 늘어나
+   좌측 칼럼-통계 사이, 폼-푸터 사이에 불필요한 빈 공간이 생긴다 */
+body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;align-content:start;gap:.9rem clamp(2.4rem,4vw,4.5rem)}
 /* 헤더 버튼·로고(아래끝 164px)와 겹치지 않도록 로고 아래에서 시작하고, 한 화면에 들어가게 압축 */
 @media(min-width:768px){
-  body:not(.scroll-mode) #p-ct{padding-top:184px;padding-bottom:4.9rem}
+  body:not(.scroll-mode) #p-ct{padding-top:184px;padding-bottom:.2rem}
   body:not(.scroll-mode) #p-ct .ct-eye{margin-bottom:.7rem}
   body:not(.scroll-mode) #p-ct .ct-ti{font-size:clamp(1.9rem,min(3.1vw,5.2vh),3rem);max-width:none;margin-bottom:.8rem}
   body:not(.scroll-mode) #p-ct .ct-stat-val{font-size:clamp(1.6rem,min(2.6vw,3.8vh),2.3rem)}
   body:not(.scroll-mode) #p-ct .ct-form-box{padding:clamp(1.1rem,1.8vw,1.5rem)}
   body:not(.scroll-mode) #p-ct .ct-stepper{margin-bottom:.9rem}
-  body:not(.scroll-mode) #p-ct .ct-step-hint{margin-bottom:.6rem}
+  body:not(.scroll-mode) #p-ct .ct-step-hint{margin-bottom:.4rem}
   body:not(.scroll-mode) #p-ct .ct-chip-grid{gap:.5rem}
   body:not(.scroll-mode) #p-ct .ct-chip-b{padding:.55rem .9rem}
   body:not(.scroll-mode) #p-ct .fg{margin-bottom:.65rem}
@@ -821,19 +823,19 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 .ct-stepper li.is-done .ct-step-num{background:var(--c-brand);color:#fff}
 .ct-stepper li.is-done span::before{content:'✓ ';color:var(--c-brand)}
 .ct-stepper li.is-done button:hover span{color:var(--c-brand)}
-.ct-count{margin-left:auto;font-size:.74rem;font-weight:800;color:var(--c-brand);white-space:nowrap}
-.ct-opt{display:inline-block;margin-left:.3rem;padding:.08rem .45rem;border-radius:var(--radius-full);background:rgba(10,10,26,.06);font-size:.68rem;font-weight:700;color:rgba(10,10,26,.5);vertical-align:1px}
+.ct-count{margin-left:auto;font-size:.68rem;font-weight:800;color:var(--c-brand);white-space:nowrap}
+.ct-opt{display:inline-block;margin-left:.3rem;padding:.05rem .4rem;border-radius:var(--radius-full);background:rgba(10,10,26,.06);font-size:.62rem;font-weight:700;color:rgba(10,10,26,.5);vertical-align:1px}
 .ct-req-note{font-size:.72rem;color:rgba(10,10,26,.45);margin-top:1rem;font-family:'Noto Sans KR','DM Sans',sans-serif}
 @media(max-width:420px){.ct-stepper span{font-size:.64rem}}
 .ct-steps{display:grid;flex:1}
 .ct-step{grid-area:1/1;visibility:hidden;opacity:0;pointer-events:none}
 .ct-step.is-act{visibility:visible;opacity:1;pointer-events:auto;animation:ctStepIn .45s var(--ease-out)}
 @keyframes ctStepIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.ct-step-hint{display:flex;align-items:baseline;gap:.2rem;flex-wrap:wrap;font-size:.84rem;color:rgba(10,10,26,.62);font-weight:600;margin-bottom:.8rem;line-height:1.6;font-family:'Noto Sans KR','DM Sans',sans-serif}
-.ct-chip-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem}
+.ct-step-hint{display:flex;align-items:baseline;gap:.2rem;flex-wrap:wrap;font-size:.76rem;color:rgba(10,10,26,.62);font-weight:600;margin-bottom:.55rem;line-height:1.4;font-family:'Noto Sans KR','DM Sans',sans-serif}
+.ct-chip-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem}
 .ct-chip-row{display:flex;flex-wrap:wrap;gap:.55rem}
 .ct-chip-b{font-family:inherit;text-align:left;padding:.72rem .95rem;border-radius:var(--radius-sm);border:1px solid var(--c-border);background:#fff;color:#0a0a1a;cursor:pointer;transition:all var(--dur-mid) var(--ease-out);font-size:.86rem;font-weight:600;line-height:1.3}
-#ctTypeGrid .ct-chip-b{min-height:64px;display:flex;flex-direction:column;justify-content:center}
+#ctTypeGrid .ct-chip-b{min-height:46px;display:flex;flex-direction:column;justify-content:center}
 .ct-chip-b span{display:block;font-size:.68rem;font-weight:500;color:var(--c-subtle);margin-top:.15rem}
 .ct-chip-b:hover{border-color:rgba(30,16,199,.35);transform:translateY(-1px)}
 .ct-chip-b.sel{background:var(--c-brand);border-color:var(--c-brand);color:#fff}
