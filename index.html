@@ -185,7 +185,6 @@ body.scroll-mode #p-ct .ct-ti{font-size:clamp(1.6rem,6.5vw,2.2rem);letter-spacin
 body.scroll-mode #p-ct .ct-desc{font-size:.82rem;line-height:1.6;margin-bottom:1rem;color:rgba(10,10,26,.5)}
 body.scroll-mode #p-ct .ct-eye{margin-bottom:.5rem;font-size:.62rem}
 body.scroll-mode #p-ct .ct-stats{margin-top:0;padding-bottom:0;margin-bottom:0;gap:.4rem}
-body.scroll-mode #p-ct .ct-stat{padding:.7rem .3rem;border-radius:10px}
 body.scroll-mode #p-ct .ct-stat-val{font-size:1.6rem}
 body.scroll-mode #p-ct .ct-stat-val .ct-stat-unit{font-size:1rem}
 body.scroll-mode #p-ct .ct-stat-label{font-size:.6rem;line-height:1.35}
@@ -746,7 +745,6 @@ body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;gap:clamp(1
   body:not(.scroll-mode) #p-ct{padding-top:184px;padding-bottom:4.9rem}
   body:not(.scroll-mode) #p-ct .ct-eye{margin-bottom:.7rem}
   body:not(.scroll-mode) #p-ct .ct-ti{font-size:clamp(1.9rem,min(3.1vw,5.2vh),3rem);max-width:none;margin-bottom:.8rem}
-  body:not(.scroll-mode) #p-ct .ct-stat{padding:.75rem .5rem}
   body:not(.scroll-mode) #p-ct .ct-stat-val{font-size:clamp(1.6rem,min(2.6vw,3.8vh),2.3rem)}
   body:not(.scroll-mode) #p-ct .ct-form-box{padding:clamp(1.1rem,1.8vw,1.5rem)}
   body:not(.scroll-mode) #p-ct .ct-stepper{margin-bottom:.9rem}
@@ -767,7 +765,8 @@ body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;gap:clamp(1
 .ct-ti .h-line:last-child .h-title-grad{color:#1E10C7;-webkit-text-fill-color:#1E10C7}
 .ct-left{display:flex;flex-direction:column}
 .ct-desc{font-size:1rem;line-height:1.7;color:var(--c-subtle);margin-bottom:0;word-break:keep-all}
-.ct-stats{display:flex;gap:.8rem;padding-bottom:.5rem;margin-top:auto}
+.ct-stats{display:flex;align-items:baseline;flex-wrap:wrap;gap:.55rem .9rem;padding-bottom:.5rem;margin-top:auto}
+.ct-stats-sep{width:1px;height:.85em;align-self:center;background:rgba(10,10,26,.14)}
 .ct-creds{margin-top:clamp(1rem,2.4vh,1.6rem)}
 .ct-cred-row{display:flex;flex-wrap:wrap;gap:.45rem}
 /* 로컬비즈니스 페이지 배지와 같은 형태 — 흰 배경이라 옅은 회청색 바탕과 테두리로 구분 */
@@ -780,7 +779,7 @@ body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;gap:clamp(1
   body:not(.scroll-mode) #p-ct{align-items:start}
   body:not(.scroll-mode) #p-ct .ct-stats{margin-top:clamp(.9rem,2vh,1.3rem)}
 }
-.ct-stat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;background:#f4f5ff;border:1px solid rgba(30,16,199,.08);border-radius:12px;padding:.9rem .5rem;text-align:center;min-width:0}
+.ct-stat{display:inline-flex;align-items:baseline;gap:.4rem;min-width:0}
 .ct-stat-val{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(1.9rem,min(3vw,4.4vh),2.6rem);font-weight:700;color:var(--c-brand);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
 .ct-stat-val .ct-stat-unit{font-size:1.6rem;font-weight:700}
 .ct-stat-num{display:inline-block;text-align:right}
@@ -1802,21 +1801,21 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
     <div class="ct-creds">
       <p class="ct-creds-lb">보유 인증 · 공공사업 자격</p>
       <div class="ct-cred-row">
-        <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true">🏛️</span>특허 등록</span>
+        <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true">🏛️</span>AI 마케팅 특허</span>
         <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true">💻</span>소프트웨어사업자</span>
-        <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true">🎬</span>비디오물제작업 신고</span>
-        <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true">📊</span>매출 상위 30%</span>
+        <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true">🎬</span>숏폼 영상제작 신고</span>
         <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true">🏢</span>나라장터 등록</span>
         <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true">📢</span>GOAD 정부광고 매체사</span>
         <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true">✅</span>직접생산확인 · 영상제작</span>
         <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true">🚀</span>공공조달 창업기업</span>
       </div>
-      <p class="ct-creds-note">※ 매출 순위는 서울 금천구 광고대행업 기준</p>
     </div>
     <div class="ct-stats">
-      <div class="ct-stat"><span class="ct-stat-val"><span class="ct-stat-num" data-target="500">0</span><span class="ct-stat-unit">+</span></span><span class="ct-stat-label">프로젝트 수행</span></div>
-      <div class="ct-stat"><span class="ct-stat-val"><span class="ct-stat-num" data-target="92">0</span><span class="ct-stat-unit">%</span></span><span class="ct-stat-label">재계약률</span></div>
-      <div class="ct-stat"><span class="ct-stat-val"><span class="ct-stat-num" data-target="200">0</span><span class="ct-stat-unit">+</span></span><span class="ct-stat-label">함께한 브랜드</span></div>
+      <span class="ct-stat"><span class="ct-stat-val"><span class="ct-stat-num" data-target="500">0</span><span class="ct-stat-unit">+</span></span><span class="ct-stat-label">프로젝트 수행</span></span>
+      <span class="ct-stats-sep" aria-hidden="true"></span>
+      <span class="ct-stat"><span class="ct-stat-val"><span class="ct-stat-num" data-target="92">0</span><span class="ct-stat-unit">%</span></span><span class="ct-stat-label">재계약률</span></span>
+      <span class="ct-stats-sep" aria-hidden="true"></span>
+      <span class="ct-stat"><span class="ct-stat-val"><span class="ct-stat-num" data-target="200">0</span><span class="ct-stat-unit">+</span></span><span class="ct-stat-label">함께한 브랜드</span></span>
     </div>
   </div>
   <div class="ct-col">
