@@ -752,7 +752,7 @@ body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;align-conte
   body:not(.scroll-mode) #p-ct .ct-stepper{margin-bottom:.9rem}
   body:not(.scroll-mode) #p-ct .ct-step-hint{margin-bottom:.4rem}
   body:not(.scroll-mode) #p-ct .ct-chip-grid{gap:.5rem}
-  body:not(.scroll-mode) #p-ct .ct-chip-b{padding:.5rem .75rem}
+  body:not(.scroll-mode) #p-ct .ct-chip-b{padding:.55rem .9rem}
   body:not(.scroll-mode) #p-ct .fg{margin-bottom:.65rem}
   body:not(.scroll-mode) #p-ct .ft{min-height:64px}
   body:not(.scroll-mode) #p-ct .ct-req-note{margin-top:.6rem}
@@ -772,18 +772,21 @@ body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;align-conte
 .ct-stats{display:flex;align-items:center;flex-wrap:wrap;gap:.9rem 1.6rem;padding-bottom:.5rem;margin-top:auto}
 .ct-stats-sep{width:1px;height:2.6rem;align-self:center;background:rgba(10,10,26,.14)}
 .ct-creds{margin-top:clamp(1rem,2.4vh,1.6rem)}
-.ct-cred-row{display:flex;flex-wrap:wrap;gap:.45rem}
+.ct-cred-row{display:flex;flex-wrap:wrap;gap:.35rem}
 /* 로컬비즈니스 페이지 배지와 같은 형태 — 흰 배경이라 옅은 회청색 바탕과 테두리로 구분 */
-.ct-cred{display:inline-flex;align-items:center;gap:.45rem;padding:.5rem .95rem;border-radius:999px;background:#F6F7FB;border:1px solid rgba(10,10,26,.09);font:600 .78rem/1.2 'Noto Sans KR','DM Sans',sans-serif;color:rgba(10,10,26,.72);letter-spacing:-.01em;white-space:nowrap;cursor:default;transition:border-color .25s,color .25s,background .25s,transform .25s var(--ease-out),box-shadow .25s}
+.ct-cred{display:inline-flex;align-items:center;gap:.35rem;padding:.35rem .7rem;border-radius:999px;background:#F6F7FB;border:1px solid rgba(10,10,26,.09);font:600 .7rem/1.2 'Noto Sans KR','DM Sans',sans-serif;color:rgba(10,10,26,.72);letter-spacing:-.01em;white-space:nowrap;cursor:default;transition:border-color .25s,color .25s,background .25s,transform .25s var(--ease-out),box-shadow .25s}
 .ct-cred:hover{border-color:#1E10C7;color:#0a0a1a;background:#fff;transform:translateY(-2px);box-shadow:0 6px 16px rgba(30,16,199,.1)}
-.ct-cred-ic{font-size:.95rem;line-height:1}
+.ct-cred-ic{font-size:.82rem;line-height:1}
 .ct-creds-note{font:500 .68rem/1.4 'Noto Sans KR','DM Sans',sans-serif;color:rgba(10,10,26,.38);margin-top:.5rem}
 .ct-creds-lb{font:700 .7rem/1.4 'Noto Sans KR','DM Sans',sans-serif;color:rgba(10,10,26,.42);letter-spacing:.02em;margin-bottom:.45rem}
 @media(min-width:768px){
   body:not(.scroll-mode) #p-ct{align-items:start}
   /* 좌측 칼럼만 폼 높이만큼 늘려서 margin-top:auto인 통계가 폼 하단과
      같은 높이에서 끝나게 함 — 안 그러면 짧은 좌측 칼럼 아래에 빈 공간만 남는다 */
-  body:not(.scroll-mode) #p-ct .ct-left{align-self:stretch}
+  /* 남는 세로 공간을 통계 위에 한 덩어리로 몰아주지 않고(=큰 빈칸),
+     소개문·제목·인증배지·통계 사이에 고르게 나눠 리듬처럼 보이게 한다 */
+  body:not(.scroll-mode) #p-ct .ct-left{align-self:stretch;justify-content:space-between}
+  body:not(.scroll-mode) #p-ct .ct-stats{margin-top:0}
 }
 .ct-stat{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;min-width:0}
 .ct-stat-val{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(3rem,min(4.8vw,6.8vh),4.2rem);font-weight:700;color:var(--c-brand);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
@@ -838,13 +841,13 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 .ct-step-hint{display:flex;align-items:baseline;gap:.2rem;flex-wrap:wrap;font-size:.76rem;color:rgba(10,10,26,.62);font-weight:600;margin-bottom:.55rem;line-height:1.4;font-family:'Noto Sans KR','DM Sans',sans-serif}
 .ct-chip-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem}
 .ct-chip-row{display:flex;flex-wrap:wrap;gap:.55rem}
-.ct-chip-b{font-family:inherit;text-align:left;padding:.55rem .8rem;border-radius:var(--radius-sm);border:1px solid var(--c-border);background:#fff;color:#0a0a1a;cursor:pointer;transition:all var(--dur-mid) var(--ease-out);font-size:.78rem;font-weight:600;line-height:1.25}
-#ctTypeGrid .ct-chip-b{min-height:38px;display:flex;flex-direction:column;justify-content:center}
-.ct-chip-b span{display:block;font-size:.62rem;font-weight:500;color:var(--c-subtle);margin-top:.1rem}
+.ct-chip-b{font-family:inherit;text-align:left;padding:.72rem .95rem;border-radius:var(--radius-sm);border:1px solid var(--c-border);background:#fff;color:#0a0a1a;cursor:pointer;transition:all var(--dur-mid) var(--ease-out);font-size:.86rem;font-weight:600;line-height:1.3}
+#ctTypeGrid .ct-chip-b{min-height:46px;display:flex;flex-direction:column;justify-content:center}
+.ct-chip-b span{display:block;font-size:.68rem;font-weight:500;color:var(--c-subtle);margin-top:.15rem}
 .ct-chip-b:hover{border-color:rgba(30,16,199,.35);transform:translateY(-1px)}
 .ct-chip-b.sel{background:var(--c-brand);border-color:var(--c-brand);color:#fff}
 .ct-chip-b.sel span{color:rgba(255,255,255,.75)}
-.ct-chip-b.sm{padding:.5rem .95rem;border-radius:var(--radius-full);font-size:.74rem;font-weight:600}
+.ct-chip-b.sm{padding:.6rem 1.1rem;border-radius:var(--radius-full);font-size:.8rem;font-weight:600}
 .ct-file-drop{display:flex;flex-direction:column;align-items:center;gap:.5rem;border:1.5px dashed rgba(30,16,199,.25);border-radius:var(--radius-md);padding:1.6rem 1rem;color:var(--c-subtle);cursor:pointer;transition:all var(--dur-mid);font-size:.82rem;text-align:center}
 .ct-file-drop:hover{border-color:var(--c-brand);background:rgba(30,16,199,.03)}
 .ct-file-drop svg{color:var(--c-brand)}
