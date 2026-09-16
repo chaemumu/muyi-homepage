@@ -2896,19 +2896,23 @@ var heroMouseTarget={x:0,y:0},heroMouseCurrent={x:0,y:0};
 
 // 오르빗 행성용 프레넬 발광 머티리얼 — 히어로 구체와 같은 입체감(가장자리가 밝게 빛남)을 색만 바꿔 사용
 var orbGlowMats=[];
-function makeGlowMat(core,mid,rim,accent,spin){
+function makeGlowMat(core,mid,rim,accent){
   var m=new THREE.ShaderMaterial({
-    uniforms:{time:{value:0},spin:{value:spin||.28},cCore:{value:new THREE.Color(core)},cMid:{value:new THREE.Color(mid)},cRim:{value:new THREE.Color(rim)},cAcc:{value:new THREE.Color(accent)}},
+    uniforms:{time:{value:0},cCore:{value:new THREE.Color(core)},cMid:{value:new THREE.Color(mid)},cRim:{value:new THREE.Color(rim)},cAcc:{value:new THREE.Color(accent)}},
     vertexShader:'varying vec3 vN;varying vec3 vV;varying vec3 vP;void main(){vP=normalize(position);vN=normalize(normalMatrix*normal);vec4 mv=modelViewMatrix*vec4(position,1.0);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
-    fragmentShader:'uniform float time;uniform float spin;uniform vec3 cCore;uniform vec3 cMid;uniform vec3 cRim;uniform vec3 cAcc;varying vec3 vN;varying vec3 vV;varying vec3 vP;void main(){float f=pow(1.0-max(dot(vN,vV),0.0),2.6);float sweep=smoothstep(0.55,1.0,sin(atan(vP.z,vP.x)+time*spin)*0.5+0.5);vec3 col=mix(cCore,cMid,smoothstep(0.0,0.35,f));col=mix(col,cRim,smoothstep(0.3,0.7,f));col=mix(col,cAcc,smoothstep(0.72,1.0,f));col*=0.94+0.06*sin(time*1.4);col+=f*f*cAcc*0.55;col+=cAcc*sweep*0.07*(1.0-f);gl_FragColor=vec4(col,1.0);}'
+    fragmentShader:'uniform float time;uniform vec3 cCore;uniform vec3 cMid;uniform vec3 cRim;uniform vec3 cAcc;varying vec3 vN;varying vec3 vV;varying vec3 vP;void main(){float f=pow(1.0-max(dot(vN,vV),0.0),2.6);vec3 col=mix(cCore,cMid,smoothstep(0.0,0.35,f));col=mix(col,cRim,smoothstep(0.3,0.7,f));col=mix(col,cAcc,smoothstep(0.72,1.0,f));float band=sin(vP.y*7.0+sin(vP.y*3.0)*1.2)*0.5+0.5;col+=cAcc*band*0.045*(1.0-f);float hi=pow(max(dot(vN,normalize(vec3(0.42,0.6,1.0))),0.0),3.0);col+=cAcc*hi*0.11*(1.0-f);col*=0.94+0.06*sin(time*1.4);col+=f*f*cAcc*0.55;gl_FragColor=vec4(col,1.0);}'
   });
   orbGlowMats.push(m);return m;
 }
 // 행성 주위 은은한 빛무리 (뒷면만 그리는 가산 혼합 구체)
+var orbHalos=[];
 function addHalo(parentGrp,target,size,color,opacity){
   var h=new THREE.Mesh(new THREE.SphereGeometry(size,48,48),new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:opacity,depthWrite:false,side:THREE.BackSide,blending:THREE.AdditiveBlending}));
-  parentGrp.add(h);return h;
+  parentGrp.add(h);orbHalos.push(h);return h;
 }
+/* 자전: 축을 살짝 기울여 돌린다. 무늬가 물체 좌표계에 있어 회전이 눈에 보이고,
+   구 자체는 히어로와 같은 프레넬이라 톤이 어긋나지 않는다 */
+function setSpin(mesh,speed,tilt){mesh.rotation.z=tilt;mesh._spin=speed;}
 // 궤도 링 빛번짐 — 링 위 점 입자는 궤도가 점박이처럼 보여 제거
 function addRingStream(ring,radius,count,color,size,opacity){
   // 링 자체에도 두꺼운 반투명 쌍둥이를 겹쳐 빛번짐처럼 보이게
@@ -2959,6 +2963,7 @@ var ringMeshes=[],pulseShells=[],linkLines=[];
     new THREE.SphereGeometry(.62,64,64),
     makeGlowMat(0x0a0624,0x1a10a0,0x4a3cf5,0x9fb0ff,.2)
   );
+  setSpin(coreMesh,.11,.24);
   coreMesh._id='core';coreMesh._label='Core';coreMesh._desc='브랜드 기준점과 메시지를 다시 세웁니다'; orbitGrp.add(coreMesh); nodeMeshes.push(coreMesh);
 
   // Core atmosphere glow
@@ -2972,7 +2977,10 @@ var ringMeshes=[],pulseShells=[],linkLines=[];
   r1.rotation.x=Math.PI*.16; r1.rotation.z=Math.PI*.04; r1._baseZ=Math.PI*.04; r1._spd=.18; orbitGrp.add(r1); ringMeshes.push(r1);
 
   // Momentum sphere — flat (no shading)
-  momMesh=new THREE.Mesh(new THREE.SphereGeometry(.27,48,48),makeGlowMat(0x140a3a,0x5a44e8,0x9a8cff,0xd6ceff,.5));
+  momMesh=new THREE.Mesh(new THREE.SphereGeometry(.27,48,48),makeGlowMat(0x140a3a,0x5a44e8,0x9a8cff,0xd6ceff));
+  setSpin(momMesh,.3,-.3);
+  addHalo(momMesh,momMesh,.4,0x8068ff,.12);
+  addHalo(momMesh,momMesh,.62,0x9a8cff,.05);
   momMesh._id='mom';momMesh._label='Momentum';momMesh._desc='광고와 콘텐츠 성과를 실제 매출로 연결합니다'; momMesh._r=2.2; momMesh._a=.8; momMesh._tilt=Math.PI*.16; momMesh._spd=.65;
   orbitGrp.add(momMesh); nodeMeshes.push(momMesh);
   var momShell=new THREE.Mesh(new THREE.SphereGeometry(.294,18,18),new THREE.MeshBasicMaterial({color:0x6858ff,transparent:true,opacity:.1,depthWrite:false}));
@@ -2985,7 +2993,10 @@ var ringMeshes=[],pulseShells=[],linkLines=[];
   r3.rotation.x=Math.PI*.31; r3.rotation.z=Math.PI*.11; r3._baseZ=Math.PI*.11; r3._spd=.09; orbitGrp.add(r3); ringMeshes.push(r3);
 
   // Orbit sphere — flat (no shading) — keep orange
-  orbMesh=new THREE.Mesh(new THREE.SphereGeometry(.24,48,48),makeGlowMat(0x2a0a00,0xc03e00,0xff7a2e,0xffc49a,.42));
+  orbMesh=new THREE.Mesh(new THREE.SphereGeometry(.24,48,48),makeGlowMat(0x2a0a00,0xc03e00,0xff7a2e,0xffc49a));
+  setSpin(orbMesh,.26,.34);
+  addHalo(orbMesh,orbMesh,.36,0xEE4E00,.12);
+  addHalo(orbMesh,orbMesh,.56,0xff7a2e,.05);
   orbMesh._id='orb';orbMesh._label='Orbit';orbMesh._desc='유입, 전환, 재방문이 이어지는 성장 궤도를 만듭니다'; orbMesh._r=3.8; orbMesh._a=2.5; orbMesh._tilt=Math.PI*.24; orbMesh._spd=.32;
   orbitGrp.add(orbMesh); nodeMeshes.push(orbMesh);
   var orbShell=new THREE.Mesh(new THREE.SphereGeometry(.263,18,18),new THREE.MeshBasicMaterial({color:0xEE4E00,transparent:true,opacity:.1,depthWrite:false}));
@@ -3130,6 +3141,8 @@ function animate(){
 
     _orbNode(momMesh,t); _orbNode(orbMesh,t);
     orbGlowMats.forEach(function(m){m.uniforms.time.value=t;});
+    coreMesh.rotation.y=t*coreMesh._spin;momMesh.rotation.y=t*momMesh._spin;orbMesh.rotation.y=t*orbMesh._spin;
+    orbHalos.forEach(function(h,i){h.scale.setScalar(1+.05*Math.sin(t*(.8+i*.18)+i));});
     updateTrails(t);
     // Mini dots — always live (never hovered, so always use t)
     orbitGrp.children.forEach(function(c){if(c._gw)_orbNode(c,t);});
