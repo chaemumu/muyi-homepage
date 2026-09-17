@@ -181,7 +181,7 @@ body.scroll-mode #p-ct .ct-col{width:100%;flex-shrink:0}
 body.scroll-mode #p-ct .ct-col:first-of-type{margin-bottom:1.1rem}
 body.scroll-mode #p-ct .ct-col:last-of-type{flex:1;min-width:0}
 body.scroll-mode #p-ct .ct-footer{margin-top:1rem;padding-top:.9rem;border-top:1px solid rgba(10,10,26,.07);flex-shrink:0}
-body.scroll-mode #p-ct .ct-ti{font-size:clamp(1.6rem,6.5vw,2.2rem);letter-spacing:-.04em;margin-bottom:.6rem;max-width:none;line-height:1.24}
+body.scroll-mode #p-ct .ct-ti{font-size:clamp(1.9rem,8vw,2.6rem);letter-spacing:-.04em;margin-bottom:.6rem;max-width:none;line-height:1.28}
 body.scroll-mode #p-ct .ct-desc{font-size:.82rem;line-height:1.6;margin-bottom:1rem;color:rgba(10,10,26,.5)}
 body.scroll-mode #p-ct .ct-eye{margin-bottom:.5rem;font-size:.62rem}
 body.scroll-mode #p-ct .ct-stats{margin-top:1.1rem;padding-bottom:0;margin-bottom:0;gap:.4rem}
@@ -193,6 +193,12 @@ body.scroll-mode #p-ct .fi,body.scroll-mode #p-ct .ft{min-height:44px;font-size:
 body.scroll-mode #p-ct .ft{min-height:62px}
 body.scroll-mode #p-ct .fsub{min-height:48px;font-size:.9rem;letter-spacing:.02em;box-shadow:0 6px 20px rgba(30,16,199,.3);padding:.8rem}
 body.scroll-mode #p-ct .fl{font-size:.65rem;margin-bottom:.25rem;letter-spacing:.06em}
+/* 모바일은 높이 고정이 필요 없음 → 현재 단계만 자리 차지 (가장 긴 3단계 높이만큼 빈칸이 생기던 문제) */
+body.scroll-mode #p-ct .ct-step:not(.is-act){display:none}
+/* 오른쪽 아래 상담 버튼(52px, right 1.4rem)에 회사정보 글자가 가리지 않도록 그 폭만큼 비움 */
+body.scroll-mode #p-ct .ct-ft-bottom{padding-right:calc(52px + .8rem)}
+body.scroll-mode #p-ct .ct-footer-links{flex-wrap:wrap;row-gap:.35rem}
+.ct-footer-links>*{white-space:nowrap}
 body.scroll-mode .ct-stat{pointer-events:none!important;cursor:default!important;user-select:none}
 body.scroll-mode .ct-footer-meta{pointer-events:none!important;user-select:none!important}
 body.scroll-mode .svc-kpi-tag{opacity:1;transform:none}
@@ -222,10 +228,16 @@ body.scroll-mode .m-cta-bridge button:active{transform:scale(.96)}
 body.scroll-mode .m-cta-bridge .m-cta-hint{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600}
 
 /* CURSOR */
-#cur-d{position:fixed;z-index:9999;pointer-events:none;width:5px;height:5px;border-radius:50%;background:#3428F0;transform:translate(-50%,-50%);mix-blend-mode:normal;transition:width var(--dur-fast),height var(--dur-fast);will-change:transform}
-#cur-r{position:fixed;z-index:9998;pointer-events:none;width:36px;height:36px;border-radius:50%;border:1px solid rgba(140,162,255,.18);transform:translate(-50%,-50%);transition:width var(--dur-mid) var(--ease-out),height var(--dur-mid) var(--ease-out),border-color var(--dur-mid);will-change:transform}
-body.on-hover #cur-d{width:36px;height:36px}
-body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
+/* 점(현재 위치) + 뒤따르는 링. 클릭 가능한 곳에선 점이 사라지고 링이 파랗게 채워져 "누를 수 있음"을 알린다.
+   링 안쪽은 거의 투명이라 글자를 가리지 않는다. 입력칸에선 둘 다 숨겨 텍스트 커서만 보이게 한다 */
+#cur-d,#cur-r{position:fixed;pointer-events:none;border-radius:50%;transform:translate(-50%,-50%);will-change:transform}
+#cur-d{z-index:9999;width:6px;height:6px;background:var(--c-brand);transition:opacity .2s,transform .25s var(--ease-out)}
+#cur-r{z-index:9998;width:28px;height:28px;border:1px solid rgba(30,16,199,.22);transition:width .3s var(--ease-out),height .3s var(--ease-out),border-color .25s,background .25s,opacity .2s}
+body.on-hover #cur-d{transform:translate(-50%,-50%) scale(0)}
+body.on-hover #cur-r{width:44px;height:44px;border:1.5px solid var(--c-brand);background:rgba(30,16,199,.07);box-shadow:0 0 0 1px rgba(255,255,255,.55)}
+body.on-off #cur-r{border:1.5px dashed rgba(10,10,26,.3);background:none}
+body.cur-down #cur-r{width:34px;height:34px}
+body.on-text #cur-d,body.on-text #cur-r,body.cur-out #cur-d,body.cur-out #cur-r{opacity:0}
 
 /* LOADER */
 #loader{position:fixed;inset:0;z-index:1000;background:#ffffff;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;transition:opacity .6s ease,visibility .6s ease;overflow:hidden}
@@ -269,7 +281,9 @@ body.on-hover #cur-r{width:52px;height:52px;border-color:rgba(30,16,199,.25)}
 .nav-cta:active{transform:translateY(0) scale(.97);transition-duration:80ms}
 
 /* BACK */
-.nav-l{display:flex;align-items:center;gap:1.2rem}
+/* 뒤로가기 버튼을 로고 옆이 아닌 로고와 같은 왼쪽 선(=본문 왼쪽 선)에 세움 — 로고 이미지 박스가 커서 옆에 두면 떠 보였다 */
+.nav-l{display:flex;align-items:center;gap:1.2rem;position:relative}
+#back{position:absolute;left:min(0px,calc(var(--edge-pad) - 2.8rem));top:50%;margin-top:-22px}
 #back{display:inline-flex;align-items:center;gap:.5rem;height:44px;padding:0 1.15rem 0 .9rem;border-radius:var(--radius-full);border:1px solid rgba(10,10,26,.14);background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#0a0a1a;font:700 .82rem/1 'Noto Sans KR','DM Sans',sans-serif;letter-spacing:-.01em;cursor:pointer;opacity:0;pointer-events:none;transform:translateX(-8px);transition:opacity .35s,transform .35s var(--ease-out),background .25s,border-color .25s,color .25s;box-shadow:var(--shadow-sm)}
 #back.vis{opacity:1;pointer-events:auto;transform:none}
 #back svg{width:15px;height:15px;transition:transform .25s var(--ease-out)}
@@ -716,10 +730,7 @@ button.cli-case{font-family:inherit;width:100%;cursor:pointer;color:inherit}
 .ct-ft-ic-ig{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%);color:#fff}
 .ct-ft-tx{position:relative;display:flex;flex-direction:column;line-height:1.2;font-family:'Noto Sans KR','DM Sans',sans-serif}
 .ct-ft-tx b{font-size:.92rem;font-weight:700;letter-spacing:-.01em}
-.ct-ft-tx small{position:absolute;left:0;top:100%;margin-top:.3rem;white-space:nowrap;font-size:.72rem;color:rgba(10,10,26,.55);opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .25s,transform .25s var(--ease-out)}
-.ct-ft-card:hover .ct-ft-tx small,.ct-ft-card:focus-visible .ct-ft-tx small{opacity:1;transform:none}
-.ct-ft-go{padding-left:.15rem;font-size:.95rem;color:rgba(10,10,26,.3);transition:transform .3s var(--ease-out),color .3s}
-.ct-ft-card:hover .ct-ft-go{transform:translateX(4px);color:var(--hc,#1E10C7)}
+.ct-ft-tx small{margin-top:.2rem;white-space:nowrap;font-size:.72rem;color:rgba(10,10,26,.5)}
 .ct-ft-copy{font-size:.72rem;color:rgba(10,10,26,.32)}
 .ct-ft-lnk{font-size:.78rem;letter-spacing:.04em;color:rgba(10,10,26,.45);text-decoration:none;transition:color .3s}
 .ct-ft-lnk:hover{color:var(--c-brand)}
@@ -745,10 +756,12 @@ button.cli-case{font-family:inherit;width:100%;cursor:pointer;color:inherit}
 body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;align-content:start;gap:.9rem clamp(2.4rem,4vw,4.5rem)}
 /* 헤더 버튼·로고(아래끝 164px)와 겹치지 않도록 로고 아래에서 시작하고, 한 화면에 들어가게 압축 */
 @media(min-width:768px){
-  body:not(.scroll-mode) #p-ct{padding-top:184px;padding-bottom:.2rem}
+  /* 낮은 화면에선 상단 여백을 줄이고, 하단엔 떠 있는 섹션 내비(pill)만큼 여유를 둬 푸터가 가려지지 않게 */
+  body:not(.scroll-mode) #p-ct{padding-top:clamp(140px,20vh,184px);padding-bottom:4.8rem}
   body:not(.scroll-mode) #p-ct .ct-eye{margin-bottom:.7rem}
-  body:not(.scroll-mode) #p-ct .ct-ti{font-size:clamp(1.9rem,min(3.1vw,5.2vh),3rem);max-width:none;margin-bottom:.8rem}
-  body:not(.scroll-mode) #p-ct .ct-stat-val{font-size:clamp(3rem,min(4.8vw,6.8vh),4.2rem)}
+  body:not(.scroll-mode) #p-ct .ct-ti{font-size:clamp(2.2rem,min(3.7vw,6vh),3.6rem);max-width:none;margin-bottom:.9rem}
+  body:not(.scroll-mode) #p-ct .ct-stat-val{font-size:clamp(2.4rem,min(4vw,5.6vh),3.8rem)}
+  body:not(.scroll-mode) #p-ct .ct-stat-val .ct-stat-unit{font-size:.6em}
   body:not(.scroll-mode) #p-ct .ct-form-box{padding:clamp(1.1rem,1.8vw,1.5rem)}
   body:not(.scroll-mode) #p-ct .ct-stepper{margin-bottom:.9rem}
   body:not(.scroll-mode) #p-ct .ct-step-hint{margin-bottom:.4rem}
@@ -756,20 +769,23 @@ body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;align-conte
   body:not(.scroll-mode) #p-ct .ct-chip-b{padding:.55rem .9rem}
   body:not(.scroll-mode) #p-ct .fg{margin-bottom:.65rem}
   body:not(.scroll-mode) #p-ct .ft{min-height:64px}
-  body:not(.scroll-mode) #p-ct .ct-req-note{margin-top:.6rem}
+  body:not(.scroll-mode) #p-ct .ct-form-meta{margin-top:.6rem}
   body:not(.scroll-mode) #p-ct .ct-footer{padding-top:1rem;gap:.6rem}
   body:not(.scroll-mode) #p-ct .ct-ft-bottom{padding-top:.7rem}
 }
 .ct-eye{display:block;font-size:var(--text-xs);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--c-brand);margin-bottom:.9rem;font-weight:700}
-.ct-ti{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2.2rem,min(4vw,6.6vh),3.8rem);font-weight:700;line-height:1.16;letter-spacing:-.05em;color:#0a0a1a;margin-bottom:1.1rem;position:relative;overflow:visible;max-width:16ch;padding:.02em 0 .08em}
+.ct-ti{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(2.2rem,min(4vw,6.6vh),3.8rem);font-weight:700;line-height:1.28;letter-spacing:-.05em;color:#0a0a1a;margin-bottom:1.1rem;position:relative;overflow:visible;max-width:16ch;padding:.02em 0 .08em}
 .ct-ti .h-line{display:block;overflow:visible;padding:.04em 0}
 .ct-ti .h-line-in{display:inline-block;position:relative;transform-origin:center bottom}
 .ct-ti .h-title-grad{display:inline-block;color:#0a0a1a;-webkit-text-fill-color:#0a0a1a;background:none;-webkit-background-clip:unset;background-clip:unset}
 .ct-ti .h-line:last-child .h-title-grad{color:#1E10C7;-webkit-text-fill-color:#1E10C7}
 .ct-left{display:flex;flex-direction:column}
 .ct-desc{font-size:1rem;line-height:1.7;color:var(--c-subtle);margin-bottom:0;word-break:keep-all}
-#p-ct .ct-head>.ct-desc.ct-eyeline{margin-bottom:.45rem}
-.ct-form-note{margin:.75rem 0 0;text-align:center;font:500 .72rem/1.4 'Noto Sans KR','DM Sans',sans-serif;color:rgba(10,10,26,.45)}
+/* 필수 표시(왼쪽) + 응답 시간(오른쪽)을 버튼 바로 위 한 줄로 */
+.ct-form-meta{display:flex;align-items:center;justify-content:space-between;gap:.4rem 1rem;flex-wrap:wrap;margin-top:1rem}
+.ct-form-meta .ct-req-note{margin:0}
+.ct-form-note{display:inline-flex;align-items:center;gap:.3rem;margin:0 0 0 auto;font:600 .72rem/1.4 'Noto Sans KR','DM Sans',sans-serif;color:var(--c-brand);white-space:nowrap}
+.ct-form-note svg{width:13px;height:13px}
 .ct-stats{display:flex;align-items:center;flex-wrap:wrap;gap:.9rem 1.6rem;padding-bottom:.5rem;margin-top:auto}
 .ct-stats-sep{width:1px;height:2.6rem;align-self:center;background:rgba(10,10,26,.14)}
 .ct-creds{margin-top:clamp(1rem,2.4vh,1.6rem)}
@@ -779,15 +795,19 @@ body:not(.scroll-mode) #p-ct{position:absolute;inset:0;margin:0 auto;align-conte
 .ct-cred:hover{border-color:#1E10C7;color:#0a0a1a;background:#fff;transform:translateY(-2px);box-shadow:0 6px 16px rgba(30,16,199,.1)}
 .ct-cred-ic{font-size:.82rem;line-height:1}
 .ct-creds-note{font:500 .68rem/1.4 'Noto Sans KR','DM Sans',sans-serif;color:rgba(10,10,26,.38);margin-top:.5rem}
-.ct-creds-lb{display:inline-flex;align-items:center;padding-right:.6rem;margin-right:.1rem;border-right:1px solid rgba(10,10,26,.14);font:700 .7rem/1.2 'Noto Sans KR','DM Sans',sans-serif;color:rgba(10,10,26,.5);letter-spacing:.02em;white-space:nowrap}
+.ct-creds-lb{margin:0 0 .55rem;font:700 .72rem/1.2 'Noto Sans KR','DM Sans',sans-serif;color:rgba(10,10,26,.5);letter-spacing:.02em}
 @media(min-width:768px){
   body:not(.scroll-mode) #p-ct{align-items:start}
-  /* 좌측 칼럼만 폼 높이만큼 늘려서 margin-top:auto인 통계가 폼 하단과
-     같은 높이에서 끝나게 함 — 안 그러면 짧은 좌측 칼럼 아래에 빈 공간만 남는다 */
-  /* 남는 세로 공간을 통계 위에 한 덩어리로 몰아주지 않고(=큰 빈칸),
-     소개문·제목·인증배지·통계 사이에 고르게 나눠 리듬처럼 보이게 한다 */
-  body:not(.scroll-mode) #p-ct .ct-left{align-self:stretch;justify-content:space-between}
-  body:not(.scroll-mode) #p-ct .ct-stats{margin-top:0}
+  /* 좌측 칼럼을 폼 높이만큼 늘림: 제목·인증은 위에 붙이고(간격 고정),
+     margin-top:auto인 통계는 폼 하단 선에 맞춘다 → 위/아래 두 덩어리 */
+  body:not(.scroll-mode) #p-ct .ct-left{align-self:stretch}
+  body:not(.scroll-mode) #p-ct .ct-stats{padding-top:clamp(.8rem,2.2vh,1.6rem)}
+}
+/* 태블릿: 두 칸이면 통계가 줄바꿈되고 칩이 찌그러짐 → 소개 위, 폼 아래로 쌓고 패널 안에서 스크롤 */
+@media(min-width:768px) and (max-width:1023px){
+  body:not(.scroll-mode) #p-ct{grid-template-columns:minmax(0,1fr);row-gap:2rem}
+  body:not(.scroll-mode) #p-ct>.ct-col:nth-child(2){grid-column:1;grid-row:2}
+  body:not(.scroll-mode) #p-ct .ct-footer{grid-row:3}
 }
 .ct-stat{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;min-width:0}
 .ct-stat-val{font-family:'Space Grotesk','DM Sans',sans-serif;font-size:clamp(3rem,min(4.8vw,6.8vh),4.2rem);font-weight:700;color:var(--c-brand);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
@@ -835,8 +855,9 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 .ct-opt{display:inline-block;margin-left:.3rem;padding:.05rem .4rem;border-radius:var(--radius-full);background:rgba(10,10,26,.06);font-size:.62rem;font-weight:700;color:rgba(10,10,26,.5);vertical-align:1px}
 .ct-req-note{font-size:.72rem;color:rgba(10,10,26,.45);margin-top:1rem;font-family:'Noto Sans KR','DM Sans',sans-serif}
 @media(max-width:420px){.ct-stepper span{font-size:.64rem}}
-.ct-steps{display:grid;flex:1}
-.ct-step{grid-area:1/1;visibility:hidden;opacity:0;pointer-events:none}
+/* minmax(0,1fr): 겹쳐 둔 단계 중 가장 넓은 내용이 칸을 밀어 좁은 화면에서 칩이 박스 밖으로 넘치던 문제 방지 */
+.ct-steps{display:grid;grid-template-columns:minmax(0,1fr);flex:1}
+.ct-step{grid-area:1/1;min-width:0;visibility:hidden;opacity:0;pointer-events:none}
 .ct-step.is-act{visibility:visible;opacity:1;pointer-events:auto;animation:ctStepIn .45s var(--ease-out)}
 @keyframes ctStepIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .ct-step-hint{display:flex;align-items:baseline;gap:.2rem;flex-wrap:wrap;font-size:.76rem;color:rgba(10,10,26,.62);font-weight:600;margin-bottom:.55rem;line-height:1.4;font-family:'Noto Sans KR','DM Sans',sans-serif}
@@ -874,7 +895,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 .ct-nav-b.next.is-off{background:#c7cbef;border-color:#c7cbef;cursor:not-allowed}
 .ct-nav-b.next.is-off:hover{background:#c7cbef}
 .ct-nav-b.next.is-off i{transform:none}
-@media(max-width:380px){.ct-chip-grid{grid-template-columns:1fr}}
+@media(max-width:340px){.ct-chip-grid{grid-template-columns:1fr}}
 
 /* SERVICE CASE IMAGE */
 .ss{align-items:center;justify-content:center}
@@ -1064,7 +1085,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
   /* CONTACT — 480px fallback (scroll-mode overrides above) */
   .ct-footer-row{gap:.5rem}
   .ct-footer-links{gap:.8rem}
-  .ct-footer-links button{font-size:.68rem}
+  .ct-footer-links button,.ct-ft-lnk{font-size:.68rem}
   .ct-footer-switch{font-size:.58rem;padding:.3rem .7rem .3rem .55rem}
   .ct-footer-meta{font-size:.62rem}
   .legal-modal{padding:1.8rem 1.4rem;max-height:85vh;border-radius:12px}
@@ -1803,16 +1824,17 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
 <div class="pnl" id="p-ct">
   <div class="ct-col ct-left">
     <div class="ct-head">
-      <p class="ct-desc ct-eyeline">브랜드 전략부터 퍼포먼스까지, 풀퍼널 마케팅 파트너.</p>
+      <span class="ct-eye">Contact</span>
       <h2 class="ct-ti">
         <span class="h-line"><span class="h-line-in h-title-grad">무이와 함께</span></span>
         <span class="h-line"><span class="h-line-in h-title-grad">성장 구조를</span></span>
         <span class="h-line"><span class="h-line-in h-title-grad">설계하세요.</span></span>
       </h2>
+      <p class="ct-desc">브랜드 전략부터 퍼포먼스까지, 풀퍼널 마케팅 파트너.</p>
     </div>
     <div class="ct-creds">
+      <p class="ct-creds-lb">인증·자격</p>
       <div class="ct-cred-row">
-        <span class="ct-creds-lb">인증·자격</span>
         <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true">🏛️</span>AI 마케팅 특허</span>
         <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true">💻</span>소프트웨어사업자</span>
         <span class="ct-cred"><span class="ct-cred-ic" aria-hidden="true">🎬</span>숏폼 영상제작 신고</span>
@@ -1894,13 +1916,15 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
       </div>
       </div>
 
-      <p class="ct-req-note" id="ctReqNote"><span class="req" style="margin:0 .2rem 0 0">*</span>표시는 필수 입력 항목입니다</p>
+      <div class="ct-form-meta">
+        <p class="ct-req-note" id="ctReqNote"><span class="req" style="margin:0 .2rem 0 0">*</span>표시는 필수 입력 항목입니다</p>
+        <p class="ct-form-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>영업일 기준 24시간 내 답변</p>
+      </div>
       <div class="ct-step-nav">
-        <button type="button" class="ct-nav-b prev" id="ctPrev" style="visibility:hidden">이전</button>
+        <button type="button" class="ct-nav-b prev" id="ctPrev" hidden>이전</button>
         <button type="button" class="ct-nav-b next" id="ctNext">다음</button>
         <button class="fsub ct-nav-b submit" type="submit" id="sbtn" style="display:none"><span>문의 제출하기</span></button>
       </div>
-      <p class="ct-form-note">영업일 기준 24시간 내 답변</p>
       <div class="fst" id="fst" role="status" aria-live="polite"></div>
     </form>
   </div>
@@ -1910,17 +1934,14 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
         <a class="ct-ft-card" href="/brochure" target="_blank" rel="noopener" style="--hc:#1E10C7">
           <span class="ct-ft-ic ct-ft-ic-doc" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
           <span class="ct-ft-tx"><b>회사소개서</b><small>MUYI가 일하는 방식을 한 번에</small></span>
-          <span class="ct-ft-go" aria-hidden="true">→</span>
         </a>
         <a class="ct-ft-card" href="https://www.instagram.com/muyi_official_/" target="_blank" rel="noopener" style="--hc:#D6249F">
           <span class="ct-ft-ic ct-ft-ic-ig" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></svg></span>
           <span class="ct-ft-tx"><b>인스타그램</b><small>최근 캠페인과 현장 기록</small></span>
-          <span class="ct-ft-go" aria-hidden="true">→</span>
         </a>
         <a class="ct-ft-card" href="https://www.youtube.com/@muyicorp" target="_blank" rel="noopener" style="--hc:#FF0033">
           <span class="ct-ft-ic ct-ft-ic-yt" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 8.2v7.6L16 12z"/></svg></span>
           <span class="ct-ft-tx"><b>유튜브</b><small>마케팅 용어, 1분 숏폼으로</small></span>
-          <span class="ct-ft-go" aria-hidden="true">→</span>
         </a>
       </div>
     </div>
@@ -2016,7 +2037,12 @@ document.addEventListener('mouseup',function(e){
 });
 
 function hoverOn(){document.body.classList.add('on-hover')}
-function hoverOff(){document.body.classList.remove('on-hover')}
+function hoverOff(){document.body.classList.remove('on-hover','on-off')}
+document.body.classList.add('cur-out');
+document.addEventListener('mousemove',function(){document.body.classList.remove('cur-out')},{passive:true});
+document.documentElement.addEventListener('mouseleave',function(){document.body.classList.add('cur-out')});
+document.addEventListener('mousedown',function(){document.body.classList.add('cur-down')});
+document.addEventListener('mouseup',function(){document.body.classList.remove('cur-down')});
 
 (function(){
   var hero=document.getElementById('p-hero');
@@ -3297,9 +3323,17 @@ document.querySelectorAll('[data-go]').forEach(function(el){
   el.addEventListener('mouseenter',hoverOn);
   el.addEventListener('mouseleave',hoverOff);
 });
-document.querySelectorAll('a,button,.nc-next,.h-enter,.nav-cta,.nav-lnk,.logo,.btn-pri,.btn-sec').forEach(function(el){
-  el.addEventListener('mouseenter',hoverOn);
+document.querySelectorAll('a,button,label[for],select,[role="button"],.logo').forEach(function(el){
+  el.addEventListener('mouseenter',function(){
+    hoverOn();
+    // 조건 미충족(흐린 다음 버튼 등)은 점선 링으로 "지금은 못 누름"을 구분
+    document.body.classList.toggle('on-off',el.disabled||el.classList.contains('is-off'));
+  });
   el.addEventListener('mouseleave',hoverOff);
+});
+document.querySelectorAll('input:not([type=checkbox]):not([type=radio]),textarea').forEach(function(el){
+  el.addEventListener('mouseenter',function(){document.body.classList.add('on-text')});
+  el.addEventListener('mouseleave',function(){document.body.classList.remove('on-text')});
 });
 document.querySelectorAll('.orbit-btn[data-node]').forEach(function(el){
   el.addEventListener('mouseenter',function(){
@@ -3674,7 +3708,7 @@ function showFormMsg(st,msg,type,autoClear){
       li.classList.toggle('is-done',k<n);
       if(k===n)li.setAttribute('aria-current','step');else li.removeAttribute('aria-current');
     });
-    prevBtn.style.visibility=n===1?'hidden':'visible';
+    prevBtn.hidden=n===1;
     if(reqNote)reqNote.style.visibility=n===3?'visible':'hidden';
     nextBtn.style.display=n===4?'none':'flex';
     subBtn.style.display=n===4?'block':'none';
