@@ -730,7 +730,11 @@ button.cli-case{font-family:inherit;width:100%;cursor:pointer;color:inherit}
 .ct-ft-ic-ig{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%);color:#fff}
 .ct-ft-tx{position:relative;display:flex;flex-direction:column;line-height:1.2;font-family:'Noto Sans KR','DM Sans',sans-serif}
 .ct-ft-tx b{font-size:.92rem;font-weight:700;letter-spacing:-.01em}
-.ct-ft-tx small{margin-top:.2rem;white-space:nowrap;font-size:.72rem;color:rgba(10,10,26,.5)}
+/* 설명은 제목 아래 자기 자리를 미리 차지한 채 숨겨 둠 → 마우스를 올리면 그 자리에서 떠오름(레이아웃 흔들림·겹침 없음) */
+.ct-ft-tx small{margin-top:.2rem;white-space:nowrap;font-size:.72rem;color:rgba(10,10,26,.5);opacity:0;transform:translateY(-3px);transition:opacity .25s,transform .25s var(--ease-out)}
+.ct-ft-card:hover small,.ct-ft-card:focus-visible small{opacity:1;transform:none}
+/* 호버가 없는 터치 기기는 항상 노출 */
+@media(hover:none){.ct-ft-tx small{opacity:1;transform:none}}
 .ct-ft-copy{font-size:.72rem;color:rgba(10,10,26,.32)}
 .ct-ft-lnk{font-size:.78rem;letter-spacing:.04em;color:rgba(10,10,26,.45);text-decoration:none;transition:color .3s}
 .ct-ft-lnk:hover{color:var(--c-brand)}
