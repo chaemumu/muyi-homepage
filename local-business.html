@@ -318,6 +318,17 @@ a{color:inherit}
 }
 .hd-cta:hover{background:var(--brand-hi);transform:translateY(-2px);box-shadow:0 8px 26px var(--brand-glow)}
 .hd-cta:active{transform:translateY(0) scale(.98)}
+/* 기업용 메인(파랑 브랜드)으로 가는 버튼 — 메인의 LOCAL BUSINESS 버튼과 짝. 주황 CTA보다 한 단계 낮은 톤 */
+.hd-r{display:flex;align-items:center;gap:clamp(.4rem,1.2vw,.75rem)}
+.hd-switch{
+  display:inline-flex;align-items:center;font-family:inherit;font-size:clamp(.66rem,1.4vw,.74rem);font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;text-decoration:none;
+  padding:.62rem clamp(.8rem,2.4vw,1.2rem);border-radius:var(--r-full);
+  color:#B9B3FF;background:rgba(52,40,240,.14);border:1px solid rgba(140,130,255,.32);
+  transition:color var(--dur) var(--ease),background var(--dur) var(--ease),border-color var(--dur) var(--ease),transform var(--dur) var(--ease);
+}
+.hd-switch:hover{color:#fff;background:rgba(52,40,240,.3);border-color:rgba(160,150,255,.6);transform:translateY(-2px)}
+#hd.stuck .hd-switch{padding:.5rem clamp(.7rem,2vw,1rem)}
 
 /* ═══ S01. HERO ═══ */
 #hero{
@@ -968,7 +979,10 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
     <img src="assets/logo/logo-white.png" alt="MUYI"
          onerror="this.onerror=null;this.remove();document.querySelector('.hd-logo').insertAdjacentHTML('beforeend','<span class=\'fallback\'>MUYI</span>');">
   </a>
-  <a href="#cta" class="hd-cta js-scroll">무료 진단받기</a>
+  <div class="hd-r">
+    <a href="/" class="hd-switch">Enterprise</a>
+    <a href="#cta" class="hd-cta js-scroll">무료 진단받기</a>
+  </div>
 </header>
 
 <main id="main">
