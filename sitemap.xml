@@ -18,12 +18,14 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <!-- 공공기관 홍보 페이지는 개발 완료 전까지 노출 중단. 다시 열 때 아래 블록 주석 해제
   <url>
     <loc>https://www.muyi.co.kr/public-sector</loc>
     <lastmod>2026-09-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  -->
   <url>
     <loc>https://www.muyi.co.kr/brochure</loc>
     <lastmod>2026-06-15</lastmod>
