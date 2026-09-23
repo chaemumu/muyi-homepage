@@ -178,12 +178,12 @@
         {"@type":"Question","name":"정말 무료인가요?","acceptedAnswer":{"@type":"Answer","text":"네, 진단은 전액 무료입니다. 이후 대행을 원하실 경우에만 별도로 안내드리며, 강요는 없습니다."}},
         {"@type":"Question","name":"신청하면 언제 연락이 오나요?","acceptedAnswer":{"@type":"Answer","text":"영업일 기준 24시간 내에 담당자가 연락드립니다. 첫 상담은 약 15분 통화로 진행됩니다."}},
         {"@type":"Question","name":"광고비 말고 대행 수수료는 얼마인가요?","acceptedAnswer":{"@type":"Answer","text":"광고비와 대행 수수료는 별개입니다. 광고비는 네이버·구글·메타 등 매체에 직접 집행되는 비용이고, 대행 수수료는 MUYI가 받는 운영 비용입니다. 수수료는 업종과 운영 범위에 따라 달라지므로 무료 진단 후 범위를 확정하고 안내드립니다. 진단 단계에서는 비용이 발생하지 않습니다."}},
-        {"@type":"Question","name":"월 광고비는 최소 얼마부터 가능한가요?","acceptedAnswer":{"@type":"Answer","text":"업종과 상권에 따라 다르지만, 대부분 월 100만 원대부터 시작합니다. 이는 고객이 매체에 집행하는 광고비 기준입니다. 진단 후 예산에 맞는 우선순위를 제안드립니다."}},
+        {"@type":"Question","name":"월 광고비는 최소 얼마부터 가능한가요?","acceptedAnswer":{"@type":"Answer","text":"업종과 상권에 따라 다르지만, 대부분 월 10만 원대부터 시작합니다. 이는 고객이 매체에 집행하는 광고비 기준입니다. 진단 후 예산에 맞는 우선순위를 제안드립니다."}},
         {"@type":"Question","name":"계약 기간이 정해져 있나요?","acceptedAnswer":{"@type":"Answer","text":"최소 계약 기간을 강요하지 않습니다. 3개월 단위로 성과를 점검하며, 언제든 재검토할 수 있습니다."}},
         {"@type":"Question","name":"성과가 없으면 어떻게 되나요?","acceptedAnswer":{"@type":"Answer","text":"매달 데이터를 투명하게 공유하고, 기준에 못 미치면 전략을 먼저 재조정합니다. 억지로 끌고 가지 않습니다."}},
         {"@type":"Question","name":"이미 다른 대행사를 쓰고 있는데 진단만 받아도 되나요?","acceptedAnswer":{"@type":"Answer","text":"가능합니다. 현재 대행사를 바꾸지 않아도 진단만 받아보실 수 있습니다. 지금 집행 중인 광고의 누수 지점과 개선 순서를 정리해 드립니다."}},
         {"@type":"Question","name":"담당자가 자주 바뀌나요?","acceptedAnswer":{"@type":"Answer","text":"업종 전담 마케터가 처음부터 끝까지 담당합니다. 담당자 교체로 인한 인수인계 리스크가 없습니다."}},
-        {"@type":"Question","name":"우리 업종은 다뤄본 적 없을 것 같은데 괜찮나요?","acceptedAnswer":{"@type":"Answer","text":"현장 경력 9년 동안 의료·뷰티·외식·교육 등 다양한 업종을 다뤘습니다. 처음 다루는 업종이어도 진단 단계에서 데이터로 먼저 검증합니다."}},
+        {"@type":"Question","name":"우리 업종은 다뤄본 적 없을 것 같은데 괜찮나요?","acceptedAnswer":{"@type":"Answer","text":"현장 경력 10년 동안 의료·뷰티·외식·교육 등 다양한 업종을 다뤘습니다. 처음 다루는 업종이어도 진단 단계에서 데이터로 먼저 검증합니다."}},
         {"@type":"Question","name":"지방에서도 되나요?","acceptedAnswer":{"@type":"Answer","text":"전국 가능합니다. 전화·화상으로 진행하고 자료는 메일로 발송해드립니다."}},
         {"@type":"Question","name":"1인 매장인데 제가 직접 해야 할 일이 많나요?","acceptedAnswer":{"@type":"Answer","text":"진단 단계에서 사장님이 하실 일은 15분 통화뿐입니다. 이후 대행을 진행하시더라도 광고 계정 접근 권한과 매장 사진·메뉴 정보 정도만 공유해주시면 나머지 운영은 MUYI가 맡습니다."}},
         {"@type":"Question","name":"진행 중 리포트는 얼마나 자주 받아볼 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"매월 정기 리포트로 광고 성과와 다음 달 실행 계획을 공유합니다. 요청 시 수시로도 확인 가능합니다."}}
@@ -362,6 +362,7 @@ a{color:inherit}
   font-size:clamp(1.95rem,5.6vw,4rem);font-weight:800;line-height:1.18;letter-spacing:-.035em;
   word-break:keep-all;text-wrap:balance;margin-bottom:1.3rem;color:var(--text);
 }
+.hero-h1 em{color:var(--brand);font-style:normal}
 .hero-sub{
   font-size:clamp(.94rem,1.9vw,1.12rem);color:var(--text-sub);line-height:1.8;
   max-width:44ch;margin:0 auto 2.4rem;word-break:keep-all;
@@ -378,12 +379,15 @@ a{color:inherit}
 .btn-primary:active{transform:translateY(-1px) scale(.985)}
 .btn-ghost{background:transparent;color:var(--text);border-color:var(--line-str)}
 .btn-ghost:hover{border-color:var(--text);background:rgba(255,255,255,.05);transform:translateY(-3px)}
+/* 카카오 버튼 — 무채색 테두리뿐이라 CTA로 안 읽히던 것을 브랜드 주황 외곽선으로 */
+.btn-kakao{background:rgba(238,78,0,.08);color:var(--brand);border-color:var(--brand)}
+.btn-kakao:hover{background:rgba(238,78,0,.16);border-color:var(--brand-hi);color:var(--brand-hi);transform:translateY(-3px)}
 .btn-arrow{width:16px;height:16px;flex-shrink:0;transition:transform .3s var(--ease)}
 .btn:hover .btn-arrow{transform:translateX(4px)}
 .micro{font-size:clamp(.74rem,1.5vw,.82rem);color:var(--text-sub);letter-spacing:.02em;margin-bottom:3rem}
 /* 신뢰 스트립 */
 .trust{
-  display:grid;grid-template-columns:repeat(4,1fr);
+  display:grid;grid-template-columns:repeat(3,1fr);
   border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;
   background:rgba(20,20,22,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   max-width:760px;margin:0 auto;
@@ -427,8 +431,10 @@ a{color:inherit}
 }
 @media (max-width:720px){ #cred{--fade:118px} }
 #cred>*{position:relative;z-index:1}
-.cred-head{padding:0 var(--pad);text-align:center;margin-bottom:clamp(1.4rem,3vw,2rem)}
-.cred-head span{font-family:'Plus Jakarta Sans',sans-serif;font-size:.68rem;font-weight:800;letter-spacing:.2em;color:rgba(10,10,26,.42);text-transform:uppercase}
+.cred-head{padding:0 var(--pad);text-align:center;margin-bottom:clamp(1.4rem,3vw,2rem);display:flex;flex-direction:column;align-items:center;gap:.2rem}
+/* 숫자를 어필 포인트로 키움 — 이전엔 안내문처럼 작아서 자랑거리로 안 읽혔다 */
+.cred-head .cred-n{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(2.2rem,5vw,3.2rem);font-weight:800;letter-spacing:-.02em;color:var(--brand);line-height:1}
+.cred-head .cred-l{font-family:'Plus Jakarta Sans',sans-serif;font-size:.72rem;font-weight:800;letter-spacing:.2em;color:rgba(10,10,26,.42);text-transform:uppercase}
 .mq{
   overflow:hidden;position:relative;
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
@@ -518,6 +524,8 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 
 /* ═══ S03. PAIN ═══ */
 #pain{background:var(--bg)}
+/* 공감을 먼저 잡아야 하는 줄이라 본문보다 크고 진하게 */
+.pain-lead{font-size:clamp(1.05rem,2.4vw,1.3rem);font-weight:700;color:var(--text)}
 .pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.85rem,1.8vw,1.3rem)}
 .pain-c{
   position:relative;padding:clamp(1.5rem,2.8vw,2.1rem);
@@ -577,6 +585,12 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 }
 .deliv-t{font-size:clamp(.94rem,1.9vw,1.05rem);font-weight:700;color:var(--text);margin-bottom:.55rem;word-break:keep-all}
 .deliv-d{font-size:clamp(.82rem,1.6vw,.91rem);color:var(--text-sub);line-height:1.78;word-break:keep-all}
+/* 직접 하면 드는 비용/시간 대비 '무료'라는 이득을 숫자로 보여주는 배지 */
+.deliv-val{
+  display:inline-flex;align-items:baseline;gap:.4rem;margin-top:.9rem;padding-top:.9rem;
+  border-top:1px dashed var(--line);font-size:.76rem;color:var(--text-sub);
+}
+.deliv-val b{font-size:.92rem;font-weight:800;color:var(--brand)}
 /* 강조 박스 */
 .note{
   border-left:3px solid var(--brand);background:var(--brand-tint);
@@ -585,6 +599,12 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 }
 .note p{font-size:clamp(.9rem,1.8vw,1.02rem);color:var(--text);line-height:1.82;word-break:keep-all}
 .note p+p{margin-top:.45rem;color:var(--text-sub)}
+/* 존속 통계로 지금 결정을 재촉하는 마무리 문장 */
+.note-challenge{
+  margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(238,78,0,.22);
+  font-size:clamp(.94rem,1.9vw,1.08rem)!important;font-weight:700;color:var(--text)!important;
+}
+.note-challenge b{color:var(--brand)}
 
 /* ═══ S05. 업종 ═══ */
 #ind{background:var(--bg)}
@@ -610,6 +630,16 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 
 /* ═══ S06. 실증 ═══ */
 #proof{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+/* 성과·후기 결이 겹쳐 하나로 통합 — 탭으로 전환. 후기를 기본으로 두어 공감을 먼저 잡는다 */
+.proof-tabs{display:flex;justify-content:center;gap:.5rem;margin:0 auto clamp(1.6rem,3.4vw,2.4rem);padding:0 var(--pad)}
+.pt-b{
+  font-family:inherit;font-size:.88rem;font-weight:700;padding:.7rem 1.5rem;border-radius:var(--r-full);
+  background:var(--surface-2);border:1px solid var(--line);color:var(--text-sub);cursor:pointer;
+  transition:all var(--dur) var(--ease);
+}
+.pt-b:hover{border-color:var(--brand);color:var(--text)}
+.pt-b.sel{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.proof-panel[hidden]{display:none}
 .proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.9rem,2vw,1.5rem)}
 .proof-c{
   border:1px solid var(--line);border-radius:var(--r-lg);background:var(--bg);overflow:hidden;
@@ -617,15 +647,6 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   transition:border-color var(--dur) var(--ease),transform var(--dur) var(--ease);
 }
 .proof-c:hover{border-color:var(--brand);transform:translateY(-5px)}
-/* 이미지 플레이스홀더 — 파일 들어오면 자동 대체 */
-.ph{position:relative;aspect-ratio:16/10;background:var(--surface-2);overflow:hidden;flex-shrink:0}
-.ph::after{
-  content:attr(data-ph);position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;text-align:center;padding:1rem;
-  font-size:.74rem;color:var(--text-sub);letter-spacing:.05em;
-  background:repeating-linear-gradient(45deg,var(--surface-2) 0 10px,#232327 10px 20px);
-}
-.ph img{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover}
 .proof-b{padding:clamp(1.25rem,2.5vw,1.7rem);display:flex;flex-direction:column;flex:1}
 .proof-lb{font-family:'Plus Jakarta Sans',sans-serif;font-size:.66rem;font-weight:800;letter-spacing:.2em;color:var(--brand);margin-bottom:.6rem}
 .proof-t{font-size:clamp(1rem,2vw,1.15rem);font-weight:800;color:var(--text);margin-bottom:.55rem;letter-spacing:-.02em;word-break:keep-all}
@@ -638,9 +659,9 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   letter-spacing:-.02em;text-align:right;word-break:keep-all;
 }
 
-/* ═══ S07. 후기 ═══ */
-#rev{background:var(--bg);padding-left:0;padding-right:0}
-#rev .sec-head{padding:0 var(--pad)}
+/* ═══ S06-B. 후기 (S07과 통합, 탭으로 전환) ═══ */
+/* 마퀴 카드는 화면 끝까지 흘러야 하므로, 섹션 좌우 여백(var(--pad))을 이 줄에서만 상쇄한다 */
+.rev-rows{margin-left:calc(var(--pad) * -1);margin-right:calc(var(--pad) * -1)}
 .rev-filters{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:clamp(1.6rem,3.4vw,2.4rem)}
 .rf-b{
   font-family:inherit;font-size:.82rem;font-weight:600;padding:.55rem 1.15rem;border-radius:var(--r-full);
@@ -653,7 +674,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 .rev-row .mq-track{animation-duration:56s}
 .rev-row.rev-rtl .mq-track{animation-direction:reverse}
 .rev-row:hover .mq-track{animation-play-state:paused}
-.rev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem;padding:0 var(--pad)}
+.rev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem}
 .rev-grid .rev-c{width:auto;margin:0}
 .rev-c{
   width:clamp(268px,74vw,352px);flex-shrink:0;margin:0 .55rem;
@@ -711,12 +732,24 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);
   padding:clamp(1.4rem,3.4vw,2.6rem);
 }
+/* 진행 표시줄 — 누를 수 있는 화면인지 자체를 몰라 지나칠 수 있어, 몇 단계인지부터 먼저 보여준다 */
+.fm-stepper{display:flex;align-items:center;justify-content:center;gap:.6rem;margin-bottom:1.6rem}
+.fm-step{display:flex;align-items:center;gap:.5rem;font-size:.82rem;font-weight:700;color:var(--text-sub)}
+.fm-step b{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:.72rem;font-weight:800;background:var(--surface-2);border:1px solid var(--line);color:var(--text-sub);
+  transition:all var(--dur) var(--ease);
+}
+.fm-step.is-cur{color:var(--text)}
+.fm-step.is-cur b{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.fm-step-sep{width:28px;height:1px;background:var(--line)}
 .step-lb{
   display:flex;align-items:center;gap:.6rem;
   font-family:'Plus Jakarta Sans',sans-serif;font-size:.7rem;font-weight:800;letter-spacing:.16em;
   color:var(--brand);margin-bottom:1.1rem;text-transform:uppercase;
 }
 .step-lb::after{content:'';flex:1;height:1px;background:var(--line)}
+.step-hint{font-size:.82rem;color:var(--text-sub);margin:-.4rem 0 1.1rem;word-break:keep-all}
 .biz-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.55rem}
 .biz-b{
   font-family:inherit;font-size:clamp(.78rem,1.6vw,.86rem);font-weight:600;
@@ -787,8 +820,32 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 .alt a:hover{color:var(--brand-hi)}
 
 /* ═══ S10. FOOTER ═══ */
+/* 엔터프라이즈(메인) 푸터와 같은 결 — 아이콘+설명 링크 카드, 회사 정보, 약관 순 */
 #ft{background:var(--surface);border-top:1px solid var(--line);padding:clamp(2.6rem,5vw,3.6rem) var(--pad) clamp(5.5rem,8vw,3.6rem)}
-.ft-in{max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;gap:2rem;justify-content:space-between;align-items:flex-start}
+.ft-in{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:1.6rem}
+.ft-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1.2rem;padding-bottom:1.6rem;border-bottom:1px solid var(--line)}
+.ft-links{display:flex;flex-wrap:wrap;gap:.5rem 2rem}
+.ft-card{display:flex;align-items:center;gap:.65rem;color:var(--text);text-decoration:none}
+.ft-card-ic{
+  width:34px;height:34px;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--surface-2);border:1px solid var(--line-str);color:var(--text-sub);
+  transition:all var(--dur) var(--ease);
+}
+.ft-card-ic svg{width:17px;height:17px}
+.ft-card:hover .ft-card-ic{border-color:var(--brand);color:var(--brand)}
+.ft-card-tx{display:flex;flex-direction:column;line-height:1.25}
+.ft-card-tx b{font-size:.9rem;font-weight:700;letter-spacing:-.01em;transition:color var(--dur) var(--ease)}
+.ft-card:hover .ft-card-tx b{color:var(--brand)}
+.ft-card-tx small{font-size:.72rem;color:var(--text-sub)}
+.ft-switch{
+  display:inline-flex;align-items:center;gap:.4rem;font-size:.78rem;font-weight:700;white-space:nowrap;
+  color:var(--brand);text-decoration:none;border:1px solid rgba(238,78,0,.4);border-radius:var(--r-full);
+  padding:.55rem 1.1rem;transition:all var(--dur) var(--ease);
+}
+.ft-switch:hover{background:var(--brand-tint);border-color:var(--brand);transform:translateY(-2px)}
+.ft-switch svg{width:13px;height:13px}
+.ft-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:1.2rem}
 .ft-brand{display:flex;align-items:center;gap:.65rem;margin-bottom:.85rem}
 .ft-mark{width:7px;height:22px;border-radius:2px;background:var(--brand);flex-shrink:0}
 .ft-co{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.08rem;font-weight:800;letter-spacing:-.02em;color:var(--text)}
@@ -802,25 +859,10 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 }
 .ft-legal button:hover{color:var(--brand)}
 .ft-sep{width:1px;height:11px;background:var(--line-str)}
-.ft-actions{display:flex;flex-direction:column;align-items:flex-end;gap:.8rem}
-.ft-ic{
-  width:38px;height:38px;border-radius:50%;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  border:1px solid var(--line-str);color:var(--text-sub);text-decoration:none;
-  transition:all var(--dur) var(--ease);
-}
-.ft-ic svg{width:18px;height:18px}
-.ft-ic:hover{border-color:var(--brand);color:var(--brand);transform:translateY(-2px)}
-.ft-doc{
-  display:inline-flex;align-items:center;gap:.55rem;font-size:.82rem;font-weight:600;
-  color:var(--text-sub);text-decoration:none;transition:color var(--dur) var(--ease);white-space:nowrap;
-}
-.ft-doc svg{width:16px;height:16px;flex-shrink:0}
-.ft-doc:not(.ft-doc-disabled):hover{color:var(--brand)}
-.ft-doc-disabled{opacity:.4;cursor:default}
 @media (max-width:720px){
-  .ft-in{flex-direction:column}
-  .ft-actions{align-items:flex-start;flex-direction:row;flex-wrap:wrap;gap:1rem}
+  .ft-top{flex-direction:column;align-items:flex-start}
+  .ft-links{flex-direction:column;gap:1rem}
+  .ft-bottom{flex-direction:column;align-items:flex-start}
 }
 
 /* ═══ 모바일 고정 CTA 바 ═══ */
@@ -902,6 +944,23 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 }
 .diag-hero-n small{font-size:.34em;font-weight:700}
 .diag-hero-s{font-size:clamp(.82rem,1.6vw,.92rem);color:var(--text-sub);margin-top:.8rem;word-break:keep-all}
+/* 광고비 슬라이더 — 내 예산을 직접 움직여보게 해서 '300만원은 남 얘기'로 느껴지던 것을 내 숫자로 만든다 */
+.diag-slider{max-width:360px;margin:1.3rem auto 0}
+.diag-slider input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;
+  background:linear-gradient(90deg,var(--brand) 0%,var(--brand) var(--pct,18%),var(--line-str) var(--pct,18%),var(--line-str) 100%);
+  cursor:pointer;
+}
+.diag-slider input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--brand);
+  border:3px solid var(--bg);box-shadow:0 2px 10px rgba(238,78,0,.5);cursor:pointer;
+}
+.diag-slider input[type=range]::-moz-range-thumb{
+  width:22px;height:22px;border-radius:50%;background:var(--brand);border:3px solid var(--bg);
+  box-shadow:0 2px 10px rgba(238,78,0,.5);cursor:pointer;
+}
+.diag-slider-lb{display:flex;justify-content:space-between;font-size:.68rem;color:var(--text-sub);margin-top:.5rem}
+.diag-slider-cap{font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:.6rem}
 .diag-grade{
   display:inline-flex;align-items:center;gap:.7rem;margin-top:1.1rem;
   padding:.55rem 1.2rem;border-radius:var(--r-full);background:var(--bg);border:1px solid var(--line);
@@ -948,9 +1007,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   #hd.stuck{min-height:50px;padding:.08rem var(--pad)}
   :root{--nav-h:56px}
   .hd-logo img{height:clamp(72px,18vw,96px)}
-  .trust{grid-template-columns:repeat(2,1fr)}
-  .trust-i:nth-child(3){border-left:none}
-  .trust-i:nth-child(n+3){border-top:1px solid var(--line)}
+  .trust{grid-template-columns:repeat(3,1fr)}
   .pain-grid,.ind-grid{grid-template-columns:1fr;gap:.8rem}
   #mbar{display:flex}
   .hero-btns{flex-direction:column;align-items:stretch}
@@ -996,29 +1053,25 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
     </video>
   </div>
   <div class="hero-in">
-    <span class="eyebrow dsp rise">소상공인 마케팅 대행 · 네이버 플레이스 진단</span>
-    <h1 class="hero-h1 dsp rise">광고비는 나가는데,<br>매출은 그대로인 사장님께</h1>
-    <p class="hero-sub rise">문제는 광고가 아니라 구조입니다.<br>MUYI는 현장 경력 9년, 2,800개 사업장 데이터로 매장의 네이버 플레이스 노출과 광고비 누수를 무료로 진단하는 소상공인 전문 마케팅 대행사입니다.</p>
+    <span class="eyebrow dsp rise">네이버 플레이스 · 인스타그램 · 가게 홍보 무료진단</span>
+    <h1 class="hero-h1 dsp rise"><em>광고비</em>는 나가는데,<br><em>매출은 그대로</em>인 사장님께</h1>
+    <p class="hero-sub rise">2,800개 매장을 진단한 데이터로, 지금 새는 광고비를 짚어드립니다.</p>
     <div class="hero-btns rise">
       <a href="#cta" class="btn btn-primary js-scroll">
         내 매장 무료 진단받기
         <svg class="btn-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
       </a>
-      <a href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener" class="btn btn-ghost">카카오톡으로 물어보기</a>
+      <a href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener" class="btn btn-kakao">카카오톡으로 물어보기</a>
     </div>
-    <p class="micro rise">15분 통화 · 비용 없음 · 계약 강요 없음</p>
+    <p class="micro rise">통화 없이 리포트만 받아보셔도 됩니다</p>
     <div class="trust rise">
       <div class="trust-i">
-        <div class="trust-n num"><span class="cnt" data-to="9">9</span><small>년+</small></div>
+        <div class="trust-n num"><span class="cnt" data-to="10">10</span><small>년+</small></div>
         <div class="trust-l">현장 경력</div>
       </div>
       <div class="trust-i">
         <div class="trust-n num"><span class="cnt" data-to="2800">2,800</span><small>+</small></div>
         <div class="trust-l">사업장</div>
-      </div>
-      <div class="trust-i">
-        <div class="trust-n num"><span class="cnt" data-to="70">70</span><small>억</small></div>
-        <div class="trust-l">누적 광고 집행</div>
       </div>
       <div class="trust-i">
         <div class="trust-n num"><span class="cnt" data-to="3.2" data-dec="1">3.2</span><small>배</small></div>
@@ -1030,7 +1083,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 
 <!-- ═══════════ S02. CLIENT LOGO MARQUEE ═══════════ -->
 <section id="cred" aria-label="함께한 클라이언트">
-  <div class="cred-head rise"><span>2,800+ 사업장이 함께했습니다</span></div>
+  <div class="cred-head rise"><span class="cred-n">2,800+</span><span class="cred-l">함께한 사업장</span></div>
   <div class="cred-rows" id="credRows"><div class="mq cred-row"><div class="mq-track"><div class="mq-set" data-mq-set><div class="cred-i"><img src="assets/logos/client-01.png" alt="CJ프레시웨이 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-02.png" alt="SPC 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-03.png" alt="COEX 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-04.png" alt="DEXTER STUDIOS 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-05.png" alt="NHN KCP 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-06.png" alt="toss 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-07.png" alt="payhere 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-08.png" alt="비벗 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div></div></div></div><div class="mq cred-row cred-rev"><div class="mq-track"><div class="mq-set" data-mq-set><div class="cred-i"><img src="assets/logos/client-09.png" alt="RX 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-10.png" alt="인천광역시 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-11.png" alt="농림축산식품부 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-12.png" alt="대한민국김치협회 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-13.png" alt="KFA 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-14.png" alt="IFS 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-15.png" alt="ENLIPLE 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div></div></div></div><div class="mq cred-row"><div class="mq-track"><div class="mq-set" data-mq-set><div class="cred-i"><img src="assets/logos/client-16.png" alt="CRITEO 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-17.png" alt="Secta9ine 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-18.png" alt="한성대학교 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-19.png" alt="중소벤처기업부 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-20.png" alt="중소기업 옴부즈만 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-21.png" alt="우규 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-22.png" alt="헤비스테이크 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-23.png" alt="#맛있는정하네 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div></div></div></div><div class="mq cred-row cred-rev"><div class="mq-track"><div class="mq-set" data-mq-set><div class="cred-i"><img src="assets/logos/client-24.png" alt="청자다방 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-25.png" alt="YUMMY UDON 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-26.png" alt="NANBA UDON 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-27.png" alt="청담물갈비 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-28.png" alt="명륜진사갈비 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-29.png" alt="TIGER SUGAR 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-30.png" alt="파이인더샵 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div></div></div></div><div class="mq cred-row"><div class="mq-track"><div class="mq-set" data-mq-set><div class="cred-i"><img src="assets/logos/client-31.png" alt="육감만족 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-32.png" alt="범맥주 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-33.png" alt="지즐미육회관 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-34.png" alt="PIZZA DUCK 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-35.png" alt="PORT CAN COFFEE 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-36.png" alt="조선부뚜막 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-37.png" alt="복호두 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div></div></div></div></div>
 </section>
 
@@ -1039,14 +1092,14 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   <!-- JS(renderCreds)가 클릭·모달 동작을 붙이지만, 크롤러(특히 JS를 실행하지 않는
        AI 검색 크롤러)도 읽을 수 있도록 배지 자체는 정적 HTML로 미리 심어둔다. -->
   <div class="cd-row rise" id="cdRow">
-    <button class="cd-b" type="button" data-i="0"><span class="cd-ic">🏛️</span>특허 등록<svg class="cd-zoom" viewBox="0 0 16 16" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg></button>
-    <button class="cd-b" type="button" data-i="1"><span class="cd-ic">💻</span>소프트웨어사업자<svg class="cd-zoom" viewBox="0 0 16 16" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg></button>
-    <button class="cd-b" type="button" data-i="2"><span class="cd-ic">🎬</span>비디오물제작업 신고<svg class="cd-zoom" viewBox="0 0 16 16" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg></button>
-    <button class="cd-b" type="button" data-i="3"><span class="cd-ic">🚀</span>창업기업 확인<svg class="cd-zoom" viewBox="0 0 16 16" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg></button>
-    <span class="cd-b is-static"><span class="cd-ic">📊</span>매출 상위 30%</span>
+    <button class="cd-b" type="button" data-i="0"><span class="cd-ic">🏛️</span>AI 마케팅 특허 등록<svg class="cd-zoom" viewBox="0 0 16 16" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg></button>
+    <span class="cd-b is-static"><span class="cd-ic">📄</span>최소 계약 기간 없음</span>
+    <span class="cd-b is-static"><span class="cd-ic">🙋</span>업종 전담 마케터 1:1</span>
+    <span class="cd-b is-static"><span class="cd-ic">📊</span>매월 성과 리포트</span>
+    <span class="cd-b is-static"><span class="cd-ic">🏪</span>2,800개 매장 진단</span>
   </div>
-  <p class="cd-note rise">※ 매출 순위는 서울 금천구 광고 대행업 기준 · 배지를 누르면 원본 문서를 확인하실 수 있습니다.</p>
-  <p class="cd-bio rise">MUYI 대표 이채원은 현장에서 9년간 2,800개 이상의 매장을 직접 진단해왔습니다. MUYI는 최소 계약 기간을 요구하지 않고, 광고비와 대행 수수료를 분리해 안내하며, 기존에 다른 대행사를 쓰고 있어도 진단만 받아볼 수 있습니다.</p>
+  <p class="cd-note rise">※ 배지를 누르면 특허증 원본을 확인하실 수 있습니다.</p>
+  <p class="cd-bio rise">MUYI는 10년간 2,800개 매장을 직접 진단하며 쌓은 데이터로 움직입니다.<br>최소 계약 기간을 요구하지 않고, 광고비와 대행 수수료를 나눠서 투명하게 안내합니다.<br>지금 다른 대행사를 쓰고 계셔도, 진단만 따로 받아보실 수 있습니다.</p>
 </section>
 
 <!-- ═══════════ S03. PAIN ═══════════ -->
@@ -1054,8 +1107,8 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   <div class="wrap">
     <div class="sec-head mid rise">
       <span class="eyebrow dsp">Problem</span>
-      <h2 class="sec-h2 dsp">마케팅 문제는 채널 하나로 해결되지 않습니다</h2>
-      <p class="sec-p">상담 오시는 사장님들의 90%가 같은 지점에서 막혀 있습니다.</p>
+      <h2 class="sec-h2 dsp">무엇을, 언제, 어떻게 해야 하는지 아무도 알려주지 않습니다</h2>
+      <p class="sec-p pain-lead">상담 오시는 사장님들의 90%가 같은 지점에서 막혀 있습니다.</p>
     </div>
     <div class="story">
       <article class="step rise">
@@ -1087,7 +1140,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
         <div class="step-b">
           <span class="step-n">STEP 04</span>
           <h3 class="step-q">"어디에 얼마를 써야 할지 감이 안 옵니다"</h3>
-          <p class="step-a">업종과 상권마다 돈이 되는 채널이 다릅니다. 같은 100만원도 <b>배분을 바꾸면 결과가 달라집니다.</b> 데이터로 채널별 비중부터 다시 짭니다.</p>
+          <p class="step-a">업종과 상권마다 돈이 되는 채널이 다릅니다. 같은 30만원도 <b>배분을 바꾸면 결과가 달라집니다.</b> 데이터로 채널별 비중부터 다시 짭니다.</p>
         </div>
       </article>
       <article class="step rise">
@@ -1121,9 +1174,14 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
     </div>
 
     <div class="diag-hero rise">
-      <div class="diag-hero-l">진단 결과 · 월 광고비 300만원 기준</div>
-      <div class="diag-hero-n num"><span class="cnt" data-to="84">84</span><small>만원</small></div>
-      <p class="diag-hero-s">성과 없이 새고 있는 광고비입니다. 채널을 재배분하면 같은 예산으로 문의를 늘릴 수 있습니다.</p>
+      <div class="diag-hero-l">진단 결과 · 월 광고비 <span id="diagBudgetOut">100</span>만원 기준</div>
+      <div class="diag-hero-n num"><span class="cnt" id="diagLeakNum" data-to="28">28</span><small>만원</small></div>
+      <p class="diag-hero-s">MUYI가 진단한 2,800개 매장 평균 기준, 성과 없이 새고 있는 광고비입니다. 채널을 재배분하면 같은 예산으로 문의를 늘릴 수 있습니다.</p>
+      <div class="diag-slider">
+        <p class="diag-slider-cap">내 매장 월 광고비를 움직여보세요</p>
+        <input type="range" id="diagBudget" min="10" max="500" step="10" value="100" aria-label="월 광고비(만원)" style="--pct:18%">
+        <div class="diag-slider-lb"><span>10만원</span><span>500만원</span></div>
+      </div>
       <div class="diag-grade"><b>종합 D등급</b><span>같은 업종 하위 32%</span></div>
     </div>
 
@@ -1156,22 +1214,26 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
         <span class="deliv-n">01</span>
         <h3 class="deliv-t">광고비 누수 리포트</h3>
         <p class="deliv-d">지금 집행 중인 광고에서 성과 없이 새는 예산이 어디인지 금액으로 짚어드립니다.</p>
+        <div class="deliv-val"><b>0원</b>· 대행 의뢰 시 30만원 상당</div>
       </div>
       <div class="deliv-i rise">
         <span class="deliv-n">02</span>
         <h3 class="deliv-t">우리 동네 경쟁사 3곳 분석</h3>
         <p class="deliv-d">같은 상권 상위 업체가 무엇을 하고 있는지 데이터로 비교해드립니다.</p>
+        <div class="deliv-val"><b>0원</b>· 직접 조사하면 약 5시간</div>
       </div>
       <div class="deliv-i rise">
         <span class="deliv-n">03</span>
         <h3 class="deliv-t">30일 실행 체크리스트</h3>
         <p class="deliv-d">지금 당장 무엇부터 손대야 하는지 우선순위대로 정리해드립니다.</p>
+        <div class="deliv-val"><b>0원</b>· 대행 견적 시 20만원 상당</div>
       </div>
     </div>
 
     <div class="note rise">
       <p>계약하지 않으셔도 이 자료는 그대로 가져가시면 됩니다.</p>
       <p>우리는 핏이 안 맞거나 매출로 이어질 자신이 없으면, 저희가 먼저 거절합니다.</p>
+      <p class="note-challenge">새로 문 연 가게 10곳 중 6곳은 5년을 못 버팁니다. 지금 이 방식 그대로, <b>앞으로도 버티실 겁니까.</b></p>
     </div>
   </div>
 </section>
@@ -1249,16 +1311,29 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   </div>
 </section>
 
-<!-- ═══════════ S06. 실증 ═══════════ -->
+<!-- ═══════════ S06. 실증 — 후기·성과 통합 (탭 전환, 후기 기본) ═══════════ -->
 <section id="proof" class="sec">
   <div class="wrap">
     <div class="sec-head mid rise">
       <span class="eyebrow dsp">Results</span>
-      <h2 class="sec-h2 dsp">실행한 결과는 숫자로 남습니다</h2>
+      <h2 class="sec-h2 dsp">진단을 받아본 사장님들의 결과입니다</h2>
     </div>
+  </div>
+
+  <div class="proof-tabs rise" id="proofTabs">
+    <button class="pt-b sel" type="button" data-panel="rev">사장님 후기</button>
+    <button class="pt-b" type="button" data-panel="num">숫자로 본 결과</button>
+  </div>
+
+  <div class="proof-panel" id="panelRev">
+    <div class="rev-filters wrap rise" id="revFilters"></div>
+    <div class="rev-rows" id="revRows"></div>
+    <div class="rev-grid" id="revGrid" hidden></div>
+  </div>
+
+  <div class="proof-panel wrap" id="panelNum" hidden>
     <div class="proof-grid">
       <article class="proof-c rise">
-        <div class="ph" data-ph="성과 스크린샷 준비 중"><img src="assets/proof/case-01.png" alt="○○동 미용실 예약 증대 성과" loading="lazy" onerror="this.remove()"></div>
         <div class="proof-b">
           <span class="proof-lb">LOCAL</span>
           <h3 class="proof-t">○○동 미용실 예약 증대</h3>
@@ -1267,7 +1342,6 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
         </div>
       </article>
       <article class="proof-c rise">
-        <div class="ph" data-ph="성과 스크린샷 준비 중"><img src="assets/proof/case-02.png" alt="○○ 치과 신환 유입 성과" loading="lazy" onerror="this.remove()"></div>
         <div class="proof-b">
           <span class="proof-lb">MEDICAL</span>
           <h3 class="proof-t">○○ 치과 신환 유입</h3>
@@ -1276,7 +1350,6 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
         </div>
       </article>
       <article class="proof-c rise">
-        <div class="ph" data-ph="성과 스크린샷 준비 중"><img src="assets/proof/case-03.png" alt="○○ 필라테스 회원 등록 성과" loading="lazy" onerror="this.remove()"></div>
         <div class="proof-b">
           <span class="proof-lb">FITNESS</span>
           <h3 class="proof-t">○○ 필라테스 회원 등록</h3>
@@ -1285,7 +1358,6 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
         </div>
       </article>
       <article class="proof-c rise">
-        <div class="ph" data-ph="성과 스크린샷 준비 중"><img src="assets/proof/case-04.png" alt="○○ 정육식당 방문 전환 성과" loading="lazy" onerror="this.remove()"></div>
         <div class="proof-b">
           <span class="proof-lb">LOCAL</span>
           <h3 class="proof-t">○○ 정육식당 방문 전환</h3>
@@ -1294,7 +1366,6 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
         </div>
       </article>
       <article class="proof-c rise">
-        <div class="ph" data-ph="성과 스크린샷 준비 중"><img src="assets/proof/case-05.png" alt="○○ 카페 재방문 설계 성과" loading="lazy" onerror="this.remove()"></div>
         <div class="proof-b">
           <span class="proof-lb">LOCAL</span>
           <h3 class="proof-t">○○ 카페 재방문 설계</h3>
@@ -1303,7 +1374,6 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
         </div>
       </article>
       <article class="proof-c rise">
-        <div class="ph" data-ph="성과 스크린샷 준비 중"><img src="assets/proof/case-06.png" alt="○○ 한의원 신규 환자 유입 성과" loading="lazy" onerror="this.remove()"></div>
         <div class="proof-b">
           <span class="proof-lb">MEDICAL</span>
           <h3 class="proof-t">○○ 한의원 신규 환자 유입</h3>
@@ -1312,7 +1382,6 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
         </div>
       </article>
       <article class="proof-c rise">
-        <div class="ph" data-ph="성과 스크린샷 준비 중"><img src="assets/proof/case-07.png" alt="○○ 네일샵 예약 전환 성과" loading="lazy" onerror="this.remove()"></div>
         <div class="proof-b">
           <span class="proof-lb">BEAUTY</span>
           <h3 class="proof-t">○○ 네일샵 예약 전환</h3>
@@ -1321,7 +1390,6 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
         </div>
       </article>
       <article class="proof-c rise">
-        <div class="ph" data-ph="성과 스크린샷 준비 중"><img src="assets/proof/case-08.png" alt="○○ 영어학원 상담 신청 성과" loading="lazy" onerror="this.remove()"></div>
         <div class="proof-b">
           <span class="proof-lb">EDUCATION</span>
           <h3 class="proof-t">○○ 영어학원 상담 신청</h3>
@@ -1330,7 +1398,6 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
         </div>
       </article>
       <article class="proof-c rise">
-        <div class="ph" data-ph="성과 스크린샷 준비 중"><img src="assets/proof/case-09.png" alt="○○ 세무사무소 문의 증대 성과" loading="lazy" onerror="this.remove()"></div>
         <div class="proof-b">
           <span class="proof-lb">PROFESSIONAL</span>
           <h3 class="proof-t">○○ 세무사무소 문의 증대</h3>
@@ -1340,17 +1407,6 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
       </article>
     </div>
   </div>
-</section>
-
-<!-- ═══════════ S07. 후기 ═══════════ -->
-<section id="rev" class="sec">
-  <div class="sec-head mid rise">
-    <span class="eyebrow dsp">Reviews</span>
-    <h2 class="sec-h2 dsp">진단을 받아본 사장님들</h2>
-  </div>
-  <div class="rev-filters wrap rise" id="revFilters"></div>
-  <div class="rev-rows" id="revRows"></div>
-  <div class="rev-grid" id="revGrid" hidden></div>
 </section>
 
 <!-- ═══════════ S08. FAQ ═══════════ -->
@@ -1367,7 +1423,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
       </div>
       <div class="faq-i">
         <button class="faq-q" type="button" aria-expanded="false">월 광고비는 최소 얼마부터 가능한가요?<span class="faq-ic"></span></button>
-        <div class="faq-a"><div class="faq-a-in">업종과 상권에 따라 다르지만, 대부분 <b>월 100만 원대</b>부터 시작합니다. 이는 네이버·구글·메타 등 <b>매체에 직접 집행되는 광고비</b> 기준이며, 대행 수수료와는 별개입니다. 진단 후 예산에 맞는 우선순위를 제안드립니다.</div></div>
+        <div class="faq-a"><div class="faq-a-in">업종과 상권에 따라 다르지만, 대부분 <b>월 10만 원대</b>부터 시작합니다. 이는 네이버·구글·메타 등 <b>매체에 직접 집행되는 광고비</b> 기준이며, 대행 수수료와는 별개입니다. 진단 후 예산에 맞는 우선순위를 제안드립니다.</div></div>
       </div>
       <div class="faq-i">
         <button class="faq-q" type="button" aria-expanded="false">신청하면 언제 연락이 오나요?<span class="faq-ic"></span></button>
@@ -1399,7 +1455,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
       </div>
       <div class="faq-i">
         <button class="faq-q" type="button" aria-expanded="false">우리 업종은 다뤄본 적 없을 것 같은데 괜찮나요?<span class="faq-ic"></span></button>
-        <div class="faq-a"><div class="faq-a-in">현장 경력 9년 동안 <b>의료·뷰티·외식·교육 등 다양한 업종</b>을 다뤘습니다. 처음 다루는 업종이어도 진단 단계에서 데이터로 먼저 검증합니다.</div></div>
+        <div class="faq-a"><div class="faq-a-in">현장 경력 10년 동안 <b>의료·뷰티·외식·교육 등 다양한 업종</b>을 다뤘습니다. 처음 다루는 업종이어도 진단 단계에서 데이터로 먼저 검증합니다.</div></div>
       </div>
       <div class="faq-i">
         <button class="faq-q" type="button" aria-expanded="false">지방에서도 되나요?<span class="faq-ic"></span></button>
@@ -1419,13 +1475,19 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
     <div class="sec-head mid rise">
       <span class="eyebrow dsp">Free Diagnosis</span>
       <h2 class="sec-h2 dsp">지금 필요한 게 뭔지 몰라도 괜찮습니다</h2>
-      <p class="sec-p">광고, 플레이스, 콘텐츠 중 무엇부터 해야 할지 명확하지 않아도 됩니다. 현재 상황부터 함께 정리해드립니다.</p>
+      <p class="sec-p">광고, 플레이스, 콘텐츠 중 무엇부터 해야 할지 명확하지 않아도 됩니다. 업종 선택, 연락처 — 10초면 끝나요.</p>
     </div>
 
     <form class="form-box rise" id="form" novalidate>
+      <div class="fm-stepper" id="fmStepper">
+        <span class="fm-step is-cur" data-s="1"><b>1</b>업종 선택</span>
+        <span class="fm-step-sep" aria-hidden="true"></span>
+        <span class="fm-step" data-s="2"><b>2</b>연락처</span>
+      </div>
       <!-- STEP 1 : 업종 선택 -->
       <div id="step1">
         <div class="step-lb">Step 01 · 업종 선택</div>
+        <p class="step-hint">아래에서 업종을 누르면 다음 단계가 바로 열립니다.</p>
         <div class="biz-grid" id="bizGrid">
           <button class="biz-b" type="button" data-biz="음식점·카페">음식점·카페</button>
           <button class="biz-b" type="button" data-biz="미용·뷰티">미용·뷰티</button>
@@ -1466,6 +1528,10 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
         </div>
 
         <label class="agree">
+          <input type="checkbox" id="f-nocall">
+          <span>통화 없이 리포트만 받아볼게요</span>
+        </label>
+        <label class="agree">
           <input type="checkbox" id="f-agree" name="agree" required>
           <span>개인정보 수집·이용에 동의합니다. (<a href="#" onclick="openLegal('privacy');return false;">전문 보기</a>)<span class="req">*</span></span>
         </label>
@@ -1488,31 +1554,37 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 
 <footer id="ft">
   <div class="ft-in">
-    <div>
-      <div class="ft-brand"><span class="ft-mark"></span><span class="ft-co">(주)무이코퍼레이션</span></div>
-      <div class="ft-meta">
-        대표 이채원 · 사업자등록번호 481-81-02827<br>
-        서울특별시 금천구 디지털로 178 퍼블릭 가산 B1313 · 평일 09:00–18:00<br>
-        <a href="mailto:info@muyi.co.kr">info@muyi.co.kr</a> · <a href="tel:07088338210">070-8833-8210</a>
+    <div class="ft-top">
+      <div class="ft-links">
+        <a class="ft-card" href="https://www.muyi.co.kr/brochure" target="_blank" rel="noopener">
+          <span class="ft-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M9 13h6M9 17h6"/></svg></span>
+          <span class="ft-card-tx"><b>회사소개서</b><small>MUYI가 일하는 방식을 한 번에</small></span>
+        </a>
+        <a class="ft-card" href="https://www.instagram.com/muyi_official_/" target="_blank" rel="noopener">
+          <span class="ft-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1"/></svg></span>
+          <span class="ft-card-tx"><b>인스타그램</b><small>최근 캠페인과 현장 기록</small></span>
+        </a>
+        <a class="ft-card" href="https://www.youtube.com/@muyicorp" target="_blank" rel="noopener">
+          <span class="ft-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22.5 6.2s-.2-1.6-.9-2.3c-.9-.9-1.9-.9-2.3-1C16.4 2.6 12 2.6 12 2.6h0s-4.4 0-7.3.3c-.4 0-1.4.1-2.3 1-.7.7-.9 2.3-.9 2.3S1.2 8 1.2 9.9v1.9c0 1.9.3 3.7.3 3.7s.2 1.6.9 2.3c.9.9 2 .9 2.5 1 1.8.2 7.6.3 7.6.3s4.4 0 7.3-.3c.4 0 1.4-.1 2.3-1 .7-.7.9-2.3.9-2.3s.3-1.8.3-3.7V9.9c0-1.9-.3-3.7-.3-3.7z"/><path fill="currentColor" stroke="none" d="M9.7 14.7V7.3l6.4 3.7-6.4 3.7z"/></svg></span>
+          <span class="ft-card-tx"><b>유튜브</b><small>마케팅 용어, 1분 숏폼으로</small></span>
+        </a>
+      </div>
+      <a class="ft-switch" href="/">Enterprise 페이지 보기<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3l5 5-5 5"/></svg></a>
+    </div>
+    <div class="ft-bottom">
+      <div>
+        <div class="ft-brand"><span class="ft-mark"></span><span class="ft-co">(주)무이코퍼레이션</span></div>
+        <div class="ft-meta">
+          대표 이채원 · 사업자등록번호 481-81-02827<br>
+          서울특별시 금천구 디지털로 178 퍼블릭 가산 B1313 · 평일 09:00–18:00<br>
+          <a href="mailto:info@muyi.co.kr">info@muyi.co.kr</a> · <a href="tel:07088338210">070-8833-8210</a>
+        </div>
       </div>
       <div class="ft-legal">
         <button type="button" onclick="openLegal('privacy')">개인정보처리방침</button>
         <span class="ft-sep"></span>
         <button type="button" onclick="openLegal('terms')">이용약관</button>
       </div>
-    </div>
-    <div class="ft-actions">
-      <a class="ft-ic" href="https://www.instagram.com/muyi_official_/" target="_blank" rel="noopener" aria-label="MUYI 인스타그램" title="인스타그램">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1"/></svg>
-      </a>
-      <a class="ft-doc" href="https://www.muyi.co.kr/brochure" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M9 13h6M9 17h6"/></svg>
-        <span>회사 소개서 보기</span>
-      </a>
-      <span class="ft-doc ft-doc-disabled" title="준비 중">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v6h6"/><path d="M9 14h6M9 18h4"/></svg>
-        <span>상품 소개서</span>
-      </span>
     </div>
   </div>
 </footer>
@@ -1685,19 +1757,13 @@ var IND_CATS=['전체','음식점·카페','미용·뷰티','병의원','피트�
 /* ══════════ 0-3. 크리덴셜 배지 ══════════
    문서 이미지는 개인정보·매출·인원을 모자이크 처리한 사본만 싣는다. */
 var CREDS=[
-  {ic:'🏛️',label:'특허 등록',img:'assets/credential/patent.png',
+  {ic:'🏛️',label:'AI 마케팅 특허 등록',img:'assets/credential/patent.png',
    title:'특허증 · 제 10-2818552 호',
    cap:'생성형 인공지능 모델 기반 마케팅 의뢰자 및 전문가의 매칭 플랫폼 · 2025.06.04 등록'},
-  {ic:'💻',label:'소프트웨어사업자',img:'assets/credential/software.png',
-   title:'소프트웨어사업자 일반 현황 관리확인서',
-   cap:'한국인공지능소프트웨어산업협회 · 컴퓨터관련 서비스업 / 디지털콘텐츠 개발서비스업'},
-  {ic:'🎬',label:'비디오물제작업 신고',img:'assets/credential/video.png',
-   title:'비디오물제작업 신고증 · 제 2026-000022 호',
-   cap:'서울특별시 금천구청 · 제작품목 숏츠 영상 및 M/V급 영상'},
-  {ic:'🚀',label:'창업기업 확인',img:'assets/credential/startup.png',
-   title:'창업기업 확인서',
-   cap:'서울지방중소벤처기업청 · 유효기간 2024.07.02 ~ 2027.07.02'},
-  {ic:'📊',label:'매출 상위 30%',static:true}
+  {ic:'📄',label:'최소 계약 기간 없음',static:true},
+  {ic:'🙋',label:'업종 전담 마케터 1:1',static:true},
+  {ic:'📊',label:'매월 성과 리포트',static:true},
+  {ic:'🏪',label:'2,800개 매장 진단',static:true}
 ];
 function renderCreds(){
   var el=document.getElementById('cdRow');
@@ -1787,6 +1853,26 @@ if(HAS_IO){
   },{threshold:.4});
   document.querySelectorAll('.cnt').forEach(function(el){cntIo.observe(el);});
 }
+
+/* ══════════ 2-B. 진단 예시 슬라이더 — 광고비 새는 비율(28%, 2,800개 매장 평균) ══════════ */
+(function(){
+  var LEAK_RATE=0.28;
+  var slider=document.getElementById('diagBudget');
+  var budgetOut=document.getElementById('diagBudgetOut');
+  var leakNum=document.getElementById('diagLeakNum');
+  if(!slider||!budgetOut||!leakNum)return;
+  function update(){
+    var budget=parseInt(slider.value,10);
+    var leak=Math.round(budget*LEAK_RATE);
+    budgetOut.textContent=budget;
+    leakNum.textContent=fmtCounter(leak,0);
+    leakNum._done=true; /* 스크롤 진입 애니메이션이 이후에 값을 덮어쓰지 않도록 */
+    var pct=(budget-slider.min)/(slider.max-slider.min)*100;
+    slider.style.setProperty('--pct',pct+'%');
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
 
 /* ══════════ 3. 진단 막대 — 레벨 라벨 + 스크롤 진입 시 채움 ══════════ */
 var LEVEL_TAGS=['위험','주의','보통','양호','우수'];
@@ -1911,6 +1997,10 @@ toggleMobileBar();
 var step1=document.getElementById('step1'),step2=document.getElementById('step2');
 var chipRow=document.getElementById('chipRow'),chipTxt=document.getElementById('chipTxt');
 var industryInput=document.getElementById('f-industry');
+var fmSteps=document.querySelectorAll('#fmStepper .fm-step');
+function setFmStep(n){
+  fmSteps.forEach(function(s){s.classList.toggle('is-cur',s.dataset.s===String(n));});
+}
 
 /* 업종에 맞는 상호명 예시 — 고정 문구보다 입력 유도가 잘 된다 */
 var STORE_PLACEHOLDER={
@@ -1930,6 +2020,7 @@ document.getElementById('bizGrid').addEventListener('click',function(e){
   step1.style.display='none';
   chipRow.style.display='flex';
   step2.classList.add('on');
+  setFmStep(2);
   storeEl.focus();
 });
 /* 칩 클릭 → 업종 다시 선택 */
@@ -1937,6 +2028,7 @@ document.getElementById('chipBtn').addEventListener('click',function(){
   step1.style.display='block';
   chipRow.style.display='none';
   step2.classList.remove('on');
+  setFmStep(1);
   step1.scrollIntoView({behavior:'smooth',block:'center'});
 });
 
@@ -2047,11 +2139,17 @@ function handleSubmit(){
   sbtn.disabled=true;sbtn.textContent='전송 중...';
   fst.className='fst';
 
+  /* 히어로에서 "통화 없이 리포트만" 약속을 했으므로, 백엔드 스키마와 무관하게
+     반드시 전달되도록 자유 입력란인 message 앞에 표시로 붙인다 */
+  var msgVal=msgEl.value.trim();
+  var nocallEl=document.getElementById('f-nocall');
+  if(nocallEl&&nocallEl.checked)msgVal='[통화 없이 리포트만 요청]'+(msgVal?' '+msgVal:'');
+
   var body={
     name:store,
     store:store,
     phone:phoneEl.value.trim(),
-    message:msgEl.value.trim(),
+    message:msgVal,
     type:industryInput.value,
     industry:industryInput.value,
     source:'local-business-diagnosis'
@@ -2141,6 +2239,25 @@ if(cdRow&&docOv){
   });
   document.addEventListener('keydown',function(e){if(e.key==='Escape')window.closeDoc();});
 }
+
+/* ══════════ 11-B. 실증 탭 — 후기 ⇄ 숫자로 본 결과 ══════════ */
+(function(){
+  var tabs=document.getElementById('proofTabs');
+  var panelRev=document.getElementById('panelRev');
+  var panelNum=document.getElementById('panelNum');
+  if(!tabs||!panelRev||!panelNum)return;
+  tabs.addEventListener('click',function(e){
+    var btn=e.target.closest('.pt-b');
+    if(!btn)return;
+    Array.prototype.forEach.call(tabs.querySelectorAll('.pt-b'),function(b){b.classList.remove('sel');});
+    btn.classList.add('sel');
+    var showNum=btn.dataset.panel==='num';
+    panelRev.hidden=showNum;
+    panelNum.hidden=!showNum;
+    /* 숨겨져 있던 패널은 스크롤 진입 관찰을 못 받았을 수 있으니, 열릴 때 직접 노출시킨다 */
+    panelNum.querySelectorAll('.rise').forEach(function(el){el.classList.add('on');});
+  });
+})();
 
 /* ══════════ 12. 후기 업종 필터 (Free Diagnosis 업종 선택과 동일한 라벨로 동기화) ══════════ */
 var revFilters=document.getElementById('revFilters');
