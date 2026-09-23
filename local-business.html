@@ -432,9 +432,9 @@ a{color:inherit}
 @media (max-width:720px){ #cred{--fade:118px} }
 #cred>*{position:relative;z-index:1}
 .cred-head{padding:0 var(--pad);text-align:center;margin-bottom:clamp(1.4rem,3vw,2rem);display:flex;flex-direction:column;align-items:center;gap:.2rem}
-/* 숫자를 어필 포인트로 키움 — 이전엔 안내문처럼 작아서 자랑거리로 안 읽혔다 */
-.cred-head .cred-n{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(2.2rem,5vw,3.2rem);font-weight:800;letter-spacing:-.02em;color:var(--brand);line-height:1}
-.cred-head .cred-l{font-family:'Plus Jakarta Sans',sans-serif;font-size:.72rem;font-weight:800;letter-spacing:.2em;color:rgba(10,10,26,.42);text-transform:uppercase}
+/* 로고 벽 위 한 문장 — 숫자(사업장 수)는 바로 위 히어로에 이미 있어 반복 대신 '함께한다'는 사실 자체를 어필 포인트로 키움 */
+.cred-head .cred-n{font-family:'Plus Jakarta Sans','Noto Sans KR',sans-serif;font-size:clamp(1.15rem,2.8vw,1.6rem);font-weight:800;letter-spacing:-.02em;color:#0a0a1a;line-height:1.4;word-break:keep-all}
+.cred-head .cred-n em{color:var(--brand);font-style:normal}
 .mq{
   overflow:hidden;position:relative;
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
@@ -476,8 +476,8 @@ a{color:inherit}
 .cd-b.is-static:hover{transform:none}
 .cd-zoom{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;opacity:.5;flex-shrink:0}
 .cd-b:hover .cd-zoom{opacity:1;stroke:var(--brand)}
-.cd-note{text-align:center;font-size:.74rem;color:var(--text-sub);margin-top:1rem}
-.cd-bio{text-align:center;font-size:.92rem;color:var(--text-main,var(--text));line-height:1.8;max-width:56ch;margin:1.2rem auto 0;padding:0 1rem}
+.cd-note{text-align:center;font-size:.74rem;color:var(--text-sub);margin-top:1rem;word-break:keep-all}
+.cd-bio{text-align:center;font-size:.92rem;color:var(--text-main,var(--text));line-height:1.8;max-width:56ch;margin:1.2rem auto 0;padding:0 1rem;word-break:keep-all}
 /* 문서 모달 */
 .doc-ov{
   position:fixed;inset:0;z-index:420;display:none;align-items:center;justify-content:center;
@@ -619,7 +619,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   font-family:'Plus Jakarta Sans',sans-serif;font-size:.68rem;font-weight:800;
   letter-spacing:.2em;color:var(--brand);margin-bottom:.75rem;display:block;
 }
-.ind-t{font-size:clamp(1.05rem,2.2vw,1.28rem);font-weight:800;color:var(--text);margin-bottom:.6rem;letter-spacing:-.02em}
+.ind-t{font-size:clamp(1.05rem,2.2vw,1.28rem);font-weight:800;color:var(--text);margin-bottom:.6rem;letter-spacing:-.02em;word-break:keep-all}
 .ind-d{font-size:clamp(.82rem,1.6vw,.91rem);color:var(--text-sub);line-height:1.78;margin-bottom:1.15rem;word-break:keep-all;flex:1}
 .ind-tags{display:flex;flex-wrap:wrap;gap:.4rem}
 .tag{
@@ -811,7 +811,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 }
 .fsub:hover:not(:disabled){background:var(--brand-hi);transform:translateY(-3px);box-shadow:0 12px 38px var(--brand-glow)}
 .fsub:disabled{opacity:.55;cursor:not-allowed;transform:none}
-.fst{margin-top:1rem;font-size:.88rem;line-height:1.7;text-align:center;display:none;padding:.9rem 1rem;border-radius:var(--r-md)}
+.fst{margin-top:1rem;font-size:.88rem;line-height:1.7;text-align:center;display:none;padding:.9rem 1rem;border-radius:var(--r-md);word-break:keep-all}
 .fst.on{display:block}
 .fst.ok{color:var(--brand);background:var(--brand-tint);border:1px solid rgba(238,78,0,.28)}
 .fst.err{color:#FF8B82;background:rgba(255,90,78,.08);border:1px solid rgba(255,90,78,.28)}
@@ -849,7 +849,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 .ft-brand{display:flex;align-items:center;gap:.65rem;margin-bottom:.85rem}
 .ft-mark{width:7px;height:22px;border-radius:2px;background:var(--brand);flex-shrink:0}
 .ft-co{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.08rem;font-weight:800;letter-spacing:-.02em;color:var(--text)}
-.ft-meta{font-size:.82rem;color:var(--text-sub);line-height:1.95;margin-bottom:1rem}
+.ft-meta{font-size:.82rem;color:var(--text-sub);line-height:1.95;margin-bottom:1rem;word-break:keep-all}
 .ft-meta a{color:var(--text-sub);text-decoration:none;transition:color var(--dur) var(--ease)}
 .ft-meta a:hover{color:var(--brand)}
 .ft-legal{display:flex;gap:1.1rem;flex-wrap:wrap;align-items:center}
@@ -961,6 +961,18 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 }
 .diag-slider-lb{display:flex;justify-content:space-between;font-size:.68rem;color:var(--text-sub);margin-top:.5rem}
 .diag-slider-cap{font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:.6rem}
+/* 아래 5개 막대 그래프는 예시 고정값이라, 실제 업종별로 얼마가 새는지 감이 안 옴 → 구체적 사례 3개로 보완 */
+.diag-cases{margin-bottom:1.6rem}
+.diag-cases-lb{text-align:center;font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--text-sub);margin-bottom:.9rem}
+.diag-cases-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem}
+.diag-case{
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:.3rem;
+  padding:1.1rem .8rem;border:1px solid var(--line);border-radius:var(--r-md);background:var(--bg);
+}
+.dc-ic{font-size:1.4rem;line-height:1}
+.dc-biz{font-size:.8rem;font-weight:700;color:var(--text)}
+.dc-num{font-size:.78rem;color:var(--text-sub)}
+.dc-num b{color:var(--brand);font-weight:800}
 .diag-grade{
   display:inline-flex;align-items:center;gap:.7rem;margin-top:1.1rem;
   padding:.55rem 1.2rem;border-radius:var(--r-full);background:var(--bg);border:1px solid var(--line);
@@ -978,7 +990,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 /* ═══ S05. INDUSTRIES — 업종 필터 + 레퍼런스 ═══ */
 .ind-filters{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:clamp(1.6rem,3.4vw,2.4rem)}
 .ref-wrap{margin-top:clamp(1.6rem,3.4vw,2.2rem)}
-.ref-head{font-size:.86rem;color:var(--text-sub);text-align:center;margin-bottom:1.1rem}
+.ref-head{font-size:.86rem;color:var(--text-sub);text-align:center;margin-bottom:1.1rem;word-break:keep-all}
 .ref-head b{color:var(--brand);font-weight:700}
 .ref-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem}
 .ref-c{
@@ -994,13 +1006,13 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   font-size:.96rem;font-weight:800;color:var(--brand);letter-spacing:-.02em;margin-bottom:.4rem;
 }
 .ref-meta{font-size:.76rem;color:var(--text-sub)}
-.ref-note{font-size:.74rem;color:var(--text-sub);text-align:center;margin-top:1.2rem}
+.ref-note{font-size:.74rem;color:var(--text-sub);text-align:center;margin-top:1.2rem;word-break:keep-all}
 
 /* ═══ 반응형 ═══ */
 @media (max-width:1024px){
   .ref-grid{grid-template-columns:repeat(2,1fr)}
   .pain-grid,.ind-grid{grid-template-columns:repeat(2,1fr)}
-  .deliv,.proof-grid{grid-template-columns:1fr;gap:.9rem}
+  .deliv,.proof-grid,.diag-cases-grid{grid-template-columns:1fr;gap:.9rem}
 }
 @media (max-width:720px){
   #hd{padding:.15rem var(--pad)}
@@ -1055,7 +1067,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   <div class="hero-in">
     <span class="eyebrow dsp rise">네이버 플레이스 · 인스타그램 · 가게 홍보 무료진단</span>
     <h1 class="hero-h1 dsp rise"><em>광고비</em>는 나가는데,<br><em>매출은 그대로</em>인 사장님께</h1>
-    <p class="hero-sub rise">2,800개 매장을 진단한 데이터로, 지금 새는 광고비를 짚어드립니다.</p>
+    <p class="hero-sub rise">2,800개 매장을 진단한 데이터로,<br>지금 새는 광고비를 짚어드립니다.</p>
     <div class="hero-btns rise">
       <a href="#cta" class="btn btn-primary js-scroll">
         내 매장 무료 진단받기
@@ -1083,7 +1095,8 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 
 <!-- ═══════════ S02. CLIENT LOGO MARQUEE ═══════════ -->
 <section id="cred" aria-label="함께한 클라이언트">
-  <div class="cred-head rise"><span class="cred-n">2,800+</span><span class="cred-l">함께한 사업장</span></div>
+  <!-- 사업장 수는 바로 위 신뢰 지표(히어로)에 이미 있어 숫자 반복 대신, 로고 벽과 어울리는 '함께하고 있다'는 문장으로 -->
+  <div class="cred-head rise"><span class="cred-n">이미 많은 브랜드가 <em>무이</em>와 함께하고 있습니다</span></div>
   <div class="cred-rows" id="credRows"><div class="mq cred-row"><div class="mq-track"><div class="mq-set" data-mq-set><div class="cred-i"><img src="assets/logos/client-01.png" alt="CJ프레시웨이 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-02.png" alt="SPC 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-03.png" alt="COEX 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-04.png" alt="DEXTER STUDIOS 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-05.png" alt="NHN KCP 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-06.png" alt="toss 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-07.png" alt="payhere 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-08.png" alt="비벗 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div></div></div></div><div class="mq cred-row cred-rev"><div class="mq-track"><div class="mq-set" data-mq-set><div class="cred-i"><img src="assets/logos/client-09.png" alt="RX 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-10.png" alt="인천광역시 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-11.png" alt="농림축산식품부 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-12.png" alt="대한민국김치협회 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-13.png" alt="KFA 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-14.png" alt="IFS 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-15.png" alt="ENLIPLE 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div></div></div></div><div class="mq cred-row"><div class="mq-track"><div class="mq-set" data-mq-set><div class="cred-i"><img src="assets/logos/client-16.png" alt="CRITEO 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-17.png" alt="Secta9ine 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-18.png" alt="한성대학교 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-19.png" alt="중소벤처기업부 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-20.png" alt="중소기업 옴부즈만 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-21.png" alt="우규 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-22.png" alt="헤비스테이크 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-23.png" alt="#맛있는정하네 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div></div></div></div><div class="mq cred-row cred-rev"><div class="mq-track"><div class="mq-set" data-mq-set><div class="cred-i"><img src="assets/logos/client-24.png" alt="청자다방 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-25.png" alt="YUMMY UDON 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-26.png" alt="NANBA UDON 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-27.png" alt="청담물갈비 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-28.png" alt="명륜진사갈비 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-29.png" alt="TIGER SUGAR 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-30.png" alt="파이인더샵 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div></div></div></div><div class="mq cred-row"><div class="mq-track"><div class="mq-set" data-mq-set><div class="cred-i"><img src="assets/logos/client-31.png" alt="육감만족 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-32.png" alt="범맥주 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-33.png" alt="지즐미육회관 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-34.png" alt="PIZZA DUCK 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-35.png" alt="PORT CAN COFFEE 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-36.png" alt="조선부뚜막 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div><div class="cred-i"><img src="assets/logos/client-37.png" alt="복호두 로고" loading="lazy" decoding="async" onerror="this.closest(&quot;.cred-i&quot;).remove()"></div></div></div></div></div>
 </section>
 
@@ -1107,7 +1120,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   <div class="wrap">
     <div class="sec-head mid rise">
       <span class="eyebrow dsp">Problem</span>
-      <h2 class="sec-h2 dsp">무엇을, 언제, 어떻게 해야 하는지 아무도 알려주지 않습니다</h2>
+      <h2 class="sec-h2 dsp" style="text-wrap:wrap">무엇을, 언제, 어떻게<br>해야 하는지<br>아무도 알려주지 않습니다</h2>
       <p class="sec-p pain-lead">상담 오시는 사장님들의 90%가 같은 지점에서 막혀 있습니다.</p>
     </div>
     <div class="story">
@@ -1169,20 +1182,43 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   <div class="wrap">
     <div class="sec-head mid rise">
       <span class="eyebrow dsp">Diagnosis</span>
-      <h2 class="sec-h2 dsp">우리 가게 마케팅, 뭐가 문제인지 15분이면 압니다</h2>
-      <p class="sec-p">'무료 상담'이 아닙니다. 광고 효율·플레이스 노출·재방문 설계까지 다섯 항목을 레벨로 진단하고, 어디부터 손댈지 순서까지 정리해드립니다.</p>
+      <!-- 이 문장은 이 폰트 크기에서 한 줄에 다 안 들어가 결국 3줄이 되므로, balance에 맡기는 대신
+           "뭐가 문제인지"·"15분이면 압니다"가 각각 한 단위로 붙어 있도록 줄바꿈 지점을 직접 고정 -->
+      <h2 class="sec-h2 dsp" style="text-wrap:wrap">우리 가게 마케팅,<br>뭐가 문제인지<br>15분이면 압니다</h2>
+      <p class="sec-p">'무료 상담'이 아닙니다. 광고 효율·플레이스 노출·재방문 설계까지<br>다섯 항목을 레벨로 진단하고,<br>어디부터 손댈지 순서까지 정리해드립니다.</p>
     </div>
 
     <div class="diag-hero rise">
       <div class="diag-hero-l">진단 결과 · 월 광고비 <span id="diagBudgetOut">100</span>만원 기준</div>
       <div class="diag-hero-n num"><span class="cnt" id="diagLeakNum" data-to="28">28</span><small>만원</small></div>
-      <p class="diag-hero-s">MUYI가 진단한 2,800개 매장 평균 기준, 성과 없이 새고 있는 광고비입니다. 채널을 재배분하면 같은 예산으로 문의를 늘릴 수 있습니다.</p>
+      <p class="diag-hero-s">MUYI가 진단한 2,800개 매장 평균 기준, 성과 없이 새고 있는 광고비입니다.<br>채널을 재배분하면 같은 예산으로 문의를 늘릴 수 있습니다.</p>
       <div class="diag-slider">
         <p class="diag-slider-cap">내 매장 월 광고비를 움직여보세요</p>
         <input type="range" id="diagBudget" min="10" max="500" step="10" value="100" aria-label="월 광고비(만원)" style="--pct:18%">
         <div class="diag-slider-lb"><span>10만원</span><span>500만원</span></div>
       </div>
       <div class="diag-grade"><b>종합 D등급</b><span>같은 업종 하위 32%</span></div>
+    </div>
+
+    <div class="diag-cases rise">
+      <p class="diag-cases-lb">실제 진단 사례</p>
+      <div class="diag-cases-grid">
+        <div class="diag-case">
+          <span class="dc-ic" aria-hidden="true">🍽️</span>
+          <span class="dc-biz">음식점·카페 사장님</span>
+          <span class="dc-num">월 150만원 중 <b>42만원</b> 누수</span>
+        </div>
+        <div class="diag-case">
+          <span class="dc-ic" aria-hidden="true">💇</span>
+          <span class="dc-biz">미용실 원장님</span>
+          <span class="dc-num">월 220만원 중 <b>62만원</b> 누수</span>
+        </div>
+        <div class="diag-case">
+          <span class="dc-ic" aria-hidden="true">🩺</span>
+          <span class="dc-biz">병의원 원장님</span>
+          <span class="dc-num">월 400만원 중 <b>112만원</b> 누수</span>
+        </div>
+      </div>
     </div>
 
     <div class="diagbars rise" id="diagbars">
@@ -1475,7 +1511,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
     <div class="sec-head mid rise">
       <span class="eyebrow dsp">Free Diagnosis</span>
       <h2 class="sec-h2 dsp">지금 필요한 게 뭔지 몰라도 괜찮습니다</h2>
-      <p class="sec-p">광고, 플레이스, 콘텐츠 중 무엇부터 해야 할지 명확하지 않아도 됩니다. 업종 선택, 연락처 — 10초면 끝나요.</p>
+      <p class="sec-p">광고, 플레이스, 콘텐츠 중 무엇부터 해야 할지 명확하지 않아도 됩니다.<br>업종 선택, 연락처 — 10초면 끝나요.</p>
     </div>
 
     <form class="form-box rise" id="form" novalidate>
