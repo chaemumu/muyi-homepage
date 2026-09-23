@@ -87,7 +87,8 @@ a{color:inherit}
 
 /* Header */
 #hd{position:fixed;top:0;left:0;right:0;z-index:50;min-height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 var(--pad);background:rgba(10,10,11,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-.hd-logo img{height:26px;width:auto}
+.hd-logo{display:flex;align-items:center}
+.hd-logo img{height:clamp(87px,9vw,117px);width:auto;object-fit:contain}
 .hd-r{display:flex;gap:.5rem}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;font-size:.86rem;font-weight:700;padding:.62rem 1.15rem;border-radius:var(--r-full);text-decoration:none;border:1px solid var(--line-str);transition:all .35s var(--ease);white-space:nowrap}
 .btn:hover{border-color:var(--text);transform:translateY(-2px)}
@@ -145,6 +146,7 @@ footer{padding:2rem 0 3rem;color:var(--text-mute);font-size:.8rem;border-top:1px
 
 @media (max-width:820px){
   :root{--nav-h:56px}
+  .hd-logo img{height:clamp(72px,18vw,96px)}
   .case{grid-template-columns:1fr}
   .case:nth-child(even) .case-img{order:0}
   .case-img{aspect-ratio:4/3}
@@ -154,7 +156,7 @@ footer{padding:2rem 0 3rem;color:var(--text-mute);font-size:.8rem;border-top:1px
 </head>
 <body>
 <header id="hd">
-  <a href="/" class="hd-logo" aria-label="MUYI 홈"><img src="assets/logo/logo-white.png" alt="MUYI" width="104" height="26"></a>
+  <a href="/" class="hd-logo" aria-label="MUYI 홈"><img src="assets/logo/logo-white.png" alt="MUYI" width="1512" height="1512"></a>
   <div class="hd-r">
     <a href="/" class="btn">기업 프로젝트 문의</a>
     <a href="/local-business#form" class="btn btn-p">매장 무료 진단</a>
