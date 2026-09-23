@@ -8,7 +8,6 @@
 <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
 <meta name="theme-color" content="#1E10C7">
 <meta name="naver-site-verification" content="e4b22cde51ba3ab1ecb4c186f3afe4d47b125abe">
-<meta name="google-site-verification" content="">
 <meta property="og:type" content="website">
 <meta property="og:title" content="MUYI | 마케팅 대행사 · 브랜드 전략 · 퍼포먼스 마케팅">
 <meta property="og:description" content="브랜드 전략부터 퍼포먼스 마케팅, SNS 운영, 재구매 구조까지. 소상공인·기업·공공기관 맞춤 성장 설계. 무료 진단 가능.">
@@ -30,40 +29,125 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&family=Noto+Sans+KR:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-<!-- Organization Schema -->
+<!-- Entity Schema — @id는 전 페이지 공통(#organization/#website). 회사 정보 변경 시 local-business.html·llms.txt도 함께 수정 -->
 <script type="application/ld+json">{
-  "@context":"https://schema.org",
-  "@type":"Organization",
-  "name":"MUYI",
-  "url":"https://www.muyi.co.kr",
-  "logo":"https://www.muyi.co.kr/assets/case-images/og-image.png",
-  "description":"마케팅 컨설팅, 퍼포먼스 마케팅, 브랜드 전략부터 SNS 운영까지. 맞춤 성장 구조를 설계합니다.",
-  "address":{"@type":"PostalAddress","streetAddress":"디지털로 178 퍼블릭 가산 B1313","addressLocality":"금천구","addressRegion":"서울특별시","postalCode":"08512","addressCountry":"KR"},
-  "contactPoint":{"@type":"ContactPoint","email":"info@muyi.co.kr","contactType":"sales","availableLanguage":"Korean"},
-  "areaServed":"KR",
-  "sameAs":[]
-}</script>
-<!-- WebSite Schema (enables sitelinks searchbox) -->
-<script type="application/ld+json">{
-  "@context":"https://schema.org",
-  "@type":"WebSite",
-  "name":"MUYI",
-  "url":"https://www.muyi.co.kr",
-  "potentialAction":{"@type":"SearchAction","target":"https://www.muyi.co.kr/?q={search_term_string}","query-input":"required name=search_term_string"}
-}</script>
-<!-- ProfessionalService Schema -->
-<script type="application/ld+json">{
-  "@context":"https://schema.org",
-  "@type":"ProfessionalService",
-  "name":"MUYI",
-  "url":"https://www.muyi.co.kr",
-  "description":"브랜드 전략 컨설팅부터 퍼포먼스 마케팅, SNS 운영, 공공기관 홍보까지. 성과가 쌓이는 성장 궤도를 만듭니다.",
-  "areaServed":"KR",
-  "priceRange":"₩₩",
-  "serviceType":["브랜드 전략 컨설팅","퍼포먼스 마케팅","SNS 콘텐츠 마케팅","IMC 통합 마케팅","공공기관 홍보 대행","소상공인 마케팅","B2B 마케팅","그로스 마케팅","CRM 마케팅","콘텐츠 마케팅"],
-  "address":{"@type":"PostalAddress","streetAddress":"디지털로 178 퍼블릭 가산 B1313","addressLocality":"금천구","addressRegion":"서울특별시","addressCountry":"KR"},
-  "geo":{"@type":"GeoCoordinates","latitude":"37.49795","longitude":"126.90313"},
-  "openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"09:00","closes":"18:00"}
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "Organization",
+   "@id": "https://www.muyi.co.kr/#organization",
+   "name": "MUYI",
+   "alternateName": [
+    "무이",
+    "무이코퍼레이션",
+    "MUYI Corporation"
+   ],
+   "legalName": "주식회사 무이코퍼레이션",
+   "url": "https://www.muyi.co.kr/",
+   "logo": {
+    "@type": "ImageObject",
+    "url": "https://www.muyi.co.kr/assets/logo/logo-blue.png",
+    "width": 1512,
+    "height": 1512
+   },
+   "image": "https://www.muyi.co.kr/assets/case-images/og-image.png",
+   "description": "MUYI(무이코퍼레이션)는 소상공인·기업·공공기관을 대상으로 브랜드 전략, 퍼포먼스 마케팅, 네이버 플레이스·SNS 운영을 수행하는 대한민국 마케팅 대행사입니다.",
+   "telephone": "+82-70-8833-8210",
+   "email": "info@muyi.co.kr",
+   "founder": {
+    "@type": "Person",
+    "name": "이채원",
+    "jobTitle": "대표"
+   },
+   "taxID": "481-81-02827",
+   "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "디지털로 178 퍼블릭 가산 B1313",
+    "addressLocality": "금천구",
+    "addressRegion": "서울특별시",
+    "postalCode": "08512",
+    "addressCountry": "KR"
+   },
+   "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+82-70-8833-8210",
+    "email": "info@muyi.co.kr",
+    "contactType": "sales",
+    "availableLanguage": "Korean"
+   },
+   "areaServed": {
+    "@type": "Country",
+    "name": "대한민국"
+   },
+   "sameAs": [
+    "https://www.instagram.com/muyi_official_/",
+    "https://pf.kakao.com/_VbxkKG"
+   ]
+  },
+  {
+   "@type": "WebSite",
+   "@id": "https://www.muyi.co.kr/#website",
+   "url": "https://www.muyi.co.kr/",
+   "name": "MUYI",
+   "inLanguage": "ko-KR",
+   "publisher": {
+    "@id": "https://www.muyi.co.kr/#organization"
+   }
+  },
+  {
+   "@type": "ProfessionalService",
+   "@id": "https://www.muyi.co.kr/#service",
+   "name": "MUYI 마케팅 대행",
+   "parentOrganization": {
+    "@id": "https://www.muyi.co.kr/#organization"
+   },
+   "url": "https://www.muyi.co.kr/",
+   "image": "https://www.muyi.co.kr/assets/case-images/og-image.png",
+   "telephone": "+82-70-8833-8210",
+   "description": "브랜드 전략 컨설팅부터 퍼포먼스 마케팅, SNS 운영, 공공기관 홍보까지. 성과가 쌓이는 성장 구조를 설계합니다.",
+   "areaServed": {
+    "@type": "Country",
+    "name": "대한민국"
+   },
+   "priceRange": "₩₩",
+   "knowsAbout": [
+    "브랜드 전략 컨설팅",
+    "퍼포먼스 마케팅",
+    "네이버 플레이스 최적화",
+    "SNS 콘텐츠 마케팅",
+    "IMC 통합 마케팅",
+    "공공기관 홍보 대행",
+    "소상공인 마케팅",
+    "B2B 마케팅",
+    "CRM 마케팅"
+   ],
+   "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "디지털로 178 퍼블릭 가산 B1313",
+    "addressLocality": "금천구",
+    "addressRegion": "서울특별시",
+    "postalCode": "08512",
+    "addressCountry": "KR"
+   },
+   "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": "37.49795",
+    "longitude": "126.90313"
+   },
+   "openingHoursSpecification": {
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": [
+     "Monday",
+     "Tuesday",
+     "Wednesday",
+     "Thursday",
+     "Friday"
+    ],
+    "opens": "09:00",
+    "closes": "18:00"
+   }
+  }
+ ]
 }</script>
 <!-- FAQ Schema (high-intent queries) -->
 <script type="application/ld+json">{
@@ -1258,7 +1342,7 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
     <span class="h-line"><span class="h-line-in h-title-grad">브랜드를 다시</span></span>
     <span class="h-line"><span class="h-line-in h-title-grad">궤도에 올립니다.</span></span>
   </h1>
-  <p class="h-sub" id="h-sub">전략, 채널, 데이터를 하나의 궤도로 연결해<br>스스로 성장하는 구조를 만듭니다.</p>
+  <p class="h-sub" id="h-sub">브랜드 전략부터 퍼포먼스 마케팅까지,<br>스스로 성장하는 구조를 만듭니다.</p>
   <div class="h-cta-group">
     <button class="h-enter" id="enter-btn">무료 진단 받기 <span class="h-arr"></span></button>
   </div>
