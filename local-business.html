@@ -2,6 +2,8 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<!-- ?lp=1 광고 랜딩 모드: Free Diagnosis 폼만 노출, 나머지 섹션/헤더/푸터 숨김. FOUC 방지로 head 최상단에서 즉시 클래스 부여 -->
+<script>if(location.search.indexOf('lp=1')>-1)document.documentElement.classList.add('lp-only');</script>
 <title>소상공인 마케팅 대행 | 네이버 플레이스 무료 진단 — MUYI</title>
 <meta name="description" content="MUYI는 오프라인 매장 전문 마케팅 대행사입니다. 네이버 플레이스 노출·광고비 누수·재방문 구조를 무료로 진단하고 30일 실행 계획을 드립니다. 비용 0원, 계약 강요 없음.">
 <meta name="keywords" content="소상공인 마케팅,매장 마케팅 대행,네이버 플레이스 마케팅,자영업자 마케팅,가산 마케팅 회사,금천구 마케팅 대행사,무료 마케팅 진단,병원 마케팅 대행사,한의원 마케팅,미용실 마케팅,음식점 마케팅 회사,카페 마케팅 회사,학원 마케팅,필라테스 마케팅,프랜차이즈 마케팅">
@@ -290,6 +292,13 @@ a{color:inherit}
      duration은 JS가 세트 폭에 맞춰 inline !important로 넣는다. */
   .mq-track{animation-iteration-count:infinite!important}
 }
+
+/* ═══ 광고 랜딩 모드(?lp=1): #cta(Free Diagnosis 폼)만 남기고 전부 숨김 ═══ */
+.lp-only #hd,.lp-only #hero,.lp-only #cred,.lp-only #creds,.lp-only #pain,
+.lp-only #diag,.lp-only #ind,.lp-only #proof,.lp-only #faq,
+.lp-only footer,.lp-only #mbar{display:none!important}
+.lp-only #main{min-height:100vh;display:flex;align-items:center}
+.lp-only #cta{padding-top:clamp(2.5rem,6vh,4rem);padding-bottom:clamp(2.5rem,6vh,4rem);width:100%}
 
 /* ═══ S00. HEADER ═══ */
 #hd{
