@@ -11,14 +11,16 @@
     { "source": "/b2b-marketing.html", "destination": "/b2b-marketing", "permanent": true },
     { "source": "/public-sector.html", "destination": "/public-sector", "permanent": true },
     { "source": "/brochure.html", "destination": "/brochure", "permanent": true },
-    { "source": "/case-studies.html", "destination": "/case-studies", "permanent": true }
+    { "source": "/case-studies.html", "destination": "/case-studies", "permanent": true },
+    { "source": "/expo-event.html", "destination": "/expo-event", "permanent": true }
   ],
   "rewrites": [
     { "source": "/local-business", "destination": "/local-business.html" },
     { "source": "/b2b-marketing", "destination": "/b2b-marketing.html" },
     { "source": "/public-sector", "destination": "/public-sector.html" },
     { "source": "/brochure", "destination": "/brochure.html" },
-    { "source": "/case-studies", "destination": "/case-studies.html" }
+    { "source": "/case-studies", "destination": "/case-studies.html" },
+    { "source": "/expo-event", "destination": "/expo-event.html" }
   ],
   "headers": [
     {
