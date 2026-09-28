@@ -237,6 +237,9 @@ html.gate-pass #gate{display:none}
 .gate-in button{font-size:.92rem;font-weight:800;padding:0 1.4rem;border:0;border-radius:var(--r-md);background:var(--brand);color:var(--on-brand);cursor:pointer;transition:all var(--dur) var(--ease)}
 .gate-in button:hover:not(:disabled){background:var(--brand-hi)}
 .gate-in button:disabled{opacity:.6;cursor:progress}
+#gatePaste{flex:0 0 auto;padding:0 .9rem;font-size:1.1rem;background:var(--surface-2);border:1px solid var(--line-str);color:var(--text)}
+#gatePaste:hover{background:var(--surface);border-color:var(--text)}
+#gatePaste.copied{background:var(--brand-tint);border-color:var(--brand)}
 .gate-msg{min-height:1.4rem;margin-top:.7rem;font-size:.8rem;color:var(--bad)}
 .gate-help{margin-top:1.6rem;padding-top:1.5rem;border-top:1px solid var(--line)}
 .gate-help p{font-size:.82rem;color:var(--text-sub);margin-bottom:.8rem}
@@ -256,6 +259,7 @@ html.gate-pass #gate{display:none}
     <p>카카오톡 채널 친구 추가 시 안내되는<br>참가 코드가 있어야 신청 페이지가 열려요.</p>
     <form id="gateForm" class="gate-in">
       <input id="gateCode" type="text" placeholder="참가 코드" autocomplete="off" autocapitalize="off" maxlength="20" aria-label="참가 코드">
+      <button type="button" id="gatePaste" aria-label="클립보드에서 붙여넣기">📋</button>
       <button type="submit" id="gateBtn">확인</button>
     </form>
     <div class="gate-msg" id="gateMsg" role="status" aria-live="polite"></div>
@@ -436,10 +440,22 @@ WHY 이루밍?
 /* ══ 참가 코드 게이트 ══ */
 var GBASE='https://pacyhanuwuizcxwoggen.supabase.co';
 var GANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhY3loYW51d3VpemN4d29nZ2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTI2NDgsImV4cCI6MjA5MTI4ODY0OH0.oe39KUtwr-mZ4OsqWQT6Y3USpigQpD825IM14mIFEaY';
-var gate=document.getElementById('gate'),gateForm=document.getElementById('gateForm'),gateCode=document.getElementById('gateCode'),gateBtn=document.getElementById('gateBtn'),gateMsg=document.getElementById('gateMsg');
+var gate=document.getElementById('gate'),gateForm=document.getElementById('gateForm'),gateCode=document.getElementById('gateCode'),gateBtn=document.getElementById('gateBtn'),gateMsg=document.getElementById('gateMsg'),gatePaste=document.getElementById('gatePaste');
 if(document.documentElement.classList.contains('gate-pass')){gate.hidden=true;}
 else{
   gateCode.focus();
+  /* 클립보드에 복사해온 쿠폰번호를 한 번에 붙여넣기 + 자동 제출. 권한 거부/미지원 브라우저는 그냥 입력창에 포커스만 줌(길게 눌러 붙여넣기 가능) */
+  gatePaste.addEventListener('click',function(){
+    if(!navigator.clipboard||!navigator.clipboard.readText){gateCode.focus();gateMsg.textContent='이 브라우저는 자동 붙여넣기가 안 돼요. 입력창을 길게 눌러 붙여넣어주세요.';return;}
+    navigator.clipboard.readText().then(function(text){
+      text=(text||'').trim();
+      if(!text){gateCode.focus();gateMsg.textContent='클립보드가 비어있어요. 쿠폰번호를 먼저 복사해주세요.';return;}
+      gateCode.value=text;gatePaste.classList.add('copied');
+      gateForm.requestSubmit?gateForm.requestSubmit():gateBtn.click();
+    }).catch(function(){
+      gateCode.focus();gateMsg.textContent='붙여넣기 권한이 없어요. 입력창을 길게 눌러 직접 붙여넣어주세요.';
+    });
+  });
   gateForm.addEventListener('submit',function(e){
     e.preventDefault();
     var code=gateCode.value.trim();
