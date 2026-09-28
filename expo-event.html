@@ -65,6 +65,24 @@ h1 em{font-style:normal;color:var(--brand)}
 .flow-i:hover b{background:var(--brand);color:var(--on-brand);border-color:var(--brand);transform:scale(1.1)}
 .flow-sep{width:clamp(14px,3vw,34px);height:1px;background:linear-gradient(90deg,var(--line-str),var(--brand))}
 
+/* 실제 진행 사례 — 인스타 검색 결과 격자처럼 */
+#cases{padding:0 var(--pad) clamp(3rem,7vw,5rem)}
+.cases-in{max-width:760px;margin:0 auto;text-align:center}
+.cases-in h2{font-size:clamp(1.4rem,3.6vw,2.1rem);font-weight:900;letter-spacing:-.03em;margin-bottom:.5rem}
+.cases-in>p{color:var(--text-sub);font-size:.9rem;margin-bottom:1.6rem}
+.ig-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;border-radius:var(--r-md);overflow:hidden}
+.ig-i{position:relative;display:block;aspect-ratio:4/5;background:var(--surface-2);overflow:hidden}
+.ig-i img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
+.ig-i:hover img{transform:scale(1.06)}
+.ig-i .ig-ov{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:.7rem;background:linear-gradient(transparent 45%,rgba(0,0,0,.8));opacity:0;transition:opacity .3s;text-align:left}
+.ig-i:hover .ig-ov,.ig-i:focus-visible .ig-ov{opacity:1}
+@media (hover:none){.ig-i .ig-ov{opacity:1;background:linear-gradient(transparent 60%,rgba(0,0,0,.75))}}
+.ig-ov b{font-size:.82rem;color:#fff;line-height:1.3}
+.ig-ov small{font-size:.66rem;color:rgba(255,255,255,.75)}
+.ig-i[hidden]{display:none}
+.cases-more{margin-top:1rem;font-size:.84rem;font-weight:700;padding:.7rem 1.4rem;border-radius:var(--r-full);border:1px solid var(--line-str);background:none;color:var(--text-sub);cursor:pointer;transition:all var(--dur) var(--ease)}
+.cases-more:hover{color:var(--text);border-color:var(--text)}
+
 /* Form */
 #apply{position:relative;padding:0 var(--pad) clamp(4rem,9vw,7rem)}
 .form-box{position:relative;max-width:760px;margin:0 auto;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);padding:clamp(1.4rem,3.4vw,2.6rem)}
@@ -290,6 +308,16 @@ html.gate-pass #gate{display:none}
       <span class="flow-i"><b>2</b>홍보 문구·해시태그</span><span class="flow-sep"></span>
       <span class="flow-i"><b>3</b>이미지 3~5장</span>
     </div>
+  </div>
+</section>
+
+<section id="cases">
+  <div class="cases-in rise">
+    <span class="eyebrow">Real Cases</span>
+    <h2>이렇게 노출돼요</h2>
+    <p>MUYI가 실제로 운영한 박람회 참가 브랜드 게시물이에요. 누르면 인스타그램에서 볼 수 있어요.</p>
+    <div class="ig-grid" id="igGrid"></div>
+    <button type="button" class="cases-more" id="casesMore" hidden></button>
   </div>
 </section>
 
@@ -530,6 +558,37 @@ sel.addEventListener('change',showDeadline);
 /* ?expo=coex-2610 으로 링크하면 해당 박람회가 미리 선택됨 */
 var q=new URLSearchParams(location.search).get('expo');
 if(q&&open.some(function(e){return e.id===q;})){sel.value=q;showDeadline();}
+
+/* ══ 실제 진행 사례 — 여기 배열만 수정하면 됨. 이미지는 assets/expo-examples/{id}.jpg (480x600) ══ */
+var CASES=[
+  {id:'DdaT96IiYub',brand:'범카츠',cat:'수제돈카츠'},
+  {id:'DY6fmwxkuLO',brand:'야수각',cat:'짬뽕 전문점'},
+  {id:'DdGWGP9k7cE',brand:'꽃공작소24',cat:'무인 꽃집'},
+  {id:'DcTAAdNiTsT',brand:'수맥집',cat:'수제맥주·피자·치킨'},
+  {id:'DcS_871gU6f',brand:'팔구제면소',cat:'면 요리'},
+  {id:'DZweDOtnWY_',brand:'럭키족발',cat:'족발'},
+  {id:'DcK6R3WGU5h',brand:'동백한상',cat:'한식'},
+  {id:'DVxbw9Yk3Pc',brand:'이루밍 스터디카페',cat:'스터디카페'},
+  {id:'DTKAM-Ukgxn',brand:'진이찬방',cat:'반찬가게'},
+  {id:'Dda6HLniej5',brand:'와룡식품',cat:'외식 식자재'},
+  {id:'DVxbv5WAa6t',brand:'모리아',cat:'라멘 전문점'},
+  {id:'DQTrhv7kxvE',brand:'블루베이프',cat:'무인 전자담배'},
+  {id:'DcK6Ka1E9DK',brand:'퓨어폴',cat:'제빙기 위생관리'}
+];
+(function(){
+  var grid=document.getElementById('igGrid'),more=document.getElementById('casesMore'),SHOW=9;
+  CASES.forEach(function(c,i){
+    var a=document.createElement('a');a.className='ig-i';a.href='https://www.instagram.com/p/'+c.id+'/';a.target='_blank';a.rel='noopener';
+    a.setAttribute('aria-label',c.brand+' 인스타그램 게시물');if(i>=SHOW)a.hidden=true;
+    a.innerHTML='<img src="assets/expo-examples/'+c.id+'.jpg" alt="" loading="lazy" decoding="async" width="480" height="600"><span class="ig-ov"><b></b><small></small></span>';
+    a.querySelector('b').textContent=c.brand;a.querySelector('small').textContent=c.cat;
+    grid.appendChild(a);
+  });
+  if(CASES.length>SHOW){
+    more.hidden=false;more.textContent='사례 더 보기 (+'+(CASES.length-SHOW)+')';
+    more.addEventListener('click',function(){grid.querySelectorAll('.ig-i[hidden]').forEach(function(a){a.hidden=false;});more.hidden=true;});
+  }
+})();
 
 /* ══ 등장 애니메이션 ══ */
 var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('on');io.unobserve(x.target);}});},{threshold:.1});
