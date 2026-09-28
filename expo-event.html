@@ -78,6 +78,12 @@ h1 em{font-style:normal;color:var(--brand)}
 
 .blk{padding-bottom:1.6rem;margin-bottom:1.6rem;border-bottom:1px dashed var(--line)}
 .blk:last-of-type{border-bottom:0;margin-bottom:0}
+.step-nav{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-top:1.6rem}
+.step-nav button{font-family:inherit;font-size:.9rem;font-weight:800;padding:.85rem 1.6rem;border-radius:var(--r-full);cursor:pointer;transition:all var(--dur) var(--ease)}
+.step-nav .sprev{background:none;border:1px solid var(--line-str);color:var(--text-sub)}
+.step-nav .sprev:hover{border-color:var(--text);color:var(--text)}
+.step-nav .snext{margin-left:auto;border:0;background:var(--brand);color:var(--on-brand);box-shadow:0 6px 22px var(--brand-glow)}
+.step-nav .snext:hover{background:var(--brand-hi);transform:translateY(-2px)}
 .step-lb{display:flex;align-items:center;gap:.6rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.7rem;font-weight:800;letter-spacing:.16em;color:var(--brand);margin-bottom:1.1rem;text-transform:uppercase}
 .step-lb::after{content:'';flex:1;height:1px;background:var(--line)}
 
@@ -327,6 +333,7 @@ html.gate-pass #gate{display:none}
             <input class="fi" id="f-email" type="email" placeholder="brand@example.com" autocomplete="email">
           </div>
         </div>
+        <div class="step-nav"><span></span><button type="button" class="snext" data-go="2">다음</button></div>
       </div>
 
       <!-- STEP 2 -->
@@ -379,6 +386,7 @@ WHY 이루밍?
 8월 28일~30일, 대전에서 만나요!"></textarea>
           <div class="ft-meta"><button type="button" class="ex-btn" id="exBtn">예시 문구 채워보기</button><span id="cnt">0 / 2000</span></div>
         </div>
+        <div class="step-nav"><button type="button" class="sprev" data-go="1">이전</button><button type="button" class="snext" data-go="3">다음</button></div>
       </div>
 
       <!-- STEP 3 -->
@@ -393,10 +401,11 @@ WHY 이루밍?
         </label>
         <div class="thumbs" id="thumbs"></div>
         <p class="img-status" id="imgStatus">첫 번째 이미지가 대표 이미지로 쓰여요. 순서는 화살표로 바꿀 수 있어요.</p>
+        <div class="step-nav"><button type="button" class="sprev" data-go="2">이전</button><span></span></div>
       </div>
 
-      <!-- 동의 -->
-      <div class="blk">
+      <!-- 동의 + 제출: Step 3와 같은 화면에 이어서 보임 -->
+      <div class="blk" data-s="3">
         <label class="agree agree-all"><input type="checkbox" id="c-all" required><span>전체 동의하기 <i class="tag">[필수]</i></span></label>
         <details class="terms" style="margin-left:0"><summary>동의 내용 보기 (개인정보 수집·이용 / 자료 활용 / 마케팅·영업 활용)</summary><div>
           <b style="color:var(--text)">1. 개인정보 수집·이용</b><br>
@@ -412,11 +421,10 @@ WHY 이루밍?
           · 보유 기간: 수집일로부터 3년 또는 동의 철회 시까지<br><br>
           본 이벤트는 MUYI 마케팅 서비스 안내를 전제로 무료 제공되며, 위 항목에 동의하지 않으시면 참여가 어렵습니다. 수신 거부·동의 철회는 언제든 info@muyi.co.kr 로 요청하실 수 있습니다.
         </div></details>
+        <button class="fsub" type="submit" id="sbtn">무료 광고 신청하기</button>
+        <div class="fst" id="fst" role="status" aria-live="polite"></div>
+        <p class="alt">문의가 있으면 → <a href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener">카카오톡으로 물어보기</a></p>
       </div>
-
-      <button class="fsub" type="submit" id="sbtn">무료 광고 신청하기</button>
-      <div class="fst" id="fst" role="status" aria-live="polite"></div>
-      <p class="alt">문의가 있으면 → <a href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener">카카오톡으로 물어보기</a></p>
     </form>
   </div>
 </section>
@@ -523,15 +531,43 @@ sel.addEventListener('change',showDeadline);
 var q=new URLSearchParams(location.search).get('expo');
 if(q&&open.some(function(e){return e.id===q;})){sel.value=q;showDeadline();}
 
-/* ══ 등장 애니메이션 / 진행 단계 표시 ══ */
+/* ══ 등장 애니메이션 ══ */
 var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('on');io.unobserve(x.target);}});},{threshold:.1});
 document.querySelectorAll('.rise').forEach(function(el){io.observe(el);});
+
+/* ══ 실제 단계별 게이팅 — 한 번에 한 스텝만 보임(모바일·데스크탑 공통) ══ */
 var steps=document.querySelectorAll('.fm-step');
-var sio=new IntersectionObserver(function(es){es.forEach(function(x){
-  if(!x.isIntersecting)return;var s=+x.target.dataset.s;
-  steps.forEach(function(st){var n=+st.dataset.s;st.classList.toggle('is-cur',n===s);st.classList.toggle('is-done',n<s);});
-});},{rootMargin:'-40% 0px -55% 0px'});
-document.querySelectorAll('.blk[data-s]').forEach(function(b){sio.observe(b);});
+var stepBlks=document.querySelectorAll('.blk[data-s]');
+var curStep=1;
+function showStep(n){
+  curStep=n;
+  stepBlks.forEach(function(b){b.hidden=(+b.dataset.s!==n);});
+  steps.forEach(function(st){var s=+st.dataset.s;st.classList.toggle('is-cur',s===n);st.classList.toggle('is-done',s<n);});
+  document.getElementById('box').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function validateStep(s){
+  var v=function(id){return $(id).value.trim();};
+  var first=null;function need(el,ok){if(!ok){el.classList.add('bad');first=first||el;}}
+  if(s===1){
+    need(sel,!!sel.value);
+    if(sel.value==='etc')need(etc,!!v('f-expo-etc'));
+    need($('f-brand'),!!v('f-brand'));
+    need($('f-name'),!!v('f-name'));
+    need($('f-phone'),v('f-phone').replace(/\D/g,'').length>=10);
+    need($('f-email'),!v('f-email')||/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('f-email')));
+  }else if(s===2){
+    need($('f-tag1'),!!v('f-tag1'));
+    need($('f-ig'),!!v('f-ig'));
+    need(promo,!!v('f-promo'));
+  }
+  if(first){first.scrollIntoView({behavior:'smooth',block:'center'});first.focus({preventScroll:true});fst.className='fst on err';fst.textContent='표시된 항목을 확인해주세요.';return false;}
+  return true;
+}
+document.querySelectorAll('.snext').forEach(function(b){b.addEventListener('click',function(){
+  if(validateStep(curStep))showStep(+b.dataset.go);
+});});
+document.querySelectorAll('.sprev').forEach(function(b){b.addEventListener('click',function(){showStep(+b.dataset.go);});});
+showStep(1);
 
 /* ══ 입력 보조 ══ */
 $('f-phone').addEventListener('input',function(){
