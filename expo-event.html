@@ -13,6 +13,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+<!-- 게이트 이미 통과했으면 head 단계에서 즉시 잠금 해제 (FOUC 방지) -->
+<script>try{if(localStorage.getItem('expoGateOk')==='1')document.documentElement.classList.add('gate-pass');else document.documentElement.classList.add('gate-lock');}catch(e){document.documentElement.classList.add('gate-lock');}</script>
 <style>
 :root{
   --bg:#0A0A0B;--surface:#141416;--surface-2:#1C1C1F;
@@ -215,12 +217,57 @@ footer{padding:2rem var(--pad) 3rem;text-align:center;color:var(--text-mute);fon
   .thumbs{grid-template-columns:repeat(3,1fr)}
   .fm-step span{display:none}
 }
+
+/* ══ 참가 코드 게이트 — 카카오 채널 친구에게만 전달된 코드가 있어야 폼이 열림 ══ */
+html.gate-lock,html.gate-lock body{overflow:hidden;height:100%}
+html.gate-pass #gate{display:none}
+#gate{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:1.4rem;background:var(--bg)}
+#gate::before{content:'';position:absolute;inset:-30% -20% auto;height:90%;pointer-events:none;
+  background:radial-gradient(45% 55% at 30% 40%,rgba(30,16,199,.30),transparent 70%),radial-gradient(40% 50% at 72% 30%,rgba(238,78,0,.18),transparent 70%)}
+.gate-box{position:relative;width:100%;max-width:400px;text-align:center;animation:pop .5s var(--ease)}
+.gate-logo{height:64px;width:auto;margin:0 auto 1.6rem}
+.gate-box h1{font-size:clamp(1.3rem,4vw,1.7rem);font-weight:900;letter-spacing:-.03em;margin-bottom:.6rem}
+.gate-box p{color:var(--text-sub);font-size:.88rem;margin-bottom:1.8rem}
+.gate-in{display:flex;gap:.5rem}
+.gate-in input{flex:1;text-align:center;letter-spacing:.14em;text-transform:uppercase;font-weight:800;font-size:1rem;padding:.95rem 1rem;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line-str);color:var(--text)}
+.gate-in input::placeholder{letter-spacing:normal;text-transform:none;font-weight:500;color:var(--text-mute)}
+.gate-in input:focus{outline:none;border-color:var(--brand);background:var(--surface-2)}
+.gate-in input.bad{border-color:var(--bad);animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.gate-in button{font-size:.92rem;font-weight:800;padding:0 1.4rem;border:0;border-radius:var(--r-md);background:var(--brand);color:var(--on-brand);cursor:pointer;transition:all var(--dur) var(--ease)}
+.gate-in button:hover:not(:disabled){background:var(--brand-hi)}
+.gate-in button:disabled{opacity:.6;cursor:progress}
+.gate-msg{min-height:1.4rem;margin-top:.7rem;font-size:.8rem;color:var(--bad)}
+.gate-help{margin-top:1.6rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.gate-help p{font-size:.82rem;color:var(--text-sub);margin-bottom:.8rem}
+.gate-kakao{display:inline-flex;align-items:center;gap:.5rem;font-size:.86rem;font-weight:800;text-decoration:none;padding:.75rem 1.3rem;border-radius:var(--r-full);background:#FEE500;color:#191600;transition:transform var(--dur) var(--ease)}
+.gate-kakao:hover{transform:translateY(-2px)}
+.gate-kakao svg{width:18px;height:18px}
+#gate.leaving{animation:gateOut .5s var(--ease) forwards}
+@keyframes gateOut{to{opacity:0;visibility:hidden}}
 </style>
 </head>
 <body>
-<header id="hd">
-  <a href="/" class="hd-logo" aria-label="MUYI 홈"><img src="assets/logo/logo-white.png" alt="MUYI" width="1512" height="1512"></a>
-</header>
+<!-- 참가 코드 게이트: localStorage에 통과 기록 없으면 항상 이 화면부터. 서버(expo-gate)가 코드를 검증하므로 코드값 자체는 소스에 없음 -->
+<div id="gate">
+  <div class="gate-box">
+    <img class="gate-logo" src="assets/logo/logo-white.png" alt="MUYI">
+    <h1>참가 코드를 입력해주세요</h1>
+    <p>카카오톡 채널 친구 추가 시 안내되는<br>참가 코드가 있어야 신청 페이지가 열려요.</p>
+    <form id="gateForm" class="gate-in">
+      <input id="gateCode" type="text" placeholder="참가 코드" autocomplete="off" autocapitalize="off" maxlength="20" aria-label="참가 코드">
+      <button type="submit" id="gateBtn">확인</button>
+    </form>
+    <div class="gate-msg" id="gateMsg" role="status" aria-live="polite"></div>
+    <div class="gate-help">
+      <p>코드가 없으신가요? 채널 추가하면 바로 안내해드려요.</p>
+      <a class="gate-kakao" href="https://pf.kakao.com/_VbxkKG/friend" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.53 5.08 3.84 6.52L4.9 20.5a.5.5 0 0 0 .72.52l4.04-2.18A10.9 10.9 0 0 0 12 19c5.523 0 10-3.477 10-7.8S17.523 3 12 3z" fill="#191600"/></svg>
+        카카오톡 채널 추가하고 코드 받기
+      </a>
+    </div>
+  </div>
+</div>
 
 <main>
 <section id="hero">
@@ -386,6 +433,41 @@ WHY 이루밍?
 
 <script>
 (function(){
+/* ══ 참가 코드 게이트 ══ */
+var GBASE='https://pacyhanuwuizcxwoggen.supabase.co';
+var GANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhY3loYW51d3VpemN4d29nZ2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTI2NDgsImV4cCI6MjA5MTI4ODY0OH0.oe39KUtwr-mZ4OsqWQT6Y3USpigQpD825IM14mIFEaY';
+var gate=document.getElementById('gate'),gateForm=document.getElementById('gateForm'),gateCode=document.getElementById('gateCode'),gateBtn=document.getElementById('gateBtn'),gateMsg=document.getElementById('gateMsg');
+if(document.documentElement.classList.contains('gate-pass')){gate.hidden=true;}
+else{
+  gateCode.focus();
+  gateForm.addEventListener('submit',function(e){
+    e.preventDefault();
+    var code=gateCode.value.trim();
+    if(!code){gateCode.classList.add('bad');gateCode.focus();return;}
+    gateBtn.disabled=true;gateBtn.textContent='확인 중…';gateMsg.textContent='';gateCode.classList.remove('bad');
+    fetch(GBASE+'/functions/v1/expo-gate',{method:'POST',headers:{'Content-Type':'application/json',apikey:GANON},body:JSON.stringify({code:code})})
+      .then(function(r){return r.json().then(function(j){return {status:r.status,ok:j.ok,error:j.error};});})
+      .then(function(res){
+        if(res.ok){
+          try{localStorage.setItem('expoGateOk','1');}catch(e){}
+          document.documentElement.classList.remove('gate-lock');
+          document.documentElement.classList.add('gate-pass');
+          gate.classList.add('leaving');
+          setTimeout(function(){gate.hidden=true;},520);
+        }else{
+          gateBtn.disabled=false;gateBtn.textContent='확인';
+          gateCode.classList.add('bad');gateCode.select();
+          gateMsg.textContent=res.status===503?(res.error||'코드가 아직 설정되지 않았어요. 카카오톡으로 문의해주세요.'):'코드가 일치하지 않아요. 다시 확인해주세요.';
+        }
+      })
+      .catch(function(){
+        gateBtn.disabled=false;gateBtn.textContent='확인';
+        gateMsg.textContent='확인 중 오류가 났어요. 잠시 후 다시 시도해주세요.';
+      });
+  });
+  gateCode.addEventListener('input',function(){gateCode.classList.remove('bad');});
+}
+
 /* ══ 박람회 목록 — 여기만 수정하면 됨. 신청 마감은 시작일 D-7(그날 23:59)이 지나면 자동으로 목록에서 빠짐 ══ */
 var EXPOS=[
   {id:'suwon-2610', venue:'수원메쎄',    name:'제28회 제일창업박람회 in 수원',              start:'2026-10-01', end:'2026-10-03'},
