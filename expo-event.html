@@ -52,24 +52,41 @@ button{font-family:inherit}
   background:radial-gradient(45% 55% at 30% 40%,rgba(30,16,199,.30),transparent 70%),radial-gradient(40% 50% at 72% 30%,rgba(238,78,0,.18),transparent 70%)}
 .hero-in{position:relative;max-width:760px;margin:0 auto}
 .eyebrow{display:inline-block;font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(.64rem,1.4vw,.74rem);font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--brand);margin-bottom:1.2rem}
-h1{font-size:clamp(1.9rem,5.4vw,3.6rem);font-weight:900;line-height:1.2;letter-spacing:-.035em;text-wrap:balance;margin-bottom:1.1rem}
+h1{font-size:clamp(1.8rem,5.2vw,3.4rem);font-weight:900;line-height:1.25;letter-spacing:-.035em;text-wrap:balance;margin-bottom:1.4rem}
 h1 em{font-style:normal;color:var(--brand)}
-.hero-p{color:var(--text-sub);font-size:clamp(.92rem,1.8vw,1.06rem);max-width:50ch;margin:0 auto}
-.hero-p b{color:var(--text);font-weight:800}
-.hero-p b.hi{color:var(--brand)}
+/* 위계: h1 > hero-p(핵심 혜택, 흰색 굵게) > hero-p2(부연, 회색 작게) */
+.hero-p{color:var(--text);font-size:clamp(1.02rem,2.2vw,1.24rem);font-weight:700;line-height:1.6;letter-spacing:-.02em;margin:0 auto .7rem}
+.hero-p b.hi{color:var(--brand);font-weight:900}
+.hero-p2{color:var(--text-sub);font-size:clamp(.86rem,1.7vw,.96rem);line-height:1.75;margin:0 auto}
+.hero-cta{display:inline-flex;align-items:center;gap:.6rem;margin-top:2rem;font-size:1rem;font-weight:800;text-decoration:none;padding:1rem 1.8rem;border-radius:var(--r-full);background:var(--brand);color:var(--on-brand);box-shadow:0 8px 30px var(--brand-glow);transition:all var(--dur) var(--ease)}
+.hero-cta small{font-size:.74rem;font-weight:700;opacity:.7}
+.hero-cta:hover{background:var(--brand-hi);transform:translateY(-3px)}
 
-/* 3단계 흐름 — 카드 대신 한 줄 타임라인 */
-.flow{display:flex;justify-content:center;align-items:center;gap:clamp(.4rem,1.6vw,1rem);margin-top:2.2rem;flex-wrap:wrap}
-.flow-i{display:flex;align-items:center;gap:.55rem;font-size:.86rem;font-weight:700;color:var(--text)}
-.flow-i b{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.74rem;background:var(--surface-2);border:1px solid var(--line-str);color:var(--brand);transition:all var(--dur) var(--ease)}
+/* 진행 과정 — 카드 대신 한 줄 타임라인 */
+.flow-wrap{margin-top:3rem;padding-top:1.8rem;border-top:1px solid var(--line)}
+.flow-lb{display:block;font-size:.74rem;font-weight:800;letter-spacing:.08em;color:var(--text-mute);margin-bottom:1.1rem}
+.flow{list-style:none;display:flex;justify-content:center;align-items:flex-start;gap:clamp(.3rem,1.2vw,.8rem)}
+.flow-i{display:flex;flex-direction:column;align-items:center;gap:.5rem;min-width:0;flex:0 1 8.5rem;text-align:center}
+.flow-i b{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:.8rem;font-weight:800;background:var(--surface-2);border:1px solid var(--line-str);color:var(--brand);transition:all var(--dur) var(--ease)}
 .flow-i:hover b{background:var(--brand);color:var(--on-brand);border-color:var(--brand);transform:scale(1.1)}
-.flow-sep{width:clamp(14px,3vw,34px);height:1px;background:linear-gradient(90deg,var(--line-str),var(--brand))}
+.flow-i>span{font-size:.84rem;font-weight:700;line-height:1.4;color:var(--text)}
+.flow-i small{display:block;margin-top:.2rem;font-size:.7rem;font-weight:500;color:var(--text-mute)}
+.flow-sep{flex:0 1 40px;height:1px;margin-top:15px;background:linear-gradient(90deg,var(--line-str),var(--brand))}
+@media (max-width:640px){.flow-sep{display:none}.flow{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem .8rem}.flow-i{flex:none}}
 
 /* 실제 진행 사례 — 인스타 검색 결과 격자처럼 */
 #cases{padding:0 var(--pad) clamp(3rem,7vw,5rem)}
 .cases-in{max-width:760px;margin:0 auto;text-align:center}
-.cases-in h2{font-size:clamp(1.4rem,3.6vw,2.1rem);font-weight:900;letter-spacing:-.03em;margin-bottom:.5rem}
-.cases-in>p{color:var(--text-sub);font-size:.9rem;margin-bottom:1.6rem}
+.cases-in h2{font-size:clamp(1.35rem,3.6vw,2.1rem);font-weight:900;line-height:1.35;letter-spacing:-.03em;text-wrap:balance;margin-bottom:.8rem}
+.cases-in h2 em{font-style:normal;color:var(--brand)}
+.cases-in>p{color:var(--text-sub);font-size:clamp(.86rem,1.7vw,.94rem);line-height:1.75;margin-bottom:1.6rem}
+.pts{list-style:none;display:flex;justify-content:center;margin-bottom:1.8rem;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.pts li{flex:1;padding:1rem .4rem;font-size:.76rem;color:var(--text-mute);line-height:1.5}
+.pts li+li{border-left:1px solid var(--line)}
+.pts b{display:block;font-size:clamp(.88rem,1.8vw,1rem);font-weight:800;color:var(--text);margin-bottom:.15rem}
+/* 피드 상단 계정 표시(업체명 일부 가림) */
+.ig-name{position:absolute;left:.5rem;top:.5rem;z-index:1;max-width:calc(100% - 1rem);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.7rem;font-weight:800;padding:.22rem .55rem;border-radius:var(--r-full);background:rgba(10,10,11,.72);color:#fff;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.cases-note{margin-top:.9rem;font-size:.72rem;color:var(--text-mute)}
 .ig-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;border-radius:var(--r-md);overflow:hidden}
 .ig-i{position:relative;display:block;aspect-ratio:4/5;background:var(--surface-2);overflow:hidden}
 .ig-i img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
@@ -107,7 +124,7 @@ h1 em{font-style:normal;color:var(--brand)}
 
 .fg{margin-bottom:1.1rem}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
-.fl{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;font-size:.82rem;font-weight:600;color:var(--text-sub);margin-bottom:.5rem}
+.fl{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;font-size:.86rem;font-weight:700;color:var(--text);margin-bottom:.55rem}
 .fl .req{color:var(--brand);margin-left:.15rem}
 .fl small{font-weight:500;color:var(--text-mute);font-size:.74rem}
 .fi,.ft,.fs{width:100%;font-family:inherit;font-size:clamp(.9rem,1.9vw,.98rem);padding:.92rem 1.1rem;border-radius:var(--r-md);background:var(--bg);border:1px solid var(--line);color:var(--text);transition:border-color var(--dur) var(--ease),background var(--dur) var(--ease)}
@@ -118,6 +135,23 @@ h1 em{font-style:normal;color:var(--brand)}
 .fs{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:2.6rem;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%239AA0A8' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1.1rem center;background-size:12px}
 .fs option{background:var(--surface);color:var(--text)}
 .help{font-size:.78rem;color:var(--text-mute);margin-top:.45rem}
+/* 박람회 목록: 일정 | 행사명 (장소) | D-n */
+.xl{border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:var(--bg)}
+.xl.bad{border-color:var(--bad)}
+.xl:focus{outline:none}
+.xo{display:grid;grid-template-columns:8.6rem 1fr auto;align-items:center;gap:.9rem;padding:.85rem 1.1rem;cursor:pointer;transition:background var(--dur) var(--ease)}
+.xo+.xo{border-top:1px solid var(--line)}
+.xo:hover{background:var(--surface-2)}
+.xo input{position:absolute;opacity:0;pointer-events:none}
+.xo-d{font-size:.8rem;font-weight:700;color:var(--text-sub);font-variant-numeric:tabular-nums;white-space:nowrap}
+.xo-n{font-size:.9rem;font-weight:700;color:var(--text);line-height:1.45}
+.xo-n small{font-size:.76rem;font-weight:500;color:var(--text-mute);white-space:nowrap}
+.xo-dd{font-size:.7rem;font-weight:800;color:var(--text-mute);white-space:nowrap}
+.xo-dd.urgent{color:var(--brand)}
+.xo:has(input:checked){background:var(--brand-tint);box-shadow:inset 3px 0 0 var(--brand)}
+.xo:has(input:checked) .xo-d{color:var(--brand)}
+.xo:has(input:focus-visible){outline:2px solid var(--brand);outline-offset:-2px}
+@media (max-width:640px){.xo{grid-template-columns:1fr auto;gap:.15rem .8rem}.xo-d{grid-column:1}.xo-n{grid-column:1}.xo-dd{grid-column:2;grid-row:1/3}}
 .ddl{display:inline-flex;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.8rem;font-weight:700;padding:.4rem .85rem;border-radius:var(--r-full);background:var(--brand-tint);color:var(--brand);border:1px solid rgba(238,78,0,.28)}
 .ddl.urgent{animation:pulse 1.8s var(--ease) infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(238,78,0,.35)}50%{box-shadow:0 0 0 7px rgba(238,78,0,0)}}
@@ -195,6 +229,31 @@ details.terms div{margin-top:.5rem;padding:.8rem 1rem;border-radius:.7rem;backgr
 @keyframes draw{to{stroke-dashoffset:0}}
 .done h2{font-size:clamp(1.4rem,3.4vw,2rem);font-weight:900;letter-spacing:-.03em;margin-bottom:.6rem}
 .done p{color:var(--text-sub);font-size:.94rem}
+
+/* 무료 컨설팅 옵션 */
+.consult{display:flex;gap:.8rem;align-items:flex-start;margin-bottom:1rem;padding:1rem 1.1rem;border-radius:var(--r-md);border:1px solid rgba(238,78,0,.35);background:var(--brand-tint);cursor:pointer}
+.consult input{flex-shrink:0;width:19px;height:19px;margin-top:.2rem;accent-color:var(--brand);cursor:pointer}
+.consult b{display:block;font-size:.92rem;font-weight:800;color:var(--text)}
+.consult small{display:block;margin-top:.2rem;font-size:.78rem;line-height:1.6;color:var(--text-sub)}
+.consult em{font-style:normal;font-size:.68rem;font-weight:800;color:var(--brand);margin-left:.35rem}
+
+/* 신청 완료 팝업 */
+.md{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:1.2rem;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadeIn .3s var(--ease)}
+@keyframes fadeIn{from{opacity:0}}
+.md-box{position:relative;width:100%;max-width:440px;max-height:90vh;overflow:auto;padding:2.2rem 1.6rem 1.6rem;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--line-str);text-align:center;animation:pop .5s var(--ease)}
+.md-box .done-ic{width:60px;height:60px;margin-bottom:1.1rem}
+.md-box h2{font-size:1.4rem;font-weight:900;letter-spacing:-.03em;margin-bottom:.4rem}
+.md-box>p{font-size:.88rem;color:var(--text-sub);margin-bottom:1.4rem}
+.md-steps{list-style:none;text-align:left;margin-bottom:1.4rem;padding:1rem 1.1rem;border-radius:var(--r-md);background:var(--bg)}
+.md-steps li{display:flex;gap:.7rem;font-size:.84rem;line-height:1.55;color:var(--text-sub);padding:.35rem 0}
+.md-steps b{flex-shrink:0;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:.66rem;background:var(--surface-2);color:var(--brand);margin-top:.1rem}
+.md-steps strong{color:var(--text);font-weight:700}
+.md-cs{padding:1.1rem;border-radius:var(--r-md);border:1px solid rgba(238,78,0,.35);background:var(--brand-tint);margin-bottom:1rem}
+.md-cs b{display:block;font-size:.92rem;margin-bottom:.25rem}
+.md-cs p{font-size:.78rem;color:var(--text-sub);line-height:1.6;margin-bottom:.8rem}
+.md-cs a{display:inline-flex;align-items:center;gap:.4rem;font-size:.84rem;font-weight:800;text-decoration:none;padding:.65rem 1.2rem;border-radius:var(--r-full);background:#FEE500;color:#191600}
+.md-x{width:100%;font-size:.9rem;font-weight:800;padding:.9rem;border-radius:var(--r-full);border:1px solid var(--line-str);background:none;color:var(--text);cursor:pointer}
+.md-x:hover{border-color:var(--text)}
 
 footer{padding:2rem var(--pad) 3rem;text-align:center;color:var(--text-mute);font-size:.76rem;border-top:1px solid var(--line)}
 
@@ -300,13 +359,22 @@ html.gate-pass #gate{display:none}
 <main>
 <section id="hero">
   <div class="hero-in">
-    <span class="eyebrow rise">Expo Brand Support</span>
-    <h1 class="rise">창업박람회 참가 브랜드,<br><em>인스타그램 광고</em>는 무료로</h1>
-    <p class="hero-p rise">참가사는 <b class="hi">무료 노출</b>로 더 많은 예비 창업자에게 닿고, 참관객은 <b>"여기도 나왔네?"</b>하며 더 많은 부스를 찾게 됩니다.<br>모두가 이득인 마케팅, MUYI가 <b>인스타그램 광고비 전액</b>을 대신 씁니다.</p>
-    <div class="flow rise" aria-label="진행 순서">
-      <span class="flow-i"><b>1</b>정보 입력</span><span class="flow-sep"></span>
-      <span class="flow-i"><b>2</b>홍보 문구·해시태그</span><span class="flow-sep"></span>
-      <span class="flow-i"><b>3</b>이미지 3~5장</span>
+    <span class="eyebrow rise">MUYI × 창업박람회 참가사 지원</span>
+    <h1 class="rise">박람회도, 참가 브랜드도<br><em>함께 잘되도록</em> MUYI가 나섭니다</h1>
+    <p class="hero-p rise">참가사의 무궁한 발전을 위해,<br><b class="hi">인스타그램 마케팅비 전액</b>을 MUYI가 대신 씁니다.</p>
+    <p class="hero-p2 rise">창업 해시태그에 최적화된 계정에 게시해<br>박람회가 끝난 뒤에도 예비 창업자에게 계속 보이도록 운영합니다.</p>
+    <a class="hero-cta rise" href="#apply">무료로 신청하기<small>작성 3분</small></a>
+    <div class="flow-wrap rise">
+      <span class="flow-lb">진행 과정</span>
+      <ol class="flow" aria-label="진행 과정">
+        <li class="flow-i"><b>1</b><span>신청서 작성<small>참가사</small></span></li>
+        <li class="flow-sep" aria-hidden="true"></li>
+        <li class="flow-i"><b>2</b><span>자료 검수·편집<small>MUYI</small></span></li>
+        <li class="flow-sep" aria-hidden="true"></li>
+        <li class="flow-i"><b>3</b><span>최적화 계정 게시<small>광고비 MUYI 부담</small></span></li>
+        <li class="flow-sep" aria-hidden="true"></li>
+        <li class="flow-i"><b>4</b><span>해시태그 장기 노출<small>박람회 전·후</small></span></li>
+      </ol>
     </div>
   </div>
 </section>
@@ -314,10 +382,16 @@ html.gate-pass #gate{display:none}
 <section id="cases">
   <div class="cases-in rise">
     <span class="eyebrow">Real Cases</span>
-    <h2>이렇게 노출돼요</h2>
-    <p>MUYI가 실제로 운영한 박람회 참가 브랜드 게시물이에요. 누르면 인스타그램에서 볼 수 있어요.</p>
+    <h2>아무 계정이 아닌,<br><em>창업 해시태그 최적화 계정</em>에 올립니다</h2>
+    <p>창업·프랜차이즈 검색에 맞춰 운영해온 계정에 게시하고,<br>원하는 해시태그에서 오래 보이도록 관리합니다.</p>
+    <ul class="pts">
+      <li><b>최적화 계정</b>창업 검색에 맞춰 운영</li>
+      <li><b>장기 노출</b>박람회 전·중·후 내내</li>
+      <li><b>광고비 0원</b>MUYI가 전액 부담</li>
+    </ul>
     <div class="ig-grid" id="igGrid"></div>
     <button type="button" class="cases-more" id="casesMore" hidden></button>
+    <p class="cases-note">실제 진행한 참가 브랜드 게시물입니다. 업체명은 일부 가렸어요.</p>
   </div>
 </section>
 
@@ -334,10 +408,10 @@ html.gate-pass #gate{display:none}
       <div class="blk" data-s="1">
         <div class="step-lb">Step 01 · 기본 정보</div>
         <div class="fg">
-          <label class="fl" for="f-expo"><span>참가 박람회<span class="req">*</span></span></label>
-          <select class="fs" id="f-expo" required>
-            <option value="">참가하시는 박람회를 선택해주세요</option>
-          </select>
+          <div class="fl" id="expoLb"><span>참가 박람회<span class="req">*</span></span><small>행사 시작 7일 전 마감</small></div>
+          <!-- 목록은 라디오(정렬용), 값은 숨은 select에 동기화해서 기존 로직 그대로 사용 -->
+          <div class="xl" id="expoList" role="radiogroup" aria-labelledby="expoLb" tabindex="-1"></div>
+          <select id="f-expo" hidden aria-hidden="true" tabindex="-1"><option value=""></option></select>
           <div class="ddl" id="ddl" hidden></div>
           <input class="fi" id="f-expo-etc" type="text" placeholder="박람회명과 날짜 (예: 대전 창업박람회 11/20~22)" style="margin-top:.6rem" hidden>
         </div>
@@ -434,6 +508,7 @@ WHY 이루밍?
 
       <!-- 동의 + 제출: Step 3와 같은 화면에 이어서 보임 -->
       <div class="blk" data-s="3">
+        <label class="consult"><input type="checkbox" id="c-consult"><span><b>무료 마케팅 컨설팅도 받아볼게요<em>참가사 전용</em></b><small>가맹 모집·매장 홍보 방향을 MUYI 담당자가 무료로 진단해드려요. 부담 없이 체크만 해두세요.</small></span></label>
         <label class="agree agree-all"><input type="checkbox" id="c-all" required><span>전체 동의하기 <i class="tag">[필수]</i></span></label>
         <details class="terms" style="margin-left:0"><summary>동의 내용 보기 (개인정보 수집·이용 / 자료 활용 / 마케팅·영업 활용)</summary><div>
           <b style="color:var(--text)">1. 개인정보 수집·이용</b><br>
@@ -539,13 +614,28 @@ function mdw(s){var p=parts(kst(s));return p.m+'/'+p.d+'('+p.w+')';}
 function md(s){var p=parts(kst(s));return p.m+'/'+p.d;}
 /* 마감 = 시작일 7일 전 23:59:59 */
 function closeAt(e){return e.close?kst(e.close)+DAY-1000:kst(e.start)-6*DAY-1000;}
-function label(e){var p=parts(kst(e.end));return e.venue+' · '+mdw(e.start)+'~'+p.d+'('+p.w+') · '+e.name;}
 
 var $=function(id){return document.getElementById(id);};
 var sel=$('f-expo'),ddl=$('ddl'),etc=$('f-expo-etc');
 var open=EXPOS.filter(function(e){return Date.now()<=closeAt(e);});
-open.forEach(function(e){var o=document.createElement('option');o.value=e.id;o.textContent=label(e);sel.appendChild(o);});
-var oe=document.createElement('option');oe.value='etc';oe.textContent='목록에 없는 박람회 (직접 입력)';sel.appendChild(oe);
+var xl=$('expoList');
+/* 한 줄 = 일정 | 행사명 (장소) | D-n. 일정 칸 폭 고정이라 줄이 맞음 */
+function sched(e){var s=parts(kst(e.start)),t=parts(kst(e.end));return s.m+'.'+('0'+s.d).slice(-2)+' '+s.w+' – '+(s.m===t.m?'':t.m+'.')+('0'+t.d).slice(-2)+' '+t.w;}
+open.concat([{id:'etc'}]).forEach(function(e){
+  var o=document.createElement('option');o.value=e.id;sel.appendChild(o);
+  var r=document.createElement('label');r.className='xo';
+  if(e.id==='etc'){r.innerHTML='<input type="radio" name="expo" value="etc"><span class="xo-d"></span><span class="xo-n">목록에 없는 박람회 <small>직접 입력</small></span><span class="xo-dd"></span>';}
+  else{
+    var left=Math.ceil((closeAt(e)-Date.now())/DAY)-1;
+    r.innerHTML='<input type="radio" name="expo"><span class="xo-d"></span><span class="xo-n"><span></span> <small></small></span><span class="xo-dd"></span>';
+    r.querySelector('input').value=e.id;r.querySelector('.xo-d').textContent=sched(e);
+    r.querySelector('.xo-n>span').textContent=e.name;r.querySelector('.xo-n small').textContent='('+e.venue+')';
+    var dd=r.querySelector('.xo-dd');dd.textContent=left<=0?'오늘 마감':'마감 D-'+left;if(left<=3)dd.classList.add('urgent');
+  }
+  r.querySelector('input').addEventListener('change',function(){sel.value=this.value;xl.classList.remove('bad');sel.dispatchEvent(new Event('change'));});
+  xl.appendChild(r);
+});
+
 
 function showDeadline(){
   var e=EXPOS.filter(function(x){return x.id===sel.value;})[0];
@@ -559,7 +649,7 @@ function showDeadline(){
 sel.addEventListener('change',showDeadline);
 /* ?expo=coex-2610 으로 링크하면 해당 박람회가 미리 선택됨 */
 var q=new URLSearchParams(location.search).get('expo');
-if(q&&open.some(function(e){return e.id===q;})){sel.value=q;showDeadline();}
+if(q&&open.some(function(e){return e.id===q;})){sel.value=q;xl.querySelector('input[value="'+q+'"]').checked=true;showDeadline();}
 
 /* ══ 실제 진행 사례 — 여기 배열만 수정하면 됨. 이미지는 assets/expo-examples/{id}.jpg (480x600) ══ */
 var CASES=[
@@ -577,13 +667,20 @@ var CASES=[
   {id:'DQTrhv7kxvE',brand:'블루베이프',cat:'무인 전자담배'},
   {id:'DcK6Ka1E9DK',brand:'퓨어폴',cat:'제빙기 위생관리'}
 ];
+/* 업체명 가림: 첫 글자는 남기고 그 뒤 절반을 *로 (5글자 → 2·3번째, 예: 팔구제면소 → 팔**면소) */
+function mask(s){
+  var ch=Array.from(s),n=ch.filter(function(c){return c!==' ';}).length,k=Math.max(1,Math.floor(n/2)),seen=0;
+  return ch.map(function(c){if(c===' ')return c;seen++;return seen>1&&seen<=1+k?'*':c;}).join('');
+}
+console.assert(mask('팔구제면소')==='팔**면소'&&mask('범카츠')==='범*츠'&&mask('모리아')==='모*아','mask');
 (function(){
   var grid=document.getElementById('igGrid'),more=document.getElementById('casesMore'),SHOW=9;
   CASES.forEach(function(c,i){
     var a=document.createElement('a');a.className='ig-i';a.href='https://www.instagram.com/p/'+c.id+'/';a.target='_blank';a.rel='noopener';
-    a.setAttribute('aria-label',c.brand+' 인스타그램 게시물');if(i>=SHOW)a.hidden=true;
-    a.innerHTML='<img src="assets/expo-examples/'+c.id+'.jpg" alt="" loading="lazy" decoding="async" width="480" height="600"><span class="ig-ov"><b></b><small></small></span>';
-    a.querySelector('b').textContent=c.brand;a.querySelector('small').textContent=c.cat;
+    var m=mask(c.brand);
+    a.setAttribute('aria-label',m+' 인스타그램 게시물');if(i>=SHOW)a.hidden=true;
+    a.innerHTML='<span class="ig-name"></span><img src="assets/expo-examples/'+c.id+'.jpg" alt="" loading="lazy" decoding="async" width="480" height="600"><span class="ig-ov"><b></b><small></small></span>';
+    a.querySelector('.ig-name').textContent=m;a.querySelector('b').textContent=c.cat;a.querySelector('small').textContent='박람회 참가 브랜드';
     grid.appendChild(a);
   });
   if(CASES.length>SHOW){
@@ -610,7 +707,7 @@ function validateStep(s){
   var v=function(id){return $(id).value.trim();};
   var first=null;function need(el,ok){if(!ok){el.classList.add('bad');first=first||el;}}
   if(s===1){
-    need(sel,!!sel.value);
+    need(xl,!!sel.value);
     if(sel.value==='etc')need(etc,!!v('f-expo-etc'));
     need($('f-brand'),!!v('f-brand'));
     need($('f-name'),!!v('f-name'));
@@ -733,11 +830,29 @@ function upload(f){
     .then(function(r){if(!r.ok)throw new Error('upload');return {path:path,name:f.name,size:f.size};});
 }
 
+/* 신청 완료 팝업: 다음 단계 안내 + 무료 컨설팅 연결 */
+function showDone(consult){
+  var ok='<div class="done-ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>';
+  $('box').innerHTML='<div class="done">'+ok+'<h2>신청이 접수됐어요</h2><p>담당자가 자료를 확인한 뒤 연락드릴게요.</p></div>';
+  var m=document.createElement('div');m.className='md';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-labelledby','mdT');
+  m.innerHTML='<div class="md-box">'+ok+'<h2 id="mdT">신청이 접수됐어요</h2><p>참여해주셔서 감사합니다. 이렇게 진행돼요.</p>'+
+    '<ol class="md-steps"><li><b>1</b><span><strong>자료 검수</strong> · 영업일 1~2일 내 담당자가 확인하고 보완할 점이 있으면 연락드려요.</span></li>'+
+    '<li><b>2</b><span><strong>게시 일정 안내</strong> · 박람회 전에 게시 일정을 알려드려요.</span></li>'+
+    '<li><b>3</b><span><strong>해시태그 노출</strong> · 최적화 계정에 게시하고 박람회 이후까지 관리해요.</span></li></ol>'+
+    (consult?'<div class="md-cs"><b>무료 컨설팅 신청도 함께 접수됐어요</b><p>담당자가 연락드릴 때 컨설팅 일정도 같이 잡아드릴게요.</p></div>'
+      :'<div class="md-cs"><b>참가사 전용 무료 마케팅 컨설팅</b><p>가맹 모집·매장 홍보, 어디서부터 할지 막막하다면<br>MUYI가 무료로 진단해드려요.</p><a href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener">카카오톡으로 컨설팅 신청</a></div>')+
+    '<button type="button" class="md-x">확인</button></div>';
+  document.body.appendChild(m);
+  var x=m.querySelector('.md-x'),close=function(){m.remove();document.removeEventListener('keydown',esc);};
+  function esc(e){if(e.key==='Escape')close();}
+  x.addEventListener('click',close);m.addEventListener('click',function(e){if(e.target===m)close();});document.addEventListener('keydown',esc);x.focus();
+}
+
 $('form').addEventListener('submit',function(e){
   e.preventDefault();fst.className='fst';
   var v=function(id){return $(id).value.trim();};
   var first=null;function need(el,ok){if(!ok){el.classList.add('bad');first=first||el;}}
-  need(sel,!!sel.value);
+  need(xl,!!sel.value);
   if(sel.value==='etc')need(etc,!!v('f-expo-etc'));
   need($('f-brand'),!!v('f-brand'));
   need($('f-name'),!!v('f-name'));
@@ -757,7 +872,7 @@ $('form').addEventListener('submit',function(e){
     .then(function(up){
       btn.textContent='신청서 보내는 중…';
       return fetch(BASE+'/functions/v1/contact',{method:'POST',headers:{'Content-Type':'application/json',apikey:ANON},body:JSON.stringify({
-        source:'expo-event',type:'박람회 무료 이벤트',
+        source:'expo-event',type:$('c-consult').checked?'박람회 무료 이벤트 · 컨설팅 희망':'박람회 무료 이벤트',
         name:v('f-name'),company:v('f-brand'),phone:v('f-phone'),email:v('f-email')||undefined,
         expo:expo,hashtags:[v('f-tag1'),v('f-tag2'),v('f-tag3')].filter(Boolean),
         instagram:v('f-ig'),message:v('f-promo'),
@@ -767,8 +882,7 @@ $('form').addEventListener('submit',function(e){
     })
     .then(function(r){
       if(!r.ok)throw new Error('send');
-      $('box').innerHTML='<div class="done"><div class="done-ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>'+
-        '<h2>신청이 접수됐어요</h2><p>담당자가 자료를 확인한 뒤 연락드릴게요.<br>보완이 필요한 부분이 있으면 입력하신 연락처로 안내드립니다.</p></div>';
+      showDone($('c-consult').checked);
       $('box').scrollIntoView({behavior:'smooth',block:'center'});
     })
     .catch(function(){
