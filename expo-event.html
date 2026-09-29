@@ -60,6 +60,13 @@ h1 em{font-style:normal;color:var(--brand)}
 .hero-links{margin-top:2.4rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
 .hero-links button{background:none;border:0;font-size:.92rem;font-weight:700;color:var(--text);cursor:pointer;border-bottom:1px solid var(--line-str);padding-bottom:.15rem}
 .hero-links button:hover{color:var(--brand);border-color:var(--brand)}
+.cs-chip{display:inline-flex;align-items:center;gap:.9rem;margin-top:.6rem;padding:.75rem .8rem .75rem 1rem;border-radius:var(--r-md);border:1px solid rgba(238,78,0,.4);background:var(--brand-tint);text-decoration:none;text-align:left;transition:all var(--dur) var(--ease)}
+.cs-chip:hover{border-color:var(--brand);transform:translateY(-2px)}
+.cs-tag{font-size:.72rem;font-weight:800;color:var(--brand);white-space:nowrap}
+.cs-t b{display:block;font-size:.94rem;font-weight:800;color:var(--text)}
+.cs-t small{display:block;font-size:.78rem;color:var(--text-sub)}
+.cs-go{font-size:.8rem;font-weight:800;padding:.55rem .9rem;border-radius:var(--r-full);background:#FEE500;color:#191600;white-space:nowrap}
+@media (max-width:640px){.cs-tag{display:none}}
 .hero-links p{font-size:.82rem;line-height:1.8;color:var(--text-mute)}
 .hero-links p b{color:var(--text-sub)}
 .hero-links a{color:var(--brand);font-weight:700;text-decoration:none;white-space:nowrap}
@@ -243,7 +250,7 @@ details.terms div{margin-top:.5rem;padding:.8rem 1rem;border-radius:.7rem;backgr
 .md{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:1.2rem;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadeIn .3s var(--ease)}
 @keyframes fadeIn{from{opacity:0}}
 /* 무이: 원래 브랜드 파랑 + 흰 테두리(글자 크기 비례, 테두리는 글자 바깥쪽에만) */
-.my{color:var(--blue);font-weight:inherit;-webkit-text-stroke:.07em #fff;paint-order:stroke fill}
+.my{color:var(--blue);font-weight:inherit;-webkit-text-stroke:.04em #fff;paint-order:stroke fill}
 .md-box{position:relative;width:100%;max-width:440px;max-height:90vh;overflow:auto;padding:2.2rem 1.6rem 1.6rem;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--line-str);text-align:center;animation:pop .5s var(--ease)}
 .md-box .done-ic{width:60px;height:60px;margin-bottom:1.1rem}
 .md-box h2{font-size:1.4rem;font-weight:900;letter-spacing:-.03em;margin-bottom:.4rem}
@@ -369,7 +376,7 @@ html.gate-pass #gate{display:none}
     <button type="button" class="hero-cta rise" id="startBtn">무료로 신청하기<small>작성 3분</small></button>
     <div class="hero-links rise">
       <button type="button" id="casesBtn">실제 진행 사례 보기 ›</button>
-      <p>참가사는 <b>무료 마케팅 컨설팅</b>도 받을 수 있어요 · 부스 현장 상담 또는 화상 미팅 <a href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener">카카오톡으로 예약</a></p>
+      <a class="cs-chip" href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener"><span class="cs-tag">참가사 전용</span><span class="cs-t"><b>무료 마케팅 컨설팅</b><small>부스 현장 상담 · 화상 미팅</small></span><span class="cs-go">카카오톡 예약 ›</span></a>
     </div>
   </div>
 </section>
