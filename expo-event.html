@@ -105,7 +105,7 @@ h1 em{font-style:normal;color:var(--brand)}
 .cases-more:hover{color:var(--text);border-color:var(--text)}
 
 /* Form */
-#apply{position:relative;min-height:100svh;padding:clamp(5.5rem,11vw,7.5rem) var(--pad) clamp(4rem,9vw,7rem)}
+#apply{position:relative;min-height:100svh;padding:clamp(1.25rem,4vw,3rem) var(--pad) 1.5rem}
 .form-box{position:relative;max-width:760px;margin:0 auto;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);padding:clamp(1.4rem,3.4vw,2.6rem)}
 .fm-stepper{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:center;gap:.6rem;margin:calc(-1*clamp(1.4rem,3.4vw,2.6rem)) calc(-1*clamp(1.4rem,3.4vw,2.6rem)) 1.8rem;padding:1rem;border-radius:var(--r-lg) var(--r-lg) 0 0;background:rgba(20,20,22,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 .fm-step{display:flex;align-items:center;gap:.45rem;font-size:0.88rem;font-weight:700;color:var(--text-sub);transition:color var(--dur)}
@@ -117,7 +117,9 @@ h1 em{font-style:normal;color:var(--brand)}
 
 .blk{padding-bottom:1.6rem;margin-bottom:1.6rem;border-bottom:1px dashed var(--line)}
 .blk:last-of-type{border-bottom:0;margin-bottom:0}
-.step-nav{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-top:1.6rem}
+.step-nav{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-top:1.1rem}
+/* 1·2단계는 한 화면에 다 들어오게 여백 축소 */
+.blk[data-s="1"],.blk[data-s="2"]{padding-bottom:0;margin-bottom:0;border-bottom:0}
 .step-nav button{font-family:inherit;font-size:.9rem;font-weight:800;padding:.85rem 1.6rem;border-radius:var(--r-full);cursor:pointer;transition:all var(--dur) var(--ease)}
 .step-nav .sprev{background:none;border:1px solid var(--line-str);color:var(--text-sub)}
 .step-nav .sprev:hover{border-color:var(--text);color:var(--text)}
@@ -139,7 +141,7 @@ h1 em{font-style:normal;color:var(--brand)}
 .fi:focus,.ft:focus,.fs:focus{outline:none;border-color:var(--brand);background:var(--surface-2)}
 .fi.bad,.ft.bad,.fs.bad{border-color:var(--bad)}
 .ft{min-height:220px;resize:vertical;line-height:1.75}
-#f-promo{min-height:calc(13 * 1.75em + 1.9rem);overflow:hidden;resize:none}
+#f-promo{min-height:calc(5 * 1.75em + 1.9rem);overflow:hidden;resize:none}
 #aiRes{min-height:200px;overflow:hidden;resize:none;margin:.9rem 0 .6rem}
 .fs{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:2.6rem;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%239AA0A8' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1.1rem center;background-size:12px}
 .fs option{background:var(--surface);color:var(--text)}
@@ -205,6 +207,7 @@ h1 em{font-style:normal;color:var(--brand)}
 .ctl button{width:26px;height:26px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;font-size:0.88rem;cursor:pointer;transition:background .2s}
 .ctl button:hover{background:var(--brand);color:var(--on-brand)}
 .ctl button:disabled{opacity:.3;cursor:default;background:rgba(255,255,255,.14);color:#fff}
+.img-status:empty{display:none}
 .img-status{margin-top:.6rem;font-size:0.88rem;color:var(--text-sub)}
 .img-status b{color:var(--brand)}
 
@@ -225,6 +228,7 @@ details.terms summary::-webkit-details-marker{display:none}
 details.terms div{margin-top:.5rem;padding:.8rem 1rem;border-radius:.7rem;background:var(--bg);border:1px solid var(--line);font-size:0.82rem;line-height:1.75;color:var(--text-sub)}
 
 .fsub{width:100%;margin-top:1.4rem;font-size:clamp(.98rem,2vw,1.08rem);font-weight:800;padding:1.15rem;border:none;border-radius:var(--r-full);background:var(--brand);color:var(--on-brand);cursor:pointer;box-shadow:0 6px 28px var(--brand-glow);transition:all var(--dur) var(--ease)}
+.sub-nav .fsub{flex:1;width:auto;margin-top:0}
 .fsub:hover:not(:disabled){background:var(--brand-hi);transform:translateY(-3px);box-shadow:0 12px 38px var(--brand-glow)}
 .fsub:disabled{opacity:.6;cursor:progress;transform:none}
 .fst{margin-top:1rem;font-size:.88rem;line-height:1.7;text-align:center;display:none;padding:.9rem 1rem;border-radius:var(--r-md)}
@@ -241,12 +245,6 @@ details.terms div{margin-top:.5rem;padding:.8rem 1rem;border-radius:.7rem;backgr
 .done h2{font-size:clamp(1.4rem,3.4vw,2rem);font-weight:900;letter-spacing:-.03em;margin-bottom:.6rem}
 .done p{color:var(--text-sub);font-size:.94rem}
 
-/* 무료 컨설팅 옵션 */
-.consult{display:flex;gap:.8rem;align-items:flex-start;margin-bottom:1rem;padding:1rem 1.1rem;border-radius:var(--r-md);border:1px solid rgba(238,78,0,.35);background:var(--brand-tint);cursor:pointer}
-.consult input{flex-shrink:0;width:19px;height:19px;margin-top:.2rem;accent-color:var(--brand);cursor:pointer}
-.consult b{display:block;font-size:.92rem;font-weight:800;color:var(--text)}
-.consult small{display:block;margin-top:.2rem;font-size:0.88rem;line-height:1.6;color:var(--text-sub)}
-.consult em{font-style:normal;font-size:0.76rem;font-weight:800;color:var(--brand);margin-left:.35rem}
 
 /* 신청 완료 팝업 */
 .md{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:1.2rem;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadeIn .3s var(--ease)}
@@ -260,11 +258,7 @@ details.terms div{margin-top:.5rem;padding:.8rem 1rem;border-radius:.7rem;backgr
 .md-steps{list-style:none;text-align:left;margin-bottom:1.4rem;padding:1rem 1.1rem;border-radius:var(--r-md);background:var(--bg)}
 .md-steps li{display:flex;gap:.7rem;font-size:.84rem;line-height:1.55;color:var(--text-sub);padding:.35rem 0}
 .md-steps b{line-height:1;flex-shrink:0;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:0.76rem;background:var(--surface-2);color:var(--brand);margin-top:.1rem}
-.md-steps strong{color:var(--text);font-weight:700}
-.md-cs{padding:1.1rem;border-radius:var(--r-md);border:1px solid rgba(238,78,0,.35);background:var(--brand-tint);margin-bottom:1rem}
-.md-cs b{display:block;font-size:.92rem;margin-bottom:.25rem}
-.md-cs p{font-size:0.88rem;color:var(--text-sub);line-height:1.6;margin-bottom:.8rem}
-.md-cs a{display:inline-flex;align-items:center;gap:.4rem;font-size:.84rem;font-weight:800;text-decoration:none;padding:.65rem 1.2rem;border-radius:var(--r-full);background:#FEE500;color:#191600}
+.md-steps strong{display:block;margin-bottom:.15rem;color:var(--text);font-weight:700}
 .md-x{width:100%;font-size:.9rem;font-weight:800;padding:.9rem;border-radius:var(--r-full);border:1px solid var(--line-str);background:none;color:var(--text);cursor:pointer}
 .md-x:hover{border-color:var(--text)}
 
@@ -274,7 +268,7 @@ footer{padding:2rem var(--pad) 3rem;text-align:center;color:var(--text-mute);fon
 .tip{position:relative;display:inline-flex;vertical-align:middle;margin-left:.35rem}
 .tip>button{width:18px;height:18px;border-radius:50%;border:1px solid var(--line-str);background:var(--surface-2);color:var(--text-sub);font:800 .66rem/1 'Plus Jakarta Sans',sans-serif;cursor:help;display:grid;place-items:center;padding:0;transition:all var(--dur) var(--ease)}
 .tip:hover>button,.tip:focus-within>button{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
-.tip-pop{position:absolute;left:-.6rem;top:calc(100% + 10px);z-index:20;width:min(340px,82vw);padding:1rem 1.1rem;border-radius:.9rem;background:#1F1F23;border:1px solid var(--line-str);box-shadow:0 18px 40px rgba(0,0,0,.45);font-size:0.88rem;font-weight:500;line-height:1.7;color:var(--text-sub);text-align:left;opacity:0;visibility:hidden;transform:translateY(-6px);transition:all .28s var(--ease)}
+.tip-pop{white-space:normal;position:absolute;left:-.6rem;top:calc(100% + 10px);z-index:20;width:min(340px,82vw);padding:1rem 1.1rem;border-radius:.9rem;background:#1F1F23;border:1px solid var(--line-str);box-shadow:0 18px 40px rgba(0,0,0,.45);font-size:0.88rem;font-weight:500;line-height:1.7;color:var(--text-sub);text-align:left;opacity:0;visibility:hidden;transform:translateY(-6px);transition:all .28s var(--ease)}
 .tip-pop::before{content:'';position:absolute;left:1rem;top:-6px;width:10px;height:10px;background:#1F1F23;border-left:1px solid var(--line-str);border-top:1px solid var(--line-str);transform:rotate(45deg)}
 .tip:hover .tip-pop,.tip:focus-within .tip-pop{opacity:1;visibility:visible;transform:none}
 .tip-pop b{display:block;color:var(--text);font-size:0.88rem;margin:.55rem 0 .15rem}
@@ -322,7 +316,11 @@ footer{padding:2rem var(--pad) 3rem;text-align:center;color:var(--text-mute);fon
 @media (max-width:640px){.kk{right:1rem;bottom:1rem}.kk-fab{width:50px;height:50px}}
 
 @media (max-width:640px){
-  .row2,.tags{grid-template-columns:1fr}
+  .row2{grid-template-columns:1fr}
+  .tags{gap:.4rem}
+  .tags .pre .fi{padding-right:.6rem;padding-left:1.7rem;font-size:.86rem}
+  .tags .pre>span{left:.75rem}
+  .tags .rank{display:none}
   .thumbs{grid-template-columns:repeat(3,1fr)}
   .fm-step span{display:none}
 }
@@ -469,9 +467,9 @@ html.gate-pass #gate{display:none}
               <b>피하면 좋은 것</b>브랜드명 태그는 검색량이 적어 노출용으론 효과가 약해요. 띄어쓰기·특수문자·너무 긴 태그도 피해주세요.
             </span></span></span><small>1지망만 필수</small></div>
           <div class="tags">
-            <div class="pre"><span>#</span><input class="fi" id="f-tag1" type="text" placeholder="대전창업박람회" aria-label="해시태그 1지망" required><i class="rank">1지망</i></div>
-            <div class="pre"><span>#</span><input class="fi" id="f-tag2" type="text" placeholder="무인창업" aria-label="해시태그 2지망"><i class="rank">2지망</i></div>
-            <div class="pre"><span>#</span><input class="fi" id="f-tag3" type="text" placeholder="스터디카페창업" aria-label="해시태그 3지망"><i class="rank">3지망</i></div>
+            <div class="pre"><span>#</span><input class="fi" id="f-tag1" type="text" placeholder="1지망" aria-label="해시태그 1지망 (예: 대전창업박람회)" required><i class="rank">1지망</i></div>
+            <div class="pre"><span>#</span><input class="fi" id="f-tag2" type="text" placeholder="2지망" aria-label="해시태그 2지망 (예: 무인창업)"><i class="rank">2지망</i></div>
+            <div class="pre"><span>#</span><input class="fi" id="f-tag3" type="text" placeholder="3지망" aria-label="해시태그 3지망 (예: 스터디카페창업)"><i class="rank">3지망</i></div>
           </div>
         </div>
         <div class="fg">
@@ -487,18 +485,10 @@ html.gate-pass #gate{display:none}
               <b>주의</b>'월 수익 보장'처럼 수익을 약속하는 표현은 광고 심사에서 반려될 수 있어요.
             </span></span></span>
             <span class="ai-wrap"><button type="button" class="ai-btn" id="aiBtn">✨ AI로 초안 쓰기</button><span class="tip r"><button type="button" aria-label="AI 초안 안내">i</button><span class="tip-pop" role="tooltip">초안은 <em>20~30초</em> 정도 걸려요.<br>AI 초안은 꼭 확인·수정 후 제출해주세요.</span></span></span></div>
-          <textarea class="ft" id="f-promo" maxlength="2000" required placeholder="예)
-이루밍 스터디카페는 공간의 가치를 높여 고객에게 선택받는 매장입니다.
-
-WHY 이루밍?
-· 지역 입점 시 줄 서는 매장이 되는 상권 확보
-· 잘 짜인 교육 시스템 & 운영 매뉴얼
-
-박람회 방문 예비 점주님만을 위한 혜택
-1. SNS 초기 홍보비용 무상 지원
-2. 현장 계약 시 커피머신 지원
-
-8월 28일~30일, 대전에서 만나요!"></textarea>
+          <textarea class="ft" id="f-promo" maxlength="2000" required placeholder="예) 이루밍 스터디카페 — 공간의 가치를 높이는 매장
+· 줄 서는 매장이 되는 상권 확보
+· 본사 교육 시스템 & 운영 매뉴얼
+박람회 현장 계약 시 커피머신 지원!"></textarea>
           <div class="ft-meta"><span></span><span id="cnt">0 / 2000</span></div>
         </div>
         <div class="step-nav"><button type="button" class="sprev" data-go="1">이전</button><button type="button" class="snext" data-go="3">다음</button></div>
@@ -507,6 +497,8 @@ WHY 이루밍?
       <!-- STEP 3 -->
       <div class="blk" data-s="3">
         <div class="step-lb">Step 03 · 이미지 업로드<small class="req-note"><span class="req">*</span> 필수</small></div>
+        <div class="fl"><span>이미지<span class="req">*</span>
+          <span class="tip"><button type="button" aria-label="이미지 안내">i</button><span class="tip-pop" role="tooltip">첫 번째 이미지가 <em>대표 이미지</em>로 쓰여요.<br>순서는 이미지 아래 화살표로 바꿀 수 있어요.</span></span></span><small>3~5장 권장</small></div>
         <label class="drop" id="drop">
           <input type="file" id="f-img" accept="image/jpeg,image/png" multiple aria-label="이미지 선택">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
@@ -515,14 +507,12 @@ WHY 이루밍?
           <div class="spec"><span class="hl">1080 × 1350 (4:5)</span><span class="hl">3~5장 권장</span><span>JPG · PNG</span><span>장당 8MB</span></div>
         </label>
         <div class="thumbs" id="thumbs"></div>
-        <p class="img-status" id="imgStatus">첫 번째 이미지가 대표 이미지로 쓰여요. 순서는 화살표로 바꿀 수 있어요.</p>
-        <div class="step-nav"><button type="button" class="sprev" data-go="2">이전</button><span></span></div>
+        <p class="img-status" id="imgStatus"></p>
       </div>
 
       <!-- 동의 + 제출: Step 3와 같은 화면에 이어서 보임 -->
       <div class="blk" data-s="3">
-        <label class="consult"><input type="checkbox" id="c-consult"><span><b>무료 마케팅 컨설팅도 받아볼게요<em>참가사 전용</em></b><small>가맹 모집·매장 홍보 방향을 <span class="my">무이</span> 담당자가 무료로 진단해드려요. 부스 현장 상담이나 화상 미팅으로 진행해요. 부담 없이 체크만 해두세요.</small></span></label>
-        <label class="agree agree-all"><input type="checkbox" id="c-all" required><span>전체 동의하기 <i class="tag">[필수]</i></span></label>
+        <label class="agree agree-all"><input type="checkbox" id="c-all" required><span>동의하기 <i class="tag">[필수]</i></span></label>
         <details class="terms" style="margin-left:0"><summary>동의 내용 보기 (개인정보 수집·이용 / 자료 활용 / 마케팅·영업 활용)</summary><div>
           <b style="color:var(--text)">1. 개인정보 수집·이용</b><br>
           · 수집 항목: 참가 박람회, 브랜드명, 담당자명, 연락처, 이메일(선택), 인스타그램 계정, 해시태그, 홍보 문구, 이미지<br>
@@ -537,7 +527,7 @@ WHY 이루밍?
           · 보유 기간: 수집일로부터 3년 또는 동의 철회 시까지<br><br>
           본 이벤트는 <span class="my">무이</span> 마케팅 서비스 안내를 전제로 무료 제공되며, 위 항목에 동의하지 않으시면 참여가 어렵습니다. 수신 거부·동의 철회는 언제든 info@muyi.co.kr 로 요청하실 수 있습니다.
         </div></details>
-        <button class="fsub" type="submit" id="sbtn">무료 광고 신청하기</button>
+        <div class="step-nav sub-nav"><button type="button" class="sprev" data-go="2">이전</button><button class="fsub" type="submit" id="sbtn">무료 마케팅 신청</button></div>
         <div class="fst" id="fst" role="status" aria-live="polite"></div>
         <p class="alt">문의가 있으면 → <a href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener">카카오톡으로 물어보기</a></p>
       </div>
@@ -750,7 +740,7 @@ function showStep(n){
 var isDone=false;
 function go(s,push){
   if(isDone)s='done';
-  $('hero').hidden=s!=='intro';$('apply').hidden=typeof s!=='number';$('done').hidden=s!=='done';
+  $('hero').hidden=s!=='intro';document.querySelector('footer').hidden=s!=='intro';$('apply').hidden=typeof s!=='number';$('done').hidden=s!=='done';
   if(typeof s==='number')showStep(s);else window.scrollTo(0,0);
   if(push!==false)history.pushState({s:s},'');
 }
@@ -777,7 +767,7 @@ function validateStep(s){
     need($('f-ig'),!!v('f-ig'));
     need(promo,!!v('f-promo'));
   }
-  if(first){first.scrollIntoView({behavior:'smooth',block:'center'});first.focus({preventScroll:true});fst.className='fst on err';fst.textContent='표시된 항목을 확인해주세요.';return false;}
+  if(first){first.scrollIntoView({behavior:'smooth',block:'center'});first.focus({preventScroll:true});return false;}
   return true;
 }
 document.querySelectorAll('.snext').forEach(function(b){b.addEventListener('click',function(){
@@ -802,6 +792,13 @@ function fit(el){if(el.value)return grow(el);el.value=el.placeholder;grow(el);el
 promo.addEventListener('input',function(){count();fit(promo);});
 $('aiKw').addEventListener('input',function(){fit(this);});
 document.querySelectorAll('.fi,.ft,.fs').forEach(function(el){el.addEventListener('input',function(){el.classList.remove('bad');});el.addEventListener('change',function(){el.classList.remove('bad');});});
+
+/* ══ i 툴팁이 화면 밖으로 나가면 안쪽으로 밀어넣기 ══ */
+document.querySelectorAll('.tip').forEach(function(t){
+  var p=t.querySelector('.tip-pop');
+  function fit(){p.style.translate='';var r=p.getBoundingClientRect(),over=r.right-(document.documentElement.clientWidth-12),under=12-r.left;if(over>0)p.style.translate=(-over)+'px 0';else if(under>0)p.style.translate=under+'px 0';}
+  t.addEventListener('mouseenter',fit);t.addEventListener('focusin',fit);
+});
 
 /* ══ 동의 ══ */
 var all=$('c-all');
@@ -883,7 +880,7 @@ function render(){
     thumbs.appendChild(d);
   });
   var n=files.length;
-  st.innerHTML=n===0?'첫 번째 이미지가 대표 이미지로 쓰여요. 순서는 화살표로 바꿀 수 있어요.'
+  st.innerHTML=n===0?''
     :n<3?'<b>'+n+'장</b> 선택됨 · 노출 효과를 위해 <b>3장 이상</b>을 권장해요.'
     :'<b>'+n+'장</b> 선택됨 · 좋아요! 첫 번째가 대표 이미지예요.';
   drop.hidden=n>=MAX;
@@ -903,14 +900,12 @@ function upload(f){
     .then(function(r){if(!r.ok)throw new Error('upload');return {path:path,name:f.name,size:f.size};});
 }
 
-/* 신청 완료 화면: 다음 단계 안내 + 무료 컨설팅 연결 */
-function showDone(consult){
+/* 신청 완료 화면: 다음 단계 안내 */
+function showDone(){
   $('doneBox').innerHTML='<div class="done-ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><h2>신청이 접수됐어요</h2><p>참여해주셔서 감사합니다. 이렇게 진행돼요.</p>'+
-    '<ol class="md-steps"><li><b>1</b><span><strong>자료 검수</strong> · 영업일 1~2일 내 담당자가 확인하고 보완할 점이 있으면 연락드려요.</span></li>'+
-    '<li><b>2</b><span><strong>게시 일정 안내</strong> · 박람회 전에 게시 일정을 알려드려요.</span></li>'+
-    '<li><b>3</b><span><strong>해시태그 노출</strong> · 최적화 계정에 업로드해 해시태그 상단 노출을 유도해요. 노출 기간은 태그 경쟁도에 따라 달라요.</span></li></ol>'+
-    (consult?'<div class="md-cs"><b>무료 컨설팅 신청도 함께 접수됐어요</b><p>담당자가 연락드릴 때 컨설팅 일정도 같이 잡아드릴게요.</p></div>'
-      :'<div class="md-cs"><b>참가사 전용 무료 마케팅 컨설팅</b><p>가맹 모집·매장 홍보, 어디서부터 할지 막막하다면<br><span class="my">무이</span>가 무료로 진단해드려요. 부스 현장 상담·화상 미팅 모두 가능해요.</p><a href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener">카카오톡으로 컨설팅 신청</a></div>');
+    '<ol class="md-steps"><li><b>1</b><span><strong>자료 검수</strong>영업일 1~2일 내 담당자가 확인하고 보완할 점이 있으면 연락드려요.</span></li>'+
+    '<li><b>2</b><span><strong>게시 일정 안내</strong>박람회 전에 게시 일정을 알려드려요.</span></li>'+
+    '<li><b>3</b><span><strong>해시태그 노출</strong>최적화 계정에 업로드해 해시태그 상단 노출을 유도해요. 노출 기간은 태그 경쟁도에 따라 달라요.</span></li></ol>';
   isDone=true;go('done');
 }
 
@@ -927,9 +922,9 @@ $('form').addEventListener('submit',function(e){
   need($('f-tag1'),!!v('f-tag1'));
   need($('f-ig'),!!v('f-ig'));
   need(promo,!!v('f-promo'));
-  if(first){first.scrollIntoView({behavior:'smooth',block:'center'});first.focus({preventScroll:true});msg('표시된 항목을 확인해주세요.');return;}
-  if(!files.length){drop.scrollIntoView({behavior:'smooth',block:'center'});msg('이미지를 1장 이상 올려주세요. (3~5장 권장)');return;}
-  if(!all.checked){all.classList.add('bad');document.querySelector('.agree-all').scrollIntoView({behavior:'smooth',block:'center'});msg('전체 동의에 체크해주세요.');return;}
+  if(first){first.scrollIntoView({behavior:'smooth',block:'center'});first.focus({preventScroll:true});return;}
+  if(!files.length){drop.scrollIntoView({behavior:'smooth',block:'center'});msg('표시된 항목을 확인해주세요. 이미지를 1장 이상 올려주세요.');return;}
+  if(!all.checked){all.classList.add('bad');document.querySelector('.agree-all').scrollIntoView({behavior:'smooth',block:'center'});msg('표시된 항목을 확인해주세요. 동의하기에 체크해주세요.');return;}
 
   var ex=EXPOS.filter(function(x){return x.id===sel.value;})[0];
   var expo=ex?ex.venue+' · '+ex.name+' ('+md(ex.start)+'~'+md(ex.end)+')':v('f-expo-etc');
@@ -938,7 +933,7 @@ $('form').addEventListener('submit',function(e){
     .then(function(up){
       btn.textContent='신청서 보내는 중…';
       return fetch(BASE+'/functions/v1/contact',{method:'POST',headers:{'Content-Type':'application/json',apikey:ANON},body:JSON.stringify({
-        source:'expo-event',type:$('c-consult').checked?'박람회 무료 이벤트 · 컨설팅 희망':'박람회 무료 이벤트',
+        source:'expo-event',type:'박람회 무료 이벤트',
         name:v('f-name'),company:v('f-brand'),phone:v('f-phone'),email:v('f-email')||undefined,
         expo:expo,hashtags:[v('f-tag1'),v('f-tag2'),v('f-tag3')].filter(Boolean),
         instagram:v('f-ig'),message:v('f-promo'),
@@ -948,10 +943,10 @@ $('form').addEventListener('submit',function(e){
     })
     .then(function(r){
       if(!r.ok)throw new Error('send');
-      showDone($('c-consult').checked);
+      showDone();
     })
     .catch(function(){
-      btn.disabled=false;btn.textContent='무료 광고 신청하기';
+      btn.disabled=false;btn.textContent='무료 마케팅 신청';
       msg('전송에 실패했어요. 잠시 후 다시 시도하시거나 카카오톡으로 문의해주세요.');
     });
 });
