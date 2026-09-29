@@ -86,8 +86,9 @@ h1 em{font-style:normal;color:var(--brand)}
 .pts b{display:block;font-size:clamp(.88rem,1.8vw,1rem);font-weight:800;color:var(--text);margin-bottom:.15rem}
 /* 피드 상단 계정 표시(업체명 일부 가림) */
 .ig-name{position:absolute;left:.5rem;top:.5rem;z-index:1;max-width:calc(100% - 1rem);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.82rem;font-weight:800;padding:.22rem .55rem;border-radius:var(--r-full);background:rgba(10,10,11,.72);color:#fff;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-#consult{padding:0 var(--pad) clamp(4rem,9vw,7rem)}
-#consult .hero-cta{margin-top:0}
+.consult-line{padding:0 var(--pad) 3rem;text-align:center;font-size:.86rem;line-height:1.8;color:var(--text-sub)}
+.consult-line b{color:var(--text)}
+.consult-line a{color:var(--brand);font-weight:700;text-decoration:none;border-bottom:1px solid rgba(238,78,0,.4);white-space:nowrap}
 .cases-dt summary{display:inline-flex;align-items:center;gap:.5rem;list-style:none;cursor:pointer;font-size:.92rem;font-weight:800;padding:.85rem 1.6rem;border-radius:var(--r-full);border:1px solid var(--line-str);color:var(--text);transition:all var(--dur) var(--ease)}
 .cases-dt summary::-webkit-details-marker{display:none}
 .cases-dt summary::after{content:"";width:7px;height:7px;border:solid currentColor;border-width:0 2px 2px 0;transform:translateY(-2px) rotate(45deg);transition:transform var(--dur) var(--ease)}
@@ -544,18 +545,7 @@ WHY 이루밍?
   </div>
 </section>
 
-<section id="consult">
-  <div class="cases-in rise">
-    <span class="eyebrow">Free Consulting</span>
-    <h2>참가사라면,<br><em>마케팅 컨설팅도 무료</em>입니다</h2>
-    <p>가맹 모집·매장 홍보, 어디서부터 해야 할지 막막하다면<br>[무이]가 브랜드 상황에 맞춰 방향을 함께 잡아드려요.</p>
-    <ul class="pts">
-      <li><b>부스 현장 상담</b>박람회 기간 중 부스에서 직접 상담 예약</li>
-      <li><b>화상 미팅</b>원하는 일정에 온라인으로 편하게</li>
-    </ul>
-    <a class="hero-cta" href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener">카카오톡으로 상담 예약<small>무료</small></a>
-  </div>
-</section>
+<p class="consult-line">참가사는 <b>무료 마케팅 컨설팅</b>도 받을 수 있어요 · 부스 현장 상담 또는 화상 미팅 <a href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener">카카오톡으로 예약</a></p>
 </main>
 
 <!-- 카카오톡 플로팅: 채널 추가 / 1:1 채팅 (SDK 없이 공식 채널 URL 사용 — JS 키·도메인 등록 불필요) -->
