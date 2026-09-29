@@ -249,8 +249,8 @@ details.terms div{margin-top:.5rem;padding:.8rem 1rem;border-radius:.7rem;backgr
 /* 신청 완료 팝업 */
 .md{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:1.2rem;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadeIn .3s var(--ease)}
 @keyframes fadeIn{from{opacity:0}}
-/* 무이: 원래 브랜드 파랑 + 약한 주황 번짐(어두운 배경에서 보이게) */
-.my{color:var(--blue);font-weight:inherit;text-shadow:0 0 .4em rgba(238,78,0,.35)}
+/* 무이: 브랜드 파랑 계열 그라데이션 글씨 (원색 #1E10C7은 검은 배경에서 안 보여 밝은 쪽으로) */
+.my{font-weight:inherit;color:#6A5DFF;background:linear-gradient(90deg,#4A3BFF,#8F86FF);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .md-box{position:relative;width:100%;max-width:440px;max-height:90vh;overflow:auto;padding:2.2rem 1.6rem 1.6rem;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--line-str);text-align:center;animation:pop .5s var(--ease)}
 .md-box .done-ic{width:60px;height:60px;margin-bottom:1.1rem}
 .md-box h2{font-size:1.4rem;font-weight:900;letter-spacing:-.03em;margin-bottom:.4rem}
@@ -259,6 +259,8 @@ details.terms div{margin-top:.5rem;padding:.8rem 1rem;border-radius:.7rem;backgr
 .md-steps li{display:flex;gap:.7rem;font-size:.84rem;line-height:1.55;color:var(--text-sub);padding:.35rem 0}
 .md-steps b{line-height:1;flex-shrink:0;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:0.76rem;background:var(--surface-2);color:var(--brand);margin-top:.1rem}
 .md-steps strong{display:block;margin-bottom:.15rem;color:var(--text);font-weight:700}
+.done-cs{display:block;text-align:center;margin-top:.4rem;font-size:.95rem;font-weight:800;text-decoration:none;padding:1rem;border-radius:var(--r-full);background:#FEE500;color:#191600;transition:transform var(--dur) var(--ease)}
+.done-cs:hover{transform:translateY(-2px)}
 .md-x{width:100%;font-size:.9rem;font-weight:800;padding:.9rem;border-radius:var(--r-full);border:1px solid var(--line-str);background:none;color:var(--text);cursor:pointer}
 .md-x:hover{border-color:var(--text)}
 
@@ -905,7 +907,8 @@ function showDone(){
   $('doneBox').innerHTML='<div class="done-ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><h2>신청이 접수됐어요</h2><p>참여해주셔서 감사합니다. 이렇게 진행돼요.</p>'+
     '<ol class="md-steps"><li><b>1</b><span><strong>자료 검수</strong>영업일 1~2일 내 담당자가 확인하고 보완할 점이 있으면 연락드려요.</span></li>'+
     '<li><b>2</b><span><strong>게시 일정 안내</strong>박람회 전에 게시 일정을 알려드려요.</span></li>'+
-    '<li><b>3</b><span><strong>해시태그 노출</strong>최적화 계정에 업로드해 해시태그 상단 노출을 유도해요. 노출 기간은 태그 경쟁도에 따라 달라요.</span></li></ol>';
+    '<li><b>3</b><span><strong>해시태그 노출</strong>최적화 계정에 업로드해 해시태그 상단 노출을 유도해요. 노출 기간은 태그 경쟁도에 따라 달라요.</span></li></ol>'+
+    '<a class="done-cs" href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener">무료 컨설팅 문의하기</a>';
   isDone=true;go('done');
 }
 
