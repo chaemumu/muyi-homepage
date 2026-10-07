@@ -12,7 +12,8 @@
     { "source": "/public-sector.html", "destination": "/public-sector", "permanent": true },
     { "source": "/brochure.html", "destination": "/brochure", "permanent": true },
     { "source": "/case-studies.html", "destination": "/case-studies", "permanent": true },
-    { "source": "/expo-event.html", "destination": "/expo-event", "permanent": true }
+    { "source": "/expo-event.html", "destination": "/expo-event", "permanent": true },
+    { "source": "/shortform-marketing.html", "destination": "/shortform-marketing", "permanent": true }
   ],
   "rewrites": [
     { "source": "/local-business", "destination": "/local-business.html" },
@@ -20,7 +21,8 @@
     { "source": "/public-sector", "destination": "/public-sector.html" },
     { "source": "/brochure", "destination": "/brochure.html" },
     { "source": "/case-studies", "destination": "/case-studies.html" },
-    { "source": "/expo-event", "destination": "/expo-event.html" }
+    { "source": "/expo-event", "destination": "/expo-event.html" },
+    { "source": "/shortform-marketing", "destination": "/shortform-marketing.html" }
   ],
   "headers": [
     {
