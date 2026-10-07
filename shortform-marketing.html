@@ -72,7 +72,7 @@
       "@id":"https://www.muyi.co.kr/shortform-marketing#references",
       "name":"MUYI 음식점 촬영 레퍼런스",
       "description":"무이코퍼레이션 자체 촬영팀이 직접 촬영한 외식 매장",
-      "itemListElement":[{"@type":"ListItem","position":1,"name":"춘타운"},{"@type":"ListItem","position":2,"name":"오로라바베큐"},{"@type":"ListItem","position":3,"name":"은비갈비"},{"@type":"ListItem","position":4,"name":"밥한잔"},{"@type":"ListItem","position":5,"name":"뜨돈"},{"@type":"ListItem","position":6,"name":"심돈"},{"@type":"ListItem","position":7,"name":"까막골막국수"},{"@type":"ListItem","position":8,"name":"속초카페 달달공장"},{"@type":"ListItem","position":9,"name":"복호두"}]
+      "itemListElement":[{"@type":"ListItem","position":1,"name":"춘타운"},{"@type":"ListItem","position":2,"name":"오로라바베큐"},{"@type":"ListItem","position":3,"name":"은비갈비"},{"@type":"ListItem","position":4,"name":"밥한잔"},{"@type":"ListItem","position":5,"name":"뜨돈"},{"@type":"ListItem","position":6,"name":"심돈 (서면, 명지, 울산, 신월성)"},{"@type":"ListItem","position":7,"name":"꽃돼지식당 (상남, 칠곡, 목포, 황성)"},{"@type":"ListItem","position":8,"name":"조선부뚜막 (영종, 안산고잔)"},{"@type":"ListItem","position":9,"name":"까막골막국수"},{"@type":"ListItem","position":10,"name":"속초카페 달달공장"},{"@type":"ListItem","position":11,"name":"복호두"},{"@type":"ListItem","position":12,"name":"오목집 (천안)"},{"@type":"ListItem","position":13,"name":"야키토리텐진 (서면)"},{"@type":"ListItem","position":14,"name":"왕탄소갈비"},{"@type":"ListItem","position":15,"name":"오적회관 (영등포)"},{"@type":"ListItem","position":16,"name":"제주클래식 (송도본점)"},{"@type":"ListItem","position":17,"name":"신무교동 낙지&동막골 갈비찜"},{"@type":"ListItem","position":18,"name":"황가추어탕"},{"@type":"ListItem","position":19,"name":"동양백반 (경주)"},{"@type":"ListItem","position":20,"name":"청초숯불갈비 (속초)"},{"@type":"ListItem","position":21,"name":"청초옥 (속초)"},{"@type":"ListItem","position":22,"name":"비치버거 (속초)"},{"@type":"ListItem","position":23,"name":"영덕대게횟집 (강릉)"},{"@type":"ListItem","position":24,"name":"낭만짚불구이 (두정)"},{"@type":"ListItem","position":25,"name":"돈이랑 (성산)"},{"@type":"ListItem","position":26,"name":"육식회사"},{"@type":"ListItem","position":27,"name":"체다앤올리"},{"@type":"ListItem","position":28,"name":"시바시바"},{"@type":"ListItem","position":29,"name":"모랑"},{"@type":"ListItem","position":30,"name":"봉유"},{"@type":"ListItem","position":31,"name":"송치비"},{"@type":"ListItem","position":32,"name":"우면가"},{"@type":"ListItem","position":33,"name":"오복식당"},{"@type":"ListItem","position":34,"name":"안다미로"},{"@type":"ListItem","position":35,"name":"톤보리"},{"@type":"ListItem","position":36,"name":"아롱포차"},{"@type":"ListItem","position":37,"name":"사뽀리또"},{"@type":"ListItem","position":38,"name":"카페 메이플림"},{"@type":"ListItem","position":39,"name":"커피하우스178"},{"@type":"ListItem","position":40,"name":"앵글드"},{"@type":"ListItem","position":41,"name":"르슈슈"},{"@type":"ListItem","position":42,"name":"카디페"}]
     }
   ]
 }</script>
@@ -170,6 +170,8 @@ h1 em{font-style:normal;color:var(--brand)}
 .refs{display:flex;flex-wrap:wrap;gap:.5rem}
 .refs li{list-style:none;font-size:1rem;font-weight:800;padding:.7rem 1.2rem;border-radius:var(--r-full);background:var(--surface-2);border:1px solid var(--line);transition:border-color .3s var(--ease),color .3s}
 .refs li:hover{border-color:var(--brand);color:var(--brand-hi)}
+@media(max-width:640px){.refs{gap:.4rem}.refs li{font-size:.9rem;padding:.55rem .95rem}}
+.refs li small{font-size:.78rem;font-weight:500;color:var(--text-mute);margin-left:.35rem}
 .refs-note{margin-top:1.2rem;color:var(--text-mute);font-size:.88rem}
 
 /* Industries */
@@ -303,20 +305,53 @@ footer a{color:var(--text-sub)}
 <section class="sec">
   <div class="wrap">
     <span class="eyebrow dsp rise">Shoot References</span>
-    <h2 class="rise">무이코퍼레이션이<br>직접 촬영한 외식 매장</h2>
+    <h2 class="rise">무이코퍼레이션이<br>직접 촬영한 <span style="white-space:nowrap">외식 매장 42곳+</span></h2>
     <p class="sub rise">외주 촬영팀이 아니라 무이코퍼레이션 촬영팀이 직접 매장에 가서 찍었습니다.</p>
-    <ul class="refs rise" aria-label="음식점 촬영 레퍼런스">
+    <ul class="refs rise" aria-label="음식점·카페 촬영 레퍼런스">
       <li>춘타운</li>
       <li>오로라바베큐</li>
       <li>은비갈비</li>
       <li>밥한잔</li>
       <li>뜨돈</li>
-      <li>심돈</li>
+      <li>심돈 <small>서면·명지·울산·신월성</small></li>
+      <li>꽃돼지식당 <small>상남·칠곡·목포·황성</small></li>
+      <li>조선부뚜막 <small>영종·안산고잔</small></li>
       <li>까막골막국수</li>
       <li>속초카페 달달공장</li>
       <li>복호두</li>
+      <li>오목집 <small>천안</small></li>
+      <li>야키토리텐진 <small>서면</small></li>
+      <li>왕탄소갈비</li>
+      <li>오적회관 <small>영등포</small></li>
+      <li>제주클래식 <small>송도본점</small></li>
+      <li>신무교동 낙지&amp;동막골 갈비찜</li>
+      <li>황가추어탕</li>
+      <li>동양백반 <small>경주</small></li>
+      <li>청초숯불갈비 <small>속초</small></li>
+      <li>청초옥 <small>속초</small></li>
+      <li>비치버거 <small>속초</small></li>
+      <li>영덕대게횟집 <small>강릉</small></li>
+      <li>낭만짚불구이 <small>두정</small></li>
+      <li>돈이랑 <small>성산</small></li>
+      <li>육식회사</li>
+      <li>체다앤올리</li>
+      <li>시바시바</li>
+      <li>모랑</li>
+      <li>봉유</li>
+      <li>송치비</li>
+      <li>우면가</li>
+      <li>오복식당</li>
+      <li>안다미로</li>
+      <li>톤보리</li>
+      <li>아롱포차</li>
+      <li>사뽀리또</li>
+      <li>카페 메이플림</li>
+      <li>커피하우스178</li>
+      <li>앵글드</li>
+      <li>르슈슈</li>
+      <li>카디페</li>
     </ul>
-    <p class="refs-note rise">이 밖에도 다수의 음식점·카페·주점 매장을 촬영했습니다.</p>
+    <p class="refs-note rise">프랜차이즈 지점 포함, 이 밖에도 다수의 음식점·카페·주점 매장을 촬영했습니다.</p>
   </div>
 </section>
 
