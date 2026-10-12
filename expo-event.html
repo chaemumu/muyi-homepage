@@ -49,28 +49,28 @@ button{font-family:inherit}
 /* Hero */
 #hero{min-height:100svh;display:flex;align-items:center;justify-content:center;position:relative;padding:clamp(7.5rem,16vw,10rem) var(--pad) clamp(2.5rem,6vw,4rem);text-align:center;overflow:hidden}
 #hero::before{content:'';position:absolute;inset:-30% -20% auto;height:90%;pointer-events:none;
-  background:radial-gradient(45% 55% at 30% 40%,rgba(30,16,199,.30),transparent 70%),radial-gradient(40% 50% at 72% 30%,rgba(238,78,0,.18),transparent 70%)}
+  background:radial-gradient(50% 55% at 50% 38%,rgba(30,16,199,.22),transparent 70%)}
 .hero-in{position:relative;max-width:760px;margin:0 auto}
 .eyebrow{display:inline-block;font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(.64rem,1.4vw,.74rem);font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--brand);margin-bottom:1.2rem}
-h1{font-size:clamp(1.8rem,5.2vw,3.4rem);font-weight:900;line-height:1.25;letter-spacing:-.035em;text-wrap:balance;margin-bottom:1.4rem}
-h1 em{font-style:normal;color:var(--brand)}
+h1{font-size:clamp(1.8rem,5.2vw,3.4rem);font-weight:700;line-height:1.25;letter-spacing:-.035em;text-wrap:balance;margin-bottom:1.4rem}
+h1 em{font-style:normal;color:inherit;font-weight:900}
 /* 위계: h1 > hero-p(핵심 혜택, 흰색 굵게) > hero-p2(부연, 회색 작게) */
-.hero-p{color:var(--text);font-size:clamp(1.02rem,2.2vw,1.24rem);font-weight:700;line-height:1.6;letter-spacing:-.02em;margin:0 auto .7rem}
-.hero-p b.hi{color:var(--brand);font-weight:900}
+.hero-p{color:var(--text-sub);font-size:clamp(1.02rem,2.2vw,1.24rem);font-weight:500;line-height:1.6;letter-spacing:-.02em;margin:0 auto .7rem}
+.hero-p b.hi{color:var(--text);font-weight:800}
 .hero-links{margin-top:2.4rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
 .hero-links button{background:none;border:0;font-size:.92rem;font-weight:700;color:var(--text);cursor:pointer;border-bottom:1px solid var(--line-str);padding-bottom:.15rem}
 .hero-links button:hover{color:var(--brand);border-color:var(--brand)}
-.cs-chip{white-space:normal;display:inline-flex;max-width:100%;text-align:left;align-items:center;gap:1.2rem;margin-top:.6rem;padding:.85rem 1.2rem;border-radius:var(--r-md);border:1px solid rgba(238,78,0,.4);background:var(--brand-tint);text-decoration:none;text-align:left;transition:all var(--dur) var(--ease)}
-.cs-chip:hover{border-color:var(--brand);transform:translateY(-2px)}
-.cs-tag{display:block;margin-bottom:.2rem;font-size:.72rem;font-weight:800;color:var(--brand)}
+.cs-chip{white-space:normal;display:inline-flex;max-width:100%;text-align:left;align-items:center;gap:1.2rem;margin-top:.6rem;padding:.85rem 1.2rem;border-radius:var(--r-md);border:1px solid var(--line-str);background:var(--surface);text-decoration:none;text-align:left;transition:all var(--dur) var(--ease)}
+.cs-chip:hover{border-color:var(--text);transform:translateY(-2px)}
+.cs-tag{display:block;margin-bottom:.2rem;font-size:.72rem;font-weight:800;color:var(--text-mute)}
 .cs-t b{display:block;font-size:.94rem;font-weight:800;color:var(--text)}
 .cs-t small{display:block;font-size:.78rem;line-height:1.55;color:var(--text-sub)}
-.cs-go{font-size:.86rem;font-weight:800;color:#FEE500;white-space:nowrap}
+.cs-go{font-size:.86rem;font-weight:800;color:var(--text);text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--line-str);white-space:nowrap}
 @media (max-width:640px){.cs-chip{flex-direction:column;align-items:flex-start;gap:.7rem;width:100%}.cs-go{align-self:flex-end}}
-.cs-chip:hover .cs-go{text-decoration:underline;text-underline-offset:3px}
+.cs-chip:hover .cs-go{text-decoration-color:var(--text)}
 .hero-links p{font-size:.82rem;line-height:1.8;color:var(--text-mute)}
 .hero-links p b{color:var(--text-sub)}
-.hero-links p a{color:var(--brand);font-weight:700;text-decoration:none;white-space:nowrap}
+.hero-links p a{color:var(--text);font-weight:700;text-decoration:none;white-space:nowrap}
 .hero-cta{border:0;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:.6rem;margin-top:2rem;font-size:1rem;font-weight:800;text-decoration:none;padding:1rem 1.8rem;border-radius:var(--r-full);background:var(--brand);color:var(--on-brand);box-shadow:0 8px 30px var(--brand-glow);transition:all var(--dur) var(--ease)}
 .hero-cta small{font-size:0.82rem;font-weight:700;opacity:.7}
 .hero-cta:hover{background:var(--brand-hi);transform:translateY(-3px)}
@@ -263,7 +263,7 @@ details.terms div{margin-top:.5rem;padding:.8rem 1rem;border-radius:.7rem;backgr
 .md{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:1.2rem;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadeIn .3s var(--ease)}
 @keyframes fadeIn{from{opacity:0}}
 /* 무이: 브랜드 파랑 계열 그라데이션 글씨 (원색 #1E10C7은 검은 배경에서 안 보여 밝은 쪽으로) */
-.my{font-weight:inherit;color:#6A5DFF;background:linear-gradient(90deg,#4A3BFF,#8F86FF);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.my{color:var(--text);font-weight:800}
 .md-box{position:relative;width:100%;max-width:440px;max-height:90vh;overflow:auto;padding:2.2rem 1.6rem 1.6rem;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--line-str);text-align:center;animation:pop .5s var(--ease)}
 .md-box .done-ic{width:60px;height:60px;margin-bottom:1.1rem}
 .md-box h2{font-size:1.4rem;font-weight:900;letter-spacing:-.03em;margin-bottom:.4rem}
@@ -345,7 +345,7 @@ html.gate-lock,html.gate-lock body{overflow:hidden;height:100%}
 html.gate-pass #gate{display:none}
 #gate{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:1.4rem;background:var(--bg)}
 #gate::before{content:'';position:absolute;inset:-30% -20% auto;height:90%;pointer-events:none;
-  background:radial-gradient(45% 55% at 30% 40%,rgba(30,16,199,.30),transparent 70%),radial-gradient(40% 50% at 72% 30%,rgba(238,78,0,.18),transparent 70%)}
+  background:radial-gradient(50% 55% at 50% 38%,rgba(30,16,199,.22),transparent 70%)}
 .gate-box{position:relative;width:100%;max-width:400px;text-align:center;animation:pop .5s var(--ease)}
 .gate-logo{height:64px;width:auto;margin:0 auto 1.6rem}
 .gate-box h1{font-size:clamp(1.3rem,4vw,1.7rem);font-weight:900;letter-spacing:-.03em;margin-bottom:.6rem}
