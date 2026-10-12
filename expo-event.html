@@ -60,16 +60,17 @@ h1 em{font-style:normal;color:var(--brand)}
 .hero-links{margin-top:2.4rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
 .hero-links button{background:none;border:0;font-size:.92rem;font-weight:700;color:var(--text);cursor:pointer;border-bottom:1px solid var(--line-str);padding-bottom:.15rem}
 .hero-links button:hover{color:var(--brand);border-color:var(--brand)}
-.cs-chip{display:inline-flex;align-items:center;gap:1.4rem;margin-top:.6rem;padding:.85rem 1.2rem;border-radius:var(--r-md);border:1px solid rgba(238,78,0,.4);background:var(--brand-tint);text-decoration:none;text-align:left;transition:all var(--dur) var(--ease)}
+.cs-chip{white-space:normal;display:inline-flex;max-width:100%;text-align:left;align-items:center;gap:1.2rem;margin-top:.6rem;padding:.85rem 1.2rem;border-radius:var(--r-md);border:1px solid rgba(238,78,0,.4);background:var(--brand-tint);text-decoration:none;text-align:left;transition:all var(--dur) var(--ease)}
 .cs-chip:hover{border-color:var(--brand);transform:translateY(-2px)}
 .cs-tag{display:block;margin-bottom:.2rem;font-size:.72rem;font-weight:800;color:var(--brand)}
 .cs-t b{display:block;font-size:.94rem;font-weight:800;color:var(--text)}
-.cs-t small{display:block;font-size:.78rem;color:var(--text-sub)}
+.cs-t small{display:block;font-size:.78rem;line-height:1.55;color:var(--text-sub)}
 .cs-go{font-size:.86rem;font-weight:800;color:#FEE500;white-space:nowrap}
+@media (max-width:640px){.cs-chip{flex-direction:column;align-items:flex-start;gap:.7rem;width:100%}.cs-go{align-self:flex-end}}
 .cs-chip:hover .cs-go{text-decoration:underline;text-underline-offset:3px}
 .hero-links p{font-size:.82rem;line-height:1.8;color:var(--text-mute)}
 .hero-links p b{color:var(--text-sub)}
-.hero-links a{color:var(--brand);font-weight:700;text-decoration:none;white-space:nowrap}
+.hero-links p a{color:var(--brand);font-weight:700;text-decoration:none;white-space:nowrap}
 .hero-cta{border:0;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:.6rem;margin-top:2rem;font-size:1rem;font-weight:800;text-decoration:none;padding:1rem 1.8rem;border-radius:var(--r-full);background:var(--brand);color:var(--on-brand);box-shadow:0 8px 30px var(--brand-glow);transition:all var(--dur) var(--ease)}
 .hero-cta small{font-size:0.82rem;font-weight:700;opacity:.7}
 .hero-cta:hover{background:var(--brand-hi);transform:translateY(-3px)}
@@ -403,7 +404,7 @@ html.gate-pass #gate{display:none}
     <button type="button" class="hero-cta rise" id="startBtn">무료로 신청하기<small>작성 3분</small></button>
     <div class="hero-links rise">
       <button type="button" id="casesBtn">실제 진행 사례 보기 ›</button>
-      <a class="cs-chip" href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener"><span class="cs-t"><span class="cs-tag">참가사 전용</span><b>무료 마케팅 컨설팅</b><small>부스 현장 상담 · 화상 미팅</small></span><span class="cs-go">카카오톡 예약 ›</span></a>
+      <a class="cs-chip" href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener"><span class="cs-t"><span class="cs-tag">참가사 전용</span><b>무료 마케팅 컨설팅</b><small>가맹 모집 · 매장 홍보 · 메뉴 촬영 · 숏폼 · 브랜딩 영상<br>부스 현장 상담 또는 화상 미팅으로 진행해요</small></span><span class="cs-go">카카오톡 예약 ›</span></a>
     </div>
   </div>
 </section>
