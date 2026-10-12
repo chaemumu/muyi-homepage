@@ -1,0 +1,22 @@
+# Supabase 무료 프로젝트는 일정 기간 요청이 없으면 자동 일시정지된다(박람회 신청·코드 확인이 모두 막힘).
+# 3일마다 가벼운 요청을 보내 정지를 막는다. 아래 키는 페이지 소스에도 공개된 anon(공개) 키다.
+name: Supabase keepalive
+
+on:
+  schedule:
+    - cron: '17 3 */3 * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API + DB + Edge Function
+        run: |
+          BASE='https://pacyhanuwuizcxwoggen.supabase.co'
+          KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhY3loYW51d3VpemN4d29nZ2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTI2NDgsImV4cCI6MjA5MTI4ODY0OH0.oe39KUtwr-mZ4OsqWQT6Y3USpigQpD825IM14mIFEaY'
+          rest=$(curl -s -o /dev/null -w '%{http_code}' -m 30 -H "apikey: $KEY" -H "Authorization: Bearer $KEY" "$BASE/rest/v1/contacts?select=id&limit=1")
+          fn=$(curl -s -o /dev/null -w '%{http_code}' -m 30 -X POST -H "apikey: $KEY" -H 'Content-Type: application/json' -d '{"code":"keepalive"}' "$BASE/functions/v1/expo-gate")
+          echo "rest=$rest function=$fn"
+          # 000(연결 실패)이나 5xx면 실패 처리해서 GitHub이 알림 메일을 보내게 한다
+          case "$rest$fn" in *000*|*5[0-9][0-9]*) exit 1;; esac
