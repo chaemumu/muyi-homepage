@@ -71,9 +71,18 @@ h1 em{font-style:normal;color:inherit;font-weight:900}
 .hero-links p{font-size:.82rem;line-height:1.8;color:var(--text-mute)}
 .hero-links p b{color:var(--text-sub)}
 .hero-links p a{color:var(--text);font-weight:700;text-decoration:none;white-space:nowrap}
-.hero-cta{border:0;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:.6rem;margin-top:2rem;font-size:1rem;font-weight:800;text-decoration:none;padding:1rem 1.8rem;border-radius:var(--r-full);background:var(--brand);color:var(--on-brand);box-shadow:0 8px 30px var(--brand-glow);transition:all var(--dur) var(--ease)}
-.hero-cta small{font-size:0.82rem;font-weight:700;opacity:.7}
+.hero-cta{border:0;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:space-between;gap:1rem;width:100%;max-width:340px;margin:2rem auto 0;padding:.8rem .8rem .8rem 1.4rem;border-radius:1.15rem;text-align:left;background:var(--brand);color:var(--on-brand);box-shadow:0 8px 30px var(--brand-glow);transition:transform var(--dur) var(--ease),background var(--dur) var(--ease)}
+.hero-cta .cta-t{display:block;line-height:1.35}
+.hero-cta .cta-s{display:block;font-size:.8rem;font-weight:700;opacity:.75}
+.hero-cta .cta-m{display:block;font-size:1.2rem;font-weight:900;letter-spacing:-.02em}
 .hero-cta:hover{background:var(--brand-hi);transform:translateY(-3px)}
+.hero-cta:active{transform:translateY(0) scale(.98)}
+/* 버튼 공통 화살표 원: 올리면 오른쪽으로 살짝 */
+.cta-ar{flex:0 0 auto;width:44px;height:44px;border-radius:50%;background:#0A0A0B;color:#F5F5F7;display:grid;place-items:center;transition:transform var(--dur) var(--ease)}
+.cta-ar svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.hero-cta:hover .cta-ar,.snext:hover .cta-ar,.fsub:hover:not(:disabled) .cta-ar{transform:translateX(4px)}
+.snext .cta-ar,.fsub .cta-ar{width:34px;height:34px}
+.snext .cta-ar svg,.fsub .cta-ar svg{width:17px;height:17px}
 
 
 /* 실제 진행 사례 — 인스타 검색 결과 격자처럼 */
@@ -121,10 +130,10 @@ h1 em{font-style:normal;color:inherit;font-weight:900}
 .step-nav{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-top:1.1rem}
 /* 1·2단계는 한 화면에 다 들어오게 여백 축소 */
 .blk[data-s="1"],.blk[data-s="2"]{padding-bottom:0;margin-bottom:0;border-bottom:0}
-.step-nav button{font-family:inherit;font-size:.9rem;font-weight:800;padding:.85rem 1.6rem;border-radius:var(--r-full);cursor:pointer;transition:all var(--dur) var(--ease)}
+.step-nav button{font-family:inherit;font-size:.95rem;font-weight:800;padding:.85rem 1.6rem;border-radius:1.15rem;cursor:pointer;transition:all var(--dur) var(--ease)}
 .step-nav .sprev{background:none;border:1px solid var(--line-str);color:var(--text-sub)}
 .step-nav .sprev:hover{border-color:var(--text);color:var(--text)}
-.step-nav .snext{margin-left:auto;border:0;background:var(--brand);color:var(--on-brand);box-shadow:0 6px 22px var(--brand-glow)}
+.step-nav .snext{display:inline-flex;align-items:center;gap:.8rem;padding:.5rem .5rem .5rem 1.4rem;margin-left:auto;border:0;background:var(--brand);color:var(--on-brand);box-shadow:0 6px 22px var(--brand-glow)}
 .step-nav .snext:hover{background:var(--brand-hi);transform:translateY(-2px)}
 .step-lb{display:flex;align-items:center;gap:.6rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;font-weight:800;letter-spacing:.16em;color:var(--brand);margin-bottom:1.1rem;text-transform:uppercase}
 .req-note{order:2;font-family:'Noto Sans KR',sans-serif;font-size:.78rem;font-weight:600;letter-spacing:0;text-transform:none;color:var(--text-mute)}
@@ -241,7 +250,7 @@ details.terms summary::-webkit-details-marker{display:none}
 details.terms div{margin-top:.5rem;padding:.8rem 1rem;border-radius:.7rem;background:var(--bg);border:1px solid var(--line);font-size:0.82rem;line-height:1.75;color:var(--text-sub)}
 
 .fsub{width:100%;margin-top:1.4rem;font-size:clamp(.98rem,2vw,1.08rem);font-weight:800;padding:1.15rem;border:none;border-radius:var(--r-full);background:var(--brand);color:var(--on-brand);cursor:pointer;box-shadow:0 6px 28px var(--brand-glow);transition:all var(--dur) var(--ease)}
-.sub-nav .fsub{flex:1;width:auto;margin-top:0}
+.sub-nav .fsub{flex:1;width:auto;margin-top:0;display:flex;align-items:center;justify-content:space-between;gap:.8rem;padding:.5rem .5rem .5rem 1.3rem;border-radius:1.15rem;text-align:left;font-size:.95rem}
 .fsub:hover:not(:disabled){background:var(--brand-hi);transform:translateY(-3px);box-shadow:0 12px 38px var(--brand-glow)}
 .fsub:disabled{opacity:.6;cursor:progress;transform:none}
 .fst{margin-top:1rem;font-size:.88rem;line-height:1.7;text-align:center;display:none;padding:.9rem 1rem;border-radius:var(--r-md)}
@@ -401,7 +410,7 @@ html.gate-pass #gate{display:none}
   <div class="hero-in">
     <h1 class="rise">박람회도, 참가 브랜드도<br><em>함께 잘되도록</em> <span class="my">무이</span>가 나섭니다</h1>
     <p class="hero-p rise">참가사의 무궁한 발전을 위해,<br><b class="hi">인스타그램 마케팅비 전액</b>을 <span class="my">무이</span>가 대신 씁니다.</p>
-    <button type="button" class="hero-cta rise" id="startBtn">무료로 신청하기<small>작성 3분</small></button>
+    <button type="button" class="hero-cta rise" id="startBtn"><span class="cta-t"><span class="cta-s">참가사 전용 · 마케팅비 0원 · 작성 3분</span><span class="cta-m">무료로 신청하기</span></span><span class="cta-ar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
     <div class="hero-links rise">
       <button type="button" id="casesBtn">실제 진행 사례 보기 ›</button>
       <a class="cs-chip" href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener"><span class="cs-t"><span class="cs-tag">참가사 전용</span><b>무료 마케팅 컨설팅</b><small>가맹 모집 · 매장 홍보 · 메뉴 촬영 · 숏폼 · 브랜딩 영상<br>부스 현장 상담 또는 화상 미팅으로 진행해요</small></span><span class="cs-go">카카오톡 예약 ›</span></a>
@@ -467,7 +476,7 @@ html.gate-pass #gate{display:none}
             <input class="fi" id="f-email" type="email" placeholder="brand@example.com" autocomplete="email">
           </div>
         </div>
-        <div class="step-nav"><button type="button" class="sprev" data-go="0">처음으로</button><button type="button" class="snext" data-go="2">다음</button></div>
+        <div class="step-nav"><button type="button" class="sprev" data-go="0">처음으로</button><button type="button" class="snext" data-go="2">다음<span class="cta-ar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button></div>
       </div>
 
       <!-- STEP 2 -->
@@ -512,7 +521,7 @@ html.gate-pass #gate{display:none}
 박람회 현장 계약 시 커피머신 지원!"></textarea>
           <div class="ft-meta"><span></span><span id="cnt">0 / 2000</span></div>
         </div>
-        <div class="step-nav"><button type="button" class="sprev" data-go="1">이전</button><button type="button" class="snext" data-go="3">다음</button></div>
+        <div class="step-nav"><button type="button" class="sprev" data-go="1">이전</button><button type="button" class="snext" data-go="3">다음<span class="cta-ar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button></div>
       </div>
 
       <!-- STEP 3 -->
@@ -548,7 +557,7 @@ html.gate-pass #gate{display:none}
           · 보유 기간: 수집일로부터 3년 또는 동의 철회 시까지<br><br>
           본 이벤트는 <span class="my">무이</span> 마케팅 서비스 안내를 전제로 무료 제공되며, 위 항목에 동의하지 않으시면 참여가 어렵습니다. 수신 거부·동의 철회는 언제든 info@muyi.co.kr 로 요청하실 수 있습니다.
         </div></details>
-        <div class="step-nav sub-nav"><button type="button" class="sprev" data-go="2">이전</button><button class="fsub" type="submit" id="sbtn">무료 마케팅 신청</button></div>
+        <div class="step-nav sub-nav"><button type="button" class="sprev" data-go="2">이전</button><button class="fsub" type="submit" id="sbtn">무료 마케팅 신청<span class="cta-ar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button></div>
         <div class="fst" id="fst" role="status" aria-live="polite"></div>
         <p class="alt">문의가 있으면 → <a href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener">카카오톡으로 물어보기</a></p>
       </div>
@@ -1010,7 +1019,7 @@ $('form').addEventListener('submit',function(e){
       showDone();
     })
     .catch(function(){
-      btn.disabled=false;btn.textContent='무료 마케팅 신청';
+      btn.disabled=false;btn.innerHTML='무료 마케팅 신청<span class="cta-ar">'+document.querySelector('.hero-cta .cta-ar').innerHTML+'</span>';
       msg('전송에 실패했어요. 잠시 후 다시 시도하시거나 카카오톡으로 문의해주세요.');
     });
 });
