@@ -60,18 +60,17 @@ h1 em{font-style:normal;color:inherit;font-weight:900}
 .hero-links{margin-top:2.4rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
 .hero-links button{background:none;border:0;font-size:.92rem;font-weight:700;color:var(--text);cursor:pointer;border-bottom:1px solid var(--line-str);padding-bottom:.15rem}
 .hero-links button:hover{color:var(--brand);border-color:var(--brand)}
-.cs-chip{white-space:normal;display:inline-flex;max-width:100%;text-align:left;align-items:center;gap:1.2rem;margin-top:.6rem;padding:.85rem 1.2rem;border-radius:var(--r-md);border:1px solid var(--line-str);background:var(--surface);text-decoration:none;text-align:left;transition:all var(--dur) var(--ease)}
+.cs-chip{white-space:normal;display:flex;align-items:center;justify-content:space-between;gap:1rem;width:100%;max-width:340px;margin-top:.6rem;padding:.8rem .8rem .8rem 1.4rem;border-radius:1.15rem;border:1px solid var(--line-str);background:var(--surface);text-decoration:none;text-align:left;transition:transform var(--dur) var(--ease),border-color var(--dur) var(--ease)}
 .cs-chip:hover{border-color:var(--text);transform:translateY(-2px)}
-.cs-tag{display:block;margin-bottom:.2rem;font-size:.72rem;font-weight:800;color:var(--text-mute)}
-.cs-t b{display:block;font-size:.94rem;font-weight:800;color:var(--text)}
-.cs-t small{display:block;font-size:.78rem;line-height:1.55;color:var(--text-sub)}
-.cs-go{font-size:.86rem;font-weight:800;color:var(--text);text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--line-str);white-space:nowrap}
-@media (max-width:640px){.cs-chip{flex-direction:column;align-items:flex-start;gap:.7rem;width:100%}.cs-go{align-self:flex-end}}
-.cs-chip:hover .cs-go{text-decoration-color:var(--text)}
+.cs-chip:hover .cta-ar{transform:translateX(4px)}
+.cs-tag{display:block;margin-bottom:.15rem;font-size:.78rem;font-weight:700;color:var(--text-mute)}
+.cs-t b{display:block;font-size:1.05rem;font-weight:800;color:var(--text)}
+.cs-t small{display:block;margin-top:.25rem;font-size:.78rem;line-height:1.55;color:var(--text-sub)}
+.cs-chip .cs-ar{background:var(--text);color:#0A0A0B}
 .hero-links p{font-size:.82rem;line-height:1.8;color:var(--text-mute)}
 .hero-links p b{color:var(--text-sub)}
 .hero-links p a{color:var(--text);font-weight:700;text-decoration:none;white-space:nowrap}
-.hero-cta{border:0;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:space-between;gap:1rem;width:100%;max-width:340px;margin:2rem auto 0;padding:.8rem .8rem .8rem 1.4rem;border-radius:1.15rem;text-align:left;background:var(--brand);color:var(--on-brand);box-shadow:0 8px 30px var(--brand-glow);transition:transform var(--dur) var(--ease),background var(--dur) var(--ease)}
+.hero-cta{border:0;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:space-between;gap:1rem;width:100%;max-width:340px;margin:2rem auto 0;padding:.6rem .6rem .6rem 1.5rem;border-radius:1.15rem;text-align:left;background:var(--brand);color:var(--on-brand);box-shadow:0 8px 30px var(--brand-glow);transition:transform var(--dur) var(--ease),background var(--dur) var(--ease)}
 .hero-cta .cta-t{display:block;line-height:1.35}
 .hero-cta .cta-s{display:block;font-size:.8rem;font-weight:700;opacity:.75}
 .hero-cta .cta-m{display:block;font-size:1.2rem;font-weight:900;letter-spacing:-.02em}
@@ -410,10 +409,10 @@ html.gate-pass #gate{display:none}
   <div class="hero-in">
     <h1 class="rise">박람회도, 참가 브랜드도<br><em>함께 잘되도록</em> <span class="my">무이</span>가 나섭니다</h1>
     <p class="hero-p rise">참가사의 무궁한 발전을 위해,<br><b class="hi">인스타그램 마케팅비 전액</b>을 <span class="my">무이</span>가 대신 씁니다.</p>
-    <button type="button" class="hero-cta rise" id="startBtn"><span class="cta-t"><span class="cta-s">참가사 전용 · 마케팅비 0원 · 작성 3분</span><span class="cta-m">무료로 신청하기</span></span><span class="cta-ar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+    <button type="button" class="hero-cta rise" id="startBtn"><span class="cta-t"><span class="cta-m">무료로 신청하기</span></span><span class="cta-ar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
     <div class="hero-links rise">
       <button type="button" id="casesBtn">실제 진행 사례 보기 ›</button>
-      <a class="cs-chip" href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener"><span class="cs-t"><span class="cs-tag">참가사 전용</span><b>무료 마케팅 컨설팅</b><small>가맹 모집 · 매장 홍보 · 메뉴 촬영 · 숏폼 · 브랜딩 영상<br>부스 현장 상담 또는 화상 미팅으로 진행해요</small></span><span class="cs-go">카카오톡 예약 ›</span></a>
+      <a class="cs-chip" href="https://pf.kakao.com/_VbxkKG/chat" target="_blank" rel="noopener"><span class="cs-t"><span class="cs-tag">참가사 전용 · 무료</span><b>마케팅 컨설팅 상담 예약</b><small>가맹 모집 · 매장 홍보 · 메뉴 촬영<br>숏폼 · 브랜딩 영상<br>부스 현장 상담 또는 화상 미팅</small></span><span class="cta-ar cs-ar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
     </div>
   </div>
 </section>
