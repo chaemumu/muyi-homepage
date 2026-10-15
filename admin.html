@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>문의 관리 — MUYI</title>
+<style>
+  :root{--brand:#1E10C7;--point:#EE4E00;--ink:#151726;--muted:#8a8fa3;--line:#e6e8ef;--bg:#f5f6fa;--card:#fff;--ok:#0f9d58;--err:#d93025}
+  *{box-sizing:border-box;margin:0}
+  body{font-family:-apple-system,"Noto Sans KR",sans-serif;color:var(--ink);background:var(--bg);font-size:14px;line-height:1.5}
+  button,input,select,textarea{font:inherit;color:inherit}
+  .wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+  .login{max-width:360px;margin:12vh auto;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:28px;display:grid;gap:12px}
+  .login h1{font-size:20px}
+  input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff;width:100%}
+  .btn{border:0;border-radius:8px;padding:10px 14px;background:var(--brand);color:#fff;font-weight:700;cursor:pointer}
+  .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line);font-weight:500}
+  .btn.ghost.on{background:var(--brand);border-color:var(--brand);color:#fff}
+  .msg{font-size:13px;color:var(--err);min-height:18px;word-break:break-all}
+  header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+  header h1{font-size:20px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;cursor:pointer}
+  .chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+  .tools{display:grid;grid-template-columns:1fr 200px auto;gap:8px;margin-bottom:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:10px;display:grid;grid-template-columns:1fr 280px;gap:16px}
+  .top{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}
+  .name{font-weight:700;font-size:16px}
+  .tel{color:var(--point);font-weight:700;text-decoration:none}
+  .meta{color:var(--muted);font-size:12px;margin-top:2px}
+  .tag{display:inline-block;background:#eef0ff;color:var(--brand);border-radius:6px;padding:1px 8px;font-size:12px;margin-right:4px}
+  .body{margin-top:8px;white-space:pre-wrap;word-break:break-word}
+  .side{display:grid;gap:8px;align-content:start}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .side label{font-size:12px;color:var(--muted);display:grid;gap:3px}
+  textarea{min-height:64px;resize:vertical}
+  .empty{text-align:center;color:var(--muted);padding:48px 0}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px;opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.show{opacity:1}
+  @media (max-width:720px){.card{grid-template-columns:1fr}.tools{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<form id="login" class="login" hidden>
+  <h1>문의 관리 로그인</h1>
+  <input id="email" type="email" placeholder="이메일" autocomplete="username" required>
+  <input id="password" type="password" placeholder="비밀번호" autocomplete="current-password" required>
+  <button class="btn" type="submit">로그인</button>
+  <p class="msg" id="loginMsg"></p>
+</form>
+
+<div class="wrap" id="app" hidden>
+  <header>
+    <h1>문의 관리</h1>
+    <div><button class="btn ghost" id="reload">새로고침</button> <button class="btn ghost" id="logout">로그아웃</button></div>
+  </header>
+  <div class="chips" id="chips"></div>
+  <div class="tools">
+    <input id="q" type="search" placeholder="이름·연락처·내용 검색">
+    <select id="source"><option value="">모든 유입 경로</option></select>
+    <button class="btn ghost" id="today">오늘 연락할 문의</button>
+  </div>
+  <div id="list"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+// Public (anon) key — same as the site forms. Access is enforced by RLS: only users listed in public.admins can read/update.
+const sb = supabase.createClient('https://pacyhanuwuizcxwoggen.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhY3loYW51d3VpemN4d29nZ2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTI2NDgsImV4cCI6MjA5MTI4ODY0OH0.oe39KUtwr-mZ4OsqWQT6Y3USpigQpD825IM14mIFEaY');
+
+const STATUSES = ['신규', 'AI통화완료', '부재', '상담예약', '계약', '종료'];
+const GRADES = ['', '상', '중', '하'];
+let rows = [], filter = { status: '', source: '', q: '', today: false };
+
+const $ = (id) => document.getElementById(id);
+// Builds DOM with textContent only, so lead-submitted text can never inject HTML.
+function el(tag, props = {}, kids = []) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === 'text') n.textContent = v; else if (k.startsWith('on')) n.addEventListener(k.slice(2), v); else n[k] = v;
+  }
+  for (const c of [].concat(kids)) if (c) n.append(c);
+  return n;
+}
+function toast(t) { const x = $('toast'); x.textContent = t; x.classList.add('show'); clearTimeout(x._t); x._t = setTimeout(() => x.classList.remove('show'), 1500); }
+const kst = (iso) => new Date(iso).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', dateStyle: 'short', timeStyle: 'short' });
+const todayKst = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+
+async function start() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { $('login').hidden = false; $('app').hidden = true; return; }
+  const { data: ok, error } = await sb.rpc('is_admin');
+  if (error || !ok) {
+    $('login').hidden = false; $('app').hidden = true;
+    $('loginMsg').textContent = '관리자 권한이 없는 계정입니다. 관리자에게 이 ID를 전달하세요: ' + session.user.id;
+    await sb.auth.signOut();
+    return;
+  }
+  $('login').hidden = true; $('app').hidden = false;
+  load();
+}
+
+async function load() {
+  const { data, error } = await sb.from('contacts')
+    .select('id,created_at,name,phone,email,type,message,source,meta,status,grade,memo,next_contact_at')
+    .order('created_at', { ascending: false }).limit(1000);
+  if (error) { toast('불러오기 실패: ' + error.message); return; }
+  rows = data;
+  const sources = [...new Set(rows.map((r) => r.source).filter(Boolean))].sort();
+  $('source').replaceChildren(el('option', { value: '', text: '모든 유입 경로' }), ...sources.map((s) => el('option', { value: s, text: s })));
+  $('source').value = sources.includes(filter.source) ? filter.source : '';
+  render();
+}
+
+function render() {
+  const counts = Object.fromEntries(STATUSES.map((s) => [s, 0]));
+  rows.forEach((r) => { counts[r.status] = (counts[r.status] || 0) + 1; });
+  $('chips').replaceChildren(
+    el('button', { className: 'chip' + (filter.status ? '' : ' on'), text: `전체 ${rows.length}`, onclick: () => { filter.status = ''; render(); } }),
+    ...STATUSES.map((s) => el('button', { className: 'chip' + (filter.status === s ? ' on' : ''), text: `${s} ${counts[s]}`, onclick: () => { filter.status = s; render(); } })));
+  $('today').classList.toggle('on', filter.today);
+
+  const q = filter.q.trim().toLowerCase(), today = todayKst();
+  const shown = rows.filter((r) =>
+    (!filter.status || r.status === filter.status) &&
+    (!filter.source || r.source === filter.source) &&
+    (!filter.today || (r.next_contact_at && new Date(r.next_contact_at).toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' }) <= today && !['계약', '종료'].includes(r.status))) &&
+    (!q || [r.name, r.phone, r.email, r.message, r.memo, r.type].some((v) => (v || '').toLowerCase().includes(q))));
+
+  $('list').replaceChildren(...(shown.length ? shown.map(card) : [el('p', { className: 'empty', text: '조건에 맞는 문의가 없습니다.' })]));
+}
+
+function card(r) {
+  const utm = (r.meta && r.meta.utm) || {};
+  const tel = (r.phone || '').replace(/[^0-9+]/g, '');
+  const save = async (patch) => {
+    const { error } = await sb.from('contacts').update(patch).eq('id', r.id);
+    if (error) { toast('저장 실패: ' + error.message); return; }
+    Object.assign(r, patch); toast('저장됨');
+    if ('status' in patch) render();
+  };
+  const sel = (opts, val, key) => el('select', { onchange: (e) => save({ [key]: e.target.value || null }) },
+    opts.map((o) => el('option', { value: o, text: o || '—', selected: (val || '') === o })));
+  const memo = el('textarea', { value: r.memo || '', placeholder: '상담 메모', onchange: (e) => save({ memo: e.target.value }) });
+  const nextDay = r.next_contact_at ? new Date(r.next_contact_at).toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' }) : '';
+  const next = el('input', { type: 'date', value: nextDay,
+    onchange: (e) => save({ next_contact_at: e.target.value ? e.target.value + 'T00:00:00+09:00' : null }) });
+
+  return el('div', { className: 'card' }, [
+    el('div', {}, [
+      el('div', { className: 'top' }, [
+        el('span', { className: 'name', text: r.name || '(이름 없음)' }),
+        r.phone && el('a', { className: 'tel', href: 'tel:' + tel, text: r.phone }),
+        r.email && el('span', { text: r.email }),
+      ]),
+      el('div', { className: 'meta', text: [kst(r.created_at), r.source, r.type].filter(Boolean).join(' · ') }),
+      (utm.utm_source || utm.utm_campaign) && el('div', { className: 'meta' }, [
+        el('span', { className: 'tag', text: utm.utm_source || 'utm' }),
+        el('span', { text: [utm.utm_campaign, utm.utm_content].filter(Boolean).join(' / ') }),
+      ]),
+      r.message && el('p', { className: 'body', text: r.message }),
+    ]),
+    el('div', { className: 'side' }, [
+      el('div', { className: 'row2' }, [
+        el('label', {}, ['상태', sel(STATUSES, r.status, 'status')]),
+        el('label', {}, ['등급', sel(GRADES, r.grade, 'grade')]),
+      ]),
+      el('label', {}, ['다음 연락일', next]),
+      el('label', {}, ['메모', memo]),
+    ]),
+  ]);
+}
+
+$('login').addEventListener('submit', async (e) => {
+  e.preventDefault(); $('loginMsg').textContent = '';
+  const { error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
+  if (error) { $('loginMsg').textContent = '로그인 실패: 이메일 또는 비밀번호를 확인하세요.'; return; }
+  $('password').value = ''; start();
+});
+$('logout').onclick = async () => { await sb.auth.signOut(); rows = []; $('list').replaceChildren(); start(); };
+$('reload').onclick = load;
+$('q').oninput = (e) => { filter.q = e.target.value; render(); };
+$('source').onchange = (e) => { filter.source = e.target.value; render(); };
+$('today').onclick = () => { filter.today = !filter.today; render(); };
+start();
+</script>
+</body>
+</html>

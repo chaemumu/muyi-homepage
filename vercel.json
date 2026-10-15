@@ -22,7 +22,8 @@
     { "source": "/brochure", "destination": "/brochure.html" },
     { "source": "/case-studies", "destination": "/case-studies.html" },
     { "source": "/expo-event", "destination": "/expo-event.html" },
-    { "source": "/shortform-marketing", "destination": "/shortform-marketing.html" }
+    { "source": "/shortform-marketing", "destination": "/shortform-marketing.html" },
+    { "source": "/admin", "destination": "/admin.html" }
   ],
   "headers": [
     {
