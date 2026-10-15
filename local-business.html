@@ -2253,6 +2253,9 @@ function handleSubmit(){
     source:'local-business-diagnosis'
   };
   if(window.muyiAttribution){var attr=window.muyiAttribution();body.utm=attr.utm;body.click=attr.click;}
+  /* 픽셀(브라우저)과 CAPI(서버)가 같은 Lead를 한 번만 집계하도록 공유하는 ID */
+  body.event_id='lb-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);
+  body.page_url=location.href;
 
   fetch('https://pacyhanuwuizcxwoggen.supabase.co/functions/v1/contact',{
     method:'POST',
@@ -2268,7 +2271,7 @@ function handleSubmit(){
     /* 2. Meta Pixel Lead 이벤트 발화
           ★ 반드시 제출 성공 콜백 안에서. 페이지 로드 시점 아님. */
     if(typeof fbq==='function'){
-      fbq('track','Lead',{content_category:body.industry,content_name:'local-business-diagnosis'});
+      fbq('track','Lead',{content_category:body.industry,content_name:'local-business-diagnosis'},{eventID:body.event_id});
     }
 
     /* 3. GA4 generate_lead 이벤트 */
