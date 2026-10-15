@@ -34,6 +34,8 @@
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .side label{font-size:12px;color:var(--muted);display:grid;gap:3px}
   textarea{min-height:64px;resize:vertical}
+  .ai{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+  .ai a{margin-left:6px;color:var(--brand);font-size:12px}
   .empty{text-align:center;color:var(--muted);padding:48px 0}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px;opacity:0;transition:opacity .2s;pointer-events:none}
   .toast.show{opacity:1}
@@ -72,6 +74,7 @@ const sb = supabase.createClient('https://pacyhanuwuizcxwoggen.supabase.co',
 
 const STATUSES = ['신규', 'AI통화완료', '부재', '상담예약', '계약', '종료'];
 const GRADES = ['', '상', '중', '하'];
+const CALL_LABEL = { queued: '대기', calling: '통화 중', done: '완료', no_answer: '부재(재시도 끝)', failed: '실패', skipped: '통화 거부' };
 let rows = [], filter = { status: '', source: '', q: '', today: false };
 
 const $ = (id) => document.getElementById(id);
@@ -104,7 +107,7 @@ async function start() {
 
 async function load() {
   const { data, error } = await sb.from('contacts')
-    .select('id,created_at,name,phone,email,type,message,source,meta,status,grade,memo,next_contact_at')
+    .select('id,created_at,name,phone,email,type,message,source,meta,status,grade,memo,next_contact_at,call_status,call_scheduled_at,ai_summary,recording_url')
     .order('created_at', { ascending: false }).limit(1000);
   if (error) { toast('불러오기 실패: ' + error.message); return; }
   rows = data;
@@ -161,6 +164,12 @@ function card(r) {
         el('span', { text: [utm.utm_campaign, utm.utm_content].filter(Boolean).join(' / ') }),
       ]),
       r.message && el('p', { className: 'body', text: r.message }),
+      r.call_status && el('div', { className: 'ai' }, [
+        el('span', { className: 'tag', text: 'AI 통화 · ' + (CALL_LABEL[r.call_status] || r.call_status) +
+          (r.call_status === 'queued' && r.call_scheduled_at ? ' (' + kst(r.call_scheduled_at) + ')' : '') }),
+        /^https:\/\//.test(r.recording_url || '') && el('a', { href: r.recording_url, target: '_blank', rel: 'noopener', text: '녹음 듣기' }),
+        r.ai_summary && el('p', { className: 'body', text: r.ai_summary }),
+      ]),
     ]),
     el('div', { className: 'side' }, [
       el('div', { className: 'row2' }, [
