@@ -232,6 +232,28 @@ window.MUYI_GA4_ID   = 'GA4_ID';
   gtag('js',new Date());gtag('config',window.MUYI_GA4_ID);
 })();
 </script>
+<!-- 광고 유입 정보: 첫 진입 URL의 UTM·클릭ID를 세션에 저장해 두고 폼 제출 때 함께 보낸다 -->
+<script>
+(function(){
+  var UTM=['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
+  var KEYS=UTM.concat(['fbclid','gclid']);
+  var q=new URLSearchParams(location.search),a={},hit=false;
+  KEYS.forEach(function(k){var v=q.get(k);if(v){a[k]=v;hit=true;}});
+  if(hit){a.landed_at=Date.now();try{sessionStorage.setItem('muyi_attr',JSON.stringify(a));}catch(e){}}
+  /* 쿠키가 차단된 환경(일부 인앱 브라우저·샌드박스)에서 throw해도 폼 제출은 막히지 않게 */
+  function cookie(n){try{var m=document.cookie.match('(?:^|; )'+n+'=([^;]*)');return m?decodeURIComponent(m[1]):null;}catch(e){return null;}}
+  window.muyiAttribution=function(){
+    var s=a;
+    if(!hit){try{s=JSON.parse(sessionStorage.getItem('muyi_attr')||'{}');}catch(e){s={};}}
+    var utm={};UTM.forEach(function(k){if(s[k])utm[k]=s[k];});
+    return {utm:utm,click:{
+      fbclid:s.fbclid||null,gclid:s.gclid||null,fbp:cookie('_fbp'),
+      /* 픽셀이 _fbc를 아직 못 만들었으면 메타 규격(fb.1.타임스탬프.fbclid)으로 직접 구성 */
+      fbc:cookie('_fbc')||(s.fbclid?'fb.1.'+s.landed_at+'.'+s.fbclid:null)
+    }};
+  };
+})();
+</script>
 
 <style>
 .skip-link{position:absolute;left:-9999px;top:0;z-index:9999;background:#EE4E00;color:#fff;padding:.75rem 1.25rem;border-radius:0 0 8px 0;font-weight:700;text-decoration:none}
@@ -2230,6 +2252,7 @@ function handleSubmit(){
     industry:industryInput.value,
     source:'local-business-diagnosis'
   };
+  if(window.muyiAttribution){var attr=window.muyiAttribution();body.utm=attr.utm;body.click=attr.click;}
 
   fetch('https://pacyhanuwuizcxwoggen.supabase.co/functions/v1/contact',{
     method:'POST',
