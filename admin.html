@@ -76,7 +76,10 @@
 <script>
 // Public (anon) key — same as the site forms. Access is enforced by RLS: only users listed in public.admins can read/update.
 const sb = supabase.createClient('https://pacyhanuwuizcxwoggen.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhY3loYW51d3VpemN4d29nZ2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTI2NDgsImV4cCI6MjA5MTI4ODY0OH0.oe39KUtwr-mZ4OsqWQT6Y3USpigQpD825IM14mIFEaY');
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhY3loYW51d3VpemN4d29nZ2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTI2NDgsImV4cCI6MjA5MTI4ODY0OH0.oe39KUtwr-mZ4OsqWQT6Y3USpigQpD825IM14mIFEaY',
+  { auth: { storage: window.sessionStorage } }); // 브라우저(탭)를 닫으면 로그아웃
+// 예전 버전이 localStorage에 남긴 로그인 정보 정리
+try { localStorage.removeItem('sb-pacyhanuwuizcxwoggen-auth-token'); } catch {}
 
 const STATUSES = ['신규', 'AI통화완료', '부재', '상담예약', '계약', '종료'];
 const GRADES = ['', '상', '중', '하'];
