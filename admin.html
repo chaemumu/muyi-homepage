@@ -107,8 +107,6 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 .tab .n{font-size:11px;font-weight:600;color:var(--t3);background:var(--muted);border-radius:9px;padding:0 6px;min-width:18px;text-align:center;line-height:18px}
 .tab.on .n{background:var(--t1);color:var(--surface)}
 .tab .dot{width:7px;height:7px;border-radius:50%;background:var(--c)}
-.tab.hold{color:var(--red)}
-.tab.hold .n{color:var(--red)}
 
 /* 필터 줄 */
 .filters{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
@@ -119,13 +117,12 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 .view-toggle{margin-left:auto}
 .alert+.view-toggle{margin-left:0}
 /* 보드(칸반) */
-.board{display:grid;grid-template-columns:repeat(6,minmax(170px,1fr));gap:10px;overflow-x:auto;align-items:start;padding-bottom:8px}
+.board{display:grid;grid-template-columns:repeat(5,minmax(170px,1fr));gap:10px;overflow-x:auto;align-items:start;padding-bottom:8px}
 .col{background:var(--muted);border-radius:var(--r-lg);padding:8px;min-height:240px;transition:outline-color .1s;outline:2px dashed transparent;outline-offset:-2px}
 .col.over{outline-color:var(--line-strong);background:var(--muted-2)}
 .col-h{display:flex;align-items:center;gap:6px;font-weight:600;padding:4px 6px 10px}
 .col-h .dot{width:7px;height:7px;border-radius:50%;background:var(--c)}
 .col-h .n{font-size:11px;color:var(--t3);background:var(--surface);border-radius:9px;padding:0 6px;line-height:18px}
-.col.hold .col-h{color:var(--red)}
 .kcard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:grab;box-shadow:var(--sh);transition:border-color .1s,box-shadow .1s}
 .kcard:hover{border-color:var(--line-strong);box-shadow:var(--sh-pop)}
 .kcard.late{box-shadow:inset 3px 0 0 var(--red),var(--sh)}
@@ -373,12 +370,9 @@ const sb = supabase.createClient('https://pacyhanuwuizcxwoggen.supabase.co',
 // 예전 버전이 localStorage에 남긴 로그인 정보 정리
 try { localStorage.removeItem('sb-pacyhanuwuizcxwoggen-auth-token'); } catch {}
 
-// AI통화완료는 콜 시스템 보류 중이라 맨 뒤 + 빨간색으로 표시
-const STATUSES = ['신규', '부재', '상담중', '계약', '종료', 'AI통화완료'];
-const ON_HOLD = 'AI통화완료';
-const STATUS_COLOR = { 신규: '#1E10C7', 부재: '#D97706', 상담중: '#EE4E00', 계약: '#16A34A', 종료: '#A1A1AA', AI통화완료: '#DC2626' };
+const STATUSES = ['신규', '부재', '상담중', '계약', '종료'];
+const STATUS_COLOR = { 신규: '#1E10C7', 부재: '#D97706', 상담중: '#EE4E00', 계약: '#16A34A', 종료: '#A1A1AA' };
 const GRADES = ['', '상', '중', '하'];
-const CALL_LABEL = { queued: '대기', calling: '통화 중', done: '완료', no_answer: '부재(재시도 끝)', failed: '실패', skipped: '통화 거부' };
 let rows = [], filter = { status: '', source: '', q: '', today: false, mine: false, unassigned: false };
 let me = null, admins = {}, events = {}, openId = null, knownIds = null; // admins: user_id -> 이름, events: contact_id -> 타임라인
 let pwMode = null; // 'set': 초대·재설정 링크로 들어와 새 비밀번호를 정하는 중, 'done': 방금 정함
@@ -447,7 +441,7 @@ async function start() {
 async function load() {
   const [c, a, ev] = await Promise.all([
     sb.from('contacts')
-      .select('id,created_at,name,phone,email,type,message,source,meta,status,grade,next_contact_at,call_status,call_scheduled_at,ai_summary,recording_url,assignee')
+      .select('id,created_at,name,phone,email,type,message,source,meta,status,grade,next_contact_at,assignee')
       .order('created_at', { ascending: false }).limit(1000),
     sb.from('admins').select('user_id,name'),
     // ponytail: 최근 기록 5000건 통째로. 문의가 수천 건이 되면 화면에 보이는 문의 것만 불러오게 바꾼다.
@@ -492,8 +486,8 @@ function groupRows() {
   rows.forEach((r) => { const k = contactKey(r); (by.get(k) || by.set(k, []).get(k)).push(r); }); // rows는 최신순
   return [...by.values()].map(([main, ...prev]) => Object.assign(main, { prev }));
 }
-const LATE_MS = 2 * 3600e3; // 신규가 2시간 넘게 방치되면 경고
-const isLate = (r) => r.status === '신규' && Date.now() - new Date(r.created_at) > LATE_MS;
+const LATE_MS = 2 * 3600e3; // 신규가 2시간 넘게 아무 통화·기록 없이 있으면 경고. 기록을 남기면 사라진다
+const isLate = (r) => r.status === '신규' && firstResponse(r) == null && Date.now() - new Date(r.created_at) > LATE_MS;
 const missCount = (id) => (events[id] || []).filter((e) => e.kind === 'call' && e.body.startsWith('부재')).length;
 // 처리 우선순: 신규(오래된 것 먼저) → 연락일 지난/오늘 → 나머지(최신순)
 function priority(r, today) {
@@ -514,7 +508,7 @@ function render() {
     if (key) b.style.setProperty('--c', STATUS_COLOR[key]);
     return b;
   };
-  $('pipeline').replaceChildren(tab('전체', '', total), ...STATUSES.map((s) => tab(s === ON_HOLD ? s + ' (보류)' : s, s, counts[s], s === ON_HOLD ? ' hold' : '')));
+  $('pipeline').replaceChildren(tab('전체', '', total), ...STATUSES.map((s) => tab(s, s, counts[s])));
   $('newBadge').hidden = !counts['신규']; $('newBadge').textContent = counts['신규'];
   document.title = (counts['신규'] ? `(${counts['신규']}) ` : '') + '문의함 — MUYI CRM';
   ['today', 'mine', 'unassigned'].forEach((k) => $(k).classList.toggle('on', filter[k]));
@@ -547,12 +541,12 @@ let view = 'table';
 function renderBoard(shown) {
   $('board').replaceChildren(...STATUSES.map((s) => {
     const cards = shown.filter((r) => r.status === s);
-    const col = el('div', { className: 'col' + (s === ON_HOLD ? ' hold' : ''),
+    const col = el('div', { className: 'col',
       ondragover: (e) => { e.preventDefault(); col.classList.add('over'); },
       ondragleave: () => col.classList.remove('over'),
       ondrop: (e) => { e.preventDefault(); col.classList.remove('over'); moveTo(e.dataTransfer.getData('text/plain'), s); },
     }, [
-      el('div', { className: 'col-h' }, [el('span', { className: 'dot' }), s === ON_HOLD ? s + ' (보류)' : s, el('span', { className: 'n', text: cards.length })]),
+      el('div', { className: 'col-h' }, [el('span', { className: 'dot' }), s, el('span', { className: 'n', text: cards.length })]),
       ...cards.map((r) => {
         const who = admins[r.assignee];
         return el('div', { className: 'kcard' + (isLate(r) ? ' late' : ''), draggable: true,
@@ -716,8 +710,6 @@ function panelRow(r) {
       el('div', { className: 'meta' }, [kst(r.created_at), fr != null && `첫 응답 ${fmtMin(fr)}`, r.source, r.type,
         utm.utm_campaign && '광고 ' + [utm.utm_source, utm.utm_campaign, utm.utm_content].filter(Boolean).join(' / ')].filter(Boolean).map((t) => el('span', { text: t }))),
       r.message && el('div', {}, [el('div', { className: 'sec-t', text: '문의 내용' }), el('div', { className: 'box', text: r.message })]),
-      r.call_status && el('div', { className: 'box' }, ['AI 통화 · ' + (CALL_LABEL[r.call_status] || r.call_status) + (r.ai_summary ? '\n' + r.ai_summary : ''),
-        /^https:\/\//.test(r.recording_url || '') && el('a', { href: r.recording_url, target: '_blank', rel: 'noopener', text: '녹음 듣기' })]),
       r.prev.length > 0 && el('div', {}, [el('div', { className: 'sec-t', text: `이전 문의 ${r.prev.length}건` }),
         el('div', { className: 'box' }, r.prev.map((p, i) => el('div', { className: i ? 'prev' : '', text: `${kst(p.created_at)} · ${p.source || '-'} · ${p.status}${p.message ? '\n' + p.message : ''}` })))]),
       el('div', {}, [el('div', { className: 'sec-t', text: '상담 기록' }),
