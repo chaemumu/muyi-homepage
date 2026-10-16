@@ -42,7 +42,23 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.6}
 #app{display:flex;min-height:100vh}
 .sidebar{width:var(--sidebar-w);background:#09086e;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh}
 .sb-head{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
-.sb-logo{display:block;width:150px;height:58px;object-fit:cover;margin:0 auto 4px}
+.sb-logo{display:block;width:104px;height:auto;margin:4px 4px 6px}
+.pg-actions{display:flex;gap:8px;flex-wrap:wrap}
+.add-form{display:grid;grid-template-columns:1fr 1fr 1fr 2fr auto;gap:8px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--surface);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow-sm);border:1px solid var(--border2)}
+.kpi-lbl{font-size:12px;font-weight:700;color:var(--gray-500);margin-bottom:8px}
+.kpi-val{font-size:30px;font-weight:900;letter-spacing:-1px;line-height:1}
+.kpi-sub{font-size:11px;color:var(--gray-400);margin-top:6px}
+.card-t{font-size:16px;font-weight:800;margin-bottom:14px;display:flex;gap:8px;align-items:baseline}
+.card-t small{font-size:12px;color:var(--gray-400);font-weight:500}
+.bars{display:flex;align-items:flex-end;gap:3px;height:140px}
+.bars div{flex:1;background:var(--blue);border-radius:4px 4px 0 0;min-height:2px;position:relative}
+.bars div:hover::after{content:attr(data-t);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--gray-950);color:#fff;font-size:11px;padding:3px 6px;border-radius:6px;white-space:nowrap}
+.tbl.perf tbody tr{cursor:default}
+.tbl.perf tr.camp td{font-weight:700;color:var(--gray-950);background:var(--gray-50)}
+.tbl.perf tr.ad td:first-child{padding-left:28px}
+.mi{width:100%;border:0;background:none;text-align:left;cursor:pointer}
 .sb-user{margin-top:12px;background:rgba(255,255,255,.1);border-radius:14px;padding:12px 14px}
 .u-nm{font-size:15px;color:#fff;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .u-rl{font-size:11px;color:rgba(255,255,255,.5);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -101,24 +117,42 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.6}
 .nc.today{background:#fff1f2;color:#9f1239;border-color:#fecdd3}
 .nc.past{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
 
-/* 상세 모달 */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px)}
-.modal{background:var(--surface);border-radius:var(--radius-xl);width:100%;max-width:680px;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modalIn .3s cubic-bezier(.34,1.56,.64,1)}
-@keyframes modalIn{from{opacity:0;transform:scale(.93) translateY(16px)}to{opacity:1;transform:none}}
-.modal-head{padding:20px 24px 16px;border-bottom:1px solid var(--border2);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:sticky;top:0;background:var(--surface);z-index:1}
-.modal-title{font-size:20px;font-weight:800;letter-spacing:-.4px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
-.modal-title a{font-size:15px;color:var(--orange);text-decoration:none}
-.modal-sub{font-size:12px;color:var(--gray-500);margin-top:3px;font-weight:500}
-.modal-close{width:32px;height:32px;border-radius:50%;background:var(--gray-100);border:none;cursor:pointer;font-size:14px;color:var(--gray-500);flex-shrink:0;font-weight:700}
-.modal-body{padding:20px 24px;display:grid;gap:14px}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* 행 상태 표시 */
+.tbl tbody tr.open td{background:var(--blue-light)}
+.tbl tbody tr.late td:first-child{box-shadow:inset 4px 0 0 var(--red)}
+.late-tag{display:inline-block;margin-left:6px;background:var(--red);color:#fff;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:700}
+.dup-tag{display:inline-block;margin-left:6px;background:#f3e8ff;color:#7c3aed;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:700}
+
+/* 펼쳐지는 처리 칸 */
+.tbl tbody tr.panel-row{cursor:default}
+.tbl tbody tr.panel-row td{background:#fff;padding:0;white-space:normal;max-width:none;border-bottom:2px solid var(--blue)}
+.panel{display:grid;grid-template-columns:1fr 380px;gap:20px;padding:18px 20px;animation:open .18s ease-out}
+@keyframes open{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.panel-l,.panel-r{display:grid;gap:12px;align-content:start;min-width:0}
+.panel-r{background:var(--gray-50);border-radius:16px;padding:14px}
+.ph{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.ph strong{font-size:18px}
+.ph a{color:var(--orange);font-weight:800;font-size:16px;text-decoration:none}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.seg button,.chips button{border:1.5px solid var(--border);background:#fff;border-radius:10px;padding:9px 6px;font-weight:700;cursor:pointer}
+.seg button.on{color:#fff;border-color:transparent}
+.seg button.ok.on{background:var(--green)}
+.seg button.miss.on{background:#f59e0b}
+.seg button.no.on{background:var(--gray-500)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{padding:6px 10px;font-size:12px;border-radius:20px}
+.chips button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.actions{display:grid;grid-template-columns:auto 1fr;gap:8px}
+.btn-p{padding:12px 16px;background:linear-gradient(135deg,#0a84ff,#0071e3);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:700;cursor:pointer}
+.err{color:var(--red);font-size:12px;font-weight:700;min-height:16px}
+.hint{background:#fff7ed;color:#9a3412;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:600}
+.prev{border-top:1px dashed var(--border);padding-top:8px;font-size:13px}
 .box{background:var(--gray-50);border-radius:12px;padding:12px 14px;white-space:pre-wrap;word-break:break-word;line-height:1.7}
 .box a{color:var(--blue);margin-left:6px;font-size:12px}
-.btn-s{padding:10px 18px;background:var(--blue-light);color:var(--blue);border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:700;cursor:pointer;justify-self:end}
-.btn-s:hover{background:#d0e8ff}
 .btn-g{padding:9px 16px;background:var(--surface);color:var(--gray-700);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer}
 .log{background:var(--surface);border-radius:14px;padding:12px 16px;margin-bottom:8px;border:1px solid var(--border2);border-left:3px solid var(--gray-300)}
-.log.note{border-left-color:var(--blue)}
+.log.note,.log.call{border-left-color:var(--blue)}
 .log-meta{display:flex;gap:8px;font-size:12px;margin-bottom:4px}
 .log-who{font-weight:800}
 .log-time{color:var(--gray-400);margin-left:auto;white-space:nowrap}
@@ -130,9 +164,15 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.6}
   #app{flex-direction:column}
   .sidebar{width:auto;height:auto;position:static;flex-direction:row;align-items:center}
   .sb-head{border:0;padding:10px 12px;display:flex;align-items:center;gap:10px;flex:1;min-width:0}
-  .sb-logo{width:90px;height:36px;margin:0}
+  .sb-logo{width:80px;margin:0}
+  .add-form{grid-template-columns:1fr}
   .sb-user{margin:0;padding:6px 10px;min-width:0}
-  .sb-nav{display:none}
+  .sidebar{flex-wrap:wrap}
+  .sb-nav{order:3;width:100%;display:flex;gap:4px;padding:0 10px 10px}
+  .nav-sec{display:none}
+  .mi{width:auto;padding:8px 12px;white-space:nowrap}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .kpi-val{font-size:24px}
   .sb-foot{border:0;padding:10px 12px}
   .pg-wrap{padding:16px}
   .pipeline-grid{grid-template-columns:repeat(4,1fr);gap:6px}
@@ -141,14 +181,14 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.6}
   .pipe-sub{display:none}
   .tools{grid-template-columns:1fr 1fr}
   .tools input{grid-column:1/-1}
-  .form-row{grid-template-columns:1fr}
+  .panel{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
 <div id="login" hidden>
   <form class="login-card" id="loginForm">
-    <div class="login-logo"><img src="/assets/logo-blue.png" alt="MUYI"><p>문의 관리</p></div>
+    <div class="login-logo"><img src="/assets/logo-blue.png" alt="MUYI"><p>MUYI CRM</p></div>
     <label><span class="lbl">이메일</span><input class="fi" id="email" type="email" placeholder="이메일 주소" autocomplete="username" required></label>
     <label><span class="lbl">비밀번호</span><input class="fi" id="password" type="password" placeholder="비밀번호" autocomplete="current-password" required></label>
     <button class="btn-login" type="submit">로그인</button>
@@ -159,21 +199,33 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.6}
 <div id="app" hidden>
   <aside class="sidebar">
     <div class="sb-head">
-      <img class="sb-logo" src="/assets/logo-white.png" alt="MUYI">
+      <img class="sb-logo" src="/assets/email-logo-white.png" alt="MUYI">
       <div class="sb-user"><div class="u-nm" id="meName"></div><div class="u-rl" id="meEmail"></div></div>
     </div>
     <nav class="sb-nav">
       <div class="nav-sec">업무</div>
-      <div class="mi active">문의 관리 <span class="mi-badge" id="newBadge" hidden></span></div>
+      <button class="mi active" data-page="inbox">문의함 <span class="mi-badge" id="newBadge" hidden></span></button>
+      <button class="mi" data-page="perf">광고 성과</button>
     </nav>
     <div class="sb-foot"><button class="btn-logout" id="logout">로그아웃</button></div>
   </aside>
 
-  <main class="main"><div class="pg-wrap">
+  <main class="main"><div class="pg-wrap" id="pg-inbox">
     <div class="pg-head">
-      <div><h1 class="pg-title">문의 관리</h1><p class="pg-desc" id="desc"></p></div>
-      <button class="btn-g" id="reload">새로고침</button>
+      <div><h1 class="pg-title">문의함</h1><p class="pg-desc" id="desc"></p></div>
+      <div class="pg-actions">
+        <button class="btn-g" id="addBtn">+ 문의 등록</button>
+        <button class="btn-g" id="csv">엑셀(CSV)</button>
+        <button class="btn-g" id="reload">새로고침</button>
+      </div>
     </div>
+    <form class="card add-form" id="addForm" hidden>
+      <input class="fi" name="name" placeholder="이름 또는 업체명" required>
+      <input class="fi" name="phone" placeholder="연락처" inputmode="tel" required>
+      <input class="fi" name="type" placeholder="업종 (선택)">
+      <input class="fi" name="message" placeholder="문의 내용 (전화·카톡 등으로 받은 내용)">
+      <button class="btn-p" type="submit">등록</button>
+    </form>
     <div class="pipeline-grid" id="pipeline"></div>
     <div class="card tools">
       <input class="fi" id="q" type="search" placeholder="이름·연락처·내용·상담 기록 검색">
@@ -188,10 +240,24 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.6}
         <tbody id="list"></tbody>
       </table>
     </div></div>
+  </div>
+
+  <div class="pg-wrap" id="pg-perf" hidden>
+    <div class="pg-head">
+      <div><h1 class="pg-title">광고 성과</h1><p class="pg-desc">캠페인·소재(utm_campaign / utm_content)별로 문의가 실제 상담·계약까지 가는지 봅니다.</p></div>
+      <div class="pg-actions" id="period"></div>
+    </div>
+    <div class="kpi-row" id="kpis"></div>
+    <div class="card"><div class="card-t">일별 문의 수</div><div class="bars" id="bars"></div></div>
+    <div class="card"><div class="card-t">캠페인 · 소재별 <small>상담중 이상 = 상담중 + 계약</small></div>
+      <div class="tbl-wrap"><table class="tbl perf">
+        <thead><tr><th>캠페인 / 소재</th><th>문의</th><th>통화 연결</th><th>상담중 이상</th><th>계약</th><th>계약률</th><th>평균 첫 응답</th></tr></thead>
+        <tbody id="perfBody"></tbody>
+      </table></div>
+    </div>
   </div></main>
 </div>
 
-<div class="modal-overlay" id="modal" hidden></div>
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -210,7 +276,7 @@ const STATUS_COLOR = { 신규: '#5e5ce6', 부재: '#ffd60a', 상담중: '#ff6b00
 const GRADES = ['', '상', '중', '하'];
 const CALL_LABEL = { queued: '대기', calling: '통화 중', done: '완료', no_answer: '부재(재시도 끝)', failed: '실패', skipped: '통화 거부' };
 let rows = [], filter = { status: '', source: '', q: '', today: false, mine: false, unassigned: false };
-let me = null, admins = {}, events = {}, openId = null; // admins: user_id -> 이름, events: contact_id -> 타임라인
+let me = null, admins = {}, events = {}, openId = null, knownIds = null; // admins: user_id -> 이름, events: contact_id -> 타임라인
 
 const $ = (id) => document.getElementById(id);
 // Builds DOM with textContent only, so lead-submitted text can never inject HTML.
@@ -228,6 +294,12 @@ const kstDay = (iso) => new Date(iso).toLocaleDateString('sv-SE', { timeZone: 'A
 const todayKst = () => kstDay(new Date());
 const badge = (s) => el('span', { className: 'badge s-' + s, text: s || '—' });
 const lastEvent = (id) => (events[id] || [])[(events[id] || []).length - 1];
+// 첫 응답 시간(분): 문의 접수 후 사람이 처음 남긴 통화·기록까지. 광고 리드는 빨리 걸수록 계약률이 높다.
+function firstResponse(r) {
+  const e = (events[r.id] || []).find((x) => x.actor && (x.kind === 'call' || x.kind === 'note'));
+  return e ? Math.max(0, Math.round((new Date(e.created_at) - new Date(r.created_at)) / 60000)) : null;
+}
+const fmtMin = (m) => m == null ? '-' : m < 60 ? `${m}분` : m < 1440 ? `${Math.round(m / 60 * 10) / 10}시간` : `${Math.round(m / 1440 * 10) / 10}일`;
 
 async function start() {
   const { data: { session } } = await sb.auth.getSession();
@@ -256,6 +328,10 @@ async function load() {
   ]);
   const error = c.error || a.error || ev.error;
   if (error) { toast('불러오기 실패: ' + error.message); return; }
+  // 자동 새로고침으로 새 문의가 들어오면 알려준다
+  const fresh = knownIds && c.data.filter((r) => !knownIds.has(r.id)).length;
+  if (fresh) toast(`새 문의 ${fresh}건`);
+  knownIds = new Set(c.data.map((r) => r.id));
   rows = c.data;
   admins = Object.fromEntries(a.data.map((x) => [x.user_id, x.name || '관리자']));
   $('meName').textContent = admins[me] || '관리자';
@@ -265,12 +341,33 @@ async function load() {
   $('source').replaceChildren(el('option', { value: '', text: '모든 유입 경로' }), ...sources.map((s) => el('option', { value: s, text: s })));
   $('source').value = sources.includes(filter.source) ? filter.source : '';
   render();
+  renderPerf();
 }
 
+// 같은 연락처로 다시 들어온 문의는 최신 건 하나로 묶는다 (이전 건은 펼친 칸에 표시)
+// ponytail: 묶음 상태는 최신 건 기준. 이전 건의 상태·담당자는 따로 관리하지 않는다.
+const contactKey = (r) => (r.phone || '').replace(/\D/g, '') || (r.email || '').trim().toLowerCase() || r.id;
+function groupRows() {
+  const by = new Map();
+  rows.forEach((r) => { const k = contactKey(r); (by.get(k) || by.set(k, []).get(k)).push(r); }); // rows는 최신순
+  return [...by.values()].map(([main, ...prev]) => Object.assign(main, { prev }));
+}
+const LATE_MS = 2 * 3600e3; // 신규가 2시간 넘게 방치되면 경고
+const isLate = (r) => r.status === '신규' && Date.now() - new Date(r.created_at) > LATE_MS;
+const missCount = (id) => (events[id] || []).filter((e) => e.kind === 'call' && e.body.startsWith('부재')).length;
+// 처리 우선순: 신규(오래된 것 먼저) → 연락일 지난/오늘 → 나머지(최신순)
+function priority(r, today) {
+  if (r.status === '신규') return [0, +new Date(r.created_at)];
+  if (r.next_contact_at && kstDay(r.next_contact_at) <= today && !['계약', '종료'].includes(r.status)) return [1, +new Date(r.next_contact_at)];
+  return [2, -new Date(r.created_at)];
+}
+let shownIds = [];
+
 function render() {
+  const groups = groupRows(), today = todayKst();
   const counts = Object.fromEntries(STATUSES.map((s) => [s, 0]));
-  rows.forEach((r) => { counts[r.status] = (counts[r.status] || 0) + 1; });
-  const total = rows.length;
+  groups.forEach((r) => { counts[r.status] = (counts[r.status] || 0) + 1; });
+  const total = groups.length;
   const pipe = (label, key, n, extra = '') => el('button', {
     className: 'pipe-card' + (filter.status === key ? ' on' : '') + extra, onclick: () => { filter.status = key; render(); },
   }, [el('div', { className: 'pipe-label', text: label }), el('div', { className: 'pipe-count', text: n }),
@@ -278,20 +375,25 @@ function render() {
   $('pipeline').replaceChildren(pipe('전체', '', total),
     ...STATUSES.map((s) => { const p = pipe(s, s, counts[s], s === ON_HOLD ? ' hold' : ''); p.style.setProperty('--c', STATUS_COLOR[s]); return p; }));
   $('newBadge').hidden = !counts['신규']; $('newBadge').textContent = counts['신규'];
+  document.title = (counts['신규'] ? `(${counts['신규']}) ` : '') + '문의함 — MUYI CRM';
   ['today', 'mine', 'unassigned'].forEach((k) => $(k).classList.toggle('on', filter[k]));
 
-  const q = filter.q.trim().toLowerCase(), today = todayKst();
-  const shown = rows.filter((r) =>
+  const q = filter.q.trim().toLowerCase();
+  const shown = groups.filter((r) =>
     (!filter.status || r.status === filter.status) &&
     (!filter.source || r.source === filter.source) &&
     (!filter.mine || r.assignee === me) &&
     (!filter.unassigned || !r.assignee) &&
     (!filter.today || (r.next_contact_at && kstDay(r.next_contact_at) <= today && !['계약', '종료'].includes(r.status))) &&
-    (!q || [r.name, r.phone, r.email, r.message, r.type, ...(events[r.id] || []).map((e) => e.body)].some((v) => (v || '').toLowerCase().includes(q))));
-  $('desc').textContent = `${shown.length}건 표시 · 전체 ${total}건`;
+    (!q || [r, ...r.prev].some((x) => [x.name, x.phone, x.email, x.message, x.type, ...(events[x.id] || []).map((e) => e.body)].some((v) => (v || '').toLowerCase().includes(q)))))
+    .sort((a, b) => { const pa = priority(a, today), pb = priority(b, today); return pa[0] - pb[0] || pa[1] - pb[1]; });
+  shownIds = shown.map((r) => r.id);
+  const late = groups.filter(isLate).length;
+  $('desc').textContent = `${shown.length}건 표시 · 전체 ${total}건` + (late ? ` · 2시간 넘게 방치된 신규 ${late}건` : '');
 
-  $('list').replaceChildren(...(shown.length ? shown.map(row) : [el('tr', {}, el('td', { colSpan: 9, className: 'empty', text: '조건에 맞는 문의가 없습니다.' }))]));
-  if (openId) openDetail(openId);
+  $('list').replaceChildren(...(shown.length
+    ? shown.flatMap((r) => r.id === openId ? [row(r), panelRow(r)] : [row(r)])
+    : [el('tr', {}, el('td', { colSpan: 9, className: 'empty', text: '조건에 맞는 문의가 없습니다.' }))]));
 }
 
 function nextBadge(r) {
@@ -302,80 +404,124 @@ function nextBadge(r) {
 
 function row(r) {
   const utm = (r.meta && r.meta.utm) || {};
-  const last = lastEvent(r.id);
-  return el('tr', { onclick: () => openDetail(r.id) }, [
-    el('td', { className: 'nowrap sub', text: kst(r.created_at) }),
-    el('td', {}, el('strong', { text: r.name || '(이름 없음)' })),
-    el('td', { className: 'nowrap', text: r.phone || r.email || '-' }),
+  const last = lastEvent(r.id), miss = missCount(r.id);
+  const hours = Math.floor((Date.now() - new Date(r.created_at)) / 3600e3);
+  return el('tr', { className: (r.id === openId ? 'open ' : '') + (isLate(r) ? 'late' : ''), onclick: () => toggle(r.id) }, [
+    el('td', { className: 'sub' }, [kst(r.created_at), isLate(r) && el('span', { className: 'late-tag', text: hours >= 24 ? `${Math.floor(hours / 24)}일 방치` : `${hours}시간 방치` })]),
+    el('td', {}, [el('strong', { text: r.name || '(이름 없음)' }), r.prev.length > 0 && el('span', { className: 'dup-tag', text: `재문의 ${r.prev.length + 1}회` })]),
+    el('td', { text: r.phone || r.email || '-' }),
     el('td', {}, r.type ? el('span', { className: 'tag-chip', text: r.type }) : '-'),
     el('td', { className: 'sub', text: [r.source, utm.utm_campaign].filter(Boolean).join(' / ') || '-' }),
-    el('td', {}, badge(r.status)),
-    el('td', { className: 'nowrap', text: admins[r.assignee] || '미배정' }),
+    el('td', {}, [badge(r.status), miss > 0 && el('span', { className: 'sub', text: ` 부재 ${miss}회` })]),
+    el('td', { text: admins[r.assignee] || '미배정' }),
     el('td', {}, nextBadge(r)),
-    el('td', { className: 'sub', text: last ? last.body.slice(0, 30) : '-' }),
+    el('td', { className: 'sub', text: last ? last.body.replace(/\s+/g, ' ').slice(0, 30) : '-' }),
   ]);
 }
 
-function openDetail(id) {
-  const r = rows.find((x) => x.id === id);
-  if (!r) return closeDetail();
-  openId = id;
+function toggle(id) { openId = openId === id ? null : id; render(); }
+
+const RESULTS = [
+  { key: '통화성공', cls: 'ok', status: '상담중' },
+  { key: '부재', cls: 'miss', status: '부재' },
+  { key: '거절', cls: 'no', status: '종료' },
+];
+const NEEDS_NEXT = ['부재', '상담중'];
+const addDays = (n) => { const d = new Date(Date.now() + 9 * 3600e3); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+
+// 통화 한 건 처리: 결과 버튼 → 상태 자동 → 다음 연락일 → 메모 → 저장(후 다음 건)
+function panelRow(r) {
   const utm = (r.meta && r.meta.utm) || {};
   const tel = (r.phone || '').replace(/[^0-9+]/g, '');
-  // 상태·담당자 변경은 DB 트리거가 타임라인에 남기므로 저장 후 그 문의 기록을 다시 읽는다
-  const save = async (patch) => {
-    const { error } = await sb.from('contacts').update(patch).eq('id', r.id);
-    if (error) { toast('저장 실패: ' + error.message); render(); return; }
-    Object.assign(r, patch); toast('저장됨');
-    if (['status', 'assignee'].some((k) => k in patch)) await reloadEvents(r.id);
-    render();
-  };
-  const sel = (opts, val, key, labels = {}) => el('select', { className: 'fi', onchange: (e) => save({ [key]: e.target.value || null }) },
-    opts.map((o) => el('option', { value: o, text: labels[o] || o || '—', selected: (val || '') === o })));
-  const nextDay = r.next_contact_at ? kstDay(r.next_contact_at) : '';
-  const note = el('textarea', { className: 'fi', placeholder: '상담 기록 (통화 내용, 다음 할 일)' });
-  const addNote = async () => {
-    const body = note.value.trim();
-    if (!body) return;
-    const { error } = await sb.from('contact_events').insert({ contact_id: r.id, kind: 'note', body, actor: me });
-    if (error) { toast('저장 실패: ' + error.message); return; }
-    await reloadEvents(r.id); render(); toast('기록됨');
-  };
+  const st = { result: null, status: r.status, next: r.next_contact_at ? kstDay(r.next_contact_at) : '' };
+  const miss = missCount(r.id);
 
-  $('modal').replaceChildren(el('div', { className: 'modal' }, [
-    el('div', { className: 'modal-head' }, [
-      el('div', {}, [
-        el('div', { className: 'modal-title' }, [el('span', { text: r.name || '(이름 없음)' }), r.phone && el('a', { href: 'tel:' + tel, text: r.phone }), badge(r.status)]),
-        el('div', { className: 'modal-sub', text: [kst(r.created_at), r.email, r.source, r.type].filter(Boolean).join(' · ') }),
-        (utm.utm_source || utm.utm_campaign) && el('div', { className: 'modal-sub', text: '광고: ' + [utm.utm_source, utm.utm_campaign, utm.utm_content].filter(Boolean).join(' / ') }),
-      ]),
-      el('button', { className: 'modal-close', type: 'button', text: '✕', onclick: closeDetail }),
+  const resultBtns = RESULTS.map((x) => el('button', { type: 'button', className: x.cls, text: x.key, onclick: () => {
+    st.result = st.result === x.key ? null : x.key;
+    if (st.result) { st.status = x.status; if (x.key === '부재' && !st.next) st.next = addDays(1); }
+    sync();
+  } }));
+  const status = el('select', { className: 'fi', onchange: (e) => { st.status = e.target.value; sync(); } },
+    STATUSES.map((s) => el('option', { value: s, text: s })));
+  const QUICK = [['오늘', 0], ['내일', 1], ['3일 뒤', 3], ['다음주', 7]];
+  const quick = QUICK.map(([label, n]) => el('button', { type: 'button', text: label, onclick: () => { st.next = addDays(n); sync(); } }));
+  const date = el('input', { className: 'fi', type: 'date', onchange: (e) => { st.next = e.target.value; sync(); } });
+  const memo = el('textarea', { className: 'fi', placeholder: '통화 내용, 다음 할 일' });
+  const err = el('div', { className: 'err' });
+  function sync() {
+    resultBtns.forEach((b) => b.classList.toggle('on', b.textContent === st.result));
+    status.value = st.status;
+    date.value = st.next;
+    quick.forEach((b, i) => b.classList.toggle('on', st.next === addDays(QUICK[i][1])));
+    err.textContent = '';
+  }
+  const assignee = el('select', { className: 'fi', onchange: async (e) => {
+    const v = e.target.value || null;
+    const { error } = await sb.from('contacts').update({ assignee: v }).eq('id', r.id);
+    if (error) { toast('저장 실패: ' + error.message); return; }
+    r.assignee = v; await reloadEvents(r.id); toast('담당자 지정됨'); render();
+  } }, [el('option', { value: '', text: '미배정' }), ...Object.entries(admins).map(([id, n]) => el('option', { value: id, text: n, selected: r.assignee === id }))]);
+  const grade = el('select', { className: 'fi', onchange: (e) => sb.from('contacts').update({ grade: e.target.value || null }).eq('id', r.id).then(({ error }) => { if (!error) r.grade = e.target.value || null; toast(error ? '저장 실패' : '저장됨'); }) },
+    GRADES.map((g) => el('option', { value: g, text: g ? '등급 ' + g : '등급 —', selected: (r.grade || '') === g })));
+
+  async function save(goNext) {
+    if (NEEDS_NEXT.includes(st.status) && !st.next) { err.textContent = `'${st.status}'은 다음 연락일을 정해야 저장됩니다.`; return; }
+    const patch = {};
+    if (st.status !== r.status) patch.status = st.status;
+    const nextIso = st.next ? st.next + 'T00:00:00+09:00' : null;
+    if ((st.next || '') !== (r.next_contact_at ? kstDay(r.next_contact_at) : '')) patch.next_contact_at = nextIso;
+    const text = memo.value.trim();
+    if (!Object.keys(patch).length && !st.result && !text) { err.textContent = '바뀐 내용이 없습니다.'; return; }
+    if (Object.keys(patch).length) {
+      const { error } = await sb.from('contacts').update(patch).eq('id', r.id);
+      if (error) { err.textContent = '저장 실패: ' + error.message; return; }
+      Object.assign(r, patch);
+    }
+    if (st.result || text) {
+      const { error } = await sb.from('contact_events').insert({ contact_id: r.id, actor: me, kind: st.result ? 'call' : 'note', body: [st.result, text].filter(Boolean).join(' · ') });
+      if (error) { err.textContent = '기록 실패: ' + error.message; return; }
+    }
+    await reloadEvents(r.id);
+    toast('저장됨');
+    const i = shownIds.indexOf(r.id);
+    openId = goNext ? (shownIds[i + 1] || null) : null;
+    render();
+    if (openId) document.querySelector('tr.open')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+
+  const panel = el('div', { className: 'panel' }, [
+    el('div', { className: 'panel-l' }, [
+      el('div', { className: 'ph' }, [el('strong', { text: r.name || '(이름 없음)' }), r.phone && el('a', { href: 'tel:' + tel, text: '📞 ' + r.phone }), r.email && el('span', { className: 'sub', text: r.email })]),
+      el('div', { className: 'sub', text: [kst(r.created_at), firstResponse(r) != null && `첫 응답 ${fmtMin(firstResponse(r))}`, r.source, r.type, utm.utm_campaign && '광고: ' + [utm.utm_source, utm.utm_campaign, utm.utm_content].filter(Boolean).join(' / ')].filter(Boolean).join(' · ') }),
+      r.message && el('div', { className: 'box', text: r.message }),
+      r.call_status && el('div', { className: 'box' }, ['AI 통화 · ' + (CALL_LABEL[r.call_status] || r.call_status) + (r.ai_summary ? '\n' + r.ai_summary : ''),
+        /^https:\/\//.test(r.recording_url || '') && el('a', { href: r.recording_url, target: '_blank', rel: 'noopener', text: '녹음 듣기' })]),
+      r.prev.length > 0 && el('div', {}, [el('span', { className: 'lbl', text: `이전 문의 ${r.prev.length}건` }),
+        ...r.prev.map((p) => el('div', { className: 'prev', text: `${kst(p.created_at)} · ${p.source || '-'} · ${p.status}${p.message ? '\n' + p.message : ''}` }))]),
+      el('div', {}, [el('span', { className: 'lbl', text: '상담 기록' }),
+        ...[...(events[r.id] || [])].reverse().map((e) => el('div', { className: 'log ' + e.kind }, [
+          el('div', { className: 'log-meta' }, [el('span', { className: 'log-who', text: e.actor ? (admins[e.actor] || '관리자') : '시스템' }), el('span', { className: 'log-time', text: kst(e.created_at) })]),
+          el('p', { text: e.body }),
+        ])),
+        !(events[r.id] || []).length && el('div', { className: 'sub', text: '아직 기록이 없습니다.' })]),
     ]),
-    el('div', { className: 'modal-body' }, [
-      r.message && el('div', {}, [el('span', { className: 'lbl', text: '문의 내용' }), el('div', { className: 'box', text: r.message })]),
-      r.call_status && el('div', {}, [
-        el('span', { className: 'lbl', text: 'AI 통화 · ' + (CALL_LABEL[r.call_status] || r.call_status) + (r.call_status === 'queued' && r.call_scheduled_at ? ' (' + kst(r.call_scheduled_at) + ')' : '') }),
-        (r.ai_summary || r.recording_url) && el('div', { className: 'box' }, [r.ai_summary || '',
-          /^https:\/\//.test(r.recording_url || '') && el('a', { href: r.recording_url, target: '_blank', rel: 'noopener', text: '녹음 듣기' })]),
+    el('div', { className: 'panel-r' }, [
+      el('div', {}, [el('span', { className: 'lbl', text: '통화 결과' }), el('div', { className: 'seg' }, resultBtns)]),
+      miss >= 2 && el('div', { className: 'hint', text: `이미 부재 ${miss}회입니다. 이번에도 안 받으면 '종료'를 검토하세요.` }),
+      el('div', { className: 'row2' }, [el('label', {}, [el('span', { className: 'lbl', text: '상태' }), status]), el('label', {}, [el('span', { className: 'lbl', text: '담당자' }), assignee])]),
+      el('div', {}, [el('span', { className: 'lbl', text: '다음 연락일' }), el('div', { className: 'chips' }, quick), date]),
+      el('label', {}, [el('span', { className: 'lbl', text: '메모' }), memo]),
+      grade,
+      err,
+      el('div', { className: 'actions' }, [
+        el('button', { className: 'btn-g', type: 'button', text: '저장', onclick: () => save(false) }),
+        el('button', { className: 'btn-p', type: 'button', text: '저장하고 다음 건 →', onclick: () => save(true) }),
       ]),
-      el('div', { className: 'form-row' }, [
-        el('label', {}, [el('span', { className: 'lbl', text: '상태' }), sel(STATUSES, r.status, 'status')]),
-        el('label', {}, [el('span', { className: 'lbl', text: '담당자' }), sel(['', ...Object.keys(admins)], r.assignee, 'assignee', { '': '미배정', ...admins })]),
-        el('label', {}, [el('span', { className: 'lbl', text: '등급' }), sel(GRADES, r.grade, 'grade')]),
-        el('label', {}, [el('span', { className: 'lbl', text: '다음 연락일' }), el('input', { className: 'fi', type: 'date', value: nextDay,
-          onchange: (e) => save({ next_contact_at: e.target.value ? e.target.value + 'T00:00:00+09:00' : null }) })]),
-      ]),
-      el('label', {}, [el('span', { className: 'lbl', text: '상담 기록' }), note]),
-      el('button', { className: 'btn-s', type: 'button', text: '기록 추가', onclick: addNote }),
-      el('div', {}, [...(events[r.id] || [])].reverse().map((e) => el('div', { className: 'log ' + e.kind }, [
-        el('div', { className: 'log-meta' }, [el('span', { className: 'log-who', text: e.actor ? (admins[e.actor] || '관리자') : '시스템' }), el('span', { className: 'log-time', text: kst(e.created_at) })]),
-        el('p', { text: e.body }),
-      ]))),
     ]),
-  ]));
-  $('modal').hidden = false;
+  ]);
+  sync();
+  return el('tr', { className: 'panel-row' }, el('td', { colSpan: 9 }, panel));
 }
-function closeDetail() { openId = null; $('modal').hidden = true; $('modal').replaceChildren(); }
 
 async function reloadEvents(id) {
   const { data } = await sb.from('contact_events').select('id,contact_id,actor,kind,body,created_at').eq('contact_id', id).order('created_at');
@@ -388,13 +534,93 @@ $('loginForm').addEventListener('submit', async (e) => {
   if (error) { $('loginMsg').textContent = '로그인 실패: 이메일 또는 비밀번호를 확인하세요.'; return; }
   $('password').value = ''; start();
 });
-$('logout').onclick = async () => { await sb.auth.signOut(); rows = []; closeDetail(); $('list').replaceChildren(); start(); };
+$('logout').onclick = async () => { await sb.auth.signOut(); rows = []; openId = null; $('list').replaceChildren(); start(); };
 $('reload').onclick = load;
 $('q').oninput = (e) => { filter.q = e.target.value; render(); };
 $('source').onchange = (e) => { filter.source = e.target.value; render(); };
 ['today', 'mine', 'unassigned'].forEach((k) => { $(k).onclick = () => { filter[k] = !filter[k]; render(); }; });
-$('modal').onclick = (e) => { if (e.target === $('modal')) closeDetail(); };
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && openId) closeDetail(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && openId) toggle(openId); });
+
+// ── 메뉴 ──
+document.querySelectorAll('.mi[data-page]').forEach((b) => b.onclick = () => {
+  document.querySelectorAll('.mi[data-page]').forEach((x) => x.classList.toggle('active', x === b));
+  $('pg-inbox').hidden = b.dataset.page !== 'inbox';
+  $('pg-perf').hidden = b.dataset.page !== 'perf';
+});
+
+// ── 1분마다 새 문의 확인. 처리 칸을 펼쳐 입력 중일 때는 건너뛴다(입력 내용 보호) ──
+setInterval(() => { if (me && !openId && document.visibilityState === 'visible') load(); }, 60000);
+
+// ── 직접 등록 (전화·카톡 문의) ──
+$('addBtn').onclick = () => { $('addForm').hidden = !$('addForm').hidden; if (!$('addForm').hidden) $('addForm').elements.name.focus(); };
+$('addForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target));
+  const { data, error } = await sb.from('contacts').insert({
+    name: f.name.trim(), phone: f.phone.trim(), type: f.type.trim() || null, message: f.message.trim(),
+    source: 'manual', status: '신규', assignee: me,
+  }).select('id').single();
+  if (error) { toast('등록 실패: ' + error.message); return; }
+  e.target.reset(); e.target.hidden = true;
+  await load(); openId = data.id; render();
+};
+
+// ── CSV 내보내기: 지금 화면에 걸러진 목록 그대로 (엑셀에서 한글 깨지지 않게 BOM) ──
+$('csv').onclick = () => {
+  const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const head = ['접수', '이름', '연락처', '이메일', '업종', '유입', '캠페인', '소재', '상태', '담당자', '다음 연락', '첫 응답(분)', '문의 내용', '최근 기록'];
+  const lines = shownIds.map((id) => rows.find((r) => r.id === id)).map((r) => {
+    const u = (r.meta && r.meta.utm) || {}, last = lastEvent(r.id);
+    return [kst(r.created_at), r.name, r.phone, r.email, r.type, r.source, u.utm_campaign, u.utm_content, r.status, admins[r.assignee] || '',
+      r.next_contact_at ? kstDay(r.next_contact_at) : '', firstResponse(r), r.message, last && last.body].map(cell).join(',');
+  });
+  const a = el('a', { href: URL.createObjectURL(new Blob(['﻿' + [head.map(cell).join(','), ...lines].join('\r\n')], { type: 'text/csv' })), download: `문의_${todayKst()}.csv` });
+  a.click(); URL.revokeObjectURL(a.href);
+};
+
+// ── 광고 성과 ──
+let perfDays = 30;
+function renderPerf() {
+  $('period').replaceChildren(...[[7, '7일'], [30, '30일'], [90, '90일'], [0, '전체']].map(([d, t]) =>
+    el('button', { className: 'p-btn' + (perfDays === d ? ' on' : ''), text: t, onclick: () => { perfDays = d; renderPerf(); } })));
+  const since = perfDays ? Date.now() - perfDays * 864e5 : 0;
+  const list = rows.filter((r) => +new Date(r.created_at) >= since);
+  const reached = (r) => (events[r.id] || []).some((e) => e.kind === 'call' && e.body.startsWith('통화성공'));
+  const engaged = (r) => ['상담중', '계약'].includes(r.status);
+  const avg = (xs) => { const v = xs.filter((x) => x != null); return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : null; };
+  const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '-';
+  const stats = (xs) => ({ n: xs.length, reached: xs.filter(reached).length, engaged: xs.filter(engaged).length, won: xs.filter((r) => r.status === '계약').length, resp: avg(xs.map(firstResponse)) });
+
+  const s = stats(list), late = list.filter(isLate).length;
+  const kpi = (lbl, val, sub) => el('div', { className: 'kpi' }, [el('div', { className: 'kpi-lbl', text: lbl }), el('div', { className: 'kpi-val', text: val }), sub && el('div', { className: 'kpi-sub', text: sub })]);
+  $('kpis').replaceChildren(
+    kpi('문의', s.n, late ? `2시간 넘게 방치된 신규 ${late}건` : '방치된 신규 없음'),
+    kpi('평균 첫 응답', fmtMin(s.resp), '빠를수록 계약률이 올라갑니다'),
+    kpi('통화 연결률', pct(s.reached, s.n), `통화성공 ${s.reached}건`),
+    kpi('상담 전환율', pct(s.engaged, s.n), `상담중 이상 ${s.engaged}건`),
+    kpi('계약', s.won, '계약률 ' + pct(s.won, s.n)));
+
+  // 일별 막대 (최대 90일)
+  const days = Math.min(perfDays || 90, 90), byDay = {};
+  list.forEach((r) => { const d = kstDay(r.created_at); byDay[d] = (byDay[d] || 0) + 1; });
+  const keys = Array.from({ length: days }, (_, i) => kstDay(Date.now() - (days - 1 - i) * 864e5));
+  const max = Math.max(1, ...keys.map((k) => byDay[k] || 0));
+  $('bars').replaceChildren(...keys.map((k) => { const d = el('div'); d.style.height = ((byDay[k] || 0) / max * 100) + '%'; d.dataset.t = `${k.slice(5)} · ${byDay[k] || 0}건`; return d; }));
+
+  // 캠페인 → 소재. UTM이 없으면 유입 경로로 묶는다.
+  const camps = {};
+  list.forEach((r) => {
+    const u = (r.meta && r.meta.utm) || {};
+    const c = u.utm_campaign ? `${u.utm_source || '광고'} · ${u.utm_campaign}` : `(광고 아님) ${r.source || '알 수 없음'}`;
+    ((camps[c] ||= {})[u.utm_content || '(소재 미지정)'] ||= []).push(r);
+  });
+  const line = (cls, label, xs) => { const t = stats(xs); return el('tr', { className: cls }, [label, t.n, t.reached, t.engaged, t.won, pct(t.won, t.n), fmtMin(t.resp)].map((v) => el('td', { text: v }))); };
+  const order = Object.entries(camps).sort((a, b) => Object.values(b[1]).flat().length - Object.values(a[1]).flat().length);
+  $('perfBody').replaceChildren(...(order.length ? order.flatMap(([c, ads]) => [
+    line('camp', c, Object.values(ads).flat()),
+    ...Object.entries(ads).sort((a, b) => b[1].length - a[1].length).map(([ad, xs]) => line('ad', ad, xs)),
+  ]) : [el('tr', {}, el('td', { colSpan: 7, className: 'empty', text: '이 기간에 들어온 문의가 없습니다.' }))]));
+}
 start();
 </script>
 </body>
