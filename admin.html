@@ -18,6 +18,8 @@
 }
 *{box-sizing:border-box;margin:0}
 [hidden]{display:none!important}
+/* 전체 15% 확대. zoom 안에서는 100vh도 같이 커지므로 화면 높이는 --vh로 나눠 쓴다 */
+html{zoom:1.15;--vh:calc(100vh / 1.15)}
 body{font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;color:var(--t1);background:var(--bg);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
 button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 button{cursor:pointer}
@@ -39,7 +41,7 @@ select.fi{appearance:none;padding-right:28px;background:#fff url("data:image/svg
 .err{color:var(--red);font-size:12px;font-weight:600;min-height:16px}
 
 /* 로그인 */
-#login{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(1200px 600px at 50% -10%,var(--brand-50),transparent 60%),var(--bg)}
+#login{min-height:var(--vh);display:grid;place-items:center;padding:24px;background:radial-gradient(1200px 600px at 50% -10%,var(--brand-50),transparent 60%),var(--bg)}
 .login-card{width:100%;max-width:380px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:32px;box-shadow:var(--sh-pop);display:grid;gap:14px;animation:rise .35s ease-out both}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .login-card img{height:30px;width:auto;justify-self:start}
@@ -51,8 +53,8 @@ select.fi{appearance:none;padding-right:28px;background:#fff url("data:image/svg
 #loginMsg.ok{color:var(--green)}
 
 /* 레이아웃 */
-#app{display:flex;min-height:100vh}
-.sidebar{width:232px;flex-shrink:0;background:var(--sidebar);border-right:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+#app{display:flex;min-height:var(--vh)}
+.sidebar{width:208px;flex-shrink:0;background:var(--sidebar);border-right:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:var(--vh)}
 .sb-logo{display:flex;align-items:center;gap:8px;padding:18px 18px 14px}
 .sb-logo img{height:24px;width:auto}
 .sb-logo span{font-size:11px;font-weight:700;color:var(--t3);border:1px solid var(--line);border-radius:5px;padding:1px 6px;background:#fff}
@@ -112,7 +114,7 @@ select.fi{appearance:none;padding-right:28px;background:#fff url("data:image/svg
 .tbl{width:100%;border-collapse:collapse}
 .tbl th{position:sticky;top:0;text-align:left;font-size:12px;font-weight:500;color:var(--t3);padding:0 12px;height:36px;border-bottom:1px solid var(--line);background:#FCFCFD;white-space:nowrap}
 .tbl td{padding:0 12px;height:46px;border-bottom:1px solid var(--line-2);white-space:nowrap;color:var(--t2)}
-.tbl td:last-child{max-width:240px;overflow:hidden;text-overflow:ellipsis}
+.tbl td:last-child,.tbl td.src{max-width:130px;overflow:hidden;text-overflow:ellipsis}
 .tbl tbody tr{cursor:pointer;transition:background .1s}
 .tbl tbody tr:hover td{background:#FAFAFB}
 .tbl tbody tr:last-child td{border-bottom:0}
@@ -199,6 +201,9 @@ select.fi{appearance:none;padding-right:28px;background:#fff url("data:image/svg
 .toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,8px);background:var(--t1);color:#fff;padding:8px 14px;border-radius:var(--r);font-weight:500;opacity:0;transition:all .2s;pointer-events:none;z-index:2000;box-shadow:var(--sh-pop)}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
+/* 15% 확대 상태라 노트북 화면에선 덜 중요한 열(업종, 최근 기록)을 숨긴다. 둘 다 펼친 칸에 나온다 */
+@media (max-width:1500px){.tbl:not(.perf) tr>:nth-child(4){display:none}}
+@media (max-width:1320px){.tbl:not(.perf) tr>:nth-child(9){display:none}}
 @media (max-width:1100px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
 @media (max-width:900px){
   #app{flex-direction:column}
@@ -304,9 +309,9 @@ select.fi{appearance:none;padding-right:28px;background:#fff url("data:image/svg
       <div class="pg stack">
         <div class="kpi-row" id="kpis" style="margin:0"></div>
         <div class="card"><div class="card-t">일별 문의 수</div><div class="bars" id="bars"></div></div>
-        <div class="card"><div class="card-t">캠페인 · 소재별 <small>utm_campaign / utm_content 기준 · 상담중 이상 = 상담중 + 계약</small></div>
+        <div class="card"><div class="card-t">캠페인 · 소재별 <small>광고 링크에 붙은 캠페인·소재 이름으로 묶었습니다. 상담 진행 = 상담중이거나 계약까지 간 문의</small></div>
           <div class="tbl-wrap"><table class="tbl perf">
-            <thead><tr><th>캠페인 / 소재</th><th>문의</th><th>통화 연결</th><th>상담중 이상</th><th>계약</th><th>계약률</th><th>평균 첫 응답</th></tr></thead>
+            <thead><tr><th>캠페인 / 소재</th><th>문의</th><th>통화 연결</th><th>상담 진행</th><th>계약</th><th>계약률</th><th>평균 첫 응답</th></tr></thead>
             <tbody id="perfBody"></tbody>
           </table></div>
         </div>
@@ -498,7 +503,7 @@ function row(r) {
     el('td', { className: 'name' }, [el('strong', { text: r.name || '(이름 없음)' }), r.prev.length > 0 && el('span', { className: 'flag dup', text: `재문의 ${r.prev.length + 1}회` })]),
     el('td', { text: r.phone || r.email || '-' }),
     el('td', {}, r.type ? el('span', { className: 'tag', text: r.type }) : el('span', { className: 'sub', text: '—' })),
-    el('td', { className: 'sub', text: [r.source, utm.utm_campaign].filter(Boolean).join(' / ') || '-' }),
+    el('td', { className: 'sub src', text: [r.source, utm.utm_campaign].filter(Boolean).join(' / ') || '-' }),
     el('td', {}, [pill(r.status), miss > 0 && el('span', { className: 'flag miss', text: `부재 ${miss}` })]),
     el('td', {}, who ? el('span', { className: 'who' }, [avatar(who, 'sm'), who]) : el('span', { className: 'who none' }, [el('span', { className: 'av sm none' }), '미배정'])),
     el('td', {}, nextBadge(r)),
@@ -712,7 +717,7 @@ function renderPerf() {
     kpi('문의', s.n, late ? `2시간 넘게 방치된 신규 ${late}건` : '방치된 신규 없음'),
     kpi('평균 첫 응답', fmtMin(s.resp), '빠를수록 계약률이 올라갑니다'),
     kpi('통화 연결률', pct(s.reached, s.n), `통화성공 ${s.reached}건`),
-    kpi('상담 전환율', pct(s.engaged, s.n), `상담중 이상 ${s.engaged}건`),
+    kpi('상담 전환율', pct(s.engaged, s.n), `상담 진행 ${s.engaged}건`),
     kpi('계약', s.won, '계약률 ' + pct(s.won, s.n)));
 
   // 일별 막대 (최대 90일)
