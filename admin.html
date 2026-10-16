@@ -103,6 +103,21 @@ select.fi{appearance:none;padding-right:28px;background:#fff url("data:image/svg
 .chip:hover{border-color:var(--t3);color:var(--t1)}
 .chip.on{border-style:solid;border-color:var(--brand);background:var(--brand-50);color:var(--brand);font-weight:600}
 .filters select.fi{width:auto;height:28px;border-radius:14px;font-size:12px;border-style:dashed;border-color:#D4D4D8}
+.view-toggle{margin-left:auto}
+.alert+.view-toggle{margin-left:0}
+/* 보드(칸반) */
+.board{display:grid;grid-template-columns:repeat(6,minmax(170px,1fr));gap:10px;overflow-x:auto;align-items:start;padding-bottom:8px}
+.col{background:#F1F1F4;border-radius:var(--r-lg);padding:8px;min-height:240px;transition:outline-color .1s;outline:2px dashed transparent;outline-offset:-2px}
+.col.over{outline-color:var(--brand);background:var(--brand-50)}
+.col-h{display:flex;align-items:center;gap:6px;font-weight:600;padding:4px 6px 10px}
+.col-h .dot{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.col-h .n{font-size:11px;color:var(--t3);background:#fff;border-radius:9px;padding:0 6px;line-height:18px}
+.col.hold .col-h{color:var(--red)}
+.kcard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:grab;box-shadow:var(--sh);transition:border-color .1s,box-shadow .1s}
+.kcard:hover{border-color:#D4D4D8;box-shadow:var(--sh-pop)}
+.kcard.late{box-shadow:inset 3px 0 0 var(--red),var(--sh)}
+.kcard b{display:block;color:var(--t1);font-weight:600}
+.krow{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px;color:var(--t3)}
 .alert{margin-left:auto;display:inline-flex;align-items:center;gap:6px;color:var(--red);font-weight:600;font-size:12px;background:#FEF2F2;border:1px solid #FECACA;padding:4px 10px;border-radius:14px}
 
 /* 직접 등록 */
@@ -188,7 +203,7 @@ select.fi{appearance:none;padding-right:28px;background:#fff url("data:image/svg
 .seg-tabs{display:inline-flex;background:#EDEDF0;border-radius:var(--r);padding:2px;gap:2px}
 .seg-tabs button{height:28px;padding:0 12px;border:0;border-radius:6px;background:none;color:var(--t2);font-weight:600;font-size:12px}
 .seg-tabs button.on{background:#fff;color:var(--t1);box-shadow:var(--sh)}
-.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:12px}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
 .kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;box-shadow:var(--sh)}
 .kpi-lbl{font-size:12px;font-weight:500;color:var(--t3)}
 .kpi-val{font-size:26px;font-weight:700;letter-spacing:-.03em;margin-top:6px;line-height:1.1;font-variant-numeric:tabular-nums}
@@ -211,7 +226,7 @@ select.fi{appearance:none;padding-right:28px;background:#fff url("data:image/svg
 /* 15% 확대 상태라 노트북 화면에선 덜 중요한 열(업종, 최근 기록)을 숨긴다. 둘 다 펼친 칸에 나온다 */
 @media (max-width:1500px){.tbl:not(.perf) tr>:nth-child(4){display:none}}
 @media (max-width:1320px){.tbl:not(.perf) tr>:nth-child(9){display:none}}
-@media (max-width:1100px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
+
 @media (max-width:900px){
   #app{flex-direction:column}
   .sidebar{width:auto;height:auto;position:static;flex-direction:row;align-items:center;border-right:0;border-bottom:1px solid var(--line)}
@@ -298,8 +313,10 @@ select.fi{appearance:none;padding-right:28px;background:#fff url("data:image/svg
           <button class="chip" id="unassigned">미배정</button>
           <select class="fi" id="source"><option value="">모든 유입 경로</option></select>
           <span class="alert" id="lateAlert" hidden><svg class="i"><use href="#i-alert"/></svg><span></span></span>
+          <div class="seg-tabs view-toggle" id="viewToggle"><button data-v="table">표</button><button data-v="board">보드</button></div>
         </div>
-        <div class="card"><div class="tbl-wrap">
+        <div class="board" id="board" hidden></div>
+        <div class="card" id="tableCard"><div class="tbl-wrap">
           <table class="tbl">
             <thead><tr><th>접수</th><th>이름</th><th>연락처</th><th>업종</th><th>유입</th><th>상태</th><th>담당자</th><th>다음 연락</th><th>최근 기록</th></tr></thead>
             <tbody id="list"></tbody>
@@ -318,7 +335,7 @@ select.fi{appearance:none;padding-right:28px;background:#fff url("data:image/svg
         <div class="card"><div class="card-t">일별 문의 수</div><div class="bars" id="bars"></div></div>
         <div class="card"><div class="card-t">캠페인 · 소재별 <small>광고 링크에 붙은 캠페인·소재 이름으로 묶었습니다. 상담 진행 = 상담중이거나 계약까지 간 문의</small></div>
           <div class="tbl-wrap"><table class="tbl perf">
-            <thead><tr><th>캠페인 / 소재</th><th>문의</th><th>통화 연결</th><th>상담 진행</th><th>계약</th><th>계약률</th><th>평균 첫 응답</th></tr></thead>
+            <thead><tr><th>캠페인 / 소재</th><th>광고비</th><th>문의</th><th>문의당 비용</th><th>상담 진행</th><th>계약</th><th>계약당 비용</th><th>평균 첫 응답</th></tr></thead>
             <tbody id="perfBody"></tbody>
           </table></div>
         </div>
@@ -425,6 +442,9 @@ async function load() {
   ]);
   const error = c.error || a.error || ev.error;
   if (error) { toast('불러오기 실패: ' + error.message); return; }
+  // 광고비는 없어도 문의함은 돌아가야 하니 실패해도 무시
+  const sp = await sb.from('ad_spend').select('date,campaign_id,campaign_name,ad_id,ad_name,spend').order('date').limit(20000);
+  spend = sp.data || [];
   // 자동 새로고침으로 새 문의가 들어오면 알려준다
   const fresh = knownIds && c.data.filter((r) => !knownIds.has(r.id)).length;
   if (fresh) toast(`새 문의 ${fresh}건`);
@@ -487,8 +507,11 @@ function render() {
   ['today', 'mine', 'unassigned'].forEach((k) => $(k).classList.toggle('on', filter[k]));
 
   const q = filter.q.trim().toLowerCase();
+  const board = view === 'board'; // 보드는 상태별 열로 보여주니 상태 탭 필터는 쓰지 않는다
+  $('pipeline').hidden = board; $('tableCard').hidden = board; $('board').hidden = !board;
+  [...$('viewToggle').children].forEach((b) => b.classList.toggle('on', b.dataset.v === view));
   const shown = groups.filter((r) =>
-    (!filter.status || r.status === filter.status) &&
+    (board || !filter.status || r.status === filter.status) &&
     (!filter.source || r.source === filter.source) &&
     (!filter.mine || r.assignee === me) &&
     (!filter.unassigned || !r.assignee) &&
@@ -500,9 +523,53 @@ function render() {
   $('desc').textContent = shown.length === total ? `${total}건` : `${shown.length} / ${total}건`;
   $('lateAlert').hidden = !late; $('lateAlert').lastChild.textContent = `2시간 넘게 방치된 신규 ${late}건`;
 
+  if (board) { renderBoard(shown); return; }
   $('list').replaceChildren(...(shown.length
     ? shown.flatMap((r) => r.id === openId ? [row(r), panelRow(r)] : [row(r)])
     : [el('tr', {}, el('td', { colSpan: 9, className: 'empty', text: total ? '조건에 맞는 문의가 없습니다.' : '아직 들어온 문의가 없습니다. 광고가 돌면 여기에 쌓입니다.' }))]));
+}
+
+// ── 보드(칸반): 카드를 다른 열로 끌어 상태 변경. 카드를 누르면 표로 돌아가 그 문의를 펼친다 ──
+let view = 'table';
+function renderBoard(shown) {
+  $('board').replaceChildren(...STATUSES.map((s) => {
+    const cards = shown.filter((r) => r.status === s);
+    const col = el('div', { className: 'col' + (s === ON_HOLD ? ' hold' : ''),
+      ondragover: (e) => { e.preventDefault(); col.classList.add('over'); },
+      ondragleave: () => col.classList.remove('over'),
+      ondrop: (e) => { e.preventDefault(); col.classList.remove('over'); moveTo(e.dataTransfer.getData('text/plain'), s); },
+    }, [
+      el('div', { className: 'col-h' }, [el('span', { className: 'dot' }), s === ON_HOLD ? s + ' (보류)' : s, el('span', { className: 'n', text: cards.length })]),
+      ...cards.map((r) => {
+        const who = admins[r.assignee];
+        return el('div', { className: 'kcard' + (isLate(r) ? ' late' : ''), draggable: true,
+          ondragstart: (e) => e.dataTransfer.setData('text/plain', r.id),
+          onclick: () => { view = 'table'; filter.status = ''; openId = r.id; render(); document.querySelector('tr.open')?.scrollIntoView({ block: 'center' }); },
+        }, [
+          el('b', { text: r.name || '(이름 없음)' }),
+          el('div', { className: 'sub', text: [r.phone, r.type].filter(Boolean).join(' · ') }),
+          el('div', { className: 'krow' }, [
+            who ? el('span', { className: 'who' }, [avatar(who, 'sm'), who]) : el('span', { className: 'who none', text: '미배정' }),
+            r.next_contact_at ? nextBadge(r) : el('span', { text: ago(r.created_at) }),
+          ]),
+        ]);
+      }),
+    ]);
+    col.style.setProperty('--c', STATUS_COLOR[s]);
+    return col;
+  }));
+}
+async function moveTo(id, status) {
+  const r = rows.find((x) => x.id === id);
+  if (!r || r.status === status) return;
+  const patch = { status };
+  // 부재·상담중은 다음 연락일이 꼭 있어야 하니 비어 있으면 내일로 잡는다
+  if (NEEDS_NEXT.includes(status) && !r.next_contact_at) patch.next_contact_at = addDays(1) + 'T00:00:00+09:00';
+  const { error } = await sb.from('contacts').update(patch).eq('id', id);
+  if (error) { toast('저장 실패: ' + error.message); return; }
+  Object.assign(r, patch); await reloadEvents(id);
+  toast(`${r.name || '문의'} → ${status}` + (patch.next_contact_at ? ' (다음 연락 내일)' : ''));
+  render();
 }
 
 function nextBadge(r) {
@@ -701,6 +768,8 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+$('viewToggle').onclick = (e) => { const v = e.target.closest('button')?.dataset.v; if (v) { view = v; openId = null; render(); } };
+
 // ── 메뉴 ──
 document.querySelectorAll('.mi[data-page]').forEach((b) => b.onclick = () => {
   document.querySelectorAll('.mi[data-page]').forEach((x) => x.classList.toggle('active', x === b));
@@ -739,7 +808,8 @@ $('csv').onclick = () => {
 };
 
 // ── 광고 성과 ──
-let perfDays = 30;
+let perfDays = 30, spend = []; // spend: ad_spend 일별 광고비 (meta-spend 함수가 채움)
+const won = (n) => n == null ? '-' : '₩' + Math.round(n).toLocaleString('ko-KR');
 function renderPerf() {
   $('period').replaceChildren(...[[7, '7일'], [30, '30일'], [90, '90일'], [0, '전체']].map(([d, t]) =>
     el('button', { className: perfDays === d ? 'on' : '', text: t, onclick: () => { perfDays = d; renderPerf(); } })));
@@ -751,9 +821,24 @@ function renderPerf() {
   const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '-';
   const stats = (xs) => ({ n: xs.length, reached: xs.filter(reached).length, engaged: xs.filter(engaged).length, won: xs.filter((r) => r.status === '계약').length, resp: avg(xs.map(firstResponse)) });
 
+  // 광고비: 메타 캠페인·광고 이름(또는 id)을 utm_campaign / utm_content와 맞춘다
+  const sinceDay = perfDays ? kstDay(since) : '0000';
+  const sp = spend.filter((x) => x.date >= sinceDay);
+  const campName = Object.fromEntries(spend.map((x) => [x.campaign_id, x.campaign_name]));
+  const adName = Object.fromEntries(spend.map((x) => [x.ad_id, x.ad_name]));
+  const campSpend = {}, adSpend = {};
+  sp.forEach((x) => { campSpend[x.campaign_name] = (campSpend[x.campaign_name] || 0) + +x.spend; (adSpend[x.campaign_name] ||= {})[x.ad_name] = (adSpend[x.campaign_name][x.ad_name] || 0) + +x.spend; });
+  const utmOf = (r) => { const u = (r.meta && r.meta.utm) || {}; return { camp: u.utm_campaign && (campName[u.utm_campaign] || u.utm_campaign), ad: u.utm_content && (adName[u.utm_content] || u.utm_content), src: u.utm_source }; };
+  const totalSpend = sp.reduce((a, x) => a + +x.spend, 0);
+  const paid = list.filter((r) => campSpend[utmOf(r).camp] != null);
+  const per = (sum, n) => sum && n ? sum / n : null;
+
   const s = stats(list), late = list.filter(isLate).length;
   const kpi = (lbl, val, sub) => el('div', { className: 'kpi' }, [el('div', { className: 'kpi-lbl', text: lbl }), el('div', { className: 'kpi-val', text: val }), sub && el('div', { className: 'kpi-sub', text: sub })]);
   $('kpis').replaceChildren(
+    kpi('메타 광고비', spend.length ? won(totalSpend) : '-', spend.length ? `광고 문의 ${paid.length}건` : '광고 계정 연결 전'),
+    kpi('문의당 비용', won(per(totalSpend, paid.length)), '광고비 ÷ 광고로 들어온 문의'),
+    kpi('계약당 비용', won(per(totalSpend, paid.filter((r) => r.status === '계약').length)), '광고비 ÷ 광고 계약'),
     kpi('문의', s.n, late ? `2시간 넘게 방치된 신규 ${late}건` : '방치된 신규 없음'),
     kpi('평균 첫 응답', fmtMin(s.resp), '빠를수록 계약률이 올라갑니다'),
     kpi('통화 연결률', pct(s.reached, s.n), `통화성공 ${s.reached}건`),
@@ -767,19 +852,26 @@ function renderPerf() {
   const max = Math.max(1, ...keys.map((k) => byDay[k] || 0));
   $('bars').replaceChildren(...keys.map((k) => { const d = el('div'); d.style.height = ((byDay[k] || 0) / max * 100) + '%'; d.dataset.t = `${mmdd(k)} · ${byDay[k] || 0}건`; return d; }));
 
-  // 캠페인 → 소재. UTM이 없으면 유입 경로로 묶는다.
-  const camps = {};
+  // 캠페인 → 소재. UTM이 없으면 유입 경로로 묶는다. 광고비만 쓰고 문의가 0인 캠페인·소재도 보여준다.
+  const camps = {}; // key -> { label, spend, ads: { name -> { spend, xs } } }
+  const camp = (key, label) => (camps[key] ||= { label, spend: null, ads: {} });
+  const ad = (c, name) => (c.ads[name] ||= { spend: null, xs: [] });
   list.forEach((r) => {
-    const u = (r.meta && r.meta.utm) || {};
-    const c = u.utm_campaign ? `${u.utm_source || '광고'} · ${u.utm_campaign}` : `(광고 아님) ${r.source || '알 수 없음'}`;
-    ((camps[c] ||= {})[u.utm_content || '(소재 미지정)'] ||= []).push(r);
+    const u = utmOf(r);
+    const c = u.camp ? camp('c:' + u.camp, `${campSpend[u.camp] != null ? 'meta' : u.src || '광고'} · ${u.camp}`) : camp('s:' + r.source, `(광고 아님) ${r.source || '알 수 없음'}`);
+    ad(c, u.ad || '(소재 미지정)').xs.push(r);
   });
-  const line = (cls, label, xs) => { const t = stats(xs); return el('tr', { className: cls }, [label, t.n, t.reached, t.engaged, t.won, pct(t.won, t.n), fmtMin(t.resp)].map((v) => el('td', { text: v }))); };
-  const order = Object.entries(camps).sort((a, b) => Object.values(b[1]).flat().length - Object.values(a[1]).flat().length);
-  $('perfBody').replaceChildren(...(order.length ? order.flatMap(([c, ads]) => [
-    line('camp', c, Object.values(ads).flat()),
-    ...Object.entries(ads).sort((a, b) => b[1].length - a[1].length).map(([ad, xs]) => line('ad', ad, xs)),
-  ]) : [el('tr', {}, el('td', { colSpan: 7, className: 'empty', text: '이 기간에 들어온 문의가 없습니다.' }))]));
+  Object.entries(campSpend).forEach(([name, v]) => {
+    const c = camp('c:' + name, 'meta · ' + name); c.spend = v;
+    Object.entries(adSpend[name]).forEach(([a, w]) => { ad(c, a).spend = w; });
+  });
+  const line = (cls, label, xs, sum) => { const t = stats(xs); return el('tr', { className: cls }, [label, won(sum), t.n, won(per(sum, t.n)), t.engaged, t.won, won(per(sum, t.won)), fmtMin(t.resp)].map((v) => el('td', { text: v }))); };
+  const all = (c) => Object.values(c.ads).flatMap((a) => a.xs);
+  const order = Object.values(camps).sort((a, b) => all(b).length - all(a).length || (b.spend || 0) - (a.spend || 0));
+  $('perfBody').replaceChildren(...(order.length ? order.flatMap((c) => [
+    line('camp', c.label, all(c), c.spend),
+    ...Object.entries(c.ads).sort((a, b) => b[1].xs.length - a[1].xs.length || (b[1].spend || 0) - (a[1].spend || 0)).map(([name, a]) => line('ad', name, a.xs, a.spend)),
+  ]) : [el('tr', {}, el('td', { colSpan: 8, className: 'empty', text: '이 기간에 들어온 문의가 없습니다.' }))]));
 }
 start();
 </script>

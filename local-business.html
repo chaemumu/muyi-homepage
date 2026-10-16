@@ -797,6 +797,12 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 }
 .biz-b:hover{border-color:var(--brand);transform:translateY(-2px)}
 .biz-b.sel{background:var(--brand);color:var(--on-brand);border-color:var(--brand);font-weight:700}
+/* 통화 편한 시간 (선택) — 부재를 줄이려고 받는다 */
+.ct-grid{display:flex;flex-wrap:wrap;gap:.45rem}
+.ct-b{font-family:inherit;font-size:.82rem;font-weight:600;padding:.55rem .9rem;border-radius:999px;cursor:pointer;background:var(--surface-2);border:1px solid var(--line);color:var(--text);transition:all var(--dur) var(--ease)}
+.ct-b:hover{border-color:var(--brand)}
+.ct-b.sel{background:var(--brand);color:var(--on-brand);border-color:var(--brand);font-weight:700}
+.fl small{font-weight:500;color:var(--text-sub)}
 /* 1단계 축소 칩 */
 .chip-row{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin-bottom:1.5rem}
 .chip-lb{font-size:.8rem;color:var(--text-sub)}
@@ -1617,6 +1623,16 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
           <input class="fi" id="f-phone" type="tel" name="phone" placeholder="010-0000-0000" inputmode="numeric" autocomplete="tel" maxlength="13" required>
         </div>
         <div class="fg">
+          <span class="fl">통화 편한 시간 <small>(선택)</small></span>
+          <div class="ct-grid" id="ctGrid">
+            <button class="ct-b" type="button" data-ct="오전 (9~12시)">오전</button>
+            <button class="ct-b" type="button" data-ct="점심 (12~14시)">점심</button>
+            <button class="ct-b" type="button" data-ct="오후 (14~18시)">오후</button>
+            <button class="ct-b" type="button" data-ct="저녁 (18시 이후)">저녁</button>
+            <button class="ct-b" type="button" data-ct="언제든">언제든</button>
+          </div>
+        </div>
+        <div class="fg">
           <label class="fl" for="f-msg">궁금하신 점</label>
           <textarea class="ft" id="f-msg" name="message" placeholder="선택 입력"></textarea>
         </div>
@@ -2107,6 +2123,14 @@ var STORE_PLACEHOLDER={
   '반려동물':'무이 동물병원','웨딩·스튜디오':'무이 스튜디오','자동차정비':'무이 카센터',
   '기타':'무이 상사'
 };
+/* 통화 편한 시간: 하나만 고르고, 다시 누르면 해제 */
+document.getElementById('ctGrid').addEventListener('click',function(e){
+  var btn=e.target.closest('.ct-b');
+  if(!btn)return;
+  var on=!btn.classList.contains('sel');
+  document.querySelectorAll('.ct-b').forEach(function(b){b.classList.remove('sel');});
+  if(on)btn.classList.add('sel');
+});
 document.getElementById('bizGrid').addEventListener('click',function(e){
   var btn=e.target.closest('.biz-b');
   if(!btn)return;
@@ -2242,6 +2266,9 @@ function handleSubmit(){
   var msgVal=msgEl.value.trim();
   var nocallEl=document.getElementById('f-nocall');
   if(nocallEl&&nocallEl.checked)msgVal='[통화 없이 리포트만 요청]'+(msgVal?' '+msgVal:'');
+  /* 통화 편한 시간도 같은 방식으로 message 끝에 붙인다 (메일·CRM·카카오워크 알림에 그대로 보임) */
+  var ctSel=document.querySelector('#ctGrid .ct-b.sel');
+  if(ctSel)msgVal=(msgVal?msgVal+'\n':'')+'[통화 편한 시간] '+ctSel.dataset.ct;
 
   var body={
     name:store,
@@ -2289,7 +2316,7 @@ function handleSubmit(){
     /* 6. 완료 처리 (성공 팝업) */
     showSuccessPopup(store);
     form.reset();
-    document.querySelectorAll('.biz-b').forEach(function(b){b.classList.remove('sel');});
+    document.querySelectorAll('.biz-b,.ct-b').forEach(function(b){b.classList.remove('sel');});
     industryInput.value='';
     step1.style.display='block';chipRow.style.display='none';step2.classList.remove('on');
   })
