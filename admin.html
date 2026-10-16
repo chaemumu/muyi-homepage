@@ -333,6 +333,8 @@ select.fi{appearance:none;padding-right:28px;background:#fff url("data:image/svg
 <script>
 // 초대·비밀번호 재설정 메일 링크로 들어오면 주소 끝(#)에 type=invite|recovery가 붙는다. 클라이언트가 지우기 전에 읽어둔다.
 const AUTH_TYPE = new URLSearchParams(location.hash.slice(1)).get('type');
+// 카카오워크 알림의 "CRM에서 바로 열기" 링크(/admin?lead=<id>). 로그인 후 그 문의를 펼쳐준다.
+let deepLead = new URLSearchParams(location.search).get('lead');
 // Public (anon) key — same as the site forms. Access is enforced by RLS: only users listed in public.admins can read/update.
 const sb = supabase.createClient('https://pacyhanuwuizcxwoggen.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhY3loYW51d3VpemN4d29nZ2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTI2NDgsImV4cCI6MjA5MTI4ODY0OH0.oe39KUtwr-mZ4OsqWQT6Y3USpigQpD825IM14mIFEaY',
@@ -436,8 +438,17 @@ async function load() {
   const sources = [...new Set(rows.map((r) => r.source).filter(Boolean))].sort();
   $('source').replaceChildren(el('option', { value: '', text: '모든 유입 경로' }), ...sources.map((s) => el('option', { value: s, text: s })));
   $('source').value = sources.includes(filter.source) ? filter.source : '';
+  const target = deepLead && rows.find((r) => r.id === deepLead);
+  if (target) {
+    // 재문의로 묶였으면 묶음의 대표(최신) 건을 연다
+    openId = rows.find((r) => contactKey(r) === contactKey(target)).id;
+    filter = { status: '', source: '', q: '', today: false, mine: false, unassigned: false };
+    $('q').value = '';
+  }
+  if (deepLead) { deepLead = null; history.replaceState(null, '', location.pathname); }
   render();
   renderPerf();
+  if (target) document.querySelector('tr.open')?.scrollIntoView({ block: 'center' });
 }
 
 // 같은 연락처로 다시 들어온 문의는 최신 건 하나로 묶는다 (이전 건은 펼친 칸에 표시)
