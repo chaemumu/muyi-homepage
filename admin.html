@@ -22,7 +22,12 @@
   .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
   .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;cursor:pointer}
   .chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
-  .tools{display:grid;grid-template-columns:1fr 200px auto;gap:8px;margin-bottom:16px}
+  .tools{display:grid;grid-template-columns:1fr 200px auto auto;gap:8px;margin-bottom:16px}
+  .tl{list-style:none;padding:0;display:grid;gap:6px;max-height:240px;overflow:auto}
+  .tl li{border-left:3px solid var(--line);padding:2px 0 2px 8px}
+  .tl li.note{border-color:var(--brand)}
+  .tl .who{font-size:11px;color:var(--muted)}
+  .tl p{white-space:pre-wrap;word-break:break-word}
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:10px;display:grid;grid-template-columns:1fr 280px;gap:16px}
   .top{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}
   .name{font-weight:700;font-size:16px}
@@ -61,6 +66,7 @@
     <input id="q" type="search" placeholder="이름·연락처·내용 검색">
     <select id="source"><option value="">모든 유입 경로</option></select>
     <button class="btn ghost" id="today">오늘 연락할 문의</button>
+    <button class="btn ghost" id="mine">내 담당만</button>
   </div>
   <div id="list"></div>
 </div>
@@ -75,7 +81,8 @@ const sb = supabase.createClient('https://pacyhanuwuizcxwoggen.supabase.co',
 const STATUSES = ['신규', 'AI통화완료', '부재', '상담예약', '계약', '종료'];
 const GRADES = ['', '상', '중', '하'];
 const CALL_LABEL = { queued: '대기', calling: '통화 중', done: '완료', no_answer: '부재(재시도 끝)', failed: '실패', skipped: '통화 거부' };
-let rows = [], filter = { status: '', source: '', q: '', today: false };
+let rows = [], filter = { status: '', source: '', q: '', today: false, mine: false };
+let me = null, admins = {}, events = {}; // admins: user_id -> 이름, events: contact_id -> 타임라인
 
 const $ = (id) => document.getElementById(id);
 // Builds DOM with textContent only, so lead-submitted text can never inject HTML.
@@ -101,16 +108,26 @@ async function start() {
     await sb.auth.signOut();
     return;
   }
+  me = session.user.id;
   $('login').hidden = true; $('app').hidden = false;
   load();
 }
 
 async function load() {
-  const { data, error } = await sb.from('contacts')
-    .select('id,created_at,name,phone,email,type,message,source,meta,status,grade,memo,next_contact_at,call_status,call_scheduled_at,ai_summary,recording_url')
-    .order('created_at', { ascending: false }).limit(1000);
+  const [c, a, ev] = await Promise.all([
+    sb.from('contacts')
+      .select('id,created_at,name,phone,email,type,message,source,meta,status,grade,next_contact_at,call_status,call_scheduled_at,ai_summary,recording_url,assignee,contract_amount')
+      .order('created_at', { ascending: false }).limit(1000),
+    sb.from('admins').select('user_id,name'),
+    // ponytail: 최근 기록 5000건 통째로. 2단계(목록 페이지 나누기)에서 화면에 보이는 문의 것만 불러오게 바꾼다.
+    sb.from('contact_events').select('id,contact_id,actor,kind,body,created_at').order('created_at').limit(5000),
+  ]);
+  const error = c.error || a.error || ev.error;
   if (error) { toast('불러오기 실패: ' + error.message); return; }
-  rows = data;
+  rows = c.data;
+  admins = Object.fromEntries(a.data.map((x) => [x.user_id, x.name || '관리자']));
+  events = {};
+  ev.data.forEach((e) => (events[e.contact_id] ||= []).push(e));
   const sources = [...new Set(rows.map((r) => r.source).filter(Boolean))].sort();
   $('source').replaceChildren(el('option', { value: '', text: '모든 유입 경로' }), ...sources.map((s) => el('option', { value: s, text: s })));
   $('source').value = sources.includes(filter.source) ? filter.source : '';
@@ -124,13 +141,15 @@ function render() {
     el('button', { className: 'chip' + (filter.status ? '' : ' on'), text: `전체 ${rows.length}`, onclick: () => { filter.status = ''; render(); } }),
     ...STATUSES.map((s) => el('button', { className: 'chip' + (filter.status === s ? ' on' : ''), text: `${s} ${counts[s]}`, onclick: () => { filter.status = s; render(); } })));
   $('today').classList.toggle('on', filter.today);
+  $('mine').classList.toggle('on', filter.mine);
 
   const q = filter.q.trim().toLowerCase(), today = todayKst();
   const shown = rows.filter((r) =>
     (!filter.status || r.status === filter.status) &&
     (!filter.source || r.source === filter.source) &&
+    (!filter.mine || r.assignee === me) &&
     (!filter.today || (r.next_contact_at && new Date(r.next_contact_at).toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' }) <= today && !['계약', '종료'].includes(r.status))) &&
-    (!q || [r.name, r.phone, r.email, r.message, r.memo, r.type].some((v) => (v || '').toLowerCase().includes(q))));
+    (!q || [r.name, r.phone, r.email, r.message, r.type, ...(events[r.id] || []).map((e) => e.body)].some((v) => (v || '').toLowerCase().includes(q))));
 
   $('list').replaceChildren(...(shown.length ? shown.map(card) : [el('p', { className: 'empty', text: '조건에 맞는 문의가 없습니다.' })]));
 }
@@ -138,15 +157,43 @@ function render() {
 function card(r) {
   const utm = (r.meta && r.meta.utm) || {};
   const tel = (r.phone || '').replace(/[^0-9+]/g, '');
+  // 상태·담당자·금액 변경은 DB 트리거가 타임라인에 남기므로 저장 후 그 문의 기록을 다시 읽는다
   const save = async (patch) => {
     const { error } = await sb.from('contacts').update(patch).eq('id', r.id);
-    if (error) { toast('저장 실패: ' + error.message); return; }
+    if (error) { toast('저장 실패: ' + error.message); render(); return; }
     Object.assign(r, patch); toast('저장됨');
-    if ('status' in patch) render();
+    if (['status', 'assignee', 'contract_amount'].some((k) => k in patch)) { await reloadEvents(r.id); render(); }
   };
   const sel = (opts, val, key) => el('select', { onchange: (e) => save({ [key]: e.target.value || null }) },
     opts.map((o) => el('option', { value: o, text: o || '—', selected: (val || '') === o })));
-  const memo = el('textarea', { value: r.memo || '', placeholder: '상담 메모', onchange: (e) => save({ memo: e.target.value }) });
+  // '계약'은 금액이 있어야 메타 구매 전환이 나가므로 금액이 비어 있으면 같이 받는다
+  const status = el('select', { onchange: (e) => {
+    const v = e.target.value;
+    if (v === '계약' && r.contract_amount == null) {
+      const amt = askAmount();
+      if (amt === null) { e.target.value = r.status; return; }
+      return save({ status: v, contract_amount: amt });
+    }
+    save({ status: v });
+  } }, STATUSES.map((o) => el('option', { value: o, text: o, selected: r.status === o })));
+  const assignee = el('select', { onchange: (e) => save({ assignee: e.target.value || null }) }, [
+    el('option', { value: '', text: '미배정' }),
+    ...Object.entries(admins).map(([id, name]) => el('option', { value: id, text: name, selected: r.assignee === id })),
+  ]);
+  const amount = el('input', { type: 'number', min: 0, step: 10000, placeholder: '원', value: r.contract_amount ?? '',
+    onchange: (e) => save({ contract_amount: e.target.value === '' ? null : Math.max(0, Math.round(+e.target.value)) }) });
+  const note = el('textarea', { placeholder: '상담 기록 (통화 내용, 다음 할 일)' });
+  const addNote = el('button', { className: 'btn ghost', type: 'button', text: '기록 추가', onclick: async () => {
+    const body = note.value.trim();
+    if (!body) return;
+    const { error } = await sb.from('contact_events').insert({ contact_id: r.id, kind: 'note', body, actor: me });
+    if (error) { toast('저장 실패: ' + error.message); return; }
+    await reloadEvents(r.id); render(); toast('기록됨');
+  } });
+  const timeline = el('ul', { className: 'tl' }, [...(events[r.id] || [])].reverse().map((e) => el('li', { className: e.kind }, [
+    el('span', { className: 'who', text: `${e.actor ? (admins[e.actor] || '관리자') : '시스템'} · ${kst(e.created_at)}` }),
+    el('p', { text: e.body }),
+  ])));
   const nextDay = r.next_contact_at ? new Date(r.next_contact_at).toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' }) : '';
   const next = el('input', { type: 'date', value: nextDay,
     onchange: (e) => save({ next_contact_at: e.target.value ? e.target.value + 'T00:00:00+09:00' : null }) });
@@ -173,13 +220,33 @@ function card(r) {
     ]),
     el('div', { className: 'side' }, [
       el('div', { className: 'row2' }, [
-        el('label', {}, ['상태', sel(STATUSES, r.status, 'status')]),
+        el('label', {}, ['상태', status]),
         el('label', {}, ['등급', sel(GRADES, r.grade, 'grade')]),
       ]),
-      el('label', {}, ['다음 연락일', next]),
-      el('label', {}, ['메모', memo]),
+      el('div', { className: 'row2' }, [
+        el('label', {}, ['담당자', assignee]),
+        el('label', {}, ['다음 연락일', next]),
+      ]),
+      el('label', {}, ['계약 금액', amount]),
+      el('label', {}, ['상담 기록', note]),
+      addNote,
+      timeline,
     ]),
   ]);
+}
+
+function askAmount() {
+  for (;;) {
+    const s = prompt('계약 금액(원)을 입력하세요. 메타 구매 전환 값으로도 쓰입니다.', '');
+    if (s === null) return null;
+    const n = Math.round(+String(s).replace(/[^0-9]/g, ''));
+    if (String(s).trim() && n >= 0) return n;
+  }
+}
+
+async function reloadEvents(id) {
+  const { data } = await sb.from('contact_events').select('id,contact_id,actor,kind,body,created_at').eq('contact_id', id).order('created_at');
+  if (data) events[id] = data;
 }
 
 $('login').addEventListener('submit', async (e) => {
@@ -193,6 +260,7 @@ $('reload').onclick = load;
 $('q').oninput = (e) => { filter.q = e.target.value; render(); };
 $('source').onchange = (e) => { filter.source = e.target.value; render(); };
 $('today').onclick = () => { filter.today = !filter.today; render(); };
+$('mine').onclick = () => { filter.mine = !filter.mine; render(); };
 start();
 </script>
 </body>
