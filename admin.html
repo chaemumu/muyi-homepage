@@ -3,265 +3,324 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>문의 관리 — MUYI</title>
+<title>문의함 — MUYI CRM</title>
 <link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-/* 디자인은 이전 MUYI CRM(muyi-crm-main)에서 가져옴 */
 :root{
-  --blue:#0a84ff;--blue-dark:#0071e3;--blue-light:#e8f4ff;--orange:#ff6b00;
-  --green:#34c759;--red:#ff3b30;
-  --gray-50:#f9f9fb;--gray-100:#f2f2f7;--gray-200:#e5e5ea;--gray-300:#d1d1d6;--gray-400:#aeaeb2;--gray-500:#8e8e93;--gray-700:#48484a;--gray-950:#1c1c1e;
-  --bg:#f2f2f7;--surface:#fff;--border:rgba(60,60,67,.12);--border2:rgba(60,60,67,.08);
-  --shadow-sm:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);--shadow:0 4px 16px rgba(0,0,0,.08),0 1px 4px rgba(0,0,0,.04);--shadow-lg:0 20px 60px rgba(0,0,0,.12),0 4px 16px rgba(0,0,0,.06);
-  --radius-sm:10px;--radius-lg:20px;--radius-xl:28px;--sidebar-w:240px;
+  --brand:#1E10C7;--brand-h:#3428F0;--brand-50:#F0EFFE;--brand-100:#E2DFFD;--accent:#EE4E00;
+  --bg:#F7F7F8;--surface:#fff;--sidebar:#FBFBFC;
+  --line:#EAEAEC;--line-2:#F1F1F3;
+  --t1:#18181B;--t2:#52525B;--t3:#8A8A93;--t4:#B4B4BB;
+  --green:#16A34A;--amber:#D97706;--red:#DC2626;
+  --r-sm:6px;--r:8px;--r-lg:12px;
+  --sh:0 1px 2px rgba(16,16,24,.04);--sh-pop:0 8px 24px rgba(16,16,24,.08),0 2px 6px rgba(16,16,24,.04);
 }
 *{box-sizing:border-box;margin:0}
 [hidden]{display:none!important}
-body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;color:var(--gray-950);background:var(--bg);font-size:14px;line-height:1.5}
-button,input,select,textarea{font:inherit;color:inherit}
+body{font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;color:var(--t1);background:var(--bg);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
+button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
+button{cursor:pointer}
+svg.i{width:16px;height:16px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+kbd{font-family:inherit;font-size:10px;font-weight:600;line-height:1;color:var(--t3);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:2px 5px;background:#fff}
+
+/* 공통 컨트롤 */
+.fi{width:100%;height:34px;padding:0 10px;border:1px solid var(--line);border-radius:var(--r);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+.fi:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-100)}
+textarea.fi{height:auto;min-height:76px;padding:8px 10px;resize:vertical;line-height:1.6}
+select.fi{appearance:none;padding-right:28px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%238A8A93' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center}
+.btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--line);border-radius:var(--r);background:#fff;color:var(--t1);font-weight:600;white-space:nowrap;box-shadow:var(--sh);transition:background .15s,border-color .15s}
+.btn:hover{background:#FAFAFB;border-color:#DDDDE1}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.primary:hover{background:var(--brand-h);border-color:var(--brand-h)}
+.btn.lg{height:38px;padding:0 16px;font-size:14px;justify-content:center}
+.lbl{display:block;font-size:12px;font-weight:600;color:var(--t2);margin-bottom:6px}
+.sub{color:var(--t3);font-size:12px}
+.err{color:var(--red);font-size:12px;font-weight:600;min-height:16px}
 
 /* 로그인 */
-#login{display:flex;justify-content:center;align-items:center;min-height:100vh;background:linear-gradient(145deg,#06057a 0%,#1a0fb8 45%,#2d1ee0 100%);padding:24px;position:relative;overflow:hidden}
-#login::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);top:-100px;right:-100px}
-#login::after{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(255,107,0,.15) 0%,transparent 70%);bottom:-80px;left:-80px}
-.login-card{width:100%;max-width:420px;background:rgba(255,255,255,.97);border-radius:28px;padding:40px;box-shadow:0 48px 96px rgba(0,0,0,.3);position:relative;z-index:1;display:grid;gap:14px;animation:cardIn .5s cubic-bezier(.34,1.56,.64,1) both}
-@keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:none}}
-.login-logo{text-align:center;margin-bottom:14px}
-.login-logo img{width:220px;height:84px;object-fit:cover;display:block;margin:0 auto}
-.login-logo p{font-size:12px;color:var(--gray-500);letter-spacing:1.5px;text-transform:uppercase;font-weight:600}
-.lbl{display:block;font-size:11px;font-weight:700;color:var(--gray-500);letter-spacing:.6px;margin-bottom:6px}
-.fi{width:100%;padding:12px 14px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:14px;outline:none;transition:all .2s;background:var(--gray-50)}
-.fi:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(10,132,255,.12);background:#fff}
-select.fi{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%238e8e93' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
-textarea.fi{resize:vertical;min-height:80px;line-height:1.6}
-.btn-login{width:100%;padding:15px;border:none;border-radius:var(--radius-sm);background:linear-gradient(135deg,#0a84ff,#0071e3);color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:6px;transition:all .2s}
-.btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(10,132,255,.35)}
-#loginMsg{text-align:center;font-size:13px;color:var(--red);min-height:18px;font-weight:500;word-break:break-all}
+#login{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(1200px 600px at 50% -10%,var(--brand-50),transparent 60%),var(--bg)}
+.login-card{width:100%;max-width:380px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:32px;box-shadow:var(--sh-pop);display:grid;gap:14px;animation:rise .35s ease-out both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.login-card img{height:30px;width:auto;justify-self:start}
+.login-card h1{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-top:8px}
+.login-card .sub{margin-top:-8px}
+.linkish{border:0;background:none;color:var(--t3);font-size:12px;justify-self:center;text-decoration:underline;text-underline-offset:3px}
+.linkish:hover{color:var(--t1)}
+#loginMsg{font-size:12px;color:var(--red);text-align:center;min-height:16px;word-break:break-all}
+#loginMsg.ok{color:var(--green)}
 
-/* 앱 레이아웃 */
+/* 레이아웃 */
 #app{display:flex;min-height:100vh}
-.sidebar{width:var(--sidebar-w);background:#09086e;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh}
-.sb-head{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
-.sb-logo{display:block;width:104px;height:auto;margin:4px 4px 6px}
-.pg-actions{display:flex;gap:8px;flex-wrap:wrap}
-.add-form{display:grid;grid-template-columns:1fr 1fr 1fr 2fr auto;gap:8px}
-.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
-.kpi{background:var(--surface);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow-sm);border:1px solid var(--border2)}
-.kpi-lbl{font-size:12px;font-weight:700;color:var(--gray-500);margin-bottom:8px}
-.kpi-val{font-size:30px;font-weight:900;letter-spacing:-1px;line-height:1}
-.kpi-sub{font-size:11px;color:var(--gray-400);margin-top:6px}
-.card-t{font-size:16px;font-weight:800;margin-bottom:14px;display:flex;gap:8px;align-items:baseline}
-.card-t small{font-size:12px;color:var(--gray-400);font-weight:500}
-.bars{display:flex;align-items:flex-end;gap:3px;height:140px}
-.bars div{flex:1;background:var(--blue);border-radius:4px 4px 0 0;min-height:2px;position:relative}
-.bars div:hover::after{content:attr(data-t);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--gray-950);color:#fff;font-size:11px;padding:3px 6px;border-radius:6px;white-space:nowrap}
-.tbl.perf tbody tr{cursor:default}
-.tbl.perf tr.camp td{font-weight:700;color:var(--gray-950);background:var(--gray-50)}
-.tbl.perf tr.ad td:first-child{padding-left:28px}
-.mi{width:100%;border:0;background:none;text-align:left;cursor:pointer}
-.sb-user{margin-top:12px;background:rgba(255,255,255,.1);border-radius:14px;padding:12px 14px}
-.u-nm{font-size:15px;color:#fff;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.u-rl{font-size:11px;color:rgba(255,255,255,.5);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sb-nav{padding:14px 10px;flex:1}
-.nav-sec{font-size:10px;color:rgba(255,255,255,.25);letter-spacing:1.8px;padding:0 10px;margin:6px 0 6px;font-weight:700}
-.mi{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:rgba(255,255,255,.55);font-size:14px;font-weight:500}
-.mi.active{background:rgba(255,255,255,.97);color:#09086e;font-weight:700;box-shadow:0 2px 12px rgba(0,0,0,.2)}
-.mi-badge{margin-left:auto;background:var(--orange);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:20px}
-.sb-foot{padding:14px 16px;border-top:1px solid rgba(255,255,255,.07)}
-.btn-logout{width:100%;padding:11px;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:12px;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;font-weight:600}
-.btn-logout:hover{background:rgba(255,255,255,.1);color:#fff}
-.main{flex:1;min-width:0}
-.pg-wrap{padding:28px 32px;max-width:1400px}
-.pg-head{margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.pg-title{font-size:28px;font-weight:800;letter-spacing:-.8px;line-height:1.1}
-.pg-desc{font-size:13px;color:var(--gray-500);margin-top:4px;font-weight:500}
+.sidebar{width:232px;flex-shrink:0;background:var(--sidebar);border-right:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.sb-logo{display:flex;align-items:center;gap:8px;padding:18px 18px 14px}
+.sb-logo img{height:24px;width:auto}
+.sb-logo span{font-size:11px;font-weight:700;color:var(--t3);border:1px solid var(--line);border-radius:5px;padding:1px 6px;background:#fff}
+.sb-nav{padding:6px 10px;display:grid;gap:2px}
+.nav-sec{font-size:11px;font-weight:600;color:var(--t4);padding:12px 10px 6px}
+.mi{display:flex;align-items:center;gap:10px;height:32px;padding:0 10px;border:0;border-radius:var(--r-sm);background:none;color:var(--t2);font-weight:500;text-align:left;width:100%}
+.mi:hover{background:#F0F0F2;color:var(--t1)}
+.mi.active{background:#fff;color:var(--t1);font-weight:600;box-shadow:0 0 0 1px var(--line),var(--sh)}
+.mi.active svg{color:var(--brand)}
+.mi-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:11px;font-weight:700;min-width:20px;height:18px;padding:0 6px;border-radius:9px;display:grid;place-items:center}
+.sb-foot{margin-top:auto;padding:10px;border-top:1px solid var(--line)}
+.me{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:var(--r)}
+.av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff;background:var(--brand);flex-shrink:0}
+.av.sm{width:20px;height:20px;font-size:10px}
+.av.none{background:#fff;color:var(--t4);border:1px dashed var(--t4)}
+.me-txt{min-width:0;flex:1}
+.me-txt b{display:block;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.me-txt small{display:block;font-size:11px;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.icon-btn{width:28px;height:28px;display:grid;place-items:center;border:0;border-radius:var(--r-sm);background:none;color:var(--t3)}
+.icon-btn:hover{background:#F0F0F2;color:var(--t1)}
 
-/* 단계(상태) 카드 */
-.pipeline-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px}
-.pipe-card{background:var(--surface);border-radius:var(--radius-lg);padding:16px 14px;box-shadow:var(--shadow-sm);border:1px solid var(--border2);border-bottom:3px solid var(--c,transparent);cursor:pointer;transition:all .2s;text-align:left}
-.pipe-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
-.pipe-card.on{background:var(--blue-light);box-shadow:0 0 0 2px var(--blue)}
-.pipe-card.hold{border:2px solid var(--red)}
-.pipe-label{font-size:12px;font-weight:700;color:var(--gray-500);margin-bottom:4px}
-.pipe-count{font-size:30px;font-weight:900;letter-spacing:-1px;line-height:1}
-.pipe-sub{font-size:11px;color:var(--gray-400);margin-top:4px;font-weight:500}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:5;background:rgba(247,247,248,.85);backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line);height:56px;display:flex;align-items:center;gap:12px;padding:0 24px}
+.topbar h1{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.topbar .count{color:var(--t3);font-weight:500;font-size:13px}
+.search{position:relative;margin-left:auto;width:320px}
+.search svg{position:absolute;left:10px;top:9px;color:var(--t3)}
+.search .fi{padding-left:32px;padding-right:34px;background:#fff}
+.search kbd{position:absolute;right:8px;top:9px}
+.pg{padding:20px 24px 40px;max-width:1440px;width:100%}
 
-/* 카드·표 */
-.card{background:var(--surface);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow-sm);border:1px solid var(--border2);margin-bottom:16px}
-.tools{display:grid;grid-template-columns:1fr 220px auto auto auto;gap:8px;align-items:center}
-.p-btn{padding:9px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--gray-500);white-space:nowrap}
-.p-btn.on{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 2px 8px rgba(10,132,255,.25)}
-.tbl-wrap{overflow-x:auto;margin:0 -20px;padding:0 20px}
-.tbl{width:100%;border-collapse:collapse;font-size:14px}
-.tbl th{text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--gray-500);letter-spacing:.6px;border-bottom:1.5px solid var(--border);white-space:nowrap;background:var(--gray-50)}
-.tbl td{padding:12px;border-bottom:1px solid var(--border2);vertical-align:middle;color:var(--gray-700);white-space:nowrap}
-.tbl td:last-child{max-width:220px;overflow:hidden;text-overflow:ellipsis}
-.tbl tr:last-child td{border-bottom:none}
-.tbl tbody tr{cursor:pointer}
-.tbl tbody tr:hover td{background:var(--blue-light)}
-.tbl td strong{font-weight:700;color:var(--gray-950)}
-.nowrap{white-space:nowrap}
-.sub{font-size:12px;color:var(--gray-500)}
-.empty{text-align:center;color:var(--gray-500);padding:48px 0}
+/* 상태 탭 */
+.tabs{display:flex;gap:2px;box-shadow:inset 0 -1px 0 var(--line);margin-bottom:12px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.tab{display:flex;align-items:center;gap:6px;height:38px;padding:0 12px;border:0;background:none;color:var(--t3);font-weight:600;white-space:nowrap}
+.tab:hover{color:var(--t1)}
+.tab.on{color:var(--t1);box-shadow:inset 0 -2px 0 var(--t1)}
+.tab .n{font-size:11px;font-weight:600;color:var(--t3);background:#EDEDF0;border-radius:9px;padding:0 6px;min-width:18px;text-align:center;line-height:18px}
+.tab.on .n{background:var(--t1);color:#fff}
+.tab .dot{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.tab.hold{color:var(--red)}
+.tab.hold .n{background:#FEE2E2;color:var(--red)}
+
+/* 필터 줄 */
+.filters{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:1px dashed #D4D4D8;border-radius:14px;background:transparent;color:var(--t2);font-weight:500;font-size:12px}
+.chip:hover{border-color:var(--t3);color:var(--t1)}
+.chip.on{border-style:solid;border-color:var(--brand);background:var(--brand-50);color:var(--brand);font-weight:600}
+.filters select.fi{width:auto;height:28px;border-radius:14px;font-size:12px;border-style:dashed;border-color:#D4D4D8}
+.alert{margin-left:auto;display:inline-flex;align-items:center;gap:6px;color:var(--red);font-weight:600;font-size:12px;background:#FEF2F2;border:1px solid #FECACA;padding:4px 10px;border-radius:14px}
+
+/* 직접 등록 */
+.add-form{display:grid;grid-template-columns:1fr 1fr 1fr 2fr auto;gap:8px;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:12px;margin-bottom:12px;box-shadow:var(--sh)}
+
+/* 표 */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh)}
+.tbl-wrap{overflow-x:auto;border-radius:var(--r-lg)}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{position:sticky;top:0;text-align:left;font-size:12px;font-weight:500;color:var(--t3);padding:0 12px;height:36px;border-bottom:1px solid var(--line);background:#FCFCFD;white-space:nowrap}
+.tbl td{padding:0 12px;height:46px;border-bottom:1px solid var(--line-2);white-space:nowrap;color:var(--t2)}
+.tbl td:last-child{max-width:240px;overflow:hidden;text-overflow:ellipsis}
+.tbl tbody tr{cursor:pointer;transition:background .1s}
+.tbl tbody tr:hover td{background:#FAFAFB}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl tbody tr.open td{background:var(--brand-50)}
+.tbl tbody tr.late td:first-child{box-shadow:inset 3px 0 0 var(--red)}
+.tbl td.name strong{color:var(--t1);font-weight:600}
+.empty{text-align:center;color:var(--t3);padding:56px 0!important;height:auto!important}
+.who{display:inline-flex;align-items:center;gap:6px}
+.who.none{color:var(--t4)}
 
 /* 배지 */
-.badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;border:1px solid transparent}
-.s-신규{background:#ececfd;color:#4b4acf;border-color:#c7c6f8}
-.s-부재{background:#fffbeb;color:#92400e;border-color:#fde68a}
-.s-상담중{background:#fff3e8;color:#9a3412;border-color:#fed7aa}
-.s-계약{background:#f0fdf4;color:#166534;border-color:#bbf7d0}
-.s-종료{background:var(--gray-100);color:var(--gray-500);border-color:var(--gray-200)}
-.s-AI통화완료{background:#fff1f2;color:#9f1239;border-color:#fecdd3}
-.tag-chip{display:inline-block;background:var(--blue-light);color:var(--blue);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600}
-.nc{display:inline-flex;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:#fffbeb;color:#92400e;border:1px solid #fde68a;white-space:nowrap}
-.nc.today{background:#fff1f2;color:#9f1239;border-color:#fecdd3}
-.nc.past{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
-
-/* 행 상태 표시 */
-.tbl tbody tr.open td{background:var(--blue-light)}
-.tbl tbody tr.late td:first-child{box-shadow:inset 4px 0 0 var(--red)}
-.late-tag{display:inline-block;margin-left:6px;background:var(--red);color:#fff;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:700}
-.dup-tag{display:inline-block;margin-left:6px;background:#f3e8ff;color:#7c3aed;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:700}
+.pill{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:12px;font-weight:600;color:var(--t1);white-space:nowrap}
+.pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--c,var(--t4))}
+.tag{display:inline-block;font-size:12px;color:var(--t2);background:#F4F4F5;border-radius:5px;padding:1px 7px}
+.flag{display:inline-block;margin-left:6px;font-size:11px;font-weight:600;border-radius:5px;padding:1px 6px;vertical-align:1px}
+.flag.late{background:#FEE2E2;color:var(--red)}
+.flag.dup{background:#F3E8FF;color:#7C3AED}
+.flag.miss{background:#FEF3C7;color:#92400E}
+.due{font-size:12px;font-weight:600;color:var(--t2)}
+.due.today{color:var(--accent)}
+.due.past{color:var(--red)}
 
 /* 펼쳐지는 처리 칸 */
 .tbl tbody tr.panel-row{cursor:default}
-.tbl tbody tr.panel-row td{background:#fff;padding:0;white-space:normal;max-width:none;border-bottom:2px solid var(--blue)}
-.panel{display:grid;grid-template-columns:1fr 380px;gap:20px;padding:18px 20px;animation:open .18s ease-out}
-@keyframes open{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-.panel-l,.panel-r{display:grid;gap:12px;align-content:start;min-width:0}
-.panel-r{background:var(--gray-50);border-radius:16px;padding:14px}
-.ph{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
-.ph strong{font-size:18px}
-.ph a{color:var(--orange);font-weight:800;font-size:16px;text-decoration:none}
+.tbl tbody tr.panel-row:hover td,.tbl tbody tr.panel-row td{background:#FCFCFD;padding:0;height:auto;white-space:normal;max-width:none;border-bottom:1px solid var(--line)}
+.panel{display:grid;grid-template-columns:1fr 360px;gap:16px;padding:16px;animation:open .16s ease-out}
+@keyframes open{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+.panel-l,.panel-r{display:grid;gap:14px;align-content:start;min-width:0}
+.panel-r{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:14px;box-shadow:var(--sh);position:sticky;top:68px}
+.ph{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.ph strong{font-size:17px;font-weight:700;letter-spacing:-.02em}
+.dial{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:15px;background:var(--accent);color:#fff;font-weight:700;text-decoration:none}
+.dial:hover{filter:brightness(1.06)}
+.meta{display:flex;flex-wrap:wrap;gap:6px}
+.meta span{font-size:12px;color:var(--t2);background:#fff;border:1px solid var(--line);border-radius:5px;padding:1px 7px}
+.box{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;white-space:pre-wrap;word-break:break-word;line-height:1.7;color:var(--t1)}
+.box a{color:var(--brand);margin-left:6px;font-size:12px}
+.sec-t{font-size:12px;font-weight:600;color:var(--t3);margin-bottom:8px}
+.timeline{display:grid;gap:0}
+.log{position:relative;padding:0 0 14px 22px}
+.log::before{content:'';position:absolute;left:5px;top:8px;bottom:-2px;width:1px;background:var(--line)}
+.log:last-child::before{display:none}
+.log::after{content:'';position:absolute;left:1px;top:4px;width:9px;height:9px;border-radius:50%;background:#fff;border:2px solid var(--t4)}
+.log.call::after,.log.note::after{border-color:var(--brand)}
+.log-meta{display:flex;gap:8px;font-size:12px;color:var(--t3)}
+.log-meta b{color:var(--t1);font-weight:600}
+.log p{white-space:pre-wrap;word-break:break-word;color:var(--t2);margin-top:2px}
+.prev{border-top:1px dashed var(--line);padding-top:8px;margin-top:8px;font-size:12px;color:var(--t2);white-space:pre-wrap}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.seg button,.chips button{border:1.5px solid var(--border);background:#fff;border-radius:10px;padding:9px 6px;font-weight:700;cursor:pointer}
-.seg button.on{color:#fff;border-color:transparent}
-.seg button.ok.on{background:var(--green)}
-.seg button.miss.on{background:#f59e0b}
-.seg button.no.on{background:var(--gray-500)}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chips button{padding:6px 10px;font-size:12px;border-radius:20px}
-.chips button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.seg button{height:36px;border:1px solid var(--line);border-radius:var(--r);background:#fff;font-weight:600;color:var(--t2);display:flex;align-items:center;justify-content:center;gap:6px}
+.seg button:hover{border-color:#D4D4D8;color:var(--t1)}
+.seg button::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--c)}
+.seg button.on{color:#fff;background:var(--c);border-color:var(--c)}
+.seg button.on::before{background:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chips button{height:26px;padding:0 10px;border:1px solid var(--line);border-radius:13px;background:#fff;font-size:12px;font-weight:600;color:var(--t2)}
+.chips button.on{background:var(--t1);border-color:var(--t1);color:#fff}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .actions{display:grid;grid-template-columns:auto 1fr;gap:8px}
-.btn-p{padding:12px 16px;background:linear-gradient(135deg,#0a84ff,#0071e3);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:700;cursor:pointer}
-.err{color:var(--red);font-size:12px;font-weight:700;min-height:16px}
-.hint{background:#fff7ed;color:#9a3412;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:600}
-.prev{border-top:1px dashed var(--border);padding-top:8px;font-size:13px}
-.box{background:var(--gray-50);border-radius:12px;padding:12px 14px;white-space:pre-wrap;word-break:break-word;line-height:1.7}
-.box a{color:var(--blue);margin-left:6px;font-size:12px}
-.btn-g{padding:9px 16px;background:var(--surface);color:var(--gray-700);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer}
-.log{background:var(--surface);border-radius:14px;padding:12px 16px;margin-bottom:8px;border:1px solid var(--border2);border-left:3px solid var(--gray-300)}
-.log.note,.log.call{border-left-color:var(--blue)}
-.log-meta{display:flex;gap:8px;font-size:12px;margin-bottom:4px}
-.log-who{font-weight:800}
-.log-time{color:var(--gray-400);margin-left:auto;white-space:nowrap}
-.log p{white-space:pre-wrap;word-break:break-word;color:var(--gray-700)}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--gray-950);color:#fff;padding:8px 14px;border-radius:8px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:2000}
-.toast.show{opacity:1}
+.hint{background:#FFFBEB;border:1px solid #FDE68A;color:#92400E;border-radius:var(--r);padding:8px 10px;font-size:12px;font-weight:500}
+.keys{display:flex;gap:10px;flex-wrap:wrap;color:var(--t3);font-size:11px}
 
+/* 광고 성과 */
+.seg-tabs{display:inline-flex;background:#EDEDF0;border-radius:var(--r);padding:2px;gap:2px}
+.seg-tabs button{height:28px;padding:0 12px;border:0;border-radius:6px;background:none;color:var(--t2);font-weight:600;font-size:12px}
+.seg-tabs button.on{background:#fff;color:var(--t1);box-shadow:var(--sh)}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;box-shadow:var(--sh)}
+.kpi-lbl{font-size:12px;font-weight:500;color:var(--t3)}
+.kpi-val{font-size:26px;font-weight:700;letter-spacing:-.03em;margin-top:6px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi-sub{font-size:12px;color:var(--t3);margin-top:6px}
+.card-t{font-size:13px;font-weight:600;padding:14px 16px;border-bottom:1px solid var(--line-2);display:flex;gap:8px;align-items:baseline}
+.card-t small{color:var(--t3);font-weight:400;font-size:12px}
+.bars{display:flex;align-items:flex-end;gap:3px;height:150px;padding:16px}
+.bars div{flex:1;background:var(--brand-100);border-radius:3px 3px 0 0;min-height:2px;position:relative;transition:background .1s}
+.bars div:hover{background:var(--brand)}
+.bars div:hover::after{content:attr(data-t);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--t1);color:#fff;font-size:11px;padding:3px 7px;border-radius:5px;white-space:nowrap}
+.tbl.perf tbody tr{cursor:default}
+.tbl.perf td{font-variant-numeric:tabular-nums}
+.tbl.perf tr.camp td{font-weight:600;color:var(--t1);background:#FCFCFD}
+.tbl.perf tr.ad td:first-child{padding-left:32px}
+.stack{display:grid;gap:12px}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,8px);background:var(--t1);color:#fff;padding:8px 14px;border-radius:var(--r);font-weight:500;opacity:0;transition:all .2s;pointer-events:none;z-index:2000;box-shadow:var(--sh-pop)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:1100px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
 @media (max-width:900px){
   #app{flex-direction:column}
-  .sidebar{width:auto;height:auto;position:static;flex-direction:row;align-items:center}
-  .sb-head{border:0;padding:10px 12px;display:flex;align-items:center;gap:10px;flex:1;min-width:0}
-  .sb-logo{width:80px;margin:0}
-  .add-form{grid-template-columns:1fr}
-  .sb-user{margin:0;padding:6px 10px;min-width:0}
-  .sidebar{flex-wrap:wrap}
-  .sb-nav{order:3;width:100%;display:flex;gap:4px;padding:0 10px 10px}
-  .nav-sec{display:none}
-  .mi{width:auto;padding:8px 12px;white-space:nowrap}
+  .sidebar{width:auto;height:auto;position:static;flex-direction:row;align-items:center;border-right:0;border-bottom:1px solid var(--line)}
+  .sb-logo{padding:10px 12px}
+  .sb-nav{display:flex;padding:0 6px;gap:2px}
+  .nav-sec,.me-txt{display:none}
+  .mi{width:auto}
+  .sb-foot{margin:0 0 0 auto;border:0;padding:6px}
+  .topbar{position:static;height:auto;flex-wrap:wrap;padding:10px 16px}
+  .search{width:100%;margin:0}
+  .search kbd{display:none}
+  .pg{padding:12px 16px 32px}
+  .add-form,.panel{grid-template-columns:1fr}
+  .panel-r{position:static}
   .kpi-row{grid-template-columns:1fr 1fr}
-  .kpi-val{font-size:24px}
-  .sb-foot{border:0;padding:10px 12px}
-  .pg-wrap{padding:16px}
-  .pipeline-grid{grid-template-columns:repeat(4,1fr);gap:6px}
-  .pipe-card{padding:10px 8px;border-radius:14px}
-  .pipe-count{font-size:22px}
-  .pipe-sub{display:none}
-  .tools{grid-template-columns:1fr 1fr}
-  .tools input{grid-column:1/-1}
-  .panel{grid-template-columns:1fr}
+  .alert{margin-left:0}
 }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16v-4M12 16V8M17 16v-7"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></symbol>
+</svg>
+
 <div id="login" hidden>
   <form class="login-card" id="loginForm">
-    <div class="login-logo"><img src="/assets/logo-blue.png" alt="MUYI"><p>MUYI CRM</p></div>
-    <label><span class="lbl">이메일</span><input class="fi" id="email" type="email" placeholder="이메일 주소" autocomplete="username" required></label>
-    <label><span class="lbl">비밀번호</span><input class="fi" id="password" type="password" placeholder="비밀번호" autocomplete="current-password" required></label>
-    <button class="btn-login" type="submit">로그인</button>
+    <img src="/assets/logo/muyi-logo.svg" alt="MUYI">
+    <h1 id="loginTitle">CRM 로그인</h1>
+    <p class="sub" id="loginSub">무이 문의 관리 도구입니다.</p>
+    <label id="emailRow"><span class="lbl">이메일</span><input class="fi" id="email" type="email" placeholder="name@muyi.co.kr" autocomplete="username" required></label>
+    <label><span class="lbl" id="pwLabel">비밀번호</span><input class="fi" id="password" type="password" placeholder="비밀번호" autocomplete="current-password" minlength="6" required></label>
+    <button class="btn primary lg" type="submit" id="loginBtn">로그인</button>
+    <button class="linkish" type="button" id="forgot">비밀번호를 잊으셨나요?</button>
     <p id="loginMsg"></p>
   </form>
 </div>
 
 <div id="app" hidden>
   <aside class="sidebar">
-    <div class="sb-head">
-      <img class="sb-logo" src="/assets/email-logo-white.png" alt="MUYI">
-      <div class="sb-user"><div class="u-nm" id="meName"></div><div class="u-rl" id="meEmail"></div></div>
-    </div>
+    <div class="sb-logo"><img src="/assets/logo/muyi-logo.svg" alt="MUYI"><span>CRM</span></div>
     <nav class="sb-nav">
       <div class="nav-sec">업무</div>
-      <button class="mi active" data-page="inbox">문의함 <span class="mi-badge" id="newBadge" hidden></span></button>
-      <button class="mi" data-page="perf">광고 성과</button>
+      <button class="mi active" data-page="inbox"><svg class="i"><use href="#i-inbox"/></svg>문의함<span class="mi-badge" id="newBadge" hidden></span></button>
+      <button class="mi" data-page="perf"><svg class="i"><use href="#i-chart"/></svg>광고 성과</button>
     </nav>
-    <div class="sb-foot"><button class="btn-logout" id="logout">로그아웃</button></div>
-  </aside>
-
-  <main class="main"><div class="pg-wrap" id="pg-inbox">
-    <div class="pg-head">
-      <div><h1 class="pg-title">문의함</h1><p class="pg-desc" id="desc"></p></div>
-      <div class="pg-actions">
-        <button class="btn-g" id="addBtn">+ 문의 등록</button>
-        <button class="btn-g" id="csv">엑셀(CSV)</button>
-        <button class="btn-g" id="reload">새로고침</button>
+    <div class="sb-foot">
+      <div class="me">
+        <div class="av" id="meAv"></div>
+        <div class="me-txt"><b id="meName"></b><small id="meEmail"></small></div>
+        <button class="icon-btn" id="logout" title="로그아웃"><svg class="i"><use href="#i-out"/></svg></button>
       </div>
     </div>
-    <form class="card add-form" id="addForm" hidden>
-      <input class="fi" name="name" placeholder="이름 또는 업체명" required>
-      <input class="fi" name="phone" placeholder="연락처" inputmode="tel" required>
-      <input class="fi" name="type" placeholder="업종 (선택)">
-      <input class="fi" name="message" placeholder="문의 내용 (전화·카톡 등으로 받은 내용)">
-      <button class="btn-p" type="submit">등록</button>
-    </form>
-    <div class="pipeline-grid" id="pipeline"></div>
-    <div class="card tools">
-      <input class="fi" id="q" type="search" placeholder="이름·연락처·내용·상담 기록 검색">
-      <select class="fi" id="source"><option value="">모든 유입 경로</option></select>
-      <button class="p-btn" id="today">오늘 연락할 문의</button>
-      <button class="p-btn" id="mine">내 담당만</button>
-      <button class="p-btn" id="unassigned">미배정</button>
-    </div>
-    <div class="card"><div class="tbl-wrap">
-      <table class="tbl">
-        <thead><tr><th>접수</th><th>이름</th><th>연락처</th><th>업종</th><th>유입</th><th>상태</th><th>담당자</th><th>다음 연락</th><th>최근 기록</th></tr></thead>
-        <tbody id="list"></tbody>
-      </table>
-    </div></div>
-  </div>
+  </aside>
 
-  <div class="pg-wrap" id="pg-perf" hidden>
-    <div class="pg-head">
-      <div><h1 class="pg-title">광고 성과</h1><p class="pg-desc">캠페인·소재(utm_campaign / utm_content)별로 문의가 실제 상담·계약까지 가는지 봅니다.</p></div>
-      <div class="pg-actions" id="period"></div>
+  <main class="main">
+    <div id="pg-inbox">
+      <header class="topbar">
+        <h1>문의함</h1><span class="count" id="desc"></span>
+        <label class="search"><svg class="i"><use href="#i-search"/></svg><input class="fi" id="q" type="search" placeholder="이름·연락처·내용·기록 검색"><kbd>/</kbd></label>
+        <button class="btn" id="reload" title="새로고침"><svg class="i"><use href="#i-refresh"/></svg></button>
+        <button class="btn" id="csv"><svg class="i"><use href="#i-dl"/></svg>CSV</button>
+        <button class="btn primary" id="addBtn"><svg class="i"><use href="#i-plus"/></svg>문의 등록</button>
+      </header>
+      <div class="pg">
+        <form class="add-form" id="addForm" hidden>
+          <input class="fi" name="name" placeholder="이름 또는 업체명" required>
+          <input class="fi" name="phone" placeholder="연락처" inputmode="tel" required>
+          <input class="fi" name="type" placeholder="업종 (선택)">
+          <input class="fi" name="message" placeholder="문의 내용 (전화·카톡 등으로 받은 내용)">
+          <button class="btn primary" type="submit">등록</button>
+        </form>
+        <div class="tabs" id="pipeline"></div>
+        <div class="filters">
+          <button class="chip" id="today">오늘 연락할 문의</button>
+          <button class="chip" id="mine">내 담당</button>
+          <button class="chip" id="unassigned">미배정</button>
+          <select class="fi" id="source"><option value="">모든 유입 경로</option></select>
+          <span class="alert" id="lateAlert" hidden><svg class="i"><use href="#i-alert"/></svg><span></span></span>
+        </div>
+        <div class="card"><div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>접수</th><th>이름</th><th>연락처</th><th>업종</th><th>유입</th><th>상태</th><th>담당자</th><th>다음 연락</th><th>최근 기록</th></tr></thead>
+            <tbody id="list"></tbody>
+          </table>
+        </div></div>
+      </div>
     </div>
-    <div class="kpi-row" id="kpis"></div>
-    <div class="card"><div class="card-t">일별 문의 수</div><div class="bars" id="bars"></div></div>
-    <div class="card"><div class="card-t">캠페인 · 소재별 <small>상담중 이상 = 상담중 + 계약</small></div>
-      <div class="tbl-wrap"><table class="tbl perf">
-        <thead><tr><th>캠페인 / 소재</th><th>문의</th><th>통화 연결</th><th>상담중 이상</th><th>계약</th><th>계약률</th><th>평균 첫 응답</th></tr></thead>
-        <tbody id="perfBody"></tbody>
-      </table></div>
+
+    <div id="pg-perf" hidden>
+      <header class="topbar">
+        <h1>광고 성과</h1><span class="count">캠페인·소재별로 문의가 상담·계약까지 가는지 봅니다</span>
+        <div class="seg-tabs" id="period" style="margin-left:auto"></div>
+      </header>
+      <div class="pg stack">
+        <div class="kpi-row" id="kpis" style="margin:0"></div>
+        <div class="card"><div class="card-t">일별 문의 수</div><div class="bars" id="bars"></div></div>
+        <div class="card"><div class="card-t">캠페인 · 소재별 <small>utm_campaign / utm_content 기준 · 상담중 이상 = 상담중 + 계약</small></div>
+          <div class="tbl-wrap"><table class="tbl perf">
+            <thead><tr><th>캠페인 / 소재</th><th>문의</th><th>통화 연결</th><th>상담중 이상</th><th>계약</th><th>계약률</th><th>평균 첫 응답</th></tr></thead>
+            <tbody id="perfBody"></tbody>
+          </table></div>
+        </div>
+      </div>
     </div>
-  </div></main>
+  </main>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
+// 초대·비밀번호 재설정 메일 링크로 들어오면 주소 끝(#)에 type=invite|recovery가 붙는다. 클라이언트가 지우기 전에 읽어둔다.
+const AUTH_TYPE = new URLSearchParams(location.hash.slice(1)).get('type');
 // Public (anon) key — same as the site forms. Access is enforced by RLS: only users listed in public.admins can read/update.
 const sb = supabase.createClient('https://pacyhanuwuizcxwoggen.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhY3loYW51d3VpemN4d29nZ2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTI2NDgsImV4cCI6MjA5MTI4ODY0OH0.oe39KUtwr-mZ4OsqWQT6Y3USpigQpD825IM14mIFEaY',
@@ -269,14 +328,15 @@ const sb = supabase.createClient('https://pacyhanuwuizcxwoggen.supabase.co',
 // 예전 버전이 localStorage에 남긴 로그인 정보 정리
 try { localStorage.removeItem('sb-pacyhanuwuizcxwoggen-auth-token'); } catch {}
 
-// AI통화완료는 콜 시스템 보류 중이라 맨 뒤 + 빨간 테두리로 표시
+// AI통화완료는 콜 시스템 보류 중이라 맨 뒤 + 빨간색으로 표시
 const STATUSES = ['신규', '부재', '상담중', '계약', '종료', 'AI통화완료'];
 const ON_HOLD = 'AI통화완료';
-const STATUS_COLOR = { 신규: '#5e5ce6', 부재: '#ffd60a', 상담중: '#ff6b00', 계약: '#34c759', 종료: '#aeaeb2', AI통화완료: '#ff3b30' };
+const STATUS_COLOR = { 신규: '#1E10C7', 부재: '#D97706', 상담중: '#EE4E00', 계약: '#16A34A', 종료: '#A1A1AA', AI통화완료: '#DC2626' };
 const GRADES = ['', '상', '중', '하'];
 const CALL_LABEL = { queued: '대기', calling: '통화 중', done: '완료', no_answer: '부재(재시도 끝)', failed: '실패', skipped: '통화 거부' };
 let rows = [], filter = { status: '', source: '', q: '', today: false, mine: false, unassigned: false };
 let me = null, admins = {}, events = {}, openId = null, knownIds = null; // admins: user_id -> 이름, events: contact_id -> 타임라인
+let pwMode = null; // 'set': 초대·재설정 링크로 들어와 새 비밀번호를 정하는 중, 'done': 방금 정함
 
 const $ = (id) => document.getElementById(id);
 // Builds DOM with textContent only, so lead-submitted text can never inject HTML.
@@ -288,11 +348,19 @@ function el(tag, props = {}, kids = []) {
   for (const c of [].concat(kids)) if (c) n.append(c);
   return n;
 }
-function toast(t) { const x = $('toast'); x.textContent = t; x.classList.add('show'); clearTimeout(x._t); x._t = setTimeout(() => x.classList.remove('show'), 1500); }
+const icon = (name) => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('class', 'i'); const u = document.createElementNS('http://www.w3.org/2000/svg', 'use'); u.setAttribute('href', '#i-' + name); s.append(u); return s; };
+function toast(t) { const x = $('toast'); x.textContent = t; x.classList.add('show'); clearTimeout(x._t); x._t = setTimeout(() => x.classList.remove('show'), 1600); }
 const kst = (iso) => new Date(iso).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', dateStyle: 'short', timeStyle: 'short' });
 const kstDay = (iso) => new Date(iso).toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
 const todayKst = () => kstDay(new Date());
-const badge = (s) => el('span', { className: 'badge s-' + s, text: s || '—' });
+const mmdd = (d) => d.slice(5).replace('-', '/');
+function ago(iso) {
+  const m = Math.floor((Date.now() - new Date(iso)) / 60000);
+  if (m < 1) return '방금'; if (m < 60) return `${m}분 전`; if (m < 1440) return `${Math.floor(m / 60)}시간 전`;
+  if (m < 10080) return `${Math.floor(m / 1440)}일 전`; return mmdd(kstDay(iso));
+}
+const pill = (s) => { const p = el('span', { className: 'pill', text: s || '—' }); p.style.setProperty('--c', STATUS_COLOR[s]); return p; };
+const avatar = (name, cls = '') => el('span', { className: 'av ' + cls, text: (name || '?').trim().slice(0, 1) });
 const lastEvent = (id) => (events[id] || [])[(events[id] || []).length - 1];
 // 첫 응답 시간(분): 문의 접수 후 사람이 처음 남긴 통화·기록까지. 광고 리드는 빨리 걸수록 계약률이 높다.
 function firstResponse(r) {
@@ -301,14 +369,29 @@ function firstResponse(r) {
 }
 const fmtMin = (m) => m == null ? '-' : m < 60 ? `${m}분` : m < 1440 ? `${Math.round(m / 60 * 10) / 10}시간` : `${Math.round(m / 1440 * 10) / 10}일`;
 
+function showLogin(mode, msg = '', ok = false) {
+  const set = mode === 'set';
+  pwMode = set ? 'set' : null;
+  $('login').hidden = false; $('app').hidden = true;
+  $('loginTitle').textContent = set ? '비밀번호 설정' : 'CRM 로그인';
+  $('loginSub').textContent = set ? '앞으로 로그인할 때 쓸 비밀번호를 정해주세요. (6자 이상)' : '무이 문의 관리 도구입니다.';
+  $('emailRow').hidden = set; $('email').required = !set;
+  $('forgot').hidden = set;
+  $('pwLabel').textContent = set ? '새 비밀번호' : '비밀번호';
+  $('password').autocomplete = set ? 'new-password' : 'current-password';
+  $('loginBtn').textContent = set ? '비밀번호 저장하고 시작' : '로그인';
+  $('loginMsg').textContent = msg; $('loginMsg').classList.toggle('ok', ok);
+}
+
 async function start() {
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) { $('login').hidden = false; $('app').hidden = true; return; }
+  if (!session) { showLogin('login', AUTH_TYPE && pwMode !== 'done' ? '링크가 만료됐거나 이미 사용됐습니다. 초대(또는 비밀번호 재설정)를 다시 요청하세요.' : ''); return; }
+  if (['invite', 'recovery'].includes(AUTH_TYPE) && pwMode !== 'done') { history.replaceState(null, '', location.pathname); showLogin('set'); return; }
   const { data: ok, error } = await sb.rpc('is_admin');
   if (error || !ok) {
-    $('login').hidden = false; $('app').hidden = true;
-    $('loginMsg').textContent = '관리자 권한이 없는 계정입니다. 관리자에게 이 ID를 전달하세요: ' + session.user.id;
+    const justSet = pwMode === 'done';
     await sb.auth.signOut();
+    showLogin('login', justSet ? '비밀번호가 설정됐습니다. 관리자 등록이 끝나면 로그인할 수 있습니다.' : '관리자 권한이 없는 계정입니다. 관리자에게 등록을 요청하세요.', justSet);
     return;
   }
   me = session.user.id;
@@ -335,6 +418,7 @@ async function load() {
   rows = c.data;
   admins = Object.fromEntries(a.data.map((x) => [x.user_id, x.name || '관리자']));
   $('meName').textContent = admins[me] || '관리자';
+  $('meAv').textContent = (admins[me] || '관').slice(0, 1);
   events = {};
   ev.data.forEach((e) => (events[e.contact_id] ||= []).push(e));
   const sources = [...new Set(rows.map((r) => r.source).filter(Boolean))].sort();
@@ -368,12 +452,13 @@ function render() {
   const counts = Object.fromEntries(STATUSES.map((s) => [s, 0]));
   groups.forEach((r) => { counts[r.status] = (counts[r.status] || 0) + 1; });
   const total = groups.length;
-  const pipe = (label, key, n, extra = '') => el('button', {
-    className: 'pipe-card' + (filter.status === key ? ' on' : '') + extra, onclick: () => { filter.status = key; render(); },
-  }, [el('div', { className: 'pipe-label', text: label }), el('div', { className: 'pipe-count', text: n }),
-      el('div', { className: 'pipe-sub', text: total ? Math.round(n / total * 100) + '%' : '0%' })]);
-  $('pipeline').replaceChildren(pipe('전체', '', total),
-    ...STATUSES.map((s) => { const p = pipe(s, s, counts[s], s === ON_HOLD ? ' hold' : ''); p.style.setProperty('--c', STATUS_COLOR[s]); return p; }));
+  const tab = (label, key, n, extra = '') => {
+    const b = el('button', { className: 'tab' + (filter.status === key ? ' on' : '') + extra, onclick: () => { filter.status = key; render(); } },
+      [key && el('span', { className: 'dot' }), label, el('span', { className: 'n', text: n })]);
+    if (key) b.style.setProperty('--c', STATUS_COLOR[key]);
+    return b;
+  };
+  $('pipeline').replaceChildren(tab('전체', '', total), ...STATUSES.map((s) => tab(s === ON_HOLD ? s + ' (보류)' : s, s, counts[s], s === ON_HOLD ? ' hold' : '')));
   $('newBadge').hidden = !counts['신규']; $('newBadge').textContent = counts['신규'];
   document.title = (counts['신규'] ? `(${counts['신규']}) ` : '') + '문의함 — MUYI CRM';
   ['today', 'mine', 'unassigned'].forEach((k) => $(k).classList.toggle('on', filter[k]));
@@ -389,42 +474,44 @@ function render() {
     .sort((a, b) => { const pa = priority(a, today), pb = priority(b, today); return pa[0] - pb[0] || pa[1] - pb[1]; });
   shownIds = shown.map((r) => r.id);
   const late = groups.filter(isLate).length;
-  $('desc').textContent = `${shown.length}건 표시 · 전체 ${total}건` + (late ? ` · 2시간 넘게 방치된 신규 ${late}건` : '');
+  $('desc').textContent = shown.length === total ? `${total}건` : `${shown.length} / ${total}건`;
+  $('lateAlert').hidden = !late; $('lateAlert').lastChild.textContent = `2시간 넘게 방치된 신규 ${late}건`;
 
   $('list').replaceChildren(...(shown.length
     ? shown.flatMap((r) => r.id === openId ? [row(r), panelRow(r)] : [row(r)])
-    : [el('tr', {}, el('td', { colSpan: 9, className: 'empty', text: '조건에 맞는 문의가 없습니다.' }))]));
+    : [el('tr', {}, el('td', { colSpan: 9, className: 'empty', text: total ? '조건에 맞는 문의가 없습니다.' : '아직 들어온 문의가 없습니다. 광고가 돌면 여기에 쌓입니다.' }))]));
 }
 
 function nextBadge(r) {
-  if (!r.next_contact_at) return '-';
+  if (!r.next_contact_at) return el('span', { className: 'sub', text: '—' });
   const d = kstDay(r.next_contact_at), t = todayKst();
-  return el('span', { className: 'nc' + (d === t ? ' today' : d < t ? ' past' : ''), text: d });
+  return el('span', { className: 'due' + (d === t ? ' today' : d < t ? ' past' : ''), text: d === t ? '오늘' : d < t ? `${mmdd(d)} 지남` : mmdd(d) });
 }
 
 function row(r) {
   const utm = (r.meta && r.meta.utm) || {};
   const last = lastEvent(r.id), miss = missCount(r.id);
   const hours = Math.floor((Date.now() - new Date(r.created_at)) / 3600e3);
-  return el('tr', { className: (r.id === openId ? 'open ' : '') + (isLate(r) ? 'late' : ''), onclick: () => toggle(r.id) }, [
-    el('td', { className: 'sub' }, [kst(r.created_at), isLate(r) && el('span', { className: 'late-tag', text: hours >= 24 ? `${Math.floor(hours / 24)}일 방치` : `${hours}시간 방치` })]),
-    el('td', {}, [el('strong', { text: r.name || '(이름 없음)' }), r.prev.length > 0 && el('span', { className: 'dup-tag', text: `재문의 ${r.prev.length + 1}회` })]),
+  const who = admins[r.assignee];
+  return el('tr', { className: (r.id === openId ? 'open ' : '') + (isLate(r) ? 'late' : ''), onclick: () => toggle(r.id), title: kst(r.created_at) }, [
+    el('td', { className: 'sub' }, [ago(r.created_at), isLate(r) && el('span', { className: 'flag late', text: hours >= 24 ? `${Math.floor(hours / 24)}일 방치` : `${hours}시간 방치` })]),
+    el('td', { className: 'name' }, [el('strong', { text: r.name || '(이름 없음)' }), r.prev.length > 0 && el('span', { className: 'flag dup', text: `재문의 ${r.prev.length + 1}회` })]),
     el('td', { text: r.phone || r.email || '-' }),
-    el('td', {}, r.type ? el('span', { className: 'tag-chip', text: r.type }) : '-'),
+    el('td', {}, r.type ? el('span', { className: 'tag', text: r.type }) : el('span', { className: 'sub', text: '—' })),
     el('td', { className: 'sub', text: [r.source, utm.utm_campaign].filter(Boolean).join(' / ') || '-' }),
-    el('td', {}, [badge(r.status), miss > 0 && el('span', { className: 'sub', text: ` 부재 ${miss}회` })]),
-    el('td', { text: admins[r.assignee] || '미배정' }),
+    el('td', {}, [pill(r.status), miss > 0 && el('span', { className: 'flag miss', text: `부재 ${miss}` })]),
+    el('td', {}, who ? el('span', { className: 'who' }, [avatar(who, 'sm'), who]) : el('span', { className: 'who none' }, [el('span', { className: 'av sm none' }), '미배정'])),
     el('td', {}, nextBadge(r)),
-    el('td', { className: 'sub', text: last ? last.body.replace(/\s+/g, ' ').slice(0, 30) : '-' }),
+    el('td', { className: 'sub', text: last ? last.body.replace(/\s+/g, ' ').slice(0, 30) : '—' }),
   ]);
 }
 
 function toggle(id) { openId = openId === id ? null : id; render(); }
 
 const RESULTS = [
-  { key: '통화성공', cls: 'ok', status: '상담중' },
-  { key: '부재', cls: 'miss', status: '부재' },
-  { key: '거절', cls: 'no', status: '종료' },
+  { key: '통화성공', color: '#16A34A', status: '상담중' },
+  { key: '부재', color: '#D97706', status: '부재' },
+  { key: '거절', color: '#71717A', status: '종료' },
 ];
 const NEEDS_NEXT = ['부재', '상담중'];
 const addDays = (n) => { const d = new Date(Date.now() + 9 * 3600e3); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
@@ -436,11 +523,11 @@ function panelRow(r) {
   const st = { result: null, status: r.status, next: r.next_contact_at ? kstDay(r.next_contact_at) : '' };
   const miss = missCount(r.id);
 
-  const resultBtns = RESULTS.map((x) => el('button', { type: 'button', className: x.cls, text: x.key, onclick: () => {
+  const resultBtns = RESULTS.map((x) => { const b = el('button', { type: 'button', text: x.key, onclick: () => {
     st.result = st.result === x.key ? null : x.key;
     if (st.result) { st.status = x.status; if (x.key === '부재' && !st.next) st.next = addDays(1); }
     sync();
-  } }));
+  } }); b.style.setProperty('--c', x.color); return b; });
   const status = el('select', { className: 'fi', onchange: (e) => { st.status = e.target.value; sync(); } },
     STATUSES.map((s) => el('option', { value: s, text: s })));
   const QUICK = [['오늘', 0], ['내일', 1], ['3일 뒤', 3], ['다음주', 7]];
@@ -488,22 +575,28 @@ function panelRow(r) {
     render();
     if (openId) document.querySelector('tr.open')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
   }
+  memo.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) save(true); });
 
+  const fr = firstResponse(r);
   const panel = el('div', { className: 'panel' }, [
     el('div', { className: 'panel-l' }, [
-      el('div', { className: 'ph' }, [el('strong', { text: r.name || '(이름 없음)' }), r.phone && el('a', { href: 'tel:' + tel, text: '📞 ' + r.phone }), r.email && el('span', { className: 'sub', text: r.email })]),
-      el('div', { className: 'sub', text: [kst(r.created_at), firstResponse(r) != null && `첫 응답 ${fmtMin(firstResponse(r))}`, r.source, r.type, utm.utm_campaign && '광고: ' + [utm.utm_source, utm.utm_campaign, utm.utm_content].filter(Boolean).join(' / ')].filter(Boolean).join(' · ') }),
-      r.message && el('div', { className: 'box', text: r.message }),
+      el('div', { className: 'ph' }, [el('strong', { text: r.name || '(이름 없음)' }),
+        r.phone && el('a', { className: 'dial', href: 'tel:' + tel }, [icon('phone'), r.phone]),
+        r.email && el('span', { className: 'sub', text: r.email })]),
+      el('div', { className: 'meta' }, [kst(r.created_at), fr != null && `첫 응답 ${fmtMin(fr)}`, r.source, r.type,
+        utm.utm_campaign && '광고 ' + [utm.utm_source, utm.utm_campaign, utm.utm_content].filter(Boolean).join(' / ')].filter(Boolean).map((t) => el('span', { text: t }))),
+      r.message && el('div', {}, [el('div', { className: 'sec-t', text: '문의 내용' }), el('div', { className: 'box', text: r.message })]),
       r.call_status && el('div', { className: 'box' }, ['AI 통화 · ' + (CALL_LABEL[r.call_status] || r.call_status) + (r.ai_summary ? '\n' + r.ai_summary : ''),
         /^https:\/\//.test(r.recording_url || '') && el('a', { href: r.recording_url, target: '_blank', rel: 'noopener', text: '녹음 듣기' })]),
-      r.prev.length > 0 && el('div', {}, [el('span', { className: 'lbl', text: `이전 문의 ${r.prev.length}건` }),
-        ...r.prev.map((p) => el('div', { className: 'prev', text: `${kst(p.created_at)} · ${p.source || '-'} · ${p.status}${p.message ? '\n' + p.message : ''}` }))]),
-      el('div', {}, [el('span', { className: 'lbl', text: '상담 기록' }),
-        ...[...(events[r.id] || [])].reverse().map((e) => el('div', { className: 'log ' + e.kind }, [
-          el('div', { className: 'log-meta' }, [el('span', { className: 'log-who', text: e.actor ? (admins[e.actor] || '관리자') : '시스템' }), el('span', { className: 'log-time', text: kst(e.created_at) })]),
-          el('p', { text: e.body }),
-        ])),
-        !(events[r.id] || []).length && el('div', { className: 'sub', text: '아직 기록이 없습니다.' })]),
+      r.prev.length > 0 && el('div', {}, [el('div', { className: 'sec-t', text: `이전 문의 ${r.prev.length}건` }),
+        el('div', { className: 'box' }, r.prev.map((p, i) => el('div', { className: i ? 'prev' : '', text: `${kst(p.created_at)} · ${p.source || '-'} · ${p.status}${p.message ? '\n' + p.message : ''}` })))]),
+      el('div', {}, [el('div', { className: 'sec-t', text: '상담 기록' }),
+        (events[r.id] || []).length
+          ? el('div', { className: 'timeline' }, [...events[r.id]].reverse().map((e) => el('div', { className: 'log ' + e.kind }, [
+            el('div', { className: 'log-meta' }, [el('b', { text: e.actor ? (admins[e.actor] || '관리자') : '시스템' }), el('span', { text: kst(e.created_at) })]),
+            el('p', { text: e.body }),
+          ])))
+          : el('div', { className: 'sub', text: '아직 기록이 없습니다.' })]),
     ]),
     el('div', { className: 'panel-r' }, [
       el('div', {}, [el('span', { className: 'lbl', text: '통화 결과' }), el('div', { className: 'seg' }, resultBtns)]),
@@ -514,9 +607,10 @@ function panelRow(r) {
       grade,
       err,
       el('div', { className: 'actions' }, [
-        el('button', { className: 'btn-g', type: 'button', text: '저장', onclick: () => save(false) }),
-        el('button', { className: 'btn-p', type: 'button', text: '저장하고 다음 건 →', onclick: () => save(true) }),
+        el('button', { className: 'btn lg', type: 'button', text: '저장', onclick: () => save(false) }),
+        el('button', { className: 'btn primary lg', type: 'button', text: '저장하고 다음 건 →', onclick: () => save(true) }),
       ]),
+      el('div', { className: 'keys' }, [el('span', {}, [el('kbd', { text: 'Ctrl' }), ' + ', el('kbd', { text: 'Enter' }), ' 저장하고 다음']), el('span', {}, [el('kbd', { text: 'J' }), ' ', el('kbd', { text: 'K' }), ' 다음·이전']), el('span', {}, [el('kbd', { text: 'Esc' }), ' 닫기'])]),
     ]),
   ]);
   sync();
@@ -530,16 +624,37 @@ async function reloadEvents(id) {
 
 $('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault(); $('loginMsg').textContent = '';
+  if (pwMode === 'set') {
+    const { error } = await sb.auth.updateUser({ password: $('password').value });
+    if (error) { $('loginMsg').textContent = '저장 실패: ' + error.message; return; }
+    $('password').value = ''; pwMode = 'done'; start(); return;
+  }
   const { error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
   if (error) { $('loginMsg').textContent = '로그인 실패: 이메일 또는 비밀번호를 확인하세요.'; return; }
   $('password').value = ''; start();
 });
-$('logout').onclick = async () => { await sb.auth.signOut(); rows = []; openId = null; $('list').replaceChildren(); start(); };
-$('reload').onclick = load;
+$('forgot').onclick = async () => {
+  const email = $('email').value.trim();
+  if (!email) { $('loginMsg').textContent = '이메일을 먼저 입력하세요.'; $('email').focus(); return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + '/admin' });
+  $('loginMsg').classList.toggle('ok', !error);
+  $('loginMsg').textContent = error ? '메일 발송 실패: ' + error.message : '비밀번호 재설정 메일을 보냈습니다. 메일의 링크를 눌러주세요.';
+};
+$('logout').onclick = async () => { await sb.auth.signOut(); rows = []; openId = null; me = null; $('list').replaceChildren(); start(); };
+$('reload').onclick = () => { load(); toast('새로고침'); };
 $('q').oninput = (e) => { filter.q = e.target.value; render(); };
 $('source').onchange = (e) => { filter.source = e.target.value; render(); };
 ['today', 'mine', 'unassigned'].forEach((k) => { $(k).onclick = () => { filter[k] = !filter[k]; render(); }; });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && openId) toggle(openId); });
+// 단축키: / 검색, Esc 닫기, j/k 다음·이전 문의 열기 (입력 중엔 무시)
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && openId) { toggle(openId); return; }
+  if (!me || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === '/') { e.preventDefault(); $('q').focus(); }
+  if (e.key === 'j' || e.key === 'k') {
+    const i = shownIds.indexOf(openId), n = e.key === 'j' ? i + 1 : i - 1;
+    if (shownIds[n]) { openId = shownIds[n]; render(); document.querySelector('tr.open')?.scrollIntoView({ block: 'center' }); }
+  }
+});
 
 // ── 메뉴 ──
 document.querySelectorAll('.mi[data-page]').forEach((b) => b.onclick = () => {
@@ -582,7 +697,7 @@ $('csv').onclick = () => {
 let perfDays = 30;
 function renderPerf() {
   $('period').replaceChildren(...[[7, '7일'], [30, '30일'], [90, '90일'], [0, '전체']].map(([d, t]) =>
-    el('button', { className: 'p-btn' + (perfDays === d ? ' on' : ''), text: t, onclick: () => { perfDays = d; renderPerf(); } })));
+    el('button', { className: perfDays === d ? 'on' : '', text: t, onclick: () => { perfDays = d; renderPerf(); } })));
   const since = perfDays ? Date.now() - perfDays * 864e5 : 0;
   const list = rows.filter((r) => +new Date(r.created_at) >= since);
   const reached = (r) => (events[r.id] || []).some((e) => e.kind === 'call' && e.body.startsWith('통화성공'));
@@ -605,7 +720,7 @@ function renderPerf() {
   list.forEach((r) => { const d = kstDay(r.created_at); byDay[d] = (byDay[d] || 0) + 1; });
   const keys = Array.from({ length: days }, (_, i) => kstDay(Date.now() - (days - 1 - i) * 864e5));
   const max = Math.max(1, ...keys.map((k) => byDay[k] || 0));
-  $('bars').replaceChildren(...keys.map((k) => { const d = el('div'); d.style.height = ((byDay[k] || 0) / max * 100) + '%'; d.dataset.t = `${k.slice(5)} · ${byDay[k] || 0}건`; return d; }));
+  $('bars').replaceChildren(...keys.map((k) => { const d = el('div'); d.style.height = ((byDay[k] || 0) / max * 100) + '%'; d.dataset.t = `${mmdd(k)} · ${byDay[k] || 0}건`; return d; }));
 
   // 캠페인 → 소재. UTM이 없으면 유입 경로로 묶는다.
   const camps = {};
