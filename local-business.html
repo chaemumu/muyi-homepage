@@ -206,6 +206,9 @@
 /* 플레이스홀더 ID일 때는 로드하지 않는다 (개발 중 오탐 방지) */
 window.MUYI_PIXEL_ID = '1587710412407596'; /* 무이 비즈니스 데이터 세트 'MUYI Website' */
 window.MUYI_GA4_ID   = 'G-GMHE5GQDBV';
+/* Google Ads 전환: 'AW-123456789' 와 리드 전환 액션의 라벨. 비어 있으면 구글 광고 태그를 쓰지 않는다 */
+window.MUYI_GADS_ID  = '';
+window.MUYI_GADS_LEAD_LABEL = '';
 </script>
 <!-- Meta Pixel -->
 <script>
@@ -230,6 +233,7 @@ window.MUYI_GA4_ID   = 'G-GMHE5GQDBV';
   window.dataLayer=window.dataLayer||[];
   window.gtag=function(){dataLayer.push(arguments);};
   gtag('js',new Date());gtag('config',window.MUYI_GA4_ID);
+  if(window.MUYI_GADS_ID)gtag('config',window.MUYI_GADS_ID); /* 같은 gtag.js로 구글 광고 태그도 켠다 */
 })();
 </script>
 <!-- 광고 유입 정보: 첫 진입 URL의 UTM·클릭ID를 세션에 저장해 두고 폼 제출 때 함께 보낸다 -->
@@ -2304,6 +2308,10 @@ function handleSubmit(){
     /* 3. GA4 generate_lead 이벤트 */
     if(typeof gtag==='function'){
       gtag('event','generate_lead',{event_category:'form',event_label:body.industry,method:'local-business-diagnosis'});
+      /* Google Ads 리드 전환. transaction_id로 중복 제출을 한 건으로 센다 */
+      if(window.MUYI_GADS_ID&&window.MUYI_GADS_LEAD_LABEL){
+        gtag('event','conversion',{send_to:window.MUYI_GADS_ID+'/'+window.MUYI_GADS_LEAD_LABEL,transaction_id:body.event_id});
+      }
     }
 
     /* 4. TODO: Supabase insert
