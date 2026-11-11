@@ -13,16 +13,20 @@
   var origFetch = window.fetch && window.fetch.bind(window);
   if (!origFetch) return;
   var sentAt = {};
-  var lastLead = null; // 업로드 단계에서 실패하면 contact 본문이 없으므로, 제출된 폼 값으로 고객 정보를 보완
-
-  document.addEventListener('submit', function (e) {
-    var f = e.target, v = function (n) { var el = f.querySelector && f.querySelector('[name=' + n + ']'); return el && el.value ? String(el.value).trim() : ''; };
-    var lead = { name: v('name'), phone: v('phone'), email: v('email') };
-    if (lead.name || lead.phone || lead.email) lastLead = lead;
-  }, true);
+  // 업로드 단계에서 실패하면 contact 본문이 없으므로, 페이지 입력칸에서 고객 정보를 읽어 보완
+  // (박람회 페이지는 name 속성 없이 id만 있어서 둘 다 확인)
+  function readLead() {
+    var v = function (sel) {
+      var els = document.querySelectorAll(sel);
+      for (var i = 0; i < els.length; i++) if (els[i].value && String(els[i].value).trim()) return String(els[i].value).trim();
+      return '';
+    };
+    var lead = { name: v('[name=name],#f-name'), phone: v('[name=phone],#f-phone,input[type=tel]'), email: v('[name=email],#f-email,input[type=email]') };
+    return lead.name || lead.phone || lead.email ? lead : null;
+  }
 
   function send(title, detail, lead) {
-    lead = lead || lastLead;
+    if (!lead || (!lead.name && !lead.phone)) lead = readLead() || lead;
     var key = title + '|' + (lead && lead.phone || '');
     var now = Date.now();
     if (sentAt[key] && now - sentAt[key] < 60000) return;
