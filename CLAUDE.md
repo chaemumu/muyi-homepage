@@ -174,3 +174,30 @@ UX:
 👉 “레드닷 수준 인터랙션 + 전환 퍼널” 기준
 
 수준 낮으면 재설계한다.
+
+---
+
+## 운영 · 연동 (실제 구성 — 2026-11 기준)
+
+### 프로젝트 구분
+| 프로젝트 | 저장소 / 위치 | 용도 |
+|---|---|---|
+| MUYI 홈페이지 (이 저장소) | `chaemumu/muyi-homepage` → Vercel `muyi-homepage`, www.muyi.co.kr | 랜딩·문의 폼, 문의함(`/admin`) |
+| MUYI CRM | `chaemumu/muyi-crm` → https://muyi-crm.vercel.app | 영업팀 가망 DB·콜·일정 (별도 Supabase `npkpxlbcwmwlxqauevyv`) |
+| MUYI Lab | 내부 대시보드 (이 저장소 아님) | 사내 UI 디자인 기준 |
+
+### 페이지
+- 문의 폼이 있는 페이지: `index.html`, `b2b-marketing.html`, `public-sector.html`, `consult.html`, `expo-event.html`, `local-business.html`
+- 위 페이지 수정 시 `<head>`의 `/assets/muyi-monitor.js?v=N` 태그 유지 (수정하면 `v` 값 올리기 — `/assets`는 1년 캐시)
+
+### Supabase (`pacyhanuwuizcxwoggen`)
+- 문의 접수: 폼 → Edge Function `contact` → `contacts` insert + Resend 메일(info@muyi.co.kr) + 메타 CAPI
+- `contacts` insert 트리거 → `notify-lead` → 관리자 카카오워크 방
+- 장애 알림: `notify-alert` (카카오워크, 같은 방). `contact` 함수의 DB 저장·메일 실패·서버 오류 시 고객 이름·연락처 포함 발송
+- 기타: `expo-gate`, `expo-copy`, `call-dispatch`(AI 1차 통화, 매분), `retell-webhook`, `capi-purchase`, `notify-assign`, `daily-digest`, `meta-spend`
+
+### 장애 감지 (제거·우회 금지)
+- `assets/muyi-monitor.js`: `contact` / 첨부 업로드 요청 실패 시 브라우저에서 즉시 알림
+  (1차 홈페이지 `notify-alert` → 실패 시 CRM Supabase `kakaowork-notify`)
+- 폼 전송 코드를 바꿀 때도 `fetch`로 `/functions/v1/contact`를 호출해야 감시가 동작함
+- 30분 상태 점검: `chaemumu/muyi-crm`의 `.github/workflows/crm-health.yml` (홈페이지·DB·문의 함수 포함)
