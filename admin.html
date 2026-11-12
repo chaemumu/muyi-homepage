@@ -340,8 +340,10 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
       <div class="nav-sec">업무</div>
       <button class="mi active" data-page="today"><svg class="i"><use href="#i-sun"/></svg>오늘 할 일<span class="mi-badge" id="todoBadge" hidden></span></button>
       <button class="mi" data-page="inbox"><svg class="i"><use href="#i-inbox"/></svg>문의함<span class="mi-badge" id="newBadge" hidden></span></button>
+      <div class="nav-sec">업체</div>
       <button class="mi" data-page="leads"><svg class="i"><use href="#i-store"/></svg>가망 업체</button>
       <button class="mi" data-page="clients"><svg class="i"><use href="#i-check"/></svg>계약 업체</button>
+      <div class="nav-sec">관리</div>
       <button class="mi" data-page="perf"><svg class="i"><use href="#i-chart"/></svg>광고 성과</button>
       <button class="mi" data-page="import" id="navImport" hidden><svg class="i"><use href="#i-upload"/></svg>가져오기</button>
     </nav>
@@ -988,7 +990,7 @@ function showPage(p) {
   ['today', 'inbox', 'leads', 'clients', 'perf', 'import'].forEach((k) => { $('pg-' + k).hidden = k !== p; });
   if (p === 'leads' || p === 'clients') {
     const go = () => window.CRM_COMPANIES.mount($('pg-' + p), p);
-    if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=2'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
+    if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=3'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
   if (p === 'today') renderToday();
   if (p === 'import' && !$('importBody').childElementCount) {
