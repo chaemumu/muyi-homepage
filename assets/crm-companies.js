@@ -59,6 +59,30 @@
 .bar{height:6px;background:var(--muted-2);border-radius:3px;overflow:hidden;min-width:60px}
 .bar i{display:block;height:100%;background:var(--green)}
 @media (max-width:720px){.dr-grid{grid-template-columns:1fr}}
+.cell-sel{appearance:none;height:24px;padding:0 22px 0 18px;border:1px solid color-mix(in srgb,var(--c) 28%,var(--line));border-radius:12px;font-size:12px;font-weight:600;cursor:pointer;
+  color:color-mix(in srgb,var(--c) 70%,var(--t1));background:color-mix(in srgb,var(--c) 9%,var(--surface)) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%238A8A93' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 8px center;
+  background-image:radial-gradient(circle at 9px 50%,var(--c) 3px,transparent 3.5px),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%238A8A93' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:0 0,right 8px center}
+.cell-sel.plain{--c:var(--t4);padding-left:8px;border-color:transparent;background-color:transparent;color:var(--t1);font-weight:500;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%238A8A93' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-position:right 8px center}
+.cell-sel:hover,.cell-sel:focus{border-color:var(--accent);outline:none}
+.cell-sel.plain:hover{border-color:var(--line-strong);background-color:var(--surface)}
+.btn.dirty{box-shadow:0 0 0 3px var(--accent-50)}
+.dr-keys{display:flex;gap:10px;color:var(--t3);font-size:11px;padding:8px 20px;border-top:1px solid var(--line);background:var(--surface-2)}
+.rd-head{display:flex;align-items:center;gap:8px}
+.rd-head>div{margin-right:auto}
+.rd-form{display:grid;gap:8px;padding:12px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2)}
+.rd-grid{grid-template-columns:repeat(3,1fr)}
+.rd-list{display:grid;gap:6px}
+.rd-row{display:grid;grid-template-columns:64px auto 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;padding:9px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);cursor:pointer}
+.rd-row:hover{border-color:var(--line-strong)}
+.rd-row.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.rd-row.late{border-color:var(--red)}
+.rd-post{font-size:12px;font-weight:600;color:var(--t2);font-variant-numeric:tabular-nums}
+.rd-post.bad{color:var(--red)}
+.rd-open{display:grid;gap:0}
+.rd-body{display:grid;gap:10px;padding:10px 4px 4px}
+.rd-url{height:28px;font-size:12px;min-width:160px}
+.dr-tbl tr.late td{color:var(--red)}
+.dr-tbl a{color:var(--accent);font-weight:600}
 .dr-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
 .dr-si{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:6px 10px;display:grid;gap:1px;min-width:0}
 .dr-si small{font-size:11px;color:var(--t3)}
@@ -109,7 +133,7 @@
   let state = null; // { mode, tab, q, mine, review, source, rows, offset, done, openId }
 
   function mount(box, mode) {
-    document.querySelector('.drawer')?.remove(); document.querySelector('.pm-layer')?.remove();
+    document.querySelector('.drawer')?.remove(); document.querySelector('.pm-layer')?.remove(); if (state) state.dirty = false;
     const M = MODES[mode];
     let savedSort = null; try { savedSort = localStorage.getItem('crm-sort-' + mode); } catch {}
     const sorts = SORTS[mode];
@@ -137,6 +161,7 @@
       ]),
     );
     reload();
+    if (window.__openCompany) { const id = window.__openCompany; delete window.__openCompany; open(id); }
   }
 
   function query(select, opts) {
@@ -153,7 +178,7 @@
   async function reload() {
     const M = MODES[state.mode];
     state.rows = []; state.offset = 0; state.done = false;
-    state.listEl.replaceChildren(el('tr', {}, el('td', { colSpan: 8, className: 'empty', text: '불러오는 중…' })));
+    state.listEl.replaceChildren(...Array.from({ length: 8 }, () => el('tr', {}, Array.from({ length: state.mode === 'clients' ? 8 : 7 }, (_, i) => el('td', {}, el('span', { className: 'skel', style: `width:${[70, 50, 60, 40, 46, 52, 48, 40][i]}%` }))))));
     // 탭별 건수
     const counts = await Promise.all(M.tabs.map(([v]) => query('id', { count: 'exact', head: true }).eq(M.field, v)));
     state.counts = Object.fromEntries(M.tabs.map(([v], i) => [v, counts[i].count || 0]));
@@ -189,11 +214,11 @@
     state.listEl.replaceChildren(...state.rows.map((r) => {
       const name = el('td', { className: 'nm' }, [el('strong', { text: r.name }), r.brand && r.brand !== r.name && el('span', { className: 'tag', text: r.brand }), r.needs_review && el('span', { className: 'co-flag', text: '확인 필요' })]);
       const cells = clients
-        ? [name, el('td', { className: 'sub', text: regionOf(r.address) || '—' }), el('td', { text: r.phone || r.store_phone || '—' }), el('td', { text: r.sales_owner_name || '—' }),
-          el('td', {}, dot(r.run_status, RUN_COLOR[r.run_status])), el('td', { className: 'sub', text: day(r._ct?.paid) }),
+        ? [name, el('td', { className: 'sub', text: regionOf(r.address) || '—' }), el('td', { text: r.phone || r.store_phone || '—' }), ownerCell(r),
+          statusCell(r, 'run_status', ['진행 중', '홀딩', '계약종료', '환불', '양도'], RUN_COLOR), el('td', { className: 'sub', text: day(r._ct?.paid) }),
           el('td', { className: r._ct?.renew && r._ct.renew >= today && r._ct.renew <= addDaysIso(30) ? 'err' : 'sub', text: day(r._ct?.renew) }), el('td', { className: 'sub', text: r._ct ? won(r._ct.sum) : '—' })]
-        : [name, el('td', { className: 'sub', text: regionOf(r.address) || '—' }), el('td', { text: r.phone || r.store_phone || '—' }), el('td', { text: r.sales_owner_name || '미배정' }),
-          el('td', {}, dot(r.stage, STAGE_COLOR[r.stage])), el('td', { className: 'sub', text: (SOURCES.find(([v]) => v === r.lead_source) || [, '—'])[1] }),
+        : [name, el('td', { className: 'sub', text: regionOf(r.address) || '—' }), el('td', { text: r.phone || r.store_phone || '—' }), ownerCell(r),
+          statusCell(r, 'stage', ['가망', '결정업체', '뿌러짐'], STAGE_COLOR), el('td', { className: 'sub', text: (SOURCES.find(([v]) => v === r.lead_source) || [, '—'])[1] }),
           el('td', { className: 'sub memo', text: (r.notes || '').replace(/\s+/g, ' ') || '—' })];
       return el('tr', { className: r.id === state.openId ? 'sel' : '', onclick: () => open(r.id) }, cells);
     }));
@@ -202,13 +227,53 @@
 
   // ── 상세 패널 ──
   let drawer = null;
-  function close() { drawer?.remove(); drawer = null; state.openId = null; drawRows(); }
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && drawer) close(); });
+  // 저장 안 한 변경이 있으면 닫기·이동 전에 확인
+  function guard() { if (state?.dirty && !confirm('저장하지 않은 변경 내용이 있습니다. 버리고 이동할까요?')) return false; if (state) state.dirty = false; return true; }
+  function close() {
+    if (!guard()) return;
+    drawer?.remove(); drawer = null; state.openId = null; state.dirty = false; drawRows();
+    if (location.hash.startsWith('#co-')) history.replaceState(null, '', '#' + state.mode);
+  }
+  const typing = () => /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName);
+  document.addEventListener('keydown', (e) => {
+    if (!drawer || document.querySelector('.pm-layer, .cmdk-layer')) return;
+    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') { e.preventDefault(); state.saveInfo?.(); return; }
+    if (typing() || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === 'j' || e.key === 'k' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      const i = state.rows.findIndex((r) => r.id === state.openId), n = (e.key === 'j' || e.key === 'ArrowDown') ? i + 1 : i - 1;
+      if (state.rows[n]) { e.preventDefault(); open(state.rows[n].id, state.tabNow || 'info'); document.querySelector('.co-tbl tr.sel')?.scrollIntoView({ block: 'nearest' }); }
+    }
+  });
+  // 표에서 바로 바꾸기: 상태 · 영업 담당 (상세를 열지 않고)
+  async function quickUpdate(r, patch, label) {
+    const { error } = await sb.from('companies').update(patch).eq('id', r.id);
+    if (error) { toast('저장 실패: ' + error.message); return false; }
+    Object.assign(r, patch);
+    await sb.from('company_events').insert({ company_id: r.id, actor: me, kind: 'system', body: label });
+    toast(label); return true;
+  }
+  function statusCell(r, field, options, colors) {
+    const cur = r[field];
+    const sel = el('select', { className: 'cell-sel', title: '눌러서 바로 변경', onclick: (e) => e.stopPropagation() }, options.map((v) => el('option', { value: v, text: v, selected: v === cur })));
+    sel.style.setProperty('--c', colors[cur] || 'var(--t4)');
+    sel.onchange = async () => { const v = sel.value; if (await quickUpdate(r, { [field]: v }, `${field === 'stage' ? '단계' : '계약 상태'}: ${cur || '—'} → ${v}`)) reload(); else sel.value = cur; };
+    return el('td', {}, sel);
+  }
+  function ownerCell(r) {
+    const sel = el('select', { className: 'cell-sel plain', title: '눌러서 담당 변경', onclick: (e) => e.stopPropagation() }, [
+      el('option', { value: '', text: r.sales_owner_name && !r.sales_owner ? r.sales_owner_name : '미배정' }),
+      ...Object.entries(admins).map(([id, n]) => el('option', { value: id, text: n, selected: id === r.sales_owner }))]);
+    sel.onchange = async () => { const v = sel.value || null; if (!(await quickUpdate(r, { sales_owner: v, sales_owner_name: v ? admins[v] : null }, `영업 담당 → ${v ? admins[v] : '미배정'}`))) sel.value = r.sales_owner || ''; };
+    return el('td', {}, sel);
+  }
 
   async function open(id, tab = 'info') {
-    state.openId = id; drawRows();
-    drawer?.remove();
-    drawer = el('aside', { className: 'drawer' }, el('div', { className: 'dr-b' }, el('div', { className: 'hint', text: '불러오는 중…' })));
+    if (drawer && state.openId !== id && !guard()) return;
+    state.openId = id; state.dirty = false; state.saveInfo = null; state.tabNow = null; drawRows();
+    if (location.hash !== '#co-' + id) history.replaceState(null, '', '#co-' + id);
+    drawer?.remove(); state.dirty = false;
+    drawer = el('aside', { className: 'drawer' }, el('div', { className: 'dr-b' }, [60, 90, 40, 75, 55, 85].map((w) => el('span', { className: 'skel', style: `width:${w}%;height:14px` }))));
     document.body.append(drawer);
     const [c, ct, dl, wk, rd, hd, gl, ev, dc, cd] = await Promise.all([
       sb.from('companies').select('*').eq('id', id).single(),
@@ -227,13 +292,13 @@
     const body = el('div', { className: 'dr-b' });
     const TABS = [['info', '정보·기록'], ['contract', `계약·실행 ${D.ct.length + D.dl.length ? '' : ''}`], ['camp', '체험단'], ['docs', '가이드라인·서류']];
     const tabsEl = el('div', { className: 'dr-tabs' });
-    const show = (t) => { [...tabsEl.children].forEach((b) => b.classList.toggle('on', b.dataset.t === t)); body.replaceChildren(...SECTIONS[t]().filter(Boolean)); };
+    const show = (t) => { if (state.tabNow && state.tabNow !== t && !guard()) return; state.tabNow = t; [...tabsEl.children].forEach((b) => b.classList.toggle('on', b.dataset.t === t)); body.replaceChildren(...SECTIONS[t]().filter(Boolean)); };
     TABS.forEach(([k, l]) => { const b = el('button', { type: 'button', text: l.trim(), onclick: () => show(k) }); b.dataset.t = k; tabsEl.append(b); });
     const sum = D.ct.reduce((s, x) => s + (x.amount_won || 0), 0);
     drawer.replaceChildren(
       el('div', { className: 'dr-h' }, [
         el('div', { className: 'dr-top' }, [el('h2', { text: co.name }),
-          el('button', { className: 'btn primary', type: 'button', text: co.stage === '결제' ? '재계약 등록' : '결제 등록', onclick: () => payModal(co, D) }),
+          el('button', { className: 'btn brand', type: 'button', text: co.stage === '결제' ? '재계약 등록' : '결제 등록', onclick: () => payModal(co, D) }),
           el('button', { className: 'icon-btn', type: 'button', title: '닫기 (Esc)', text: '✕', onclick: close })]),
         el('div', { className: 'dr-meta' }, [
           dot(co.stage, STAGE_COLOR[co.stage]), co.stage === '결제' && dot(co.run_status, RUN_COLOR[co.run_status]),
@@ -245,11 +310,12 @@
         tabsEl,
       ]),
       body,
+      el('div', { className: 'dr-keys' }, [el('span', {}, [el('kbd', { text: 'J' }), ' ', el('kbd', { text: 'K' }), ' 다음·이전 업체']), el('span', {}, [el('kbd', { text: 'Ctrl S' }), ' 저장']), el('span', {}, [el('kbd', { text: 'Esc' }), ' 닫기']), el('span', {}, [el('kbd', { text: 'Ctrl K' }), ' 검색'])]),
     );
     const SECTIONS = {
       info: () => [co.stage === '결제' ? checklistView(co, D) : null, infoForm(co), eventsView(co, D.ev)],
       contract: () => [contractsView(D.ct), deliverablesView(D.dl), worksView(D.wk), holdsView(D.hd)],
-      camp: () => [roundsView(co, D.rd)],
+      camp: () => [roundsView(co, D)],
       docs: () => [guidesView(co, D), el('div', { className: 'dr-sec' }, [el('div', { className: 'sec-t', text: '서류 · 카드' }), el('div', { className: 'dr-empty', text: '사업자등록증·계약서 텍스트화, 카드 정보(대표만)는 다음 단계에서 추가됩니다.' })])],
     };
     show(tab);
@@ -291,6 +357,9 @@
     F.stage = el('select', { className: 'fi' }, ['가망', '결정업체', '결제', '뿌러짐'].map((v) => el('option', { value: v, text: v, selected: co.stage === v })));
     F.run_status = el('select', { className: 'fi' }, [el('option', { value: '', text: '—' }), ...['진행 중', '홀딩', '계약종료', '환불', '양도'].map((v) => el('option', { value: v, text: v, selected: co.run_status === v }))]);
     const saveBtn = el('button', { className: 'btn primary', type: 'button', text: '저장', onclick: save });
+    const markDirty = (e) => { if (!e.target.isConnected || !saveBtn.isConnected) return; state.dirty = true; saveBtn.textContent = '저장 (Ctrl+S)'; saveBtn.classList.add('dirty'); };
+    queueMicrotask(() => Object.values(F).forEach((x) => { x.addEventListener('input', markDirty); x.addEventListener('change', markDirty); }));
+    state.saveInfo = save;
     async function save() {
       const patch = {};
       ['name', 'brand', 'phone', 'store_phone', 'email', 'address', 'map_url', 'rep_name', 'rep_note', 'category', 'notes'].forEach((k) => { const v = F[k].value.trim() || null; if ((co[k] ?? null) !== v) patch[k] = v; });
@@ -301,7 +370,7 @@
       if (F.stage.value !== co.stage) patch.stage = F.stage.value;
       const run = patch.stage && patch.stage !== '결제' ? null : (F.run_status.value || (F.stage.value === '결제' ? '진행 중' : null));
       if ((co.run_status ?? null) !== run) patch.run_status = run;
-      if (!Object.keys(patch).length) { toast('바뀐 내용이 없습니다'); return; }
+      if (!Object.keys(patch).length) { state.dirty = false; toast('바뀐 내용이 없습니다'); return; }
       if (patch.name === null) { toast('업체명은 비울 수 없습니다'); return; }
       saveBtn.disabled = true;
       const { error } = await sb.from('companies').update(patch).eq('id', co.id);
@@ -309,6 +378,7 @@
       if (error) { toast('저장 실패: ' + error.message); return; }
       const what = Object.keys(patch).map((k) => ({ stage: '단계', run_status: '계약 상태', sales_owner: '영업 담당', manager_owner: '관리 담당' }[k])).filter(Boolean);
       await sb.from('company_events').insert({ company_id: co.id, actor: me, kind: 'system', body: '정보 수정' + (what.length ? ': ' + [...new Set(what)].join(', ') : '') + (patch.stage ? ` → ${patch.stage}` : '') + (patch.run_status ? ` → ${patch.run_status}` : '') });
+      state.dirty = false;
       toast('저장됨');
       if (patch.stage || 'run_status' in patch) reload();
       open(co.id, 'info');
@@ -361,13 +431,134 @@
   function holdsView(hds) {
     return hds.length ? sec(`홀딩 ${hds.length}건`, table(['시작일', '진행 회차', '총 회차', '사유'], hds.map((h) => [day(h.started_at), h.progress || '—', h.total_rounds || '—', h.reason || '—']))) : null;
   }
-  function roundsView(co, rds) {
-    return sec('체험단 회차', [
-      co.recruit_days?.length ? el('div', { className: 'hint', text: `매월 ${co.recruit_days.join(', ')}일 모집` }) : null,
-      table(['회차', '총 회차', '상태', '메모'], rds.map((r) => [r.round_label || r.round_no || '—', r.total_rounds ?? '—', r.state || '—', r.memo || '—'])),
-      el('div', { className: 'dr-soon', text: '회차별 명단·포스팅 확인은 ③ 단계에서 추가됩니다.' }),
-    ].filter(Boolean));
+  // ── 체험단 회차 · 명단 ──
+  // 명단 붙여넣기: 옥미정 명단.txt 형식(----------7---------- 몇 팀 : 5팀 / 리뷰기간 : 4주 / 리뷰노트 마감일 ~ 8월 22일 + 블로거 블록)을 그대로 받는다
+  const ROUND_STATES = ['모집', '진행', '완료'];
+  const ROUND_COLOR = { 모집: '#1E10C7', 진행: '#D97706', 완료: '#16A34A', 추가: '#7C3AED', 취소: '#A1A1AA', 홀딩: '#A1A1AA' };
+  function parseRoster(text, baseYear) {
+    const rounds = []; let cur = null;
+    const lines = String(text).replace(/\r/g, '').split('\n');
+    const flush = (block) => {
+      const ls = block.map((x) => x.trim()).filter((x) => x && x !== '.');
+      if (!ls.length) return;
+      const urls = ls.filter((x) => /^https?:\/\//.test(x)), ph = ls.find((x) => /^0\d{1,2}[- ]?\d{3,4}[- ]?\d{4}$/.test(x.replace(/\s/g, '')));
+      const words = ls.filter((x) => !/^https?:\/\//.test(x) && x !== ph);
+      if (!urls.length && !ph) return; // 블로거 블록이 아님 (메모 줄)
+      const post = urls.find((u) => /\/\d{6,}/.test(u)) || null, blog = urls.find((u) => u !== post) || null;
+      (cur || (cur = { label: null, people: [] }, rounds.push(cur), cur)).people.push({ nickname: words[0] || null, name: words[1] || null, phone: ph || null, blog_url: blog, post_url: post });
+    };
+    let block = [];
+    for (const raw of lines) {
+      const l = raw.trim();
+      const h = l.match(/^-{3,}\s*(\d+(?:-\d+)?)\s*-{3,}(.*)$/);
+      if (h) { flush(block); block = []; cur = { label: h[1], people: [] }; rounds.push(cur); const t = h[2].match(/(\d+)\s*팀/); if (t) cur.teams = +t[1]; continue; }
+      const w = l.match(/리뷰\s*기간\s*:?\s*(\d+)\s*주/); if (w && cur) { cur.weeks = +w[1]; continue; }
+      const d = l.match(/마감일?\s*~?\s*(\d{1,2})\s*월\s*(\d{1,2})\s*일/); if (d && cur) { cur.deadline = `${baseYear}-${String(d[1]).padStart(2, '0')}-${String(d[2]).padStart(2, '0')}`; continue; }
+      const t2 = l.match(/몇\s*팀\s*:?\s*(\d+)/); if (t2 && cur) { cur.teams = +t2[1]; continue; }
+      if (!l || l === '.') { flush(block); block = []; } else block.push(l);
+    }
+    flush(block);
+    return rounds.filter((r) => r.people.length || r.label);
   }
+  let openRound = null;
+  function roundsView(co, D) {
+    const box = el('div', { className: 'dr-sec' });
+    const today = new Date().toISOString().slice(0, 10);
+    const addDays = (d, n) => { const x = new Date(d + 'T00:00:00'); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
+    const draw = async () => {
+      const rds = [...D.rd].sort((a, b) => (a.round_no ?? 0) - (b.round_no ?? 0) || String(a.created_at).localeCompare(b.created_at));
+      const ids = rds.map((r) => r.id);
+      const { data: ros } = ids.length ? await sb.from('roster').select('*').in('round_id', ids).order('created_at') : { data: [] };
+      const byRound = {}; (ros || []).forEach((p) => (byRound[p.round_id] = byRound[p.round_id] || []).push(p));
+      const total = rds.find((r) => r.total_rounds)?.total_rounds || D.dl.find((d) => d.item === '체험단')?.planned || null;
+      const doneN = rds.filter((r) => r.state === '완료').length;
+      const head = el('div', { className: 'rd-head' }, [
+        el('div', {}, [el('b', { text: `${doneN}${total ? ' / ' + total : ''}회차 완료` }), co.recruit_days?.length ? el('span', { className: 'sub', text: ` · 매월 ${co.recruit_days.join(', ')}일 모집` }) : null]),
+        el('button', { className: 'btn', type: 'button', text: '명단 붙여넣기', onclick: () => pasteBox.hidden = !pasteBox.hidden }),
+        el('button', { className: 'btn primary', type: 'button', text: '+ 회차 추가', onclick: () => addForm.hidden = !addForm.hidden }),
+      ]);
+      // 회차 추가
+      const nextNo = (rds.reduce((m, r) => Math.max(m, r.round_no || 0), 0) || 0) + 1;
+      const A = { no: el('input', { className: 'fi', type: 'number', value: nextNo }), on: el('input', { className: 'fi', type: 'date', value: today }), teams: el('input', { className: 'fi', type: 'number', value: 5 }),
+        weeks: el('input', { className: 'fi', type: 'number', value: 4 }), deadline: el('input', { className: 'fi', type: 'date', value: addDays(today, 28) }), memo: el('input', { className: 'fi', placeholder: '예: 화요일 모집 체크 해제' }) };
+      const syncDl = () => { if (A.on.value && A.weeks.value) A.deadline.value = addDays(A.on.value, Number(A.weeks.value) * 7); };
+      A.on.oninput = syncDl; A.weeks.oninput = syncDl;
+      const addForm = el('div', { className: 'rd-form', hidden: true }, [el('div', { className: 'dr-grid rd-grid' }, [lab('회차', A.no), lab('모집일', A.on), lab('팀 수', A.teams), lab('리뷰 기간(주)', A.weeks), lab('리뷰 마감일', A.deadline), lab('메모', A.memo)]),
+        el('div', { className: 'gd-btns' }, [el('button', { className: 'btn primary', type: 'button', text: '회차 저장', onclick: async () => {
+          const no = Number(A.no.value) || nextNo;
+          const { data, error } = await sb.from('rounds').insert({ company_id: co.id, round_no: no, round_label: String(no), total_rounds: total, state: '모집', recruit_on: A.on.value || null, teams: Number(A.teams.value) || null,
+            review_weeks: Number(A.weeks.value) || null, deadline: A.deadline.value || null, memo: A.memo.value.trim() || null }).select().single();
+          if (error) { toast('저장 실패: ' + error.message); return; }
+          D.rd.push(data); openRound = data.id;
+          await sb.from('company_events').insert({ company_id: co.id, actor: me, kind: 'system', body: `체험단 ${no}회차 등록 (모집일 ${A.on.value || '-'})` });
+          toast(`${no}회차 등록`); draw();
+        } })])]);
+      // 명단 붙여넣기 (여러 회차 한 번에)
+      const ta = el('textarea', { className: 'fi', rows: 8, placeholder: '----------7---------- 몇 팀 : 5팀\n리뷰기간 : 4주\n리뷰노트 마감일 ~ 8월 22일\n\n쪼꼬\n황재원\n010-0000-0000\nhttps://blog.naver.com/아이디\nhttps://blog.naver.com/아이디/포스팅번호' });
+      const pasteBox = el('div', { className: 'rd-form', hidden: true }, [ta, el('div', { className: 'gd-btns' }, [el('span', { className: 'sub', text: '회차 머리줄(----------7----------)이 있으면 그 회차로, 없으면 펼친 회차에 넣습니다.' }),
+        el('button', { className: 'btn primary', type: 'button', text: '명단 저장', onclick: async () => {
+          const parsed = parseRoster(ta.value, today.slice(0, 4));
+          if (!parsed.some((p) => p.people.length)) { toast('블로거 정보를 찾지 못했습니다 (연락처나 블로그 주소가 있는 블록)'); return; }
+          let added = 0;
+          for (const p of parsed) {
+            let rd = p.label ? D.rd.find((r) => String(r.round_label) === p.label || String(r.round_no) === p.label) : D.rd.find((r) => r.id === openRound);
+            if (!rd) {
+              const no = p.label ? Number(String(p.label).split('-')[0]) : nextNo;
+              const { data, error } = await sb.from('rounds').insert({ company_id: co.id, round_no: no, round_label: p.label || String(no), total_rounds: total, state: p.people.every((x) => x.post_url) ? '완료' : '진행',
+                teams: p.teams || null, review_weeks: p.weeks || null, deadline: p.deadline || null }).select().single();
+              if (error) { toast('회차 저장 실패: ' + error.message); return; }
+              D.rd.push(data); rd = data;
+            } else if (p.teams || p.weeks || p.deadline) {
+              const patch = { teams: p.teams ?? rd.teams, review_weeks: p.weeks ?? rd.review_weeks, deadline: p.deadline ?? rd.deadline };
+              await sb.from('rounds').update(patch).eq('id', rd.id); Object.assign(rd, patch);
+            }
+            if (p.people.length) { const { error } = await sb.from('roster').insert(p.people.map((x) => ({ round_id: rd.id, ...x }))); if (error) { toast('명단 저장 실패: ' + error.message); return; } added += p.people.length; }
+          }
+          await sb.from('company_events').insert({ company_id: co.id, actor: me, kind: 'system', body: `체험단 명단 ${added}명 등록` });
+          toast(`블로거 ${added}명 저장`); draw();
+        } })])]);
+      // 회차 목록
+      const list = el('div', { className: 'rd-list' }, rds.length ? rds.map((r) => {
+        const ppl = byRound[r.id] || [];
+        const posted = ppl.filter((p) => p.post_url).length;
+        const late = r.deadline && r.deadline < today && r.state !== '완료' && ppl.some((p) => !p.post_url);
+        const pill = dot(r.state || '진행', ROUND_COLOR[r.state]);
+        const row = el('button', { type: 'button', className: 'rd-row' + (openRound === r.id ? ' on' : '') + (late ? ' late' : ''), onclick: () => { openRound = openRound === r.id ? null : r.id; draw(); } }, [
+          el('b', { text: `${r.round_label || r.round_no || '?'}회차` }), pill,
+          el('span', { className: 'sub', text: [r.recruit_on && `모집 ${r.recruit_on.slice(5)}`, r.teams && `${r.teams}팀`, r.deadline && `마감 ${r.deadline.slice(5)}`].filter(Boolean).join(' · ') || (r.memo || '') }),
+          el('span', { className: 'rd-post' + (late ? ' bad' : ''), text: ppl.length ? `포스팅 ${posted}/${ppl.length}` : '명단 없음' }),
+        ]);
+        if (openRound !== r.id) return row;
+        const tbl = ppl.length ? el('table', { className: 'dr-tbl' }, [el('thead', {}, el('tr', {}, ['닉네임', '이름', '연락처', '블로그', '포스팅 링크', ''].map((h) => el('th', { text: h })))),
+          el('tbody', {}, ppl.map((p) => {
+            const inp = el('input', { className: 'fi rd-url', value: p.post_url || '', placeholder: '포스팅 링크 붙여넣기' });
+            inp.onchange = async () => { const v = inp.value.trim() || null; const { error } = await sb.from('roster').update({ post_url: v }).eq('id', p.id); if (error) { toast('저장 실패'); return; } p.post_url = v; toast(v ? '포스팅 확인됨' : '링크 삭제'); draw(); };
+            return el('tr', { className: !p.post_url && r.deadline && r.deadline < today ? 'late' : '' }, [
+              el('td', { text: p.nickname || '—' }), el('td', { text: p.name || '—' }), el('td', { text: p.phone || '—' }),
+              el('td', {}, p.blog_url ? el('a', { href: p.blog_url, target: '_blank', rel: 'noopener', text: '블로그' }) : '—'),
+              el('td', {}, inp),
+              el('td', {}, p.post_url ? el('a', { href: p.post_url, target: '_blank', rel: 'noopener', text: '열기' }) : el('span', { className: 'sub', text: r.deadline && r.deadline < today ? '마감 지남' : '대기' }))]);
+          }))]) : el('div', { className: 'dr-empty', text: '명단이 없습니다. [명단 붙여넣기]로 블로거 정보를 넣으세요.' });
+        const setState = (s) => async () => {
+          const wasDone = r.state === '완료';
+          const { error } = await sb.from('rounds').update({ state: s }).eq('id', r.id); if (error) { toast('저장 실패'); return; }
+          r.state = s;
+          const dlv = D.dl.find((d) => d.item === '체험단');
+          if (dlv && (s === '완료') !== wasDone) { const done = Math.max(0, (Number(dlv.done) || 0) + (s === '완료' ? 1 : -1)); await sb.from('deliverables').update({ done }).eq('id', dlv.id); dlv.done = done; }
+          await sb.from('company_events').insert({ company_id: co.id, actor: me, kind: 'system', body: `체험단 ${r.round_label || r.round_no}회차 → ${s}` });
+          toast(`${r.round_label || r.round_no}회차 ${s}`); draw();
+        };
+        return el('div', { className: 'rd-open' }, [row,
+          el('div', { className: 'rd-body' }, [
+            el('div', { className: 'seg-tabs' }, ROUND_STATES.map((s) => el('button', { type: 'button', className: r.state === s ? 'on' : '', text: s, onclick: setState(s) }))),
+            r.memo ? el('div', { className: 'sub', text: r.memo }) : null, tbl].filter(Boolean))]);
+      }) : [el('div', { className: 'dr-empty', text: '등록된 회차가 없습니다. [+ 회차 추가] 또는 [명단 붙여넣기]로 시작하세요.' })]);
+      box.replaceChildren(el('div', { className: 'sec-t', text: '체험단 회차 · 명단' }), head, addForm, pasteBox, list);
+    };
+    draw();
+    return box;
+  }
+
   // ── 가이드라인 7종 (행 = 버전, 종류별 최신이 현재본) ──
   // 종합·모집글은 칸 입력 → 체험단 참고사항과 합쳐 보낼 문구 자동 조립. 나머지는 양식 텍스트를 채워 저장
   const GUIDE_KINDS = ['종합', '모집글', '체험단', '영수증', '배포', '플레이스', '인스타 타겟'];
@@ -585,5 +776,5 @@
 
   function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 
-  window.CRM_COMPANIES = { mount };
+  window.CRM_COMPANIES = { mount, guard };
 })();
