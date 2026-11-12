@@ -224,6 +224,31 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 .hint{background:var(--muted);border:1px solid var(--line);color:var(--t2);border-radius:var(--r);padding:8px 10px;font-size:12px;font-weight:500}
 .keys{display:flex;gap:10px;flex-wrap:wrap;color:var(--t3);font-size:11px}
 
+.ml-auto{margin-left:auto}
+/* 오늘 할 일: 첫 화면. 놓치면 안 되는 문의만 위에서부터 */
+.hello{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.hello h2{font-size:20px;font-weight:700;letter-spacing:-.02em}
+.hello span{color:var(--t3);font-size:13px}
+.hello .chip{margin-left:auto}
+.todo{margin-bottom:14px}
+.todo-h{display:flex;align-items:center;gap:8px;margin:18px 0 8px}
+.todo-h b{font-size:14px;font-weight:700}
+.todo-h .n{font-size:11px;font-weight:700;border-radius:9px;padding:1px 7px;background:var(--muted);color:var(--t2)}
+.todo-h .n.hot{background:var(--red);color:#fff}
+.todo-h small{color:var(--t3);font-size:12px}
+.todo-list{display:grid}
+.todo-row{display:grid;grid-template-columns:minmax(140px,1.2fr) 110px minmax(0,2fr) 110px 90px;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line-2);cursor:pointer;transition:background .1s}
+.todo-row:last-child{border-bottom:0}
+.todo-row:hover{background:var(--surface-2)}
+.todo-row strong{display:block;color:var(--t1);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.todo-row .sub{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.todo-row .memo{color:var(--t2);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.todo-row .due{font-size:12px;font-weight:600;color:var(--t2);text-align:right}
+.todo-row .due.over{color:var(--red)}
+.todo-row .btn{height:28px;justify-content:center}
+.todo-empty{padding:16px;color:var(--t3);font-size:13px;text-align:center}
+@media (max-width:900px){.todo-row{grid-template-columns:1fr auto;row-gap:4px}.todo-row .memo{grid-column:1/-1}.todo-row>:nth-child(4),.todo-row .btn{display:none}}
+
 /* 광고 성과 */
 .seg-tabs{display:inline-flex;background:var(--muted);border-radius:var(--r);padding:2px;gap:2px}
 .seg-tabs button{height:28px;padding:0 12px;border:0;border-radius:6px;background:none;color:var(--t2);font-weight:600;font-size:12px}
@@ -256,7 +281,9 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
   #app{flex-direction:column}
   .sidebar{width:auto;height:auto;position:static;flex-direction:row;align-items:center;border-right:0;border-bottom:1px solid var(--line)}
   .sb-logo{padding:10px 12px}
-  .sb-nav{display:flex;padding:0 6px;gap:2px}
+  .sb-nav{display:flex;padding:0 6px;gap:2px;min-width:0;overflow-x:auto;scrollbar-width:none}
+  .mi{white-space:nowrap;flex:none}
+  .sb-logo span{display:none}
   .nav-sec,.me-txt{display:none}
   .mi{width:auto}
   .sb-foot{margin:0 0 0 auto;border:0;padding:6px}
@@ -303,7 +330,8 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
     <div class="sb-logo"><img class="logo-l" src="/assets/logo/muyi-logo.svg" alt="MUYI"><img class="logo-d" src="/assets/logo/muyi-logo-white.svg" alt="MUYI"><span>CRM</span></div>
     <nav class="sb-nav">
       <div class="nav-sec">업무</div>
-      <button class="mi active" data-page="inbox"><svg class="i"><use href="#i-inbox"/></svg>문의함<span class="mi-badge" id="newBadge" hidden></span></button>
+      <button class="mi active" data-page="today"><svg class="i"><use href="#i-sun"/></svg>오늘 할 일<span class="mi-badge" id="todoBadge" hidden></span></button>
+      <button class="mi" data-page="inbox"><svg class="i"><use href="#i-inbox"/></svg>문의함<span class="mi-badge" id="newBadge" hidden></span></button>
       <button class="mi" data-page="perf"><svg class="i"><use href="#i-chart"/></svg>광고 성과</button>
     </nav>
     <div class="sb-foot">
@@ -317,7 +345,13 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
   </aside>
 
   <main class="main">
-    <div id="pg-inbox">
+    <div id="pg-today">
+      <header class="topbar"><h1>오늘 할 일</h1><span class="count" id="todayDesc"></span>
+        <button class="btn primary ml-auto" id="todayAdd"><svg class="i"><use href="#i-plus"/></svg>문의 등록</button></header>
+      <div class="pg" id="todayBody"></div>
+    </div>
+
+    <div id="pg-inbox" hidden>
       <header class="topbar">
         <h1>문의함</h1><span class="count" id="desc"></span>
         <label class="search"><svg class="i"><use href="#i-search"/></svg><input class="fi" id="q" type="search" placeholder="이름·연락처·내용·기록 검색"><kbd>/</kbd></label>
@@ -492,7 +526,8 @@ async function load() {
   if (deepLead) { deepLead = null; history.replaceState(null, '', location.pathname); }
   render();
   renderPerf();
-  if (target) document.querySelector('tr.open')?.scrollIntoView({ block: 'center' });
+  renderToday();
+  if (target) { showPage('inbox'); document.querySelector('tr.open')?.scrollIntoView({ block: 'center' }); }
 }
 
 // 같은 연락처로 다시 들어온 문의는 최신 건 하나로 묶는다 (이전 건은 펼친 칸에 표시)
@@ -926,11 +961,74 @@ $("themeBtn").onclick = () => {
 syncThemeBtn();
 
 // ── 메뉴 ──
-document.querySelectorAll('.mi[data-page]').forEach((b) => b.onclick = () => {
-  document.querySelectorAll('.mi[data-page]').forEach((x) => x.classList.toggle('active', x === b));
-  $('pg-inbox').hidden = b.dataset.page !== 'inbox';
-  $('pg-perf').hidden = b.dataset.page !== 'perf';
-});
+let page = 'today';
+function showPage(p) {
+  page = p;
+  document.querySelectorAll('.mi[data-page]').forEach((x) => x.classList.toggle('active', x.dataset.page === p));
+  ['today', 'inbox', 'perf'].forEach((k) => { $('pg-' + k).hidden = k !== p; });
+  if (p === 'today') renderToday();
+}
+document.querySelectorAll('.mi[data-page]').forEach((b) => b.onclick = () => showPage(b.dataset.page));
+$('todayAdd').onclick = () => { showPage('inbox'); $('addForm').hidden = false; $('addForm').elements.name.focus(); };
+
+// ── 오늘 할 일: 방치된 신규 → 연락 밀린 문의 → 오늘 연락 예정. 누르면 문의함에서 그 건이 펼쳐진다 ──
+let todayMine = false;
+function openFromToday(id) {
+  filter = { status: '', source: '', q: '', today: false, mine: false, unassigned: false }; $('q').value = '';
+  view = 'table'; openId = id; showPage('inbox'); render();
+  document.querySelector('tr.open')?.scrollIntoView({ block: 'center' });
+}
+function renderToday() {
+  const today = todayKst(), month = today.slice(0, 7);
+  const all = groupRows().filter((r) => !isAd(r));
+  const mineOk = (r) => !todayMine || r.assignee === me;
+  const active = (r) => !['계약', '종료'].includes(r.status);
+  const fresh = all.filter((r) => r.status === '신규' && firstResponse(r) == null && mineOk(r)).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  const freshIds = new Set(fresh.map((r) => r.id));
+  const due = all.filter((r) => mineOk(r) && active(r) && !freshIds.has(r.id) && r.next_contact_at);
+  const over = due.filter((r) => kstDay(r.next_contact_at) < today).sort((a, b) => new Date(a.next_contact_at) - new Date(b.next_contact_at));
+  const todays = due.filter((r) => kstDay(r.next_contact_at) === today);
+  const total = fresh.length + over.length + todays.length;
+  $('todoBadge').hidden = !total; $('todoBadge').textContent = total;
+  $('todayDesc').textContent = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', month: 'long', day: 'numeric', weekday: 'short' });
+
+  const thisMonth = all.filter((r) => kstDay(r.created_at).slice(0, 7) === month);
+  const won = all.filter((r) => r.status === '계약' && (events[r.id] || []).some((e) => e.body.includes('계약') && kstDay(e.created_at).slice(0, 7) === month));
+  const kpi = (l, v, sub) => el('div', { className: 'kpi' }, [el('div', { className: 'kpi-lbl', text: l }), el('div', { className: 'kpi-val', text: v }), el('div', { className: 'kpi-sub', text: sub })]);
+  const dayDiff = (iso) => Math.round((new Date(today) - new Date(kstDay(iso))) / 864e5);
+  const item = (r, dueEl) => {
+    const last = lastEvent(r.id), who = admins[r.assignee];
+    return el('div', { className: 'todo-row', onclick: () => openFromToday(r.id) }, [
+      el('div', {}, [el('strong', { text: r.name || '(이름 없음)' }), el('div', { className: 'sub', text: [r.phone, r.type, who || '미배정'].filter(Boolean).join(' · ') })]),
+      el('div', {}, pill(r.status)),
+      el('div', { className: 'memo', text: last ? last.body.replace(/\s+/g, ' ') : (r.message || '기록 없음').replace(/\s+/g, ' ') }),
+      dueEl,
+      el('button', { className: 'btn', type: 'button', text: '열기' }),
+    ]);
+  };
+  const section = (title, hint, list, mk, hot) => el('div', {}, [
+    el('div', { className: 'todo-h' }, [el('b', { text: title }), el('span', { className: 'n' + (hot && list.length ? ' hot' : ''), text: list.length }), el('small', { text: hint })]),
+    el('div', { className: 'card todo-list' }, list.length ? list.map(mk) : [el('div', { className: 'todo-empty', text: '없습니다 👍' })]),
+  ]);
+  const name = admins[me] || '관리자';
+  $('todayBody').replaceChildren(
+    el('div', { className: 'hello' }, [el('h2', { text: `${name}님, 오늘 처리할 일 ${total}건` }),
+      el('span', { text: total ? '위에서부터 차례로 처리하세요.' : '밀린 일이 없습니다.' }),
+      el('button', { className: 'chip' + (todayMine ? ' on' : ''), type: 'button', text: '내 담당만', onclick: () => { todayMine = !todayMine; renderToday(); } })]),
+    el('div', { className: 'kpi-row' }, [
+      kpi('오늘 처리할 일', total, `신규 ${fresh.length} · 밀림 ${over.length} · 오늘 ${todays.length}`),
+      kpi('미배정 문의', all.filter((r) => !r.assignee && active(r)).length, '담당자를 정해야 알림이 갑니다'),
+      kpi('이번 달 문의', thisMonth.length, month.replace('-', '년 ') + '월'),
+      kpi('이번 달 계약', won.length, '상태를 계약으로 바꾼 건'),
+    ]),
+    section('새 문의 · 아직 연락 전', '들어온 지 오래된 순', fresh, (r) => {
+      const h = Math.floor((Date.now() - new Date(r.created_at)) / 3600e3);
+      return item(r, el('div', { className: 'due' + (h >= 2 ? ' over' : ''), text: h < 1 ? '방금' : h < 24 ? `${h}시간 전` : `${Math.floor(h / 24)}일 전` }));
+    }, true),
+    section('연락 밀린 문의', '다음 연락일이 지났습니다', over, (r) => item(r, el('div', { className: 'due over', text: `${dayDiff(r.next_contact_at)}일 지남` })), true),
+    section('오늘 연락 예정', '오늘로 잡아둔 연락', todays, (r) => item(r, el('div', { className: 'due', text: '오늘' }))),
+  );
+}
 
 // ── 1분마다 새 문의 확인. 처리 칸을 펼쳐 입력 중일 때는 건너뛴다(입력 내용 보호) ──
 setInterval(() => { if (me && !openId && document.visibilityState === 'visible') load(); }, 60000);
