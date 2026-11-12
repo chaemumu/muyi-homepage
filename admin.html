@@ -983,7 +983,7 @@ function showPage(p) {
   if (p === 'import' && !$('importBody').childElementCount) {
     $('importBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' }));
     const go = () => window.CRM_IMPORT.mount($('importBody'));
-    if (window.CRM_IMPORT) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-import.js?v=2'; x.onload = go; x.onerror = () => toast('가져오기 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
+    if (window.CRM_IMPORT) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-import.js?v=3'; x.onload = go; x.onerror = () => toast('가져오기 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
 }
 document.querySelectorAll('.mi[data-page]').forEach((b) => b.onclick = () => showPage(b.dataset.page));

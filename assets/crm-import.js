@@ -25,6 +25,9 @@
   const phone = (s) => { const d = clean(s).replace(/[^\d]/g, ''); if (d.length < 9) return clean(s) || null; return d.replace(/^(02|0\d{2})(\d{3,4})(\d{4})$/, '$1-$2-$3'); };
   // 노션 사람 이름 '채원 이' → '이채원'. '워누'처럼 별명은 그대로
   const person = (s) => clean(s).split(',').map((x) => { const p = x.trim().split(' '); return p.length === 2 && p[1].length === 1 ? p[1] + p[0] : x.trim(); }).filter(Boolean).join(', ') || null;
+  // 업체현황 시트의 이름만 쓴 담당자 (2026-11 확인: 채원=이채원(대표), 동환=김동환, 민지=김민지)
+  const SHORT = { 채원: '이채원', 동환: '김동환', 민지: '김민지' };
+  const who = (s) => { const p = person(s); return p && SHORT[p] ? SHORT[p] : p; };
   const ymd = (d) => d ? new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10) : null;
   // '2025년 9월 24일' / '2026/10/22' / '2026-11-03' / 엑셀 날짜 → 'YYYY-MM-DD'
   function date(v) {
@@ -58,6 +61,10 @@
   function sheetKind(name, rows) {
     const n = clean(name).replace(/\s/g, '');
     const top = rows.slice(0, 4).map((r) => (r || []).map((v) => clean(v)).join('|')).join('\n');
+    if (/^_?CONFIG$/i.test(n) || /CHANNEL_TASK_MAP/.test(top)) return 'config';
+    if (/고객사\/차수/.test(top) && /실행사/.test(top) && /영업담당/.test(top)) return /대행사/.test(n + top) ? 'agency' : 'progress';
+    if (/\[1\]\s*진행업체/.test(top) && /채널\/품목/.test(top)) return 'package';
+    if (/\[1\]\s*진행업체/.test(top) && /업체명/.test(top)) return 'owner';
     if (/총관리/.test(n) || (/업체명/.test(top) && /결제일자/.test(top) && /계약금액/.test(top))) return '총관리';
     if (/홀딩/.test(n) || /^홀딩\|진행회차/m.test(top)) return '홀딩업체';
     if (/특이/.test(n) || /업체명\|내용/.test(top)) return '특이업체';
@@ -76,7 +83,8 @@
           const rows = XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: true, defval: null });
           const kind = sheetKind(n, rows);
           out.sheets.push({ file: file.name, sheet: n, kind, head: (rows.find((r) => r && r.some((v) => v != null)) || []).filter((v) => v != null).slice(0, 8).join(' | '), rows: rows.length });
-          if (kind && !out.excel[kind]) out.excel[kind] = rows; // 같은 종류 시트가 여러 개면 처음 것
+          if (['progress', 'agency', 'package', 'owner'].includes(kind)) (out.excel['_' + kind] = out.excel['_' + kind] || []).push({ sheet: n, rows });
+          else if (kind && kind !== 'config' && !out.excel[kind]) out.excel[kind] = rows; // 같은 종류 시트가 여러 개면 처음 것
         }
       } else if (/\.zip$/i.test(file.name)) {
         await loadLib(LIBS.jszip);
@@ -245,6 +253,104 @@
         });
       });
     }
+    // 11) 업체현황: 진행현황·대행사 현황 (고객사/차수 = 업체 + 계약 회차, 1줄 = 작업 1건)
+    const splitRound = (s) => { const m = clean(s).match(/^(.*?)[\s_]*(\d+)\s*차$/); return m ? [m[1].trim(), +m[2]] : [clean(s), 1]; };
+    for (const kind of ['progress', 'agency']) for (const { sheet: sname, rows } of src.excel?.['_' + kind] || []) {
+      const hi = rows.findIndex((r) => (r || []).some((v) => clean(v) === '고객사/차수'));
+      if (hi < 0) continue;
+      const H = rows[hi].map((v) => clean(v).replace(/\s*\(자동\)/, ''));
+      const col = (k) => H.findIndex((h) => h.startsWith(k));
+      const I = { paid: col('결제일자'), cust: col('고객사/차수'), owner: col('영업담당'), ch: col('채널'), task: col('작업내용'), qty: col('총 수량'), daily: col('일 처리량'),
+        cur: col('현 작업량'), start: col('시작일'), due: col('완료예정일'), end: col('실제완료일'), st: col('상태'), vendor: col('실행사'), memo: col('특이사항') };
+      let last = null; const groups = new Map();
+      rows.slice(hi + 1).forEach((r, i) => {
+        if (!r) return;
+        const cust = clean(r[I.cust]) || (clean(r[I.task]) ? last : null);
+        if (!cust || !clean(r[I.task])) return; last = cust;
+        const [name, rn] = splitRound(cust);
+        const g = groups.get(cust) || { name, rn, rows: [] }; g.rows.push({ r, i }); groups.set(cust, g);
+      });
+      for (const g of groups.values()) {
+        const paidDates = g.rows.map(({ r }) => date(r[I.paid])).filter(Boolean).sort();
+        const owner = g.rows.map(({ r }) => who(r[I.owner])).find(Boolean) || null;
+        const active = g.rows.some(({ r }) => /진행|대기/.test(clean(r[I.st])));
+        const c = add({ _src: kind === 'agency' ? '엑셀 대행사 현황' : '엑셀 진행현황', name: g.name, stage: '결제', sales_owner_name: owner,
+          _stageDate: active ? (paidDates[paidDates.length - 1] || '0001') : null, run_status: active ? '진행 중' : undefined,
+          lead_source: 'excel', tags: kind === 'agency' ? ['엑셀', '대행사'] : ['엑셀'] });
+        if (!c) continue;
+        const ck = `p:${c.import_key}:${g.rn}`;
+        const ct = contracts.find((x) => x.import_key === ck) || (contracts.push({ _company: c, import_key: ck, kind: g.rn === 1 ? '신규계약' : '재계약', status: active ? '진행 중' : '완료',
+          paid_at: paidDates[0] || null, owner_name: owner, memo: `${g.rn}차 (업체현황 › ${sname})` }), contracts[contracts.length - 1]);
+        const sum = new Map();
+        g.rows.forEach(({ r, i }) => {
+          const task = clean(r[I.task]); const qty = num(r[I.qty]);
+          works.push({ _company: c, import_key: `pw:${sname}:${i}:${c.import_key}`, title: `${g.rn}차 ${task}`, item: task, qty: qty == null ? null : String(qty), vendor: clean(r[I.vendor]) || null,
+            pm_name: owner, status: clean(r[I.st]) || null, scheduled_on: date(r[I.start]), done_on: date(r[I.end]),
+            memo: [clean(r[I.ch]) && `채널 ${clean(r[I.ch])}`, num(r[I.daily]) && `일 ${num(r[I.daily])}건`, date(r[I.due]) && `완료예정 ${date(r[I.due])}`, clean(r[I.memo]), clean(r[I.memo + 1])].filter(Boolean).join(' · ') || null });
+          const d = sum.get(task) || { planned: 0, done: 0 }; d.planned += qty || 0; d.done += num(r[I.cur]) ?? (/완료/.test(clean(r[I.st])) ? (qty || 0) : 0); sum.set(task, d);
+        });
+        for (const [task, d] of sum) deliverables.push({ _contract: ct, _company: c, import_key: `${ck}:${task}`, item: task, planned: d.planned || null, done: d.done || 0 });
+      }
+    }
+    // 12) 업체현황: 담당자별 시트 — [1] 진행업체 / [2] 결정업체 / [3] 토스접수·작업현황(저장·트래픽·길찾기)
+    const ownerSheetOf = new Map(); // 업체 → 처음 나온 담당자 시트. 다른 시트에 복사된 같은 업체 줄은 무시(열 순서가 달라 항목이 섞임)
+    const mine = (c, sname) => { if (!ownerSheetOf.has(c)) ownerSheetOf.set(c, sname); return ownerSheetOf.get(c) === sname; };
+    for (const { sheet: sname, rows } of src.excel?.['_owner'] || []) {
+      const top = rows[0] || [], H = (rows[1] || []).map(clean);
+      const team = H[0] === '담당자'; // 전략기획 1팀: 담당자 칸이 앞에 있음
+      const ownerOfSheet = clean(sname).replace(/\s*[A-Z]$/i, '').trim();
+      const sec = (label) => top.findIndex((v) => clean(v).includes(label));
+      const s1 = sec('[1]'), s2 = sec('[2]'), s3 = sec('[3]') >= 0 ? sec('[3]') : (team ? s2 : -1);
+      const decided = team ? -1 : s2;
+      const metrics = []; top.forEach((v, x) => { const t = clean(v); if (x > s3 && ['저장', '트래픽', '길찾기', 'CPA'].includes(t)) metrics.push([t, x]); });
+      // 같은 블록을 여러 번 복사해 둔 시트가 있어(김민지 시트 26번) 내용이 같으면 한 번만 넣는다
+      const seen = new Set(); const once = (k) => (seen.has(k) || deliverables.some((d) => d.import_key === k) || contracts.some((d) => d.import_key === k) ? false : (seen.add(k), true));
+      const header = (v) => /^(업체명|담당자|\[\d\])/.test(clean(v));
+      rows.slice(2).forEach((r, i) => {
+        if (!r || header(r[0]) || header(r[1])) return;
+        const o = team ? who(r[0]) : ownerOfSheet; const b = team ? 1 : s1;
+        const name1 = clean(r[b]);
+        if (name1 && name1.length > 1) {
+          const c = add({ _src: '엑셀 담당자 시트', name: name1, stage: '결제', run_status: undefined, sales_owner_name: o, lead_source: 'excel', tags: ['엑셀'] });
+          const k = c && `s:${c.import_key}:${date(r[b + 1]) || ''}:${clean(r[b + 2])}`;
+          if (c && mine(c, sname) && once(k)) contracts.push({ _company: c, import_key: k, kind: '기존(담당자 시트)', renew_due: date(r[b + 1]), owner_name: o,
+            memo: [clean(r[b + 2]) && `작업: ${clean(r[b + 2])}`, clean(r[b + 3])].filter(Boolean).join(' / ') || null });
+        }
+        if (decided >= 0 && clean(r[decided]).length > 1) {
+          const c = add({ _src: '엑셀 담당자 시트', name: r[decided], stage: '결정업체', sales_owner_name: o, lead_source: 'excel', tags: ['엑셀'],
+            notes: [clean(r[decided + 1]) && `견적: ${clean(r[decided + 1])}`, clean(r[decided + 2]) && `${H[decided + 2] || '메모'}: ${clean(r[decided + 2])}`].filter(Boolean).join(' / ') || null });
+        }
+        if (s3 >= 0 && clean(r[s3]).length > 1) {
+          const c = add({ _src: '엑셀 담당자 시트', name: r[s3], stage: '결제', sales_owner_name: o, lead_source: 'excel', tags: ['엑셀'] });
+          if (c && mine(c, sname)) metrics.forEach(([item, x]) => { const planned = num(r[x]), done = num(r[x + 1]); const k = `t:${c.import_key}:${item}:${planned}:${done}`; if ((planned || done) && once(k)) deliverables.push({ _company: c, import_key: k, item, planned, done: done || 0 }); });
+        }
+      });
+    }
+    // 13) 업체현황: 패키지 업체 관리 — 왼쪽 작업 목록, 오른쪽 길찾기·저장·트래픽
+    for (const { sheet: sname, rows } of src.excel?.['_package'] || []) {
+      const top = rows[0] || [], H = (rows[1] || []).map(clean);
+      const col = (k) => H.findIndex((h) => h.startsWith(k));
+      const I = { cust: col('고객사'), ch: col('채널'), task: col('작업내용'), qty: col('총 수량'), memo: col('비고'), vendor: col('실행사'), start: col('시작일'), end: col('완료일'), st: col('상태') };
+      const nameCol = H.findIndex((h, x) => x > I.st && h === '업체명');
+      const metrics = []; top.forEach((v, x) => { const t = clean(v).replace(/^\[\d\]\s*/, ''); if (x > nameCol && ['저장', '트래픽', '길찾기'].includes(t)) metrics.push([t, x]); });
+      let last = null;
+      rows.slice(2).forEach((r, i) => {
+        if (!r) return;
+        const raw = clean(r[I.cust]); if (raw.length > 1 && !/00점/.test(raw)) last = raw; else if (raw) last = null;
+        if (last && clean(r[I.task])) {
+          const [name, rn] = splitRound(last);
+          const c = add({ _src: '엑셀 패키지 업체 관리', name, stage: '결제', lead_source: 'excel', tags: ['엑셀', '패키지'] });
+          if (c) works.push({ _company: c, import_key: `kw:${sname}:${i}:${c.import_key}`, title: `${rn}차 ${clean(r[I.task])}`, item: clean(r[I.task]), qty: clean(r[I.qty]) || null,
+            vendor: clean(r[I.vendor]) || null, status: clean(r[I.st]) || null, scheduled_on: date(r[I.start]), done_on: date(r[I.end]),
+            memo: [clean(r[I.ch]) && `채널 ${clean(r[I.ch])}`, clean(r[I.memo])].filter(Boolean).join(' · ') || null });
+        }
+        if (nameCol >= 0 && clean(r[nameCol]).length > 1) {
+          const c = add({ _src: '엑셀 패키지 업체 관리', name: r[nameCol], stage: '결제', lead_source: 'excel', tags: ['엑셀', '패키지'] });
+          if (c) metrics.forEach(([item, x]) => { const planned = num(r[x]), done = num(r[x + 1]); if (planned || done) deliverables.push({ _company: c, import_key: `k:${sname}:${i}:${c.import_key}:${item}`, item, planned, done: done || 0 }); });
+        }
+      });
+    }
+
     // 10) 노션 실무_DB (새·예전) → 작업 기록
     for (const kind of ['work', 'workOld']) (src.csv[kind]?.rows || []).forEach((r, i) => {
       const cname = clean(r['고객사']) || clean(r['고객사 연결']).replace(/\s*\(https?:[^)]*\)/g, ''); if (!cname) return;
@@ -260,7 +366,11 @@
     companies.forEach((c) => { const w = c.name.split(' ')[0]; if (w.length >= 2) first.set(w, (first.get(w) || 0) + 1); });
     const GENERIC = new Set(['카페', '커피', '더', '우리', '원조', '진짜', '참', '왕']);
     companies.forEach((c) => { const w = c.name.split(' ')[0]; if (!c.brand && !GENERIC.has(w) && first.get(w) >= 2 && (c.name.includes(' ') || c.name === w)) c.brand = w; });
-    companies.forEach((c) => { if (c.stage === '결제' && !c.run_status) c.run_status = '진행 중'; if (c.stage !== '결제') c.run_status = null; });
+    companies.forEach((c) => {
+      if (c.stage === '결제' && !c.run_status && [...c._sources].every((x) => x === '엑셀 담당자 시트' || x.startsWith('노션'))) c.run_status = '계약종료'; // 담당자 시트에만 있는 지난 기록
+      if (c.stage === '결제' && !c.run_status) c.run_status = '진행 중';
+      if (c.stage !== '결제') c.run_status = null;
+    });
     // 이미 DB에 있는 업체는 건너뜀 (덮어쓰지 않음)
     const have = new Set(existing);
     return { companies, contracts, deliverables, holds, rounds, works, review, skip: companies.filter((c) => have.has(c.import_key)).length };
@@ -309,7 +419,7 @@
       const { data } = await sb.from('contracts').select('id,import_key').in('import_key', part);
       (data || []).forEach((r) => ctId.set(r.import_key, r.id));
     }
-    await put('deliverables', res.deliverables, (d) => ({ contract_id: ctId.get(d._contract.import_key) || null }));
+    await put('deliverables', res.deliverables, (d) => ({ contract_id: d._contract ? (ctId.get(d._contract.import_key) || null) : null }));
     await put('holds', res.holds);
     await put('rounds', res.rounds);
     await put('work_logs', res.works);
@@ -344,7 +454,8 @@
       const tbl = (head, rows) => el('div', { className: 'card tbl-wrap' }, el('table', { className: 'tbl perf' }, [
         el('thead', {}, el('tr', {}, head.map((h) => el('th', { text: h })))), el('tbody', {}, rows.map((row) => el('tr', {}, row.map((v) => el('td', { text: v == null ? '—' : String(v) })))))]));
       const sample = cs.filter((c) => c.stage === '결제').slice(0, 8);
-      const files = src.sheets.filter((x) => x.kind).map((x) => `엑셀 ${x.kind}(${x.file} › ${x.sheet})`).concat(Object.entries(src.csv).map(([k, v]) => `${LABEL[k] || ('노션 ' + k.split(':')[1] + ' DB')} ${v.rows.length.toLocaleString()}행`));
+      const KN = { progress: '진행현황', agency: '대행사 현황', package: '패키지 업체 관리', owner: '담당자 시트', config: '설정(_CONFIG, 건너뜀)' };
+      const files = src.sheets.filter((x) => x.kind).map((x) => `엑셀 ${KN[x.kind] || x.kind}(${x.file} › ${x.sheet})`).concat(Object.entries(src.csv).map(([k, v]) => `${LABEL[k] || ('노션 ' + k.split(':')[1] + ' DB')} ${v.rows.length.toLocaleString()}행`));
       const go = el('button', { className: 'btn primary lg', type: 'button', text: `저장하기 (업체 ${(cs.length - r.skip).toLocaleString()}곳)`, onclick: async () => {
         go.disabled = true; const bar = el('div', { className: 'hint', text: '저장 중…' }); go.after(bar);
         try { await save(r, (d, t) => { bar.textContent = `저장 중… ${d.toLocaleString()} / ${t.toLocaleString()}`; }); bar.textContent = '✅ 저장 완료. 같은 파일로 다시 실행해도 중복 저장되지 않습니다.'; toast('가져오기 완료'); }
@@ -361,8 +472,8 @@
           kpi('확인 필요', r.review.length, '같은 이름·다른 지역 등'),
         ]),
         el('div', { className: 'kpi-row' }, [
-          kpi('계약 이력', r.contracts.length, '엑셀 행 + 노션 결제'),
-          kpi('실행 항목', r.deliverables.length, '기자단·영수증·인스타·SEO'),
+          kpi('계약 이력', r.contracts.length, '엑셀 총관리·업체현황 + 노션 결제'),
+          kpi('실행 항목', r.deliverables.length, '기자단·영수증·저장·트래픽 등'),
           kpi('체험단 회차', r.rounds.length, '달력 시트'),
           kpi('홀딩·작업 기록', r.holds.length + r.works.length, `홀딩 ${r.holds.length} · 작업 ${r.works.length}`),
         ]),
