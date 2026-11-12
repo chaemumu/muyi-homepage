@@ -203,6 +203,9 @@ UX:
 - 백업: `backup-export`(헤더 `x-backup-key` = Secret `BACKUP_KEY`) ← 구글 Apps Script가 매일 03시 호출
   (코드 `backup/google-apps-script.js`, 드라이브 `MUYI 문의함 백업/db`(30일) + `files`(첨부·사업자등록증, 누적))
 - 권한: `admins` 테이블에 있는 계정만 문의함 사용(`is_admin()`). anon은 `contact/` 경로 첨부 업로드만 가능(문의 insert는 `contact` 함수만)
+- 업체 DB: 가망 = 출처 탭(매장 영업·박람회·홈페이지 문의), 박람회는 `expo_events`(행사·기간) + `founder_status`. 뿌러짐은 `archived` 보관.
+  계약 업체 = `service_type`(체험단 패키지·프로젝트·ETC) × 상태. 애매한 건 `needs_review`+`review_reason` → 담당자가 [확인 완료]
+- `naver-place`: 네이버 지도 URL → 업체명·주소·전화·업종 (관리자만, 저장 안 함)
 - 기타: `expo-gate`, `expo-copy`, `call-dispatch`(AI 1차 통화, 매분), `retell-webhook`, `capi-purchase`, `notify-assign`(담당 배정 1:1 알림), `daily-digest`(아침 요약 1:1), `meta-spend`
 - `push-crm`: 옛 CRM 연동, 410 비활성 — 대시보드에서 삭제 대상
 

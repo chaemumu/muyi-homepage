@@ -4,20 +4,43 @@
   const PAGE = 100;
   const STAGE_COLOR = { 가망: '#71717A', 결정업체: '#1E10C7', 결제: '#16A34A', 뿌러짐: '#A1A1AA' };
   const RUN_COLOR = { '진행 중': '#16A34A', 홀딩: '#D97706', 계약종료: '#A1A1AA', 환불: '#DC2626', 양도: '#71717A' };
+  const SVC = ['체험단 패키지', '프로젝트', 'ETC'];
+  const SVC_COLOR = { '체험단 패키지': '#1E10C7', 프로젝트: '#7C3AED', ETC: '#71717A' };
+  const ENDED = ['계약종료', '환불', '양도'];
+  const FOUNDER = ['예비창업자', '기창업자', 'B2B 제안'];
+  // 가망: 출처 탭 / 계약: 구분(세그먼트) × 상태 탭
   const MODES = {
-    leads: { title: '가망 업체', tabs: [['가망', '가망'], ['결정업체', '결정업체'], ['뿌러짐', '뿌러짐']], field: 'stage', base: (q) => q.neq('stage', '결제') },
-    clients: { title: '계약 업체', tabs: [['진행 중', '진행 중'], ['홀딩', '홀딩'], ['계약종료', '계약종료'], ['환불', '환불']], field: 'run_status', base: (q) => q.eq('stage', '결제') },
+    leads: { title: '가망 업체', base: (q) => q.neq('stage', '결제').eq('archived', !!state.archived),
+      tabs: [
+        ['store', '매장 영업', '#1E10C7', (q) => q.or('lead_source.is.null,lead_source.not.in.(expo,homepage)')],
+        ['expo', '박람회', '#EE4E00', (q) => q.eq('lead_source', 'expo')],
+        ['homepage', '홈페이지 문의', '#16A34A', (q) => q.eq('lead_source', 'homepage')],
+      ] },
+    clients: { title: '계약 업체', base: (q) => q.eq('stage', '결제'),
+      segs: [
+        ['체험단 패키지', '체험단 패키지', (q) => q.eq('service_type', '체험단 패키지')],
+        ['프로젝트', '프로젝트', (q) => q.eq('service_type', '프로젝트')],
+        ['ETC', 'ETC', (q) => q.eq('service_type', 'ETC')],
+        ['review', '⚠ 확인 필요', (q) => q.eq('needs_review', true)],
+      ],
+      tabs: [
+        ['진행 중', '진행 중', RUN_COLOR['진행 중'], (q) => q.eq('run_status', '진행 중')],
+        ['홀딩', '홀딩', RUN_COLOR.홀딩, (q) => q.eq('run_status', '홀딩')],
+        ['종료', '종료 (계약종료·환불·양도)', RUN_COLOR.계약종료, (q) => q.in('run_status', ENDED)],
+      ] },
   };
   const SORTS = {
-    clients: [['last_paid_at', '최근 결제순', false], ['next_renew_due', '재계약 임박순', true], ['total_paid_won', '총 결제액순', false], ['name', '이름순', true]],
+    clients: [['next_renew_due', '재계약 임박순', true], ['last_paid_at', '최근 결제순', false], ['total_paid_won', '총 결제액순', false], ['name', '이름순', true]],
     leads: [['created_at', '최근 등록순', false], ['name', '이름순', true]],
   };
-  const SOURCES = [['', '모든 출처'], ['notion', '노션'], ['excel', '엑셀'], ['expo', '박람회'], ['homepage', '홈페이지'], ['manual', '직접 등록']];
   const won = (n) => n == null ? '—' : n >= 1e4 ? `${Math.round(n / 1e4).toLocaleString()}만` : n.toLocaleString() + '원';
   const day = (d) => d ? String(d).slice(0, 10) : '—';
   const regionOf = (a) => { const t = String(a || '').replace(/["']/g, '').split(' ').filter(Boolean); return t.slice(0, 2).join(' '); };
   const dot = (text, color) => { const p = el('span', { className: 'pill', text: text || '—' }); if (color) p.style.setProperty('--c', color); return p; };
-  const esc = (q) => q.replace(/[,()%*\\]/g, ' ').trim();
+  const esc = (q) => q.replace(/[,()%*\\"]/g, ' ').trim();
+  const keyOf = (name) => String(name || '').trim().replace(/\s+/g, '').replace(/[()（）\[\]·.,'"]/g, '').toLowerCase();
+  const evDates = (e) => { if (!e?.starts_on) return '날짜 미정'; const s = e.starts_on.slice(2).replace(/-/g, '.'), t = e.ends_on && e.ends_on !== e.starts_on ? '~' + (e.ends_on.slice(0, 7) === e.starts_on.slice(0, 7) ? e.ends_on.slice(8) : e.ends_on.slice(5).replace('-', '.')) : ''; return s + t; };
+  const evLabel = (e) => e ? `${e.name} · ${evDates(e)}` : '행사 미지정';
 
   // CSS (이 화면 전용)
   if (!document.getElementById('crm-co-css')) {
@@ -126,102 +149,225 @@
 .pi{display:grid;grid-template-columns:1fr 90px 28px;gap:8px;align-items:center;padding:6px 8px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r)}
 .pi b{font-size:13px;font-weight:600}
 .pi .fi{height:30px}
+.co-seg{display:inline-flex;gap:2px;padding:3px;background:var(--muted);border-radius:10px;margin-bottom:12px;flex-wrap:wrap}
+.co-seg .seg-b{height:32px;padding:0 14px;border:0;border-radius:8px;background:none;font-weight:600;font-size:13px;color:var(--t2);display:inline-flex;align-items:center;gap:6px}
+.co-seg .seg-b .n{font-size:11px;color:var(--t3);font-weight:600}
+.co-seg .seg-b.on{background:var(--surface);color:var(--t1);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.co-seg .seg-b.warn{color:var(--amber)}
+.co-seg .seg-b.warn.on{color:var(--amber)}
+.ev-chips{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 12px}
+.ev-c{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border:1px solid var(--line);border-radius:15px;background:var(--surface);font-size:12px;color:var(--t2)}
+.ev-c b{font-weight:600;color:var(--t1)}
+.ev-c small{color:var(--t3);font-size:11px}
+.ev-c .n{font-size:11px;font-weight:700;color:var(--t3)}
+.ev-c.on{border-color:#EE4E00;background:color-mix(in srgb,#EE4E00 8%,var(--surface))}
+.ev-c.on b{color:#C2410C}
+.ev-c.add{border-style:dashed;color:var(--t3);font-weight:600}
+.rv-why{font-size:12px;color:var(--amber);font-weight:600;max-width:240px}
+.rv-bar{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 10px;border-radius:var(--r);background:color-mix(in srgb,var(--amber) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--amber) 30%,var(--line))}
+.rv-bar b{color:var(--amber)}
+.rv-bar span{flex:1;color:var(--t2)}
+.btn.sm{height:26px;padding:0 10px;font-size:12px}
+.btn.ghost{background:transparent;border-color:transparent;box-shadow:none;color:var(--t2)}
+.btn.ghost:hover{background:var(--muted);color:var(--t1)}
+.nv-line{display:flex;gap:6px;align-items:center}
+.nv-line .fi{flex:1;min-width:0}
+.nv-line .btn{flex:none;height:34px}
+.nv-diff{grid-column:1/-1;display:grid;gap:6px;padding:10px 12px;border:1px solid var(--accent);border-radius:var(--r);background:var(--accent-50)}
+.nv-h{font-size:12px;font-weight:700;color:var(--t1)}
+.nv-row{display:grid!important;grid-template-columns:18px 72px minmax(0,1fr) 14px minmax(0,1fr);gap:6px;align-items:center;font-size:12px}
+.nv-row .old{color:var(--t3);text-decoration:line-through;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nv-row .new{color:var(--t1);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nv-btns{display:flex;justify-content:flex-end;gap:6px}
+.fi.chg{border-color:var(--accent);background:var(--accent-50)}
+.fs-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.fs-btns .chip{height:36px;padding:0 14px;font-size:13px}
+.hint.warn{color:var(--red);font-weight:600}
+.pm .hint:empty{display:none}
+.more-f summary{cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);padding:4px 0}
+.more-f .dr-grid{margin-top:8px}
+.pm.sm{width:min(560px,100%)}
+.ev-list{display:grid;gap:6px}
+.ev-row{display:grid;grid-template-columns:1fr 130px 130px auto;gap:6px;align-items:center}
+.ev-row b{font-size:13px}
+@media (max-width:720px){
+  .pm-layer{padding:0;place-items:stretch}
+  .pm,.pm.sm{width:100%;max-height:none;height:var(--vh,100vh);border-radius:0}
+  .pm-f{position:sticky;bottom:0;background:var(--surface)}
+  .pm-f .btn{flex:1}
+  .ev-row{grid-template-columns:1fr 1fr}
+  .co-seg{display:flex}
+  .co-seg .seg-b{flex:1;justify-content:center;padding:0 8px}
+  .nv-row{grid-template-columns:18px 60px 1fr}
+  .nv-row .old,.nv-row>span:nth-child(4){display:none}
+}
 `;
     document.head.appendChild(st);
   }
 
-  let state = null; // { mode, tab, q, mine, review, source, rows, offset, done, openId }
+  let state = null; // { mode, seg, tab, q, owner, review, phoneOnly, archived, event, rows, offset, done, openId }
+  let EVENTS = []; // 박람회 행사
+  async function loadEvents() {
+    const { data } = await sb.from('expo_events').select('*').order('starts_on', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false });
+    EVENTS = data || [];
+  }
+  const evById = (id) => EVENTS.find((e) => e.id === id);
 
   function mount(box, mode) {
     document.querySelector('.drawer')?.remove(); document.querySelector('.pm-layer')?.remove(); if (state) state.dirty = false;
     const M = MODES[mode];
-    let savedSort = null; try { savedSort = localStorage.getItem('crm-sort-' + mode); } catch {}
+    let savedSort = null, savedTab = null; try { savedSort = localStorage.getItem('crm-sort-' + mode); savedTab = localStorage.getItem('crm-tab-' + mode); } catch {}
     const sorts = SORTS[mode];
-    state = { box, mode, tab: M.tabs[0][0], q: '', mine: false, review: false, source: '', rows: [], offset: 0, done: false, openId: null, counts: {},
+    state = { box, mode, seg: M.segs ? M.segs[0][0] : null, tab: M.tabs.some(([k]) => k === savedTab) ? savedTab : M.tabs[0][0], q: '', owner: '', review: false, phoneOnly: false, archived: false, event: '',
+      rows: [], offset: 0, done: false, openId: null, counts: {}, segCounts: {},
       sort: sorts.some(([k]) => k === savedSort) ? savedSort : sorts[0][0] };
     const sortSel = el('select', { className: 'fi', title: '정렬', onchange: (e) => { state.sort = e.target.value; try { localStorage.setItem('crm-sort-' + mode, state.sort); } catch {} reload(); } },
       sorts.map(([k, t]) => el('option', { value: k, text: t, selected: k === state.sort })));
     const search = el('input', { className: 'fi', type: 'search', placeholder: '업체명·브랜드·연락처·주소 검색', oninput: debounce((e) => { state.q = e.target.value; reload(); }, 300) });
-    const src = el('select', { className: 'fi', onchange: (e) => { state.source = e.target.value; reload(); } }, SOURCES.map(([v, t]) => el('option', { value: v, text: t })));
+    const ownerSel = el('select', { className: 'fi', title: '담당', onchange: (e) => { state.owner = e.target.value; reload(); } }, [
+      el('option', { value: '', text: '모든 담당' }), el('option', { value: 'me', text: '내 담당' }), el('option', { value: 'none', text: '미배정' }),
+      ...Object.entries(admins).filter(([id]) => id !== me).map(([id, n]) => el('option', { value: id, text: n }))]);
     const chip = (label, key) => el('button', { className: 'chip', type: 'button', text: label, onclick: (e) => { state[key] = !state[key]; e.target.classList.toggle('on', state[key]); reload(); } });
+    state.segEl = el('div', { className: 'co-seg' });
     state.tabsEl = el('div', { className: 'tabs' });
+    state.evEl = el('div', { className: 'ev-chips' });
     state.descEl = el('span', { className: 'count' });
+    state.headEl = el('tr');
     state.listEl = el('tbody');
     state.moreEl = el('div', { className: 'co-more' });
-    const isClients = mode === 'clients';
+    state.addBtn = mode === 'leads' ? el('button', { className: 'btn primary', type: 'button', text: '+ 가망 등록', onclick: () => leadModal(state.tab === 'expo') }) : null;
+    const filters = mode === 'leads'
+      ? [ownerSel, chip('전화번호 있음', 'phoneOnly'), chip('확인 필요', 'review'), chip('보관함', 'archived'), el('span', { className: 'ml-auto' }), sortSel]
+      : [ownerSel, el('span', { className: 'ml-auto' }), sortSel];
     box.replaceChildren(
-      el('header', { className: 'topbar' }, [el('h1', { text: M.title }), state.descEl, el('label', { className: 'search' }, [el('span', { innerHTML: '<svg class="i"><use href="#i-search"/></svg>' }).firstChild, search])]),
+      el('header', { className: 'topbar' }, [el('h1', { text: M.title }), state.descEl, el('label', { className: 'search' }, [el('span', { innerHTML: '<svg class="i"><use href="#i-search"/></svg>' }).firstChild, search]), state.addBtn].filter(Boolean)),
       el('div', { className: 'pg' }, [
+        M.segs ? state.segEl : null,
         state.tabsEl,
-        el('div', { className: 'co-filters' }, [chip('내 담당', 'mine'), chip('확인 필요', 'review'), src, el('span', { className: 'ml-auto' }), sortSel]),
-        el('div', { className: 'card' }, [el('div', { className: 'tbl-wrap' }, el('table', { className: 'tbl co-tbl' }, [
-          el('thead', {}, el('tr', {}, (isClients ? ['업체', '지역', '연락처', '영업 담당', '상태', '최근 결제', '재계약 예정', '총 결제액'] : ['업체', '지역', '연락처', '영업 담당', '단계', '출처', '메모']).map((h) => el('th', { text: h })))),
-          state.listEl]))]),
+        state.evEl,
+        el('div', { className: 'co-filters' }, filters),
+        el('div', { className: 'card' }, [el('div', { className: 'tbl-wrap' }, el('table', { className: 'tbl co-tbl' }, [el('thead', {}, state.headEl), state.listEl]))]),
         state.moreEl,
-      ]),
+      ].filter(Boolean)),
     );
-    reload();
+    (mode === 'leads' ? loadEvents() : Promise.resolve()).then(reload);
     if (window.__openCompany) { const id = window.__openCompany; delete window.__openCompany; open(id); }
   }
 
   function query(select, opts) {
     const M = MODES[state.mode];
     let q = M.base(sb.from('companies').select(select, opts));
-    if (state.mine) q = q.or(`sales_owner.eq.${me},manager_owner.eq.${me}`);
+    if (M.segs) q = M.segs.find(([k]) => k === state.seg)[2](q);
+    const nm = (id) => `"${String(admins[id] || '').replace(/"/g, '')}"`;
+    if (state.owner === 'me' || (state.owner && state.owner !== 'none')) { const id = state.owner === 'me' ? me : state.owner; q = q.or(`sales_owner.eq.${id},manager_owner.eq.${id},sales_owner_name.eq.${nm(id)},manager_owner_name.eq.${nm(id)}`); }
+    else if (state.owner === 'none') { q = q.is('sales_owner_name', null); if (state.mode === 'clients') q = q.is('manager_owner_name', null); }
     if (state.review) q = q.eq('needs_review', true);
-    if (state.source) q = q.eq('lead_source', state.source);
+    if (state.phoneOnly) q = q.or('phone.not.is.null,store_phone.not.is.null');
     const s = esc(state.q);
     if (s) q = q.or(`name.ilike.*${s}*,brand.ilike.*${s}*,phone.ilike.*${s}*,address.ilike.*${s}*`);
     return q;
+  }
+  const tabFilter = (q, k = state.tab) => MODES[state.mode].tabs.find(([t]) => t === k)[3](q);
+  const withEvent = (q) => state.mode === 'leads' && state.tab === 'expo' && state.event ? (state.event === 'none' ? q.is('expo_event_id', null) : q.eq('expo_event_id', state.event)) : q;
+
+  function columns() {
+    if (state.mode === 'clients') return state.seg === 'review'
+      ? ['업체', '확인할 내용', '구분', '상태', '영업 담당', '재계약 예정', '']
+      : ['업체', '지역', '연락처', '영업 담당', '상태', '최근 결제', '재계약 예정', '총 결제액'];
+    return state.tab === 'expo' ? ['업체', '행사', '창업 상태', '연락처', '영업 담당', '메모'] : ['업체', '지역', '연락처', '업종', '영업 담당', '메모'];
   }
 
   async function reload() {
     const M = MODES[state.mode];
     state.rows = []; state.offset = 0; state.done = false;
-    state.listEl.replaceChildren(...Array.from({ length: 8 }, () => el('tr', {}, Array.from({ length: state.mode === 'clients' ? 8 : 7 }, (_, i) => el('td', {}, el('span', { className: 'skel', style: `width:${[70, 50, 60, 40, 46, 52, 48, 40][i]}%` }))))));
-    // 탭별 건수
-    const counts = await Promise.all(M.tabs.map(([v]) => query('id', { count: 'exact', head: true }).eq(M.field, v)));
-    state.counts = Object.fromEntries(M.tabs.map(([v], i) => [v, counts[i].count || 0]));
-    state.tabsEl.replaceChildren(...M.tabs.map(([v, label]) => {
-      const b = el('button', { className: 'tab' + (state.tab === v ? ' on' : ''), type: 'button', onclick: () => { state.tab = v; reload(); } },
-        [el('span', { className: 'dot' }), label, el('span', { className: 'n', text: (state.counts[v] || 0).toLocaleString() })]);
-      b.style.setProperty('--c', (state.mode === 'clients' ? RUN_COLOR : STAGE_COLOR)[v]); return b;
+    const cols = columns();
+    state.headEl.replaceChildren(...cols.map((h) => el('th', { text: h })));
+    state.listEl.replaceChildren(...Array.from({ length: 8 }, () => el('tr', {}, cols.map((_, i) => el('td', {}, el('span', { className: 'skel', style: `width:${[70, 50, 60, 40, 46, 52, 48, 40][i]}%` }))))));
+    // 구분·탭별 건수
+    const [segC, tabC] = await Promise.all([
+      M.segs ? Promise.all(M.segs.map(([k]) => { const keep = state.seg; state.seg = k; const q = tabFilter(query('id', { count: 'exact', head: true })); state.seg = keep; return q; })) : [],
+      Promise.all(M.tabs.map(([k]) => tabFilter(query('id', { count: 'exact', head: true }), k))),
+    ]);
+    if (M.segs) {
+      state.segCounts = Object.fromEntries(M.segs.map(([k], i) => [k, segC[i].count || 0]));
+      state.segEl.replaceChildren(...M.segs.map(([k, label]) => el('button', { className: 'seg-b' + (state.seg === k ? ' on' : '') + (k === 'review' ? ' warn' : ''), type: 'button', onclick: () => { state.seg = k; reload(); } },
+        [label, el('span', { className: 'n', text: (state.segCounts[k] || 0).toLocaleString() })])));
+    }
+    state.counts = Object.fromEntries(M.tabs.map(([k], i) => [k, tabC[i].count || 0]));
+    state.tabsEl.replaceChildren(...M.tabs.map(([k, label, color]) => {
+      const b = el('button', { className: 'tab' + (state.tab === k ? ' on' : ''), type: 'button', onclick: () => { state.tab = k; state.event = ''; try { localStorage.setItem('crm-tab-' + state.mode, k); } catch {} reload(); } },
+        [el('span', { className: 'dot' }), label, el('span', { className: 'n', text: (state.counts[k] || 0).toLocaleString() })]);
+      b.style.setProperty('--c', color); return b;
     }));
+    if (state.addBtn) state.addBtn.textContent = state.tab === 'expo' ? '+ 현장 상담' : '+ 가망 등록';
+    await drawEvents();
     await more();
   }
 
+  // 박람회 탭: 행사(언제·어떤 행사) 칩
+  async function drawEvents() {
+    if (!(state.mode === 'leads' && state.tab === 'expo')) { state.evEl.replaceChildren(); state.evEl.hidden = true; return; }
+    state.evEl.hidden = false;
+    const { data } = await tabFilter(query('expo_event_id')).limit(5000);
+    const cnt = {}; (data || []).forEach((r) => { const k = r.expo_event_id || 'none'; cnt[k] = (cnt[k] || 0) + 1; });
+    const chipEv = (k, label, sub) => el('button', { className: 'ev-c' + (state.event === k ? ' on' : ''), type: 'button', onclick: () => { state.event = state.event === k ? '' : k; reload(); } },
+      [el('b', { text: label }), sub && el('small', { text: sub }), el('span', { className: 'n', text: cnt[k] || 0 })].filter(Boolean));
+    state.evEl.replaceChildren(
+      chipEv('', '전체 행사', null),
+      ...EVENTS.map((e) => chipEv(e.id, e.name, evDates(e))),
+      cnt.none ? chipEv('none', '행사 미지정', '확인 필요') : null,
+      el('button', { className: 'ev-c add', type: 'button', text: '+ 행사 추가', onclick: () => eventModal() }),
+    );
+    const all = state.evEl.firstChild.querySelector('.n'); if (all) all.textContent = (data || []).length;
+  }
+
   async function more() {
-    const M = MODES[state.mode];
     state.moreEl.replaceChildren();
     const [, , asc] = SORTS[state.mode].find(([k]) => k === state.sort);
-    let q = query('id,name,brand,address,phone,store_phone,sales_owner_name,stage,run_status,lead_source,notes,needs_review,tags,last_paid_at,next_renew_due,total_paid_won')
-      .eq(M.field, state.tab).order(state.sort, { ascending: asc, nullsFirst: false });
+    let q = withEvent(tabFilter(query('id,name,brand,address,phone,store_phone,category,sales_owner,sales_owner_name,manager_owner_name,stage,run_status,service_type,lead_source,notes,needs_review,review_reason,tags,expo_event_id,founder_status,last_paid_at,next_renew_due,total_paid_won,archived')))
+      .order(state.sort, { ascending: asc, nullsFirst: false });
     if (state.sort !== 'name') q = q.order('name');
     const { data, error } = await q.range(state.offset, state.offset + PAGE - 1);
     if (error) { state.listEl.replaceChildren(el('tr', {}, el('td', { colSpan: 8, className: 'empty', text: '불러오기 실패: ' + error.message }))); return; }
-    data.forEach((r) => { r._ct = r.last_paid_at || r.next_renew_due || r.total_paid_won ? { paid: r.last_paid_at, renew: r.next_renew_due, sum: r.total_paid_won } : null; });
     state.rows.push(...data); state.offset += data.length; state.done = data.length < PAGE;
-    const total = state.counts[state.tab] || 0;
-    state.descEl.textContent = `${total.toLocaleString()}곳` + (state.rows.length < total ? ` · ${state.rows.length.toLocaleString()}곳 표시` : '');
+    const total = state.event ? null : state.counts[state.tab] || 0;
+    state.descEl.textContent = total == null ? `${state.rows.length.toLocaleString()}곳${state.done ? '' : '+'}` : `${total.toLocaleString()}곳` + (state.rows.length < total ? ` · ${state.rows.length.toLocaleString()}곳 표시` : '');
     drawRows();
-    if (!state.done) state.moreEl.replaceChildren(el('button', { className: 'btn', type: 'button', text: `100곳 더 보기 (${state.rows.length.toLocaleString()} / ${total.toLocaleString()})`, onclick: more }));
+    if (!state.done) state.moreEl.replaceChildren(el('button', { className: 'btn', type: 'button', text: `100곳 더 보기 (${state.rows.length.toLocaleString()}${total ? ' / ' + total.toLocaleString() : ''})`, onclick: more }));
   }
 
   function drawRows() {
-    const clients = state.mode === 'clients';
     const today = new Date().toISOString().slice(0, 10);
-    if (!state.rows.length) { state.listEl.replaceChildren(el('tr', {}, el('td', { colSpan: 8, className: 'empty', text: '조건에 맞는 업체가 없습니다.' }))); return; }
+    const ncol = columns().length;
+    if (!state.rows.length) { state.listEl.replaceChildren(el('tr', {}, el('td', { colSpan: ncol, className: 'empty', text: state.seg === 'review' ? '확인할 업체가 없습니다 👍' : '조건에 맞는 업체가 없습니다.' }))); return; }
+    const sub = (t) => el('td', { className: 'sub', text: t || '—' });
     state.listEl.replaceChildren(...state.rows.map((r) => {
-      const name = el('td', { className: 'nm' }, [el('strong', { text: r.name }), r.brand && r.brand !== r.name && el('span', { className: 'tag', text: r.brand }), r.needs_review && el('span', { className: 'co-flag', text: '확인 필요' })]);
-      const cells = clients
-        ? [name, el('td', { className: 'sub', text: regionOf(r.address) || '—' }), el('td', { text: r.phone || r.store_phone || '—' }), ownerCell(r),
-          statusCell(r, 'run_status', ['진행 중', '홀딩', '계약종료', '환불', '양도'], RUN_COLOR), el('td', { className: 'sub', text: day(r._ct?.paid) }),
-          el('td', { className: r._ct?.renew && r._ct.renew >= today && r._ct.renew <= addDaysIso(30) ? 'err' : 'sub', text: day(r._ct?.renew) }), el('td', { className: 'sub', text: r._ct ? won(r._ct.sum) : '—' })]
-        : [name, el('td', { className: 'sub', text: regionOf(r.address) || '—' }), el('td', { text: r.phone || r.store_phone || '—' }), ownerCell(r),
-          statusCell(r, 'stage', ['가망', '결정업체', '뿌러짐'], STAGE_COLOR), el('td', { className: 'sub', text: (SOURCES.find(([v]) => v === r.lead_source) || [, '—'])[1] }),
-          el('td', { className: 'sub memo', text: (r.notes || '').replace(/\s+/g, ' ') || '—' })];
+      const name = el('td', { className: 'nm' }, [el('strong', { text: r.name }), r.brand && r.brand !== r.name && el('span', { className: 'tag', text: r.brand }), r.needs_review && state.seg !== 'review' && el('span', { className: 'co-flag', text: '확인 필요', title: r.review_reason || '' })].filter(Boolean));
+      const phone = el('td', { text: r.phone || r.store_phone || '—' });
+      const memo = el('td', { className: 'sub memo', text: (r.notes || '').replace(/\s+/g, ' ') || '—' });
+      let cells;
+      if (state.mode === 'clients' && state.seg === 'review') cells = [name, el('td', { className: 'rv-why', text: r.review_reason || '—' }), svcCell(r), statusCell(r, 'run_status', ['진행 중', '홀딩', ...ENDED], RUN_COLOR), ownerCell(r), sub(day(r.next_renew_due)),
+        el('td', {}, el('button', { className: 'btn sm', type: 'button', text: '확인 완료', onclick: (e) => { e.stopPropagation(); resolveReview(r); } }))];
+      else if (state.mode === 'clients') cells = [name, sub(regionOf(r.address)), phone, ownerCell(r), statusCell(r, 'run_status', ['진행 중', '홀딩', ...ENDED], RUN_COLOR), sub(day(r.last_paid_at)),
+        el('td', { className: r.next_renew_due && r.next_renew_due >= today && r.next_renew_due <= addDaysIso(30) ? 'err' : 'sub', text: day(r.next_renew_due) }), sub(won(r.total_paid_won))];
+      else if (state.tab === 'expo') cells = [name, sub(evById(r.expo_event_id) ? evLabel(evById(r.expo_event_id)) : '행사 미지정'), sub(r.founder_status), phone, ownerCell(r), memo];
+      else cells = [name, sub(regionOf(r.address)), phone, sub(r.category), ownerCell(r), memo];
       return el('tr', { className: r.id === state.openId ? 'sel' : '', onclick: () => open(r.id) }, cells);
     }));
+  }
+  // 확인 필요 → 담당자가 구분·상태를 정한 뒤 확인 완료
+  async function resolveReview(r) {
+    if (r.stage === '결제' && !r.service_type) { toast('구분(체험단 패키지·프로젝트·ETC)을 먼저 골라주세요'); return; }
+    if (await quickUpdate(r, { needs_review: false, review_reason: null }, `확인 완료${r.review_reason ? ' (' + r.review_reason + ')' : ''} → ${[r.service_type, r.run_status].filter(Boolean).join(' · ')}`)) {
+      if (state.openId === r.id) open(r.id, state.tabNow || 'info');
+      reload();
+    }
+  }
+  function svcCell(r) {
+    const sel = el('select', { className: 'cell-sel', title: '구분 변경', onclick: (e) => e.stopPropagation() }, [el('option', { value: '', text: '구분 선택' }), ...SVC.map((v) => el('option', { value: v, text: v, selected: v === r.service_type }))]);
+    sel.style.setProperty('--c', SVC_COLOR[r.service_type] || 'var(--amber)');
+    sel.onchange = async () => { const v = sel.value || null, cur = r.service_type; if (await quickUpdate(r, { service_type: v }, `구분: ${cur || '—'} → ${v || '—'}`)) sel.style.setProperty('--c', SVC_COLOR[v] || 'var(--amber)'); else sel.value = cur || ''; };
+    return el('td', {}, sel);
   }
   const addDaysIso = (n) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
 
@@ -257,7 +403,7 @@
     const cur = r[field];
     const sel = el('select', { className: 'cell-sel', title: '눌러서 바로 변경', onclick: (e) => e.stopPropagation() }, options.map((v) => el('option', { value: v, text: v, selected: v === cur })));
     sel.style.setProperty('--c', colors[cur] || 'var(--t4)');
-    sel.onchange = async () => { const v = sel.value; if (await quickUpdate(r, { [field]: v }, `${field === 'stage' ? '단계' : '계약 상태'}: ${cur || '—'} → ${v}`)) reload(); else sel.value = cur; };
+    sel.onchange = async () => { const v = sel.value; if (await quickUpdate(r, { [field]: v }, `${field === 'stage' ? '단계' : '계약 상태'}: ${cur || '—'} → ${v}`)) { if (state.seg === 'review') sel.style.setProperty('--c', colors[v] || 'var(--t4)'); else reload(); } else sel.value = cur; };
     return el('td', {}, sel);
   }
   function ownerCell(r) {
@@ -275,8 +421,12 @@
     drawer?.remove(); state.dirty = false;
     drawer = el('aside', { className: 'drawer' }, el('div', { className: 'dr-b' }, [60, 90, 40, 75, 55, 85].map((w) => el('span', { className: 'skel', style: `width:${w}%;height:14px` }))));
     document.body.append(drawer);
-    const [c, ct, dl, wk, rd, hd, gl, ev, dc, cd] = await Promise.all([
-      sb.from('companies').select('*').eq('id', id).single(),
+    const c = await sb.from('companies').select('*').eq('id', id).single();
+    if (c.error || !c.data) { drawer.replaceChildren(el('div', { className: 'dr-b' }, el('div', { className: 'err', text: '업체를 불러오지 못했습니다' }))); return; }
+    const co = c.data, client = co.stage === '결제';
+    if (co.lead_source === 'expo' && !EVENTS.length) await loadEvents();
+    // 가망 업체는 정보·기록만 (계약·체험단·가이드라인은 결제 후)
+    const [ct, dl, wk, rd, hd, gl, ev, dc, cd] = await Promise.all(client ? [
       sb.from('contracts').select('*').eq('company_id', id).order('paid_at', { ascending: false }),
       sb.from('deliverables').select('*').eq('company_id', id).order('created_at'),
       sb.from('work_logs').select('*').eq('company_id', id).order('scheduled_on', { ascending: false }),
@@ -286,45 +436,52 @@
       sb.from('company_events').select('*').eq('company_id', id).order('created_at'),
       sb.from('documents').select('id,kind,title,created_at').eq('company_id', id),
       sb.rpc('masked_cards', { p_company: id }),
-    ]);
-    if (c.error || !c.data) { drawer.replaceChildren(el('div', { className: 'dr-b' }, el('div', { className: 'err', text: '업체를 불러오지 못했습니다' }))); return; }
-    const co = c.data, D = { ct: ct.data || [], dl: dl.data || [], wk: wk.data || [], rd: rd.data || [], hd: hd.data || [], gl: gl.data || [], ev: ev.data || [], dc: dc.data || [], cd: cd.data || [] };
+    ] : [null, null, null, null, null, null, sb.from('company_events').select('*').eq('company_id', id).order('created_at'), null, null]);
+    const d = (x) => x?.data || [];
+    const D = { ct: d(ct), dl: d(dl), wk: d(wk), rd: d(rd), hd: d(hd), gl: d(gl), ev: d(ev), dc: d(dc), cd: d(cd) };
     const body = el('div', { className: 'dr-b' });
-    const TABS = [['info', '정보·기록'], ['contract', `계약·실행 ${D.ct.length + D.dl.length ? '' : ''}`], ['camp', '체험단'], ['docs', '가이드라인·서류']];
+    const TABS = client ? [['info', '정보·기록'], ['contract', '계약·실행'], ['camp', '체험단'], ['docs', '가이드라인·서류']] : [['info', '정보·기록']];
     const tabsEl = el('div', { className: 'dr-tabs' });
-    const show = (t) => { if (state.tabNow && state.tabNow !== t && !guard()) return; state.tabNow = t; [...tabsEl.children].forEach((b) => b.classList.toggle('on', b.dataset.t === t)); body.replaceChildren(...SECTIONS[t]().filter(Boolean)); };
-    TABS.forEach(([k, l]) => { const b = el('button', { type: 'button', text: l.trim(), onclick: () => show(k) }); b.dataset.t = k; tabsEl.append(b); });
+    const show = (t) => { if (!SECTIONS[t]) t = 'info'; if (state.tabNow && state.tabNow !== t && !guard()) return; state.tabNow = t; [...tabsEl.children].forEach((b) => b.classList.toggle('on', b.dataset.t === t)); body.replaceChildren(...SECTIONS[t]().filter(Boolean)); };
+    TABS.forEach(([k, l]) => { const b = el('button', { type: 'button', text: l, onclick: () => show(k) }); b.dataset.t = k; tabsEl.append(b); });
     const sum = D.ct.reduce((s, x) => s + (x.amount_won || 0), 0);
+    const reviewBtn = co.needs_review ? el('button', { className: 'btn sm', type: 'button', text: '확인 완료', onclick: () => resolveReview(co) }) : null;
+    const archBtn = !client ? el('button', { className: 'btn sm ghost', type: 'button', text: co.archived ? '보관 해제' : '보관', title: '목록에서 숨김 (삭제 아님)',
+      onclick: async () => { if (await quickUpdate(co, { archived: !co.archived }, co.archived ? '보관 해제' : '보관함으로 이동')) { reload(); open(co.id); } } }) : null;
     drawer.replaceChildren(
-      el('div', { className: 'dr-h' }, [
+      el('div', { className: 'dr-h' + (client ? '' : ' lead') }, [
         el('div', { className: 'dr-top' }, [el('h2', { text: co.name }),
-          el('button', { className: 'btn brand', type: 'button', text: co.stage === '결제' ? '재계약 등록' : '결제 등록', onclick: () => payModal(co, D) }),
+          el('button', { className: 'btn brand', type: 'button', text: client ? '재계약 등록' : '결제 등록', onclick: () => payModal(co, D) }),
           el('button', { className: 'icon-btn', type: 'button', title: '닫기 (Esc)', text: '✕', onclick: close })]),
         el('div', { className: 'dr-meta' }, [
-          dot(co.stage, STAGE_COLOR[co.stage]), co.stage === '결제' && dot(co.run_status, RUN_COLOR[co.run_status]),
-          co.brand && el('span', { className: 'tag', text: co.brand }), co.needs_review && el('span', { className: 'co-flag', text: `확인 필요 · ${co.review_reason || ''}` }),
+          client ? dot(co.service_type || '구분 없음', SVC_COLOR[co.service_type] || 'var(--amber)') : dot(co.archived ? '보관' : '가망', STAGE_COLOR.가망),
+          client && dot(co.run_status, RUN_COLOR[co.run_status]),
+          co.lead_source === 'expo' && el('span', { className: 'tag', text: evLabel(evById(co.expo_event_id)) }),
+          co.brand && el('span', { className: 'tag', text: co.brand }),
           D.ct.length ? el('span', { text: `계약 ${D.ct.length}건 · 총 ${won(sum)}` }) : null,
-          ...(co.tags || []).filter((t) => !['노션', '엑셀'].includes(t)).map((t) => el('span', { className: 'tag', text: t })),
+          ...(co.tags || []).filter((t) => !['노션', '엑셀', '박람회'].includes(t)).map((t) => el('span', { className: 'tag', text: t })),
+          archBtn,
         ].filter(Boolean)),
+        co.needs_review && el('div', { className: 'rv-bar' }, [el('b', { text: '확인 필요' }), el('span', { text: co.review_reason || '' }), reviewBtn]),
         summaryView(co, D),
-        tabsEl,
-      ]),
+        client ? tabsEl : null,
+      ].filter(Boolean)),
       body,
       el('div', { className: 'dr-keys' }, [el('span', {}, [el('kbd', { text: 'J' }), ' ', el('kbd', { text: 'K' }), ' 다음·이전 업체']), el('span', {}, [el('kbd', { text: 'Ctrl S' }), ' 저장']), el('span', {}, [el('kbd', { text: 'Esc' }), ' 닫기']), el('span', {}, [el('kbd', { text: 'Ctrl K' }), ' 검색'])]),
     );
-    const SECTIONS = {
-      info: () => [co.stage === '결제' ? checklistView(co, D) : null, infoForm(co), eventsView(co, D.ev)],
+    const SECTIONS = client ? {
+      info: () => [checklistView(co, D), infoForm(co), eventsView(co, D.ev)],
       contract: () => [contractsView(D.ct), deliverablesView(D.dl), worksView(D.wk), holdsView(D.hd)],
       camp: () => [roundsView(co, D)],
       docs: () => [guidesView(co, D), el('div', { className: 'dr-sec' }, [el('div', { className: 'sec-t', text: '서류 · 카드' }), el('div', { className: 'dr-empty', text: '사업자등록증·계약서 텍스트화, 카드 정보(대표만)는 다음 단계에서 추가됩니다.' })])],
-    };
+    } : { info: () => [infoForm(co), eventsView(co, D.ev)] };
     show(tab);
   }
 
   // 상세 상단 한 줄 요약: 최근 결제 · 재계약 D-day · 남은 실행량 · 체크리스트
   function summaryView(co, D) {
     if (co.stage !== '결제') return el('div', { className: 'dr-sum' }, [
-      sumItem('단계', co.stage), sumItem('영업 담당', co.sales_owner_name || '미배정'), sumItem('연락처', co.phone || co.store_phone || '—'), sumItem('최근 기록', D.ev.length ? kst(D.ev[D.ev.length - 1].created_at) : '없음')]);
+      sumItem(co.lead_source === 'expo' ? '창업 상태' : '업종', (co.lead_source === 'expo' ? co.founder_status : co.category) || '—'), sumItem('영업 담당', co.sales_owner_name || '미배정'), sumItem('연락처', co.phone || co.store_phone || '—'), sumItem('최근 기록', D.ev.length ? kst(D.ev[D.ev.length - 1].created_at) : '없음')]);
     const last = D.ct[0];
     const renew = D.ct.map((c) => c.renew_due).filter(Boolean).sort().pop();
     const dd = renew ? Math.round((new Date(renew) - new Date(new Date().toISOString().slice(0, 10))) / 864e5) : null;
@@ -345,55 +502,108 @@
     el('thead', {}, el('tr', {}, head.map((h) => el('th', { text: h })))),
     el('tbody', {}, rows.map((r) => el('tr', {}, r.map((v, i) => el('td', { className: numCols.includes(i) ? 'num' : '' }, v instanceof Node ? v : String(v ?? '—'))))))]) : el('div', { className: 'dr-empty', text: '기록이 없습니다.' });
 
+  // 네이버 플레이스 URL → 업체명·주소·전화·업종
+  async function naverLookup(url) {
+    const { data, error } = await sb.functions.invoke('naver-place', { body: { url } });
+    if (error) { let msg = error.message; try { msg = (await error.context.json()).error || msg; } catch {} throw new Error(msg); }
+    return data;
+  }
+  // 가져온 값과 다른 칸만 보여주고 고른 칸만 채움 (저장은 사용자가)
+  function naverButton(getUrl, F, onApply) {
+    const box = el('div', { className: 'nv-diff', hidden: true });
+    const btn = el('button', { className: 'btn sm', type: 'button', text: '네이버에서 최신화', onclick: run });
+    async function run() {
+      const url = getUrl().trim();
+      if (!/naver/i.test(url)) { toast('네이버 지도 링크를 먼저 넣어주세요 (naver.me 공유 링크도 됩니다)'); return; }
+      btn.disabled = true; btn.textContent = '가져오는 중…';
+      try {
+        const r = await naverLookup(url);
+        const MAP = [['name', '업체명', r.name], ['address', '주소', r.address], ['store_phone', '매장 연락처', r.phone], ['category', '업종', r.category]];
+        const diff = MAP.filter(([k, , v]) => v && F[k] && F[k].value.trim() !== v);
+        if (!diff.length) { box.hidden = true; toast('네이버 정보와 같습니다'); return; }
+        const checks = diff.map(([k, label, v]) => { const cb = el('input', { type: 'checkbox', checked: k !== 'name' || !F.name.value.trim() }); return { k, v, cb, row: el('label', { className: 'nv-row' }, [cb, el('b', { text: label }), el('span', { className: 'old', text: F[k].value.trim() || '(비어 있음)' }), el('span', { text: '→' }), el('span', { className: 'new', text: v })]) }; });
+        box.hidden = false;
+        box.replaceChildren(el('div', { className: 'nv-h', text: `네이버 정보와 다른 칸 ${diff.length}개 — 바꿀 칸만 고르세요` }), ...checks.map((c) => c.row),
+          el('div', { className: 'nv-btns' }, [el('button', { className: 'btn sm ghost', type: 'button', text: '닫기', onclick: () => { box.hidden = true; } }),
+            el('button', { className: 'btn sm primary', type: 'button', text: '선택한 칸 채우기', onclick: () => {
+              let n = 0; checks.forEach((c) => { if (c.cb.checked) { F[c.k].value = c.v; F[c.k].classList.add('chg'); F[c.k].dispatchEvent(new Event('input', { bubbles: true })); n++; } });
+              box.hidden = true; onApply?.(n);
+            } })]));
+      } catch (e) { toast('네이버 정보 가져오기 실패: ' + e.message); }
+      finally { btn.disabled = false; btn.textContent = '네이버에서 최신화'; }
+    }
+    return { btn, box };
+  }
+
   function infoForm(co) {
     const F = {};
-    const input = (k, label, opts = {}) => { F[k] = el(opts.area ? 'textarea' : 'input', { className: 'fi', value: co[k] ?? '', ...(opts.type ? { type: opts.type } : {}) }); return el('label', { className: opts.wide ? 'wide' : '' }, [el('span', { className: 'lbl', text: label }), F[k]]); };
+    const client = co.stage === '결제', expo = co.lead_source === 'expo';
+    const input = (k, label, opts = {}) => { F[k] = el(opts.area ? 'textarea' : 'input', { className: 'fi', value: co[k] ?? '', placeholder: opts.ph || '', ...(opts.type ? { type: opts.type } : {}) }); return el('label', { className: opts.wide ? 'wide' : '' }, [el('span', { className: 'lbl', text: label }), F[k]]); };
+    const select = (k, label, options, blank = '—') => { F[k] = el('select', { className: 'fi' }, [el('option', { value: '', text: blank }), ...options.map(([v, t]) => el('option', { value: v, text: t, selected: (co[k] ?? '') === v }))]); return el('label', {}, [el('span', { className: 'lbl', text: label }), F[k]]); };
     const ownerSel = (k, nameKey, label) => {
       const cur = co[k] || '';
       const s = el('select', { className: 'fi' }, [el('option', { value: '', text: co[nameKey] && !co[k] ? `${co[nameKey]} (계정 없음)` : '미배정' }),
         ...Object.entries(admins).map(([id, n]) => el('option', { value: id, text: n, selected: id === cur }))]);
       F[k] = s; return el('label', {}, [el('span', { className: 'lbl', text: label }), s]);
     };
-    F.stage = el('select', { className: 'fi' }, ['가망', '결정업체', '결제', '뿌러짐'].map((v) => el('option', { value: v, text: v, selected: co.stage === v })));
-    F.run_status = el('select', { className: 'fi' }, [el('option', { value: '', text: '—' }), ...['진행 중', '홀딩', '계약종료', '환불', '양도'].map((v) => el('option', { value: v, text: v, selected: co.run_status === v }))]);
     const saveBtn = el('button', { className: 'btn primary', type: 'button', text: '저장', onclick: save });
     const markDirty = (e) => { if (!e.target.isConnected || !saveBtn.isConnected) return; state.dirty = true; saveBtn.textContent = '저장 (Ctrl+S)'; saveBtn.classList.add('dirty'); };
     queueMicrotask(() => Object.values(F).forEach((x) => { x.addEventListener('input', markDirty); x.addEventListener('change', markDirty); }));
     state.saveInfo = save;
+    const TEXT = ['name', 'brand', 'phone', 'store_phone', 'email', 'address', 'map_url', 'rep_name', 'rep_note', 'category', 'notes', 'wish'];
     async function save() {
       const patch = {};
-      ['name', 'brand', 'phone', 'store_phone', 'email', 'address', 'map_url', 'rep_name', 'rep_note', 'category', 'notes'].forEach((k) => { const v = F[k].value.trim() || null; if ((co[k] ?? null) !== v) patch[k] = v; });
+      TEXT.forEach((k) => { if (!F[k]) return; const v = F[k].value.trim() || null; if ((co[k] ?? null) !== v) patch[k] = v; });
+      ['service_type', 'run_status', 'expo_event_id', 'founder_status'].forEach((k) => { if (!F[k]) return; const v = F[k].value || null; if ((co[k] ?? null) !== v) patch[k] = v; });
       ['sales_owner', 'manager_owner'].forEach((k) => {
-        const v = F[k].value || null; if ((co[k] ?? null) === v) return;
+        if (!F[k]) return; const v = F[k].value || null; if ((co[k] ?? null) === v) return;
         patch[k] = v; const nk = k + '_name'; if (v) patch[nk] = admins[v]; else if (co[k]) patch[nk] = null; // 계정→미배정으로 바꾸면 이름도 비움
       });
-      if (F.stage.value !== co.stage) patch.stage = F.stage.value;
-      const run = patch.stage && patch.stage !== '결제' ? null : (F.run_status.value || (F.stage.value === '결제' ? '진행 중' : null));
-      if ((co.run_status ?? null) !== run) patch.run_status = run;
+      if (client && F.run_status && !F.run_status.value) delete patch.run_status;
       if (!Object.keys(patch).length) { state.dirty = false; toast('바뀐 내용이 없습니다'); return; }
       if (patch.name === null) { toast('업체명은 비울 수 없습니다'); return; }
+      if (patch.name) patch.name_key = keyOf(patch.name);
       saveBtn.disabled = true;
       const { error } = await sb.from('companies').update(patch).eq('id', co.id);
       saveBtn.disabled = false;
       if (error) { toast('저장 실패: ' + error.message); return; }
-      const what = Object.keys(patch).map((k) => ({ stage: '단계', run_status: '계약 상태', sales_owner: '영업 담당', manager_owner: '관리 담당' }[k])).filter(Boolean);
-      await sb.from('company_events').insert({ company_id: co.id, actor: me, kind: 'system', body: '정보 수정' + (what.length ? ': ' + [...new Set(what)].join(', ') : '') + (patch.stage ? ` → ${patch.stage}` : '') + (patch.run_status ? ` → ${patch.run_status}` : '') });
+      const LBL = { run_status: '계약 상태', service_type: '구분', sales_owner: '영업 담당', manager_owner: '관리 담당', expo_event_id: '행사', founder_status: '창업 상태' };
+      const what = Object.keys(patch).map((k) => LBL[k]).filter(Boolean);
+      await sb.from('company_events').insert({ company_id: co.id, actor: me, kind: 'system', body: '정보 수정' + (what.length ? ': ' + [...new Set(what)].join(', ') : '') + (patch.service_type ? ` → ${patch.service_type}` : '') + (patch.run_status ? ` → ${patch.run_status}` : '') });
       state.dirty = false;
       toast('저장됨');
-      if (patch.stage || 'run_status' in patch) reload();
+      reload();
       open(co.id, 'info');
     }
+    const nv = naverButton(() => F.map_url.value, F, (n) => toast(`${n}칸 채움 — 저장을 눌러 반영하세요`));
+    const mapRow = el('label', { className: 'wide' }, [el('span', { className: 'lbl', text: '네이버 지도 링크' }),
+      el('div', { className: 'nv-line' }, [(F.map_url = el('input', { className: 'fi', value: co.map_url ?? '', placeholder: 'https://naver.me/… 또는 map.naver.com 링크' })), nv.btn])]);
+    const evOpts = EVENTS.map((e) => [e.id, evLabel(e)]);
+    const fields = client ? [
+      input('name', '업체명'), input('brand', '브랜드'),
+      select('service_type', '구분', SVC.map((v) => [v, v]), '구분 선택'), (() => { const x = select('run_status', '계약 상태', ['진행 중', '홀딩', ...ENDED].map((v) => [v, v])); return x; })(),
+      ownerSel('sales_owner', 'sales_owner_name', '영업 담당'), ownerSel('manager_owner', 'manager_owner_name', '관리 담당'),
+      input('phone', '대표 연락처'), input('store_phone', '매장 연락처'),
+      input('rep_name', '대표자'), input('rep_note', '대표 특징'),
+      mapRow, nv.box, input('address', '주소', { wide: true }),
+      input('category', '업종'), input('email', '이메일'),
+      input('notes', '특이사항', { area: true, wide: true }),
+    ] : expo ? [
+      input('name', '업체명 (없으면 성함)'), input('rep_name', '성함'),
+      select('expo_event_id', '행사', evOpts, '행사 미지정'), select('founder_status', '창업 상태', FOUNDER.map((v) => [v, v])),
+      input('phone', '연락처'), ownerSel('sales_owner', 'sales_owner_name', '영업 담당'),
+      input('wish', '희망 업종·지역', { wide: true, ph: '예: 카페 · 수원 영통' }),
+      mapRow, nv.box, input('address', '주소', { wide: true }), input('category', '업종'), input('store_phone', '매장 연락처'),
+      input('notes', '현장 메모', { area: true, wide: true }),
+    ] : [
+      input('name', '업체명'), input('rep_name', '대표자'),
+      input('phone', '대표 연락처'), input('store_phone', '매장 연락처'),
+      ownerSel('sales_owner', 'sales_owner_name', '영업 담당'), input('category', '업종'),
+      mapRow, nv.box, input('address', '주소', { wide: true }),
+      input('notes', '메모', { area: true, wide: true }),
+    ];
     return sec('기본 정보', [
-      el('div', { className: 'dr-grid' }, [
-        input('name', '업체명'), input('brand', '브랜드'),
-        el('label', {}, [el('span', { className: 'lbl', text: '단계' }), F.stage]), el('label', {}, [el('span', { className: 'lbl', text: '계약 상태 (결제 업체)' }), F.run_status]),
-        ownerSel('sales_owner', 'sales_owner_name', '영업 담당'), ownerSel('manager_owner', 'manager_owner_name', '관리 담당'),
-        input('phone', '대표 연락처'), input('store_phone', '매장 연락처'),
-        input('rep_name', '대표자'), input('rep_note', '대표 특징'),
-        input('address', '주소', { wide: true }), input('map_url', '지도 링크', { wide: true }),
-        input('category', '업종'), input('email', '이메일'),
-        input('notes', '특이사항', { area: true, wide: true }),
-      ]),
+      el('div', { className: 'dr-grid' }, fields),
       el('div', { className: 'actions' }, [co.map_url ? el('a', { className: 'btn', href: co.map_url, target: '_blank', rel: 'noopener', text: '지도 열기' }) : el('span'), saveBtn]),
     ]);
   }
@@ -697,6 +907,7 @@
       phone: f('input', { value: co.phone || '', placeholder: '010-0000-0000' }), email: f('input', { value: co.email || '', placeholder: '없으면 비워두세요' }),
       amount: f('input', { inputMode: 'numeric', placeholder: '1,584,000' }), price: f('select', {}, ['정상', '할인', '프로모션', '서비스'].map((v) => el('option', { value: v, text: v }))),
       product: f('input', { placeholder: '예: 체험단 패키지 15개월 (블15)' }),
+      svc: f('select', {}, SVC.map((v) => el('option', { value: v, text: v, selected: v === (co.service_type || '체험단 패키지') }))),
       method: f('select', {}, ['카드', '카드 수기결제', '현금(계좌이체)'].map((v) => el('option', { value: v, text: v }))),
       tax: f('select', {}, ['발행 필요', '발행 완료', '해당 없음'].map((v) => el('option', { value: v, text: v }))),
       cardCo: f('input', { placeholder: '예: 신한' }), cardNo: f('input', { inputMode: 'numeric', placeholder: '0000-0000-0000-0000', autocomplete: 'off' }),
@@ -730,7 +941,7 @@
       el('div', { className: 'pm-b' }, [
         sec('결제양식', el('div', { className: 'dr-grid' }, [lab('결제 담당 (가망 제공자)', F.owner), lab('관리 담당 (인수받을 사람)', F.manager),
           lab('결제일자', F.paid), lab('기간 (개월)', F.months), lab('재계약 예정일 (자동)', F.renew), lab('가격 구분', F.price),
-          lab('결제금액 (원, VAT 포함)', F.amount), lab('상품', F.product), lab('대표 핸드폰번호', F.phone), lab('대표 이메일', F.email)])),
+          lab('구분', F.svc), lab('결제금액 (원, VAT 포함)', F.amount), lab('상품', F.product), lab('대표 핸드폰번호', F.phone), lab('대표 이메일', F.email)])),
         sec('진행 항목', [itemsBox, addSel]),
         sec('결제 방식', [el('div', { className: 'dr-grid' }, [lab('결제 방식', F.method), lab('세금계산서', F.tax)]), cardBox, cashHint]),
         sec('특이사항', F.memo),
@@ -761,7 +972,7 @@
         const rows = [...items.entries()].map(([item, q]) => ({ company_id: co.id, contract_id: ct.id, item, planned: q === '' ? null : Number(q), done: 0 }));
         if (rows.length) { const { error } = await sb.from('deliverables').insert(rows); if (error) throw new Error('진행 항목 저장 실패: ' + error.message); }
         if (!cash && cardDigits) { const { error } = await sb.from('payment_cards').insert({ company_id: co.id, contract_id: ct.id, card_company: F.cardCo.value.trim() || null, card_number: F.cardNo.value.trim(), expiry: F.cardExp.value.trim() || null, installments: F.cardInst.value.trim() || null }); if (error) throw new Error('카드 저장 실패: ' + error.message); }
-        const patch = { stage: '결제', run_status: '진행 중', phone: F.phone.value.trim() || co.phone || null, email: F.email.value.trim() || co.email || null };
+        const patch = { stage: '결제', run_status: '진행 중', service_type: F.svc.value, archived: false, phone: F.phone.value.trim() || co.phone || null, email: F.email.value.trim() || co.email || null };
         if (owner) { patch.sales_owner = owner; patch.sales_owner_name = admins[owner]; }
         if (manager) { patch.manager_owner = manager; patch.manager_owner_name = admins[manager]; }
         const { error: e2 } = await sb.from('companies').update(patch).eq('id', co.id);
@@ -771,6 +982,109 @@
         layer.remove(); toast(`${renew ? '재계약' : '결제'} 등록됨`); reload(); open(co.id, 'info');
       } catch (e) { err.textContent = e.message; saveBtn.disabled = false; saveBtn.textContent = renew ? '재계약 등록' : '결제 등록'; }
     }
+  }
+  // ── 가망 등록 / 현장 상담 (휴대폰에서도 빠르게) ──
+  function layerOf(title, bodyKids, footKids) {
+    const layer = el('div', { className: 'pm-layer', onclick: (e) => { if (e.target === layer) layer.remove(); } }, el('div', { className: 'pm sm' }, [
+      el('div', { className: 'pm-h' }, [el('h3', { text: title }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => layer.remove() })]),
+      el('div', { className: 'pm-b' }, bodyKids),
+      el('div', { className: 'pm-f' }, footKids),
+    ]));
+    layer.addEventListener('keydown', (e) => { if (e.key === 'Escape') layer.remove(); });
+    document.body.append(layer); return layer;
+  }
+  async function leadModal(expo) {
+    if (expo && !EVENTS.length) await loadEvents();
+    const f = (tag, props, kids) => el(tag, { className: 'fi', ...props }, kids || []);
+    let lastEv = ''; try { lastEv = localStorage.getItem('crm-last-event') || ''; } catch {}
+    const today = new Date().toISOString().slice(0, 10);
+    const todayEv = EVENTS.find((e) => e.starts_on && e.starts_on <= today && (e.ends_on || e.starts_on) >= today);
+    const F = {
+      name: f('input', { placeholder: expo ? '업체명 (없으면 비워두세요)' : '업체명' }),
+      rep_name: f('input', { placeholder: expo ? '성함' : '대표자 (선택)' }),
+      phone: f('input', { type: 'tel', inputMode: 'tel', placeholder: '010-0000-0000' }),
+      store_phone: f('input', { type: 'tel', placeholder: '매장 연락처' }),
+      map_url: f('input', { placeholder: 'https://naver.me/… (붙여넣으면 자동 채움)' }),
+      address: f('input', { placeholder: '주소' }), category: f('input', { placeholder: '업종' }),
+      wish: f('input', { placeholder: '예: 카페 · 수원 영통' }),
+      notes: f('textarea', { rows: 3, placeholder: expo ? '현장에서 들은 내용' : '메모' }),
+      owner: f('select', {}, [el('option', { value: '', text: '미배정' }), ...Object.entries(admins).map(([id, n]) => el('option', { value: id, text: n, selected: id === me }))]),
+      event: f('select', {}, [el('option', { value: '', text: '행사 미지정' }), ...EVENTS.map((e) => el('option', { value: e.id, text: evLabel(e), selected: e.id === (todayEv?.id || (EVENTS.some((x) => x.id === lastEv) ? lastEv : EVENTS[0]?.id)) }))]),
+    };
+    let founder = '';
+    const fsBox = el('div', { className: 'fs-btns' }, FOUNDER.map((v) => el('button', { type: 'button', className: 'chip', text: v, onclick: (e) => { founder = founder === v ? '' : v; [...fsBox.children].forEach((b) => b.classList.toggle('on', b.textContent === founder)); } })));
+    const nv = naverButton(() => F.map_url.value, F, () => {});
+    F.map_url.addEventListener('paste', () => setTimeout(() => /naver/i.test(F.map_url.value) && nv.btn.click(), 0));
+    const dup = el('div', { className: 'hint' });
+    F.phone.addEventListener('blur', async () => {
+      const p = F.phone.value.replace(/\D/g, ''); dup.textContent = ''; dup.className = 'hint';
+      if (p.length < 9) return;
+      const fmt = p.replace(/^(\d{3})(\d{3,4})(\d{4})$/, '$1-$2-$3');
+      const { data } = await sb.from('companies').select('id,name,stage').or(`phone.eq.${fmt},phone.eq.${p},store_phone.eq.${fmt}`).limit(3);
+      if (data?.length) { dup.className = 'hint warn'; dup.textContent = `이미 등록된 번호: ${data.map((x) => `${x.name}(${x.stage === '결제' ? '계약' : '가망'})`).join(', ')}`; }
+    });
+    const err = el('div', { className: 'err' });
+    const saveBtn = el('button', { className: 'btn primary lg', type: 'button', text: '저장', onclick: () => save(false) });
+    const nextBtn = el('button', { className: 'btn lg', type: 'button', text: '저장하고 다음 상담', onclick: () => save(true) });
+    const body = expo ? [
+      el('div', { className: 'dr-grid' }, [lab('행사', F.event), lab('영업 담당', F.owner), lab('성함', F.rep_name), lab('연락처 *', F.phone)]), dup,
+      el('div', {}, [el('span', { className: 'lbl', text: '창업 상태' }), fsBox]),
+      el('div', { className: 'dr-grid' }, [lab('업체명', F.name), lab('희망 업종·지역', F.wish)]),
+      lab('현장 메모', F.notes),
+      el('details', { className: 'more-f' }, [el('summary', { text: '매장이 있으면: 네이버 링크·주소' }), el('div', { className: 'dr-grid' }, [el('label', { className: 'wide' }, [el('span', { className: 'lbl', text: '네이버 지도 링크' }), el('div', { className: 'nv-line' }, [F.map_url, nv.btn])]), nv.box, lab('주소', F.address), lab('업종', F.category)])]),
+      err,
+    ] : [
+      el('label', {}, [el('span', { className: 'lbl', text: '네이버 지도 링크' }), el('div', { className: 'nv-line' }, [F.map_url, nv.btn])]), nv.box,
+      el('div', { className: 'dr-grid' }, [lab('업체명 *', F.name), lab('업종', F.category), lab('대표 연락처', F.phone), lab('매장 연락처', F.store_phone), lab('대표자', F.rep_name), lab('영업 담당', F.owner)]), dup,
+      lab('주소', F.address), lab('메모', F.notes), err,
+    ];
+    const layer = layerOf(expo ? '현장 상담 등록' : '가망 등록', body, [el('button', { className: 'btn lg ghost', type: 'button', text: '취소', onclick: () => layer.remove() }), expo ? nextBtn : null, saveBtn].filter(Boolean));
+    (expo ? F.rep_name : F.map_url).focus();
+    async function save(again) {
+      err.textContent = '';
+      const v = (k) => F[k].value.trim() || null;
+      const name = v('name') || (expo ? v('rep_name') || (v('phone') ? '박람회 ' + v('phone') : null) : null);
+      if (!name) { err.textContent = expo ? '성함이나 연락처 중 하나는 넣어주세요' : '업체명을 입력하세요'; return; }
+      if (expo && !v('phone')) { err.textContent = '연락처를 입력하세요'; return; }
+      const owner = F.owner.value || null;
+      const row = { name, name_key: keyOf(name), stage: '가망', lead_source: expo ? 'expo' : 'manual', tags: expo ? ['박람회'] : [],
+        rep_name: v('rep_name'), phone: v('phone'), store_phone: v('store_phone'), map_url: v('map_url'), address: v('address'), category: v('category'), notes: v('notes'),
+        sales_owner: owner, sales_owner_name: owner ? admins[owner] : null };
+      if (expo) Object.assign(row, { expo_event_id: F.event.value || null, founder_status: founder || null, wish: v('wish') });
+      saveBtn.disabled = nextBtn.disabled = true;
+      const { data, error } = await sb.from('companies').insert(row).select('id').single();
+      saveBtn.disabled = nextBtn.disabled = false;
+      if (error) { err.textContent = '저장 실패: ' + error.message; return; }
+      await sb.from('company_events').insert({ company_id: data.id, actor: me, kind: 'system', body: expo ? `현장 상담 등록 · ${evLabel(evById(row.expo_event_id))}` : '가망 등록' });
+      if (expo) try { localStorage.setItem('crm-last-event', F.event.value); } catch {}
+      toast(`${name} 등록됨`);
+      if (again) { ['name', 'rep_name', 'phone', 'wish', 'notes', 'map_url', 'address', 'category'].forEach((k) => { F[k].value = ''; }); founder = ''; [...fsBox.children].forEach((b) => b.classList.remove('on')); dup.textContent = ''; F.rep_name.focus(); reload(); return; }
+      layer.remove(); reload(); open(data.id);
+    }
+  }
+  function eventModal() {
+    const f = (props) => el('input', { className: 'fi', ...props });
+    const F = { name: f({ placeholder: '예: 코엑스 IFS' }), venue: f({ placeholder: '장소 (선택)' }), starts: f({ type: 'date' }), ends: f({ type: 'date' }) };
+    F.starts.oninput = () => { if (!F.ends.value || F.ends.value < F.starts.value) F.ends.value = F.starts.value; };
+    const err = el('div', { className: 'err' });
+    const list = el('div', { className: 'ev-list' }, EVENTS.map((e) => {
+      const s = f({ type: 'date', value: e.starts_on || '' }), t = f({ type: 'date', value: e.ends_on || '' });
+      const sv = el('button', { className: 'btn sm', type: 'button', text: '날짜 저장', onclick: async () => {
+        const { error } = await sb.from('expo_events').update({ starts_on: s.value || null, ends_on: t.value || s.value || null }).eq('id', e.id);
+        if (error) toast('저장 실패: ' + error.message); else { toast(`${e.name} 날짜 저장됨`); await loadEvents(); reload(); } } });
+      return el('div', { className: 'ev-row' }, [el('b', { text: e.name }), s, t, sv]);
+    }));
+    const save = el('button', { className: 'btn primary lg', type: 'button', text: '행사 추가', onclick: async () => {
+      if (!F.name.value.trim()) { err.textContent = '행사명을 입력하세요'; return; }
+      const { error } = await sb.from('expo_events').insert({ name: F.name.value.trim(), venue: F.venue.value.trim() || null, starts_on: F.starts.value || null, ends_on: F.ends.value || F.starts.value || null, created_by: me });
+      if (error) { err.textContent = '저장 실패: ' + error.message; return; }
+      layer.remove(); toast('행사 추가됨'); await loadEvents(); reload();
+    } });
+    const layer = layerOf('박람회 행사', [
+      el('div', { className: 'dr-grid' }, [lab('행사명 *', F.name), lab('장소', F.venue), lab('시작일', F.starts), lab('종료일', F.ends)]), err,
+      EVENTS.length ? sec('등록된 행사 · 날짜 수정', list) : null,
+    ].filter(Boolean), [el('button', { className: 'btn lg ghost', type: 'button', text: '닫기', onclick: () => layer.remove() }), save]);
+    F.name.focus();
   }
   const lab = (label, input) => el('label', {}, [el('span', { className: 'lbl', text: label }), input]);
 
