@@ -988,7 +988,7 @@ function showPage(p) {
   ['today', 'inbox', 'leads', 'clients', 'perf', 'import'].forEach((k) => { $('pg-' + k).hidden = k !== p; });
   if (p === 'leads' || p === 'clients') {
     const go = () => window.CRM_COMPANIES.mount($('pg-' + p), p);
-    if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=1'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
+    if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=2'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
   if (p === 'today') renderToday();
   if (p === 'import' && !$('importBody').childElementCount) {
