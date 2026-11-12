@@ -314,6 +314,8 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
   <symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9h18"/><path d="M9 20v-6h6v6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></symbol>
   <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 21V9m0 0-4 4m4-4 4 4M4 3h16"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></symbol>
 </svg>
@@ -338,6 +340,8 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
       <div class="nav-sec">업무</div>
       <button class="mi active" data-page="today"><svg class="i"><use href="#i-sun"/></svg>오늘 할 일<span class="mi-badge" id="todoBadge" hidden></span></button>
       <button class="mi" data-page="inbox"><svg class="i"><use href="#i-inbox"/></svg>문의함<span class="mi-badge" id="newBadge" hidden></span></button>
+      <button class="mi" data-page="leads"><svg class="i"><use href="#i-store"/></svg>가망 업체</button>
+      <button class="mi" data-page="clients"><svg class="i"><use href="#i-check"/></svg>계약 업체</button>
       <button class="mi" data-page="perf"><svg class="i"><use href="#i-chart"/></svg>광고 성과</button>
       <button class="mi" data-page="import" id="navImport" hidden><svg class="i"><use href="#i-upload"/></svg>가져오기</button>
     </nav>
@@ -392,6 +396,9 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
         </div></div>
       </div>
     </div>
+
+    <div id="pg-leads" hidden></div>
+    <div id="pg-clients" hidden></div>
 
     <div id="pg-import" hidden>
       <header class="topbar"><h1>가져오기</h1><span class="count">대표 전용 · 엑셀·노션 데이터를 업체 DB로</span></header>
@@ -978,7 +985,11 @@ let page = 'today';
 function showPage(p) {
   page = p;
   document.querySelectorAll('.mi[data-page]').forEach((x) => x.classList.toggle('active', x.dataset.page === p));
-  ['today', 'inbox', 'perf', 'import'].forEach((k) => { $('pg-' + k).hidden = k !== p; });
+  ['today', 'inbox', 'leads', 'clients', 'perf', 'import'].forEach((k) => { $('pg-' + k).hidden = k !== p; });
+  if (p === 'leads' || p === 'clients') {
+    const go = () => window.CRM_COMPANIES.mount($('pg-' + p), p);
+    if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=1'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
+  }
   if (p === 'today') renderToday();
   if (p === 'import' && !$('importBody').childElementCount) {
     $('importBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' }));
