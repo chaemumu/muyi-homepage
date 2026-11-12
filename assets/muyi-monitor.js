@@ -1,13 +1,12 @@
 // 문의 접수 장애 감지 → 카카오워크 즉시 알림
 // - contact 함수 / 첨부 업로드 요청이 실패(HTTP 오류·네트워크 오류)하면 고객 이름·연락처를 담아 알림
-// - 1차: 홈페이지 Supabase notify-alert, 실패 시 2차: CRM Supabase kakaowork-notify (서로 다른 프로젝트라 한쪽 장애에도 도달)
+// - 브라우저 → 홈페이지 Supabase notify-alert (카카오워크 🐙 방)
+// - Supabase 자체가 죽은 경우는 .github/workflows/health.yml(30분 점검, GitHub 실패 메일)이 잡는다
 // - /assets 는 1년 캐시이므로 수정 시 페이지의 ?v= 값을 올릴 것
 (function () {
   if (window.muyiAlert) return;
   var HP = 'https://pacyhanuwuizcxwoggen.supabase.co';
   var HP_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhY3loYW51d3VpemN4d29nZ2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTI2NDgsImV4cCI6MjA5MTI4ODY0OH0.oe39KUtwr-mZ4OsqWQT6Y3USpigQpD825IM14mIFEaY';
-  var CRM = 'https://npkpxlbcwmwlxqauevyv.supabase.co';
-  var CRM_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wa3B4bGJjd213bHhxYXVldnl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzMjg2MTIsImV4cCI6MjA4OTkwNDYxMn0.t3n2RvYdJd1_1Ay44V3MW7p2GqJDiocqgrmt0qIov88';
   var WATCH = [/\/functions\/v1\/contact(\?|$)/, /\/storage\/v1\/object\/attachments\//];
 
   var origFetch = window.fetch && window.fetch.bind(window);
@@ -36,16 +35,7 @@
       method: 'POST', keepalive: true,
       headers: { 'Content-Type': 'application/json', apikey: HP_KEY },
       body: JSON.stringify(payload)
-    }).then(function (r) { if (!r.ok) throw new Error('alert ' + r.status); }).catch(function () {
-      var text = '🚨 [홈페이지 문의 장애] ' + title +
-        (lead ? '\n고객: ' + (lead.name || '-') + ' / ' + (lead.phone || '-') + '\n⚠️ 문의가 접수되지 않았을 수 있습니다. 직접 연락하세요.' : '') +
-        (payload.detail ? '\n내용: ' + payload.detail : '') + '\n위치: ' + payload.page;
-      origFetch(CRM + '/functions/v1/kakaowork-notify', {
-        method: 'POST', keepalive: true,
-        headers: { 'Content-Type': 'application/json', apikey: CRM_KEY, Authorization: 'Bearer ' + CRM_KEY },
-        body: JSON.stringify({ type: 'alert', data: { message: text } })
-      }).catch(function () {});
-    });
+    }).catch(function () {});
   }
   window.muyiAlert = send;
 

@@ -205,6 +205,21 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 .chips button{height:26px;padding:0 10px;border:1px solid var(--line);border-radius:13px;background:var(--surface);font-size:12px;font-weight:600;color:var(--t2)}
 .chips button.on{background:var(--brand);border-color:var(--brand);color:#fff}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* 사업자등록증: 업로드 → 흑백 WebP 압축 → AI 추출(biz-ocr) → 확인·수정 → 저장 */
+.biz{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;display:grid;gap:10px}
+.biz-empty{color:var(--t3);font-size:12px}
+.biz-grid{display:grid;grid-template-columns:88px 1fr;gap:4px 10px;font-size:12px}
+.biz-grid dt{color:var(--t3)}
+.biz-grid dd{margin:0;color:var(--t1);word-break:break-word}
+.biz-form{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.biz-form label.wide{grid-column:1/-1}
+.biz-form .lbl small{color:#D97706;font-weight:500}
+.biz-edit{display:grid;grid-template-columns:minmax(0,200px) 1fr;gap:12px;align-items:start}
+.biz-edit img{width:100%;border:1px solid var(--line);border-radius:var(--r);background:#fff}
+.biz-ok{color:#16A34A;font-size:12px;font-weight:600}
+.biz-bad{color:#DC2626;font-size:12px;font-weight:600}
+.biz-btns{display:flex;gap:8px;flex-wrap:wrap}
+@media (max-width:720px){.biz-edit,.biz-form{grid-template-columns:1fr}}
 .actions{display:grid;grid-template-columns:auto 1fr;gap:8px}
 .hint{background:var(--muted);border:1px solid var(--line);color:var(--t2);border-radius:var(--r);padding:8px 10px;font-size:12px;font-weight:500}
 .keys{display:flex;gap:10px;flex-wrap:wrap;color:var(--t3);font-size:11px}
@@ -404,7 +419,7 @@ const avatar = (name, cls = '') => el('span', { className: 'av ' + cls, text: (n
 const lastEvent = (id) => (events[id] || [])[(events[id] || []).length - 1];
 // 첫 응답 시간(분): 문의 접수 후 사람이 처음 남긴 통화·기록까지. 광고 리드는 빨리 걸수록 계약률이 높다.
 function firstResponse(r) {
-  const e = (events[r.id] || []).find((x) => x.actor && (x.kind === 'call' || x.kind === 'note'));
+  const e = (events[r.id] || []).find((x) => x.actor && (x.kind === 'call' || (x.kind === 'note' && !x.body.startsWith(BIZ_NOTE))));
   return e ? Math.max(0, Math.round((new Date(e.created_at) - new Date(r.created_at)) / 60000)) : null;
 }
 const fmtMin = (m) => m == null ? '-' : m < 60 ? `${m}분` : m < 1440 ? `${Math.round(m / 60 * 10) / 10}시간` : `${Math.round(m / 1440 * 10) / 10}일`;
@@ -712,6 +727,7 @@ function panelRow(r) {
       el('div', { className: 'meta' }, [kst(r.created_at), fr != null && `첫 응답 ${fmtMin(fr)}`, r.source, r.type,
         utm.utm_campaign && '광고 ' + [utm.utm_source, utm.utm_campaign, utm.utm_content].filter(Boolean).join(' / ')].filter(Boolean).map((t) => el('span', { text: t }))),
       r.message && el('div', {}, [el('div', { className: 'sec-t', text: '문의 내용' }), el('div', { className: 'box', text: r.message })]),
+      bizSection(r),
       r.prev.length > 0 && el('div', {}, [el('div', { className: 'sec-t', text: `이전 문의 ${r.prev.length}건` }),
         el('div', { className: 'box' }, r.prev.map((p, i) => el('div', { className: i ? 'prev' : '', text: `${kst(p.created_at)} · ${p.source || '-'} · ${p.status}${p.message ? '\n' + p.message : ''}` })))]),
       el('div', {}, [el('div', { className: 'sec-t', text: '상담 기록' }),
@@ -733,6 +749,129 @@ function panelRow(r) {
   ]);
   sync();
   return el('tr', { className: 'panel-row' }, el('td', { colSpan: 9 }, panel));
+}
+
+// ── 사업자등록증 ── 저장: business_registrations(텍스트) + Storage 비공개 버킷 biz-docs/{contact_id}/{uuid}.webp(압축본)
+const BIZ_FIELDS = [['brn', '사업자등록번호'], ['tax_type', '과세 유형'], ['company_name', '상호'], ['rep_name', '대표자'],
+  ['rep_birth', '대표자 생년월일', 'date'], ['open_date', '개업일', 'date'], ['address', '사업장 주소', 'text', true],
+  ['biz_type', '업태'], ['biz_item', '종목'], ['liquor_no', '주류판매신고번호'], ['issued_at', '발급일', 'date'], ['issuer', '발급 세무서'],
+  ['email', '이메일'], ['tel', '전화'], ['fax', '팩스']];
+const BIZ_NOTE = '[사업자등록증 등록]'; // 상담 기록에 남지만 첫 응답 시간 집계에서는 뺀다
+const bizCache = {}, bizPending = {}; // contact_id -> 최신 등록 행 / 확인 대기 중인 AI 추출 결과 (다시 그려도 유지)
+function bizBrnOk(brn) {
+  const d = String(brn || '').replace(/\D/g, ''); if (d.length !== 10) return false;
+  const w = [1, 3, 7, 1, 3, 7, 1, 3, 5]; let s = 0; for (let i = 0; i < 9; i++) s += +d[i] * w[i];
+  s += Math.floor(+d[8] * 5 / 10); return (10 - (s % 10)) % 10 === +d[9];
+}
+// 이미지/PDF → 흑백 WebP(가로 최대 1100px, 품질 0.45 ≈ 50KB). 이 설정에서도 글자가 선명히 읽힌다
+async function bizToCanvas(file) {
+  if (file.type === 'application/pdf') {
+    if (!window.pdfjsLib) {
+      await new Promise((ok, ng) => { const x = document.createElement('script'); x.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'; x.onload = ok; x.onerror = () => ng(new Error('PDF 도구를 불러오지 못했습니다')); document.head.appendChild(x); });
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+    const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+    const page = await pdf.getPage(1); const vp = page.getViewport({ scale: 1 });
+    const v = page.getViewport({ scale: Math.min(2.5, 1100 / vp.width) });
+    const c = document.createElement('canvas'); c.width = v.width; c.height = v.height;
+    await page.render({ canvasContext: c.getContext('2d'), viewport: v }).promise; return c;
+  }
+  const img = await createImageBitmap(file); const sc = Math.min(1, 1100 / img.width);
+  const c = document.createElement('canvas'); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); return c;
+}
+async function bizCompress(file) {
+  const c = await bizToCanvas(file); const ctx = c.getContext('2d');
+  const im = ctx.getImageData(0, 0, c.width, c.height), d = im.data;
+  for (let i = 0; i < d.length; i += 4) { const y = d[i] * .299 + d[i + 1] * .587 + d[i + 2] * .114; d[i] = d[i + 1] = d[i + 2] = y; }
+  ctx.putImageData(im, 0, 0);
+  let blob = await new Promise((ok) => c.toBlob(ok, 'image/webp', .45));
+  if (!blob || blob.type !== 'image/webp') blob = await new Promise((ok) => c.toBlob(ok, 'image/jpeg', .6)); // WebP 미지원 브라우저
+  return blob;
+}
+const bizB64 = (blob) => new Promise((ok, ng) => { const fr = new FileReader(); fr.onload = () => ok(String(fr.result).split(',')[1]); fr.onerror = ng; fr.readAsDataURL(blob); });
+
+function bizSection(r) {
+  const box = el('div', { className: 'biz' });
+  const file = el('input', { type: 'file', accept: 'image/*,application/pdf', hidden: true, onchange: () => { const f = file.files[0]; file.value = ''; if (f) upload(f); } });
+  const pick = (label, primary) => el('button', { className: 'btn' + (primary ? ' primary' : ''), type: 'button', text: label, onclick: () => file.click() });
+  const msg = (t) => box.replaceChildren(el('div', { className: 'biz-empty', text: t }));
+
+  async function upload(f) {
+    if (!/^image\/|application\/pdf/.test(f.type)) { toast('이미지(JPG·PNG) 또는 PDF만 올릴 수 있습니다'); return; }
+    if (f.size > 20 * 1024 * 1024) { toast('20MB 이하 파일만 올릴 수 있습니다'); return; }
+    msg('압축하고 AI가 읽는 중… (10초 정도 걸려요)');
+    try {
+      const blob = await bizCompress(f);
+      const { data, error } = await sb.functions.invoke('biz-ocr', { body: { image_base64: await bizB64(blob), media_type: blob.type } });
+      if (error) { let m = error.message; try { m = (await error.context.json()).error || m; } catch {} throw new Error(m); }
+      bizPending[r.id] = { blob, url: URL.createObjectURL(blob), fields: data.fields, unclear: data.fields.unclear || [] };
+    } catch (e) { toast('사업자등록증을 읽지 못했습니다: ' + e.message); }
+    draw();
+  }
+
+  function drawEdit(p) {
+    const inputs = {};
+    const hint = el('div');
+    const checkBrn = () => { const ok = bizBrnOk(inputs.brn.value); hint.className = ok ? 'biz-ok' : 'biz-bad'; hint.textContent = ok ? '✓ 사업자등록번호 검증식 통과' : '⚠ 사업자등록번호가 검증식과 맞지 않습니다. 원본과 대조해 주세요.'; };
+    const form = el('div', { className: 'biz-form' }, BIZ_FIELDS.map(([k, label, type, wide]) => {
+      inputs[k] = el('input', { className: 'fi', type: type || 'text', value: p.fields[k] || '' });
+      if (k === 'brn') inputs[k].addEventListener('input', checkBrn);
+      const unclear = p.unclear.includes(k);
+      return el('label', { className: wide ? 'wide' : '' }, [el('span', { className: 'lbl' }, [label, unclear && el('small', { text: ' · 흐릿함, 확인 필요' })]), inputs[k]]);
+    }));
+    const saveBtn = el('button', { className: 'btn primary', type: 'button', text: '확인하고 저장', onclick: save });
+    async function save() {
+      const row = { contact_id: r.id, ocr_raw: p.fields };
+      BIZ_FIELDS.forEach(([k]) => { row[k] = inputs[k].value.trim() || null; });
+      if (!row.brn) { toast('사업자등록번호는 필수입니다'); return; }
+      row.brn_checksum_ok = bizBrnOk(row.brn);
+      saveBtn.disabled = true; saveBtn.textContent = '저장 중…';
+      try {
+        const path = `${r.id}/${crypto.randomUUID()}.${p.blob.type === 'image/webp' ? 'webp' : 'jpg'}`;
+        const up = await sb.storage.from('biz-docs').upload(path, p.blob, { contentType: p.blob.type });
+        if (up.error) throw new Error('파일 저장 실패: ' + up.error.message);
+        row.file_path = path;
+        const { data, error } = await sb.from('business_registrations').insert(row).select().single();
+        if (error) { await sb.storage.from('biz-docs').remove([path]); throw new Error(error.message); }
+        await sb.from('contact_events').insert({ contact_id: r.id, actor: me, kind: 'note', body: `${BIZ_NOTE} ${row.company_name || ''} ${row.brn}` });
+        URL.revokeObjectURL(p.url); delete bizPending[r.id]; bizCache[r.id] = data;
+        await reloadEvents(r.id); toast('사업자등록증 저장됨'); render();
+      } catch (e) { toast('저장하지 못했습니다: ' + e.message); saveBtn.disabled = false; saveBtn.textContent = '확인하고 저장'; }
+    }
+    const cancel = el('button', { className: 'btn', type: 'button', text: '취소', onclick: () => { URL.revokeObjectURL(p.url); delete bizPending[r.id]; draw(); } });
+    box.replaceChildren(el('div', { className: 'biz-edit' }, [el('img', { src: p.url, alt: '사업자등록증 압축본' }),
+      el('div', { className: 'biz-form-wrap' }, [form])]), hint,
+      el('div', { className: 'biz-empty', text: `압축본 ${(p.blob.size / 1024).toFixed(0)}KB · 비공개 저장(관리자만 열람). AI가 읽은 값을 원본과 대조한 뒤 저장하세요.` }),
+      el('div', { className: 'biz-btns' }, [saveBtn, cancel]));
+    checkBrn();
+  }
+
+  function draw() {
+    if (bizPending[r.id]) { drawEdit(bizPending[r.id]); return; }
+    const b = bizCache[r.id];
+    if (b === undefined) { msg('불러오는 중…'); return; }
+    if (!b) { box.replaceChildren(el('div', { className: 'biz-empty', text: '등록된 사업자등록증이 없습니다. 사진이나 PDF를 올리면 AI가 내용을 읽어 채워줍니다.' }), el('div', { className: 'biz-btns' }, [pick('📎 사업자등록증 업로드', true)])); return; }
+    const rows = [['등록번호', b.brn], ['상호', b.company_name], ['대표자', b.rep_name], ['생년월일', b.rep_birth], ['개업일', b.open_date], ['과세 유형', b.tax_type],
+      ['업태', b.biz_type], ['종목', b.biz_item], ['주소', b.address], ['주류판매', b.liquor_no],
+      ['연락처', [b.tel && 'T ' + b.tel, b.fax && 'F ' + b.fax, b.email].filter(Boolean).join(' · ')], ['발급', [b.issued_at, b.issuer].filter(Boolean).join(' ')]].filter(([, v]) => v);
+    const view = b.file_path && el('button', { className: 'btn', type: 'button', text: '🖼 원본(압축본) 보기', onclick: async () => {
+      const w = window.open('', '_blank'); // 팝업 차단 방지: 클릭 순간에 창을 먼저 연다
+      const { data, error } = await sb.storage.from('biz-docs').createSignedUrl(b.file_path, 60);
+      if (error) { w && w.close(); toast('파일을 열 수 없습니다: ' + error.message); return; }
+      if (w) w.location = data.signedUrl; else location.href = data.signedUrl;
+    } });
+    box.replaceChildren(el('div', { className: b.brn_checksum_ok ? 'biz-ok' : 'biz-bad', text: b.brn_checksum_ok ? '✓ 번호 검증됨' : '⚠ 번호 확인 필요' }),
+      el('dl', { className: 'biz-grid' }, rows.flatMap(([k, v]) => [el('dt', { text: k }), el('dd', { text: v })])),
+      el('div', { className: 'biz-btns' }, [view, pick('다시 업로드')]));
+  }
+
+  if (bizCache[r.id] === undefined && !bizPending[r.id]) {
+    sb.from('business_registrations').select('*').eq('contact_id', r.id).order('created_at', { ascending: false }).limit(1)
+      .then(({ data, error }) => { if (error) { msg('불러오지 못했습니다: ' + error.message); return; } bizCache[r.id] = data[0] || null; draw(); });
+  }
+  draw();
+  return el('div', {}, [el('div', { className: 'sec-t', text: '사업자등록증' }), box, file]);
 }
 
 async function reloadEvents(id) {
