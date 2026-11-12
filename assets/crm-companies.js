@@ -55,6 +55,27 @@
 .bar{height:6px;background:var(--muted-2);border-radius:3px;overflow:hidden;min-width:60px}
 .bar i{display:block;height:100%;background:var(--green)}
 @media (max-width:720px){.dr-grid{grid-template-columns:1fr}}
+.ck-bar{height:6px;background:var(--muted-2);border-radius:3px;overflow:hidden}
+.ck-bar i{display:block;height:100%;background:var(--green)}
+.ck-list{display:grid;gap:4px}
+.ck-btns{display:flex;gap:8px;flex-wrap:wrap}
+.ck{display:grid;grid-template-columns:20px auto 1fr;gap:8px;align-items:center;font-size:13px;padding:6px 8px;border-radius:var(--r);background:var(--surface-2)}
+.ck b{font-weight:600;color:var(--t1)}
+.ck small{color:var(--t3);font-size:11px;text-align:right}
+.ck-box{width:18px;height:18px;border:1.5px solid var(--line-strong);border-radius:5px;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff}
+.ck.ok .ck-box{background:var(--green);border-color:var(--green)}
+.ck.ok b{color:var(--t3);text-decoration:line-through}
+.pm-layer{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:60;display:grid;place-items:center;padding:16px}
+.pm{background:var(--surface);border-radius:14px;width:min(720px,100%);max-height:calc(var(--vh, 100vh) - 32px);display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.pm-h{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)}
+.pm-h h3{font-size:16px;font-weight:700}
+.pm-b{overflow-y:auto;min-height:0;flex:1;padding:16px 20px;display:grid;gap:16px;align-content:start}
+.pm-f{display:flex;justify-content:flex-end;gap:8px;padding:12px 20px;border-top:1px solid var(--line)}
+.pi-list{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+@media (max-width:720px){.pi-list{grid-template-columns:1fr}}
+.pi{display:grid;grid-template-columns:1fr 90px 28px;gap:8px;align-items:center;padding:6px 8px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r)}
+.pi b{font-size:13px;font-weight:600}
+.pi .fi{height:30px}
 `;
     document.head.appendChild(st);
   }
@@ -62,6 +83,7 @@
   let state = null; // { mode, tab, q, mine, review, source, rows, offset, done, openId }
 
   function mount(box, mode) {
+    document.querySelector('.drawer')?.remove(); document.querySelector('.pm-layer')?.remove();
     const M = MODES[mode];
     state = { box, mode, tab: M.tabs[0][0], q: '', mine: false, review: false, source: '', rows: [], offset: 0, done: false, openId: null, counts: {} };
     const search = el('input', { className: 'fi', type: 'search', placeholder: '업체명·브랜드·연락처·주소 검색', oninput: debounce((e) => { state.q = e.target.value; reload(); }, 300) });
@@ -164,7 +186,7 @@
     drawer?.remove();
     drawer = el('aside', { className: 'drawer' }, el('div', { className: 'dr-b' }, el('div', { className: 'hint', text: '불러오는 중…' })));
     document.body.append(drawer);
-    const [c, ct, dl, wk, rd, hd, gl, ev] = await Promise.all([
+    const [c, ct, dl, wk, rd, hd, gl, ev, dc, cd] = await Promise.all([
       sb.from('companies').select('*').eq('id', id).single(),
       sb.from('contracts').select('*').eq('company_id', id).order('paid_at', { ascending: false }),
       sb.from('deliverables').select('*').eq('company_id', id).order('created_at'),
@@ -173,9 +195,11 @@
       sb.from('holds').select('*').eq('company_id', id).order('started_at', { ascending: false }),
       sb.from('guidelines').select('kind,created_at').eq('company_id', id).order('created_at', { ascending: false }),
       sb.from('company_events').select('*').eq('company_id', id).order('created_at'),
+      sb.from('documents').select('id,kind,title,created_at').eq('company_id', id),
+      sb.rpc('masked_cards', { p_company: id }),
     ]);
     if (c.error || !c.data) { drawer.replaceChildren(el('div', { className: 'dr-b' }, el('div', { className: 'err', text: '업체를 불러오지 못했습니다' }))); return; }
-    const co = c.data, D = { ct: ct.data || [], dl: dl.data || [], wk: wk.data || [], rd: rd.data || [], hd: hd.data || [], gl: gl.data || [], ev: ev.data || [] };
+    const co = c.data, D = { ct: ct.data || [], dl: dl.data || [], wk: wk.data || [], rd: rd.data || [], hd: hd.data || [], gl: gl.data || [], ev: ev.data || [], dc: dc.data || [], cd: cd.data || [] };
     const body = el('div', { className: 'dr-b' });
     const TABS = [['info', '정보·기록'], ['contract', `계약·실행 ${D.ct.length + D.dl.length ? '' : ''}`], ['camp', '체험단'], ['docs', '가이드라인·서류']];
     const tabsEl = el('div', { className: 'dr-tabs' });
@@ -184,7 +208,9 @@
     const sum = D.ct.reduce((s, x) => s + (x.amount_won || 0), 0);
     drawer.replaceChildren(
       el('div', { className: 'dr-h' }, [
-        el('div', { className: 'dr-top' }, [el('h2', { text: co.name }), el('button', { className: 'icon-btn', type: 'button', title: '닫기 (Esc)', text: '✕', onclick: close })]),
+        el('div', { className: 'dr-top' }, [el('h2', { text: co.name }),
+          el('button', { className: 'btn primary', type: 'button', text: co.stage === '결제' ? '재계약 등록' : '결제 등록', onclick: () => payModal(co, D) }),
+          el('button', { className: 'icon-btn', type: 'button', title: '닫기 (Esc)', text: '✕', onclick: close })]),
         el('div', { className: 'dr-meta' }, [
           dot(co.stage, STAGE_COLOR[co.stage]), co.stage === '결제' && dot(co.run_status, RUN_COLOR[co.run_status]),
           co.brand && el('span', { className: 'tag', text: co.brand }), co.needs_review && el('span', { className: 'co-flag', text: `확인 필요 · ${co.review_reason || ''}` }),
@@ -196,7 +222,7 @@
       body,
     );
     const SECTIONS = {
-      info: () => [infoForm(co), eventsView(co, D.ev)],
+      info: () => [co.stage === '결제' ? checklistView(co, D) : null, infoForm(co), eventsView(co, D.ev)],
       contract: () => [contractsView(D.ct), deliverablesView(D.dl), worksView(D.wk), holdsView(D.hd)],
       camp: () => [roundsView(co, D.rd)],
       docs: () => [guidesView(D.gl), el('div', { className: 'dr-sec' }, [el('div', { className: 'sec-t', text: '서류 · 카드' }), el('div', { className: 'dr-empty', text: '사업자등록증·계약서 텍스트화, 카드 정보(대표만)는 ③ 단계에서 추가됩니다.' })])],
@@ -275,8 +301,9 @@
     return sec('상담 기록', [list, input]);
   }
   function contractsView(cts) {
-    return sec(`계약 이력 ${cts.length}건`, table(['구분', '결제일', '금액', '기간', '재계약 예정', '메모'],
-      cts.map((c) => [c.kind || '—', day(c.paid_at), won(c.amount_won), c.period_text || (c.period_months ? c.period_months + '개월' : '—'), day(c.renew_due), c.memo || c.owner_name || '—']), [2]));
+    return sec(`계약 이력 ${cts.length}건`, table(['구분', '결제일', '금액', '기간', '재계약 예정', '결제·세금계산서', '메모'],
+      cts.map((c) => [c.kind || '—', day(c.paid_at), won(c.amount_won), c.period_text || (c.period_months ? c.period_months + '개월' : '—'), day(c.renew_due),
+        [c.pay_method, c.tax_invoice].filter(Boolean).join(' · ') || '—', c.memo || c.owner_name || '—']), [2]));
   }
   function deliverablesView(dls) {
     return sec(`실행 항목 ${dls.length}개`, table(['항목', '계약 수량', '요청', '완료', '잔여', '진행'],
@@ -304,6 +331,139 @@
       el('div', { className: 'dr-soon', text: '가이드라인 작성·버전 비교·[복사]는 ③ 단계에서 추가됩니다.' }),
     ]);
   }
+  // ── 결제 체크리스트 (데이터로 자동 판정) ──
+  function checks(co, D) {
+    const last = D.ct[0];
+    const cash = /현금|계좌|이체/.test(last?.pay_method || '');
+    const hasDoc = (re) => D.dc.some((d) => re.test(d.kind));
+    return [
+      ['카드 정보 입력', cash ? null : D.cd.length > 0, cash ? '현금 결제 — 해당 없음' : '결제 등록 때 입력'],
+      ['견적서 업로드', hasDoc(/견적/), '서류 탭에서 텍스트로 저장'],
+      ['계약서 업로드', hasDoc(/계약/), '서류 탭에서 텍스트로 저장'],
+      ['모집글 가이드라인 작성', D.gl.some((g) => g.kind === '모집글' || g.kind === '종합'), '가이드라인 탭'],
+      ['사업자등록증 업로드', cash ? hasDoc(/사업자/) : (hasDoc(/사업자/) || null), cash ? '현금 결제 시 필수' : '현금 결제 시 필수 (카드면 선택)'],
+      ['세금계산서 발행', !last?.tax_invoice ? null : last.tax_invoice !== '발행 필요', last?.tax_invoice === '발행 완료' ? `발행 ${day(last.tax_invoice_at)}` : last?.tax_invoice || ''],
+      ['인수인계 확인', !!last?.handover_at, last?.handover_at ? `${kst(last.handover_at)} 확인` : '관리 담당이 확인'],
+    ];
+  }
+  function checklistView(co, D) {
+    const list = checks(co, D).filter(([, v]) => v !== null);
+    const done = list.filter(([, v]) => v).length;
+    const last = D.ct[0];
+    const items = el('div', { className: 'ck-list' }, list.map(([label, ok, hint]) => el('div', { className: 'ck' + (ok ? ' ok' : '') }, [el('span', { className: 'ck-box', text: ok ? '✓' : '' }), el('b', { text: label }), el('small', { text: hint })])));
+    const taxBtn = last && last.tax_invoice === '발행 필요' && el('button', { className: 'btn', type: 'button', text: '세금계산서 발행 완료', onclick: async () => {
+      const { error } = await sb.from('contracts').update({ tax_invoice: '발행 완료', tax_invoice_at: new Date().toISOString().slice(0, 10) }).eq('id', last.id);
+      if (error) { toast('저장 실패: ' + error.message); return; }
+      await sb.from('company_events').insert({ company_id: co.id, actor: me, kind: 'system', body: '세금계산서 발행 완료' });
+      toast('세금계산서 발행 완료'); open(co.id, 'info');
+    } });
+    const hand = last && !last.handover_at && el('button', { className: 'btn', type: 'button', text: '인수인계 확인 완료', onclick: async () => {
+      const { error } = await sb.from('contracts').update({ handover_at: new Date().toISOString(), handover_by: me }).eq('id', last.id);
+      if (error) { toast('저장 실패: ' + error.message); return; }
+      await sb.from('company_events').insert({ company_id: co.id, actor: me, kind: 'system', body: '인수인계 확인' });
+      toast('인수인계 확인됨'); open(co.id, 'info');
+    } });
+    return sec(`결제 체크리스트 ${done}/${list.length}`, [el('div', { className: 'ck-bar' }, el('i', { style: `width:${list.length ? done / list.length * 100 : 0}%` })), items, (taxBtn || hand) && el('div', { className: 'ck-btns' }, [taxBtn, hand].filter(Boolean))].filter(Boolean));
+  }
+
+  // ── 결제 등록 / 재계약 등록 (결제양식) ──
+  const ITEM_GROUPS = [
+    ['체험단 패키지 기본', ['체험단', '영수증 리뷰', '기자단', '인스타 타겟', '플레이스 SA', 'SEO']],
+    ['플레이스', ['저장', '트래픽', '길찾기', 'CPA']],
+    ['네이버', ['SA (세팅)', 'SA (세팅&운영)', 'SEO (세팅&운영)', '배포 (AI)', '배포 (준최2)', '촬영 (배포용)', '촬영 (콘텐츠용)']],
+    ['인스타그램', ['부스팅 (피드)', '부스팅 (릴스)', '릴그램 배포', '계정 자동화 운영', '파싱', '활성 팔로워 1000']],
+    ['메타', ['메타 광고 세팅 및 운영', '메타 리타겟팅', '메타 DA 광고', '메타 캠페인 기획']],
+    ['기타', ['당근비즈니스 세팅', '카카오채널 세팅', '유튜브 채널 운영', '홈페이지 관리', '종합 컨설팅', '기타']],
+  ];
+  const PKG_DEFAULT = ['체험단', '영수증 리뷰', '기자단', '인스타 타겟', '플레이스 SA', 'SEO'];
+  function payModal(co, D) {
+    const renew = co.stage === '결제';
+    const today = new Date().toISOString().slice(0, 10);
+    const addMonths = (d, n) => { const x = new Date(d + 'T00:00:00'); x.setMonth(x.getMonth() + Number(n || 0)); return x.toISOString().slice(0, 10); };
+    const f = (tag, props, kids) => el(tag, { className: 'fi', ...props }, kids || []);
+    const F = {
+      owner: f('select', {}), manager: f('select', {}),
+      paid: f('input', { type: 'date', value: today }), months: f('input', { type: 'number', min: 1, value: 12 }), renew: f('input', { type: 'date' }),
+      phone: f('input', { value: co.phone || '', placeholder: '010-0000-0000' }), email: f('input', { value: co.email || '', placeholder: '없으면 비워두세요' }),
+      amount: f('input', { inputMode: 'numeric', placeholder: '1,584,000' }), price: f('select', {}, ['정상', '할인', '프로모션', '서비스'].map((v) => el('option', { value: v, text: v }))),
+      product: f('input', { placeholder: '예: 체험단 패키지 15개월 (블15)' }),
+      method: f('select', {}, ['카드', '카드 수기결제', '현금(계좌이체)'].map((v) => el('option', { value: v, text: v }))),
+      tax: f('select', {}, ['발행 필요', '발행 완료', '해당 없음'].map((v) => el('option', { value: v, text: v }))),
+      cardCo: f('input', { placeholder: '예: 신한' }), cardNo: f('input', { inputMode: 'numeric', placeholder: '0000-0000-0000-0000', autocomplete: 'off' }),
+      cardExp: f('input', { placeholder: 'MM/YY', autocomplete: 'off' }), cardInst: f('input', { placeholder: '일시불 / 3개월' }),
+      memo: f('textarea', { rows: 2, placeholder: '특이사항 (인수인계에 함께 표시)' }),
+    };
+    const ownerOpts = (sel, cur) => sel.replaceChildren(el('option', { value: '', text: '미배정' }), ...Object.entries(admins).map(([id, n]) => el('option', { value: id, text: n, selected: id === cur })));
+    ownerOpts(F.owner, co.sales_owner || me); ownerOpts(F.manager, co.manager_owner || '');
+    let roundsTouched = false;
+    const syncRenew = () => { if (F.paid.value && F.months.value) F.renew.value = addMonths(F.paid.value, F.months.value); if (!roundsTouched && items.has('체험단')) { items.set('체험단', F.months.value); drawItems(); } };
+    F.paid.oninput = syncRenew; F.months.oninput = syncRenew;
+    F.amount.oninput = () => { const d = F.amount.value.replace(/\D/g, ''); F.amount.value = d ? Number(d).toLocaleString() : ''; };
+    // 진행 항목: 기본 패키지 체크 + 수량
+    const items = new Map();
+    const itemsBox = el('div', { className: 'pi-list' });
+    const drawItems = () => itemsBox.replaceChildren(...[...items.entries()].map(([name, qty]) => el('div', { className: 'pi' }, [
+      el('b', { text: name }), (() => { const q = f('input', { type: 'number', min: 0, value: qty ?? '', placeholder: name === '체험단' ? '회차' : '수량' }); q.oninput = () => { items.set(name, q.value); if (name === '체험단') roundsTouched = true; }; return q; })(),
+      el('button', { className: 'icon-btn', type: 'button', text: '✕', title: '빼기', onclick: () => { items.delete(name); drawItems(); } })])));
+    PKG_DEFAULT.forEach((n) => items.set(n, n === '체험단' ? F.months.value : ''));
+    const addSel = f('select', { onchange: (e) => { const v = e.target.value; if (v === '__custom') { const n = prompt('항목 이름'); if (n) items.set(n.trim(), ''); } else if (v) items.set(v, ''); e.target.value = ''; drawItems(); } },
+      [el('option', { value: '', text: '+ 항목 추가' }), ...ITEM_GROUPS.map(([g, list]) => el('optgroup', { label: g }, list.map((n) => el('option', { value: n, text: n })))), el('option', { value: '__custom', text: '직접 입력…' })]);
+    drawItems(); syncRenew();
+    const cardBox = el('div', { className: 'dr-grid' }, [lab('카드사', F.cardCo), lab('카드번호 (대표만 전체 열람)', F.cardNo), lab('유효기간', F.cardExp), lab('할부', F.cardInst)]);
+    const cashHint = el('div', { className: 'hint', text: '현금 결제는 사업자등록증 업로드가 필수입니다 (체크리스트에 표시).' });
+    const syncMethod = () => { const cash = /현금/.test(F.method.value); cardBox.hidden = cash; cashHint.hidden = !cash; };
+    F.method.onchange = syncMethod; syncMethod();
+    const err = el('div', { className: 'err' });
+    const saveBtn = el('button', { className: 'btn primary lg', type: 'button', text: renew ? '재계약 등록' : '결제 등록', onclick: save });
+    const layer = el('div', { className: 'pm-layer', onclick: (e) => { if (e.target === layer) layer.remove(); } }, el('div', { className: 'pm' }, [
+      el('div', { className: 'pm-h' }, [el('h3', { text: `${renew ? '재계약' : '결제'} 등록 · ${co.name}` }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => layer.remove() })]),
+      el('div', { className: 'pm-b' }, [
+        sec('결제양식', el('div', { className: 'dr-grid' }, [lab('결제 담당 (가망 제공자)', F.owner), lab('관리 담당 (인수받을 사람)', F.manager),
+          lab('결제일자', F.paid), lab('기간 (개월)', F.months), lab('재계약 예정일 (자동)', F.renew), lab('가격 구분', F.price),
+          lab('결제금액 (원, VAT 포함)', F.amount), lab('상품', F.product), lab('대표 핸드폰번호', F.phone), lab('대표 이메일', F.email)])),
+        sec('진행 항목', [itemsBox, addSel]),
+        sec('결제 방식', [el('div', { className: 'dr-grid' }, [lab('결제 방식', F.method), lab('세금계산서', F.tax)]), cardBox, cashHint]),
+        sec('특이사항', F.memo),
+        el('div', { className: 'hint', text: `저장하면: 계약 이력 추가 · 진행 항목 생성 · ${renew ? '' : "업체가 '계약 업체(진행 중)'로 이동 · "}관리 담당에게 카카오워크 알림` }),
+        err,
+      ]),
+      el('div', { className: 'pm-f' }, [el('button', { className: 'btn lg', type: 'button', text: '취소', onclick: () => layer.remove() }), saveBtn]),
+    ]));
+    document.body.append(layer); F.amount.focus();
+    async function save() {
+      err.textContent = '';
+      const amount = Number(F.amount.value.replace(/\D/g, '')) || null;
+      if (!F.paid.value) { err.textContent = '결제일자를 입력하세요'; return; }
+      if (!amount) { err.textContent = '결제금액을 입력하세요'; return; }
+      const cash = /현금/.test(F.method.value);
+      const cardDigits = F.cardNo.value.replace(/\D/g, '');
+      if (!cash && cardDigits && cardDigits.length < 15) { err.textContent = '카드번호 자리 수를 확인하세요'; return; }
+      saveBtn.disabled = true; saveBtn.textContent = '저장 중…';
+      try {
+        const owner = F.owner.value || null, manager = F.manager.value || null;
+        const { data: ct, error: e1 } = await sb.from('contracts').insert({
+          company_id: co.id, kind: renew ? '재계약' : '신규계약', status: '진행 중', amount_won: amount, paid_at: F.paid.value, period_months: Number(F.months.value) || null,
+          period_text: F.months.value ? F.months.value + '개월' : null, renew_due: F.renew.value || null, product: F.product.value.trim() || null, pay_method: F.method.value,
+          tax_invoice: F.tax.value, tax_invoice_at: F.tax.value === '발행 완료' ? F.paid.value : null,
+          owner_name: owner ? admins[owner] : null, memo: [F.price.value !== '정상' ? F.price.value : '', F.memo.value.trim()].filter(Boolean).join(' / ') || null,
+        }).select().single();
+        if (e1) throw new Error('계약 저장 실패: ' + e1.message);
+        const rows = [...items.entries()].map(([item, q]) => ({ company_id: co.id, contract_id: ct.id, item, planned: q === '' ? null : Number(q), done: 0 }));
+        if (rows.length) { const { error } = await sb.from('deliverables').insert(rows); if (error) throw new Error('진행 항목 저장 실패: ' + error.message); }
+        if (!cash && cardDigits) { const { error } = await sb.from('payment_cards').insert({ company_id: co.id, contract_id: ct.id, card_company: F.cardCo.value.trim() || null, card_number: F.cardNo.value.trim(), expiry: F.cardExp.value.trim() || null, installments: F.cardInst.value.trim() || null }); if (error) throw new Error('카드 저장 실패: ' + error.message); }
+        const patch = { stage: '결제', run_status: '진행 중', phone: F.phone.value.trim() || co.phone || null, email: F.email.value.trim() || co.email || null };
+        if (owner) { patch.sales_owner = owner; patch.sales_owner_name = admins[owner]; }
+        if (manager) { patch.manager_owner = manager; patch.manager_owner_name = admins[manager]; }
+        const { error: e2 } = await sb.from('companies').update(patch).eq('id', co.id);
+        if (e2) throw new Error('업체 저장 실패: ' + e2.message);
+        await sb.from('company_events').insert({ company_id: co.id, actor: me, kind: 'system', body: `${renew ? '재계약' : '결제'} 등록: ${amount.toLocaleString()}원 · ${F.months.value || '-'}개월 · ${F.method.value}${manager ? ' · 관리 ' + admins[manager] : ''}` });
+        sb.functions.invoke('crm-notify', { body: { type: 'payment', contract_id: ct.id } }).then(({ error }) => { if (error) toast('카카오워크 알림 실패 — 담당자에게 직접 알려주세요'); });
+        layer.remove(); toast(`${renew ? '재계약' : '결제'} 등록됨`); reload(); open(co.id, 'info');
+      } catch (e) { err.textContent = e.message; saveBtn.disabled = false; saveBtn.textContent = renew ? '재계약 등록' : '결제 등록'; }
+    }
+  }
+  const lab = (label, input) => el('label', {}, [el('span', { className: 'lbl', text: label }), input]);
+
   function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 
   window.CRM_COMPANIES = { mount };
