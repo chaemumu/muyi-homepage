@@ -1,0 +1,52 @@
+name: MUYI health check
+
+# 30분마다(매시 7·37분, 정각 혼잡 회피) 홈페이지·문의함·문의 접수 경로 점검
+# - 실패 시 카카오워크 🐙 문의 알림 방(notify-alert) + GitHub 실패 메일
+# - 주기적 DB 조회로 Supabase Free 자동 일시정지 방지 (기존 keepalive.yml 대체)
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run checks
+        id: checks
+        run: |
+          SB_URL='https://pacyhanuwuizcxwoggen.supabase.co'
+          SB_KEY=$(grep -oP "var HP_KEY = '\K[^']+" assets/muyi-monitor.js)
+          FAILS=""
+          check() { # name, expected code regex, url, [curl args...]
+            local name="$1" expect="$2" url="$3"; shift 3
+            local code
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$@" "$url" || true)
+            [ -z "$code" ] && code=000
+            echo "$name → HTTP $code"
+            if ! [[ "$code" =~ ^($expect)$ ]]; then FAILS="${FAILS}• ${name} (HTTP ${code})\n"; fi
+          }
+          check "홈페이지"        "200"     "https://www.muyi.co.kr/" -L
+          check "문의함 페이지"   "200"     "https://www.muyi.co.kr/admin" -L
+          # contacts는 비공개 → anon 401(권한 거부)이 정상 응답. 000/5xx만 장애
+          check "문의함 DB"       "200|401" "$SB_URL/rest/v1/contacts?select=id&limit=1" -H "apikey: $SB_KEY" -H "Authorization: Bearer $SB_KEY"
+          check "문의함 로그인"   "200"     "$SB_URL/auth/v1/health" -H "apikey: $SB_KEY"
+          # 필수값 없는 요청 → 함수가 살아 있으면 400(검증 오류). 문의는 생성되지 않음
+          check "문의 접수 함수"  "400"     "$SB_URL/functions/v1/contact" -X POST -H "apikey: $SB_KEY" -H 'Content-Type: application/json' -d '{}'
+          { echo "fails<<EOF"; printf "%b" "$FAILS"; echo "EOF"; } >> "$GITHUB_OUTPUT"
+          [ -z "$FAILS" ]
+
+      - name: Notify KakaoWork
+        if: failure()
+        env:
+          FAILS: ${{ steps.checks.outputs.fails }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          code=$(jq -n --arg d "$(printf '%b' "$FAILS")" --arg u "$RUN_URL" \
+              '{system:"상태 점검",title:"서비스 응답 이상",detail:$d,page:$u}' \
+            | curl -s -o /dev/null -w '%{http_code}' --max-time 20 -X POST \
+              -H 'Content-Type: application/json' -d @- \
+              'https://pacyhanuwuizcxwoggen.supabase.co/functions/v1/notify-alert' || true)
+          echo "notify-alert → HTTP $code (실패해도 GitHub 실패 메일은 발송됨)"

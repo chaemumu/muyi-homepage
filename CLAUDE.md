@@ -174,3 +174,41 @@ UX:
 👉 “레드닷 수준 인터랙션 + 전환 퍼널” 기준
 
 수준 낮으면 재설계한다.
+
+---
+
+## 운영 · 연동 (실제 구성 — 2026-11-12 기준)
+
+> **영업 관리는 문의함(`/admin`) 하나로 한다.** 예전 MUYI CRM(`chaemumu/muyi-crm`, Supabase `npkpxlbcwmwlxqauevyv`)은
+> 사용 중단·보관(일시정지). 그쪽 코드·함수·DB에 새 기능을 만들지 말 것. 최종 백업: 구글 드라이브 `MUYI CRM 백업`(2026-11-12).
+
+### 프로젝트 구분
+| 프로젝트 | 저장소 / 위치 | 용도 |
+|---|---|---|
+| MUYI 홈페이지 + 문의함 (이 저장소) | `chaemumu/muyi-homepage` → Vercel `muyi-homepage`, www.muyi.co.kr | 랜딩·문의 폼, 문의함(`/admin`) = 영업 관리 |
+| MUYI Lab | 내부 대시보드 (이 저장소 아님) | 사내 UI 디자인 기준 |
+| ~~MUYI CRM~~ | `chaemumu/muyi-crm` | **사용 중단(보관)** |
+
+### 페이지
+- 문의 폼이 있는 페이지: `index.html`, `b2b-marketing.html`, `public-sector.html`, `consult.html`, `expo-event.html`, `local-business.html`
+- 위 페이지 수정 시 `<head>`의 `/assets/muyi-monitor.js?v=N` 태그 유지 (수정하면 `v` 값 올리기 — `/assets`는 1년 캐시, 현재 v=2)
+- `admin.html` = 문의함: 목록·상태·담당자·다음 연락일·상담 기록(채팅)·**사업자등록증**·광고 성과·CSV
+
+### Supabase (`pacyhanuwuizcxwoggen`) — 유일한 백엔드
+- 문의 접수: 폼 → Edge Function `contact` → `contacts` insert + Resend 메일(info@muyi.co.kr) + 메타 CAPI
+- `contacts` insert 트리거 → `notify-lead` → 카카오워크 🐙 문의 알림 방
+- 장애 알림: `notify-alert` (카카오워크 🐙 방). `contact` 함수의 DB 저장·메일 실패·서버 오류 시 고객 이름·연락처 포함 발송
+- 사업자등록증: `biz-ocr`(이미지 → Claude 추출, 저장 안 함, 관리자만, Secret `ANTHROPIC_API_KEY`)
+  → 화면에서 확인·수정 → `business_registrations`(텍스트, RLS = `is_admin()`) + 비공개 버킷 `biz-docs/{contact_id}/{uuid}.webp`(흑백 압축본 ≈50KB)
+- 백업: `backup-export`(헤더 `x-backup-key` = Secret `BACKUP_KEY`) ← 구글 Apps Script가 매일 03시 호출
+  (코드 `backup/google-apps-script.js`, 드라이브 `MUYI 문의함 백업/db`(30일) + `files`(첨부·사업자등록증, 누적))
+- 권한: `admins` 테이블에 있는 계정만 문의함 사용(`is_admin()`). anon은 `contact/` 경로 첨부 업로드만 가능(문의 insert는 `contact` 함수만)
+- 기타: `expo-gate`, `expo-copy`, `call-dispatch`(AI 1차 통화, 매분), `retell-webhook`, `capi-purchase`, `notify-assign`(담당 배정 1:1 알림), `daily-digest`(아침 요약 1:1), `meta-spend`
+- `push-crm`: 옛 CRM 연동, 410 비활성 — 대시보드에서 삭제 대상
+
+### 장애 감지 (제거·우회 금지)
+- `assets/muyi-monitor.js`: `contact` / 첨부 업로드 요청 실패 시 브라우저에서 즉시 `notify-alert` 호출
+- 폼 전송 코드를 바꿀 때도 `fetch`로 `/functions/v1/contact`를 호출해야 감시가 동작함
+- `.github/workflows/health.yml`: 30분(매시 7·37분) 점검 — 홈페이지·문의함·DB·로그인·문의 접수 함수
+  - 실패 시 `notify-alert` + GitHub 실패 메일(Supabase 자체 장애 대비 2차 경로)
+  - Supabase Free 자동 일시정지 방지 역할도 겸함 → 삭제·주기 완화 금지
