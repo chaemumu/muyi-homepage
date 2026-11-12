@@ -225,6 +225,11 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 .keys{display:flex;gap:10px;flex-wrap:wrap;color:var(--t3);font-size:11px}
 
 .ml-auto{margin-left:auto}
+.imp-body{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px 16px}
+.imp-body .fi{flex:1;min-width:240px;height:auto;padding:8px 10px}
+.imp-body .sub{flex-basis:100%;font-size:12px}
+.imp-out{display:grid;gap:12px}
+.imp-out .kpi-row{margin-bottom:0}
 /* 오늘 할 일: 첫 화면. 놓치면 안 되는 문의만 위에서부터 */
 .hello{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .hello h2{font-size:20px;font-weight:700;letter-spacing:-.02em}
@@ -309,6 +314,7 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
   <symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 21V9m0 0-4 4m4-4 4 4M4 3h16"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></symbol>
 </svg>
 
@@ -333,6 +339,7 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
       <button class="mi active" data-page="today"><svg class="i"><use href="#i-sun"/></svg>오늘 할 일<span class="mi-badge" id="todoBadge" hidden></span></button>
       <button class="mi" data-page="inbox"><svg class="i"><use href="#i-inbox"/></svg>문의함<span class="mi-badge" id="newBadge" hidden></span></button>
       <button class="mi" data-page="perf"><svg class="i"><use href="#i-chart"/></svg>광고 성과</button>
+      <button class="mi" data-page="import" id="navImport" hidden><svg class="i"><use href="#i-upload"/></svg>가져오기</button>
     </nav>
     <div class="sb-foot">
       <div class="me">
@@ -384,6 +391,11 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
           </table>
         </div></div>
       </div>
+    </div>
+
+    <div id="pg-import" hidden>
+      <header class="topbar"><h1>가져오기</h1><span class="count">대표 전용 · 엑셀·노션 데이터를 업체 DB로</span></header>
+      <div class="pg stack" id="importBody"></div>
     </div>
 
     <div id="pg-perf" hidden>
@@ -484,6 +496,7 @@ async function start() {
     return;
   }
   me = session.user.id;
+  sb.rpc('is_master').then(({ data }) => { $('navImport').hidden = !data; });
   $('meEmail').textContent = session.user.email;
   $('login').hidden = true; $('app').hidden = false;
   load();
@@ -965,8 +978,13 @@ let page = 'today';
 function showPage(p) {
   page = p;
   document.querySelectorAll('.mi[data-page]').forEach((x) => x.classList.toggle('active', x.dataset.page === p));
-  ['today', 'inbox', 'perf'].forEach((k) => { $('pg-' + k).hidden = k !== p; });
+  ['today', 'inbox', 'perf', 'import'].forEach((k) => { $('pg-' + k).hidden = k !== p; });
   if (p === 'today') renderToday();
+  if (p === 'import' && !$('importBody').childElementCount) {
+    $('importBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' }));
+    const go = () => window.CRM_IMPORT.mount($('importBody'));
+    if (window.CRM_IMPORT) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-import.js?v=1'; x.onload = go; x.onerror = () => toast('가져오기 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
+  }
 }
 document.querySelectorAll('.mi[data-page]').forEach((b) => b.onclick = () => showPage(b.dataset.page));
 $('todayAdd').onclick = () => { showPage('inbox'); $('addForm').hidden = false; $('addForm').elements.name.focus(); };
