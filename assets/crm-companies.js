@@ -8,6 +8,10 @@
     leads: { title: '가망 업체', tabs: [['가망', '가망'], ['결정업체', '결정업체'], ['뿌러짐', '뿌러짐']], field: 'stage', base: (q) => q.neq('stage', '결제') },
     clients: { title: '계약 업체', tabs: [['진행 중', '진행 중'], ['홀딩', '홀딩'], ['계약종료', '계약종료'], ['환불', '환불']], field: 'run_status', base: (q) => q.eq('stage', '결제') },
   };
+  const SORTS = {
+    clients: [['last_paid_at', '최근 결제순', false], ['next_renew_due', '재계약 임박순', true], ['total_paid_won', '총 결제액순', false], ['name', '이름순', true]],
+    leads: [['created_at', '최근 등록순', false], ['name', '이름순', true]],
+  };
   const SOURCES = [['', '모든 출처'], ['notion', '노션'], ['excel', '엑셀'], ['expo', '박람회'], ['homepage', '홈페이지'], ['manual', '직접 등록']];
   const won = (n) => n == null ? '—' : n >= 1e4 ? `${Math.round(n / 1e4).toLocaleString()}만` : n.toLocaleString() + '원';
   const day = (d) => d ? String(d).slice(0, 10) : '—';
@@ -55,6 +59,28 @@
 .bar{height:6px;background:var(--muted-2);border-radius:3px;overflow:hidden;min-width:60px}
 .bar i{display:block;height:100%;background:var(--green)}
 @media (max-width:720px){.dr-grid{grid-template-columns:1fr}}
+.dr-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+.dr-si{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:6px 10px;display:grid;gap:1px;min-width:0}
+.dr-si small{font-size:11px;color:var(--t3)}
+.dr-si b{font-size:13px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.dr-si.warn b{color:var(--red)}
+.dr-si.ok b{color:var(--green)}
+@media (max-width:720px){.dr-sum{grid-template-columns:1fr 1fr}}
+.gk{display:flex;flex-wrap:wrap;gap:6px}
+.gk button{height:30px;padding:0 10px;border:1px solid var(--line);border-radius:15px;background:var(--surface);font-weight:600;font-size:12px;color:var(--t2);display:inline-flex;gap:6px;align-items:center}
+.gk button .n{font-size:11px;color:var(--t3);font-weight:500}
+.gk button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.gk button.on .n{color:rgba(255,255,255,.8)}
+.gd-text,.gd-preview{font-family:inherit;line-height:1.6;min-height:220px;white-space:pre-wrap}
+.gd-preview{background:var(--surface-2)}
+.gd-btns{display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap}
+.gd-btns .sub{margin-right:auto}
+.gd-hist summary{cursor:pointer;font-size:12px;color:var(--t2);font-weight:600;padding:6px 0}
+.gd-v{border:1px solid var(--line);border-radius:var(--r);margin-top:8px;overflow:hidden}
+.gd-vh{display:flex;gap:8px;align-items:center;padding:6px 10px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.gd-vh .sub{margin-right:auto}
+.gd-vh .btn{height:26px;font-size:12px}
+.gd-pre{margin:0;padding:10px;white-space:pre-wrap;font-family:inherit;font-size:12px;color:var(--t2);max-height:200px;overflow:auto}
 .ck-bar{height:6px;background:var(--muted-2);border-radius:3px;overflow:hidden}
 .ck-bar i{display:block;height:100%;background:var(--green)}
 .ck-list{display:grid;gap:4px}
@@ -85,7 +111,12 @@
   function mount(box, mode) {
     document.querySelector('.drawer')?.remove(); document.querySelector('.pm-layer')?.remove();
     const M = MODES[mode];
-    state = { box, mode, tab: M.tabs[0][0], q: '', mine: false, review: false, source: '', rows: [], offset: 0, done: false, openId: null, counts: {} };
+    let savedSort = null; try { savedSort = localStorage.getItem('crm-sort-' + mode); } catch {}
+    const sorts = SORTS[mode];
+    state = { box, mode, tab: M.tabs[0][0], q: '', mine: false, review: false, source: '', rows: [], offset: 0, done: false, openId: null, counts: {},
+      sort: sorts.some(([k]) => k === savedSort) ? savedSort : sorts[0][0] };
+    const sortSel = el('select', { className: 'fi', title: '정렬', onchange: (e) => { state.sort = e.target.value; try { localStorage.setItem('crm-sort-' + mode, state.sort); } catch {} reload(); } },
+      sorts.map(([k, t]) => el('option', { value: k, text: t, selected: k === state.sort })));
     const search = el('input', { className: 'fi', type: 'search', placeholder: '업체명·브랜드·연락처·주소 검색', oninput: debounce((e) => { state.q = e.target.value; reload(); }, 300) });
     const src = el('select', { className: 'fi', onchange: (e) => { state.source = e.target.value; reload(); } }, SOURCES.map(([v, t]) => el('option', { value: v, text: t })));
     const chip = (label, key) => el('button', { className: 'chip', type: 'button', text: label, onclick: (e) => { state[key] = !state[key]; e.target.classList.toggle('on', state[key]); reload(); } });
@@ -98,7 +129,7 @@
       el('header', { className: 'topbar' }, [el('h1', { text: M.title }), state.descEl, el('label', { className: 'search' }, [el('span', { innerHTML: '<svg class="i"><use href="#i-search"/></svg>' }).firstChild, search])]),
       el('div', { className: 'pg' }, [
         state.tabsEl,
-        el('div', { className: 'co-filters' }, [chip('내 담당', 'mine'), chip('확인 필요', 'review'), src]),
+        el('div', { className: 'co-filters' }, [chip('내 담당', 'mine'), chip('확인 필요', 'review'), src, el('span', { className: 'ml-auto' }), sortSel]),
         el('div', { className: 'card' }, [el('div', { className: 'tbl-wrap' }, el('table', { className: 'tbl co-tbl' }, [
           el('thead', {}, el('tr', {}, (isClients ? ['업체', '지역', '연락처', '영업 담당', '상태', '최근 결제', '재계약 예정', '총 결제액'] : ['업체', '지역', '연락처', '영업 담당', '단계', '출처', '메모']).map((h) => el('th', { text: h })))),
           state.listEl]))]),
@@ -137,20 +168,13 @@
   async function more() {
     const M = MODES[state.mode];
     state.moreEl.replaceChildren();
-    const { data, error } = await query('id,name,brand,address,phone,store_phone,sales_owner_name,stage,run_status,lead_source,notes,needs_review,tags')
-      .eq(M.field, state.tab).order('name').range(state.offset, state.offset + PAGE - 1);
+    const [, , asc] = SORTS[state.mode].find(([k]) => k === state.sort);
+    let q = query('id,name,brand,address,phone,store_phone,sales_owner_name,stage,run_status,lead_source,notes,needs_review,tags,last_paid_at,next_renew_due,total_paid_won')
+      .eq(M.field, state.tab).order(state.sort, { ascending: asc, nullsFirst: false });
+    if (state.sort !== 'name') q = q.order('name');
+    const { data, error } = await q.range(state.offset, state.offset + PAGE - 1);
     if (error) { state.listEl.replaceChildren(el('tr', {}, el('td', { colSpan: 8, className: 'empty', text: '불러오기 실패: ' + error.message }))); return; }
-    let ct = {};
-    if (state.mode === 'clients' && data.length) {
-      const r = await sb.from('contracts').select('company_id,paid_at,renew_due,amount_won').in('company_id', data.map((x) => x.id));
-      (r.data || []).forEach((c) => {
-        const o = ct[c.company_id] || (ct[c.company_id] = { paid: null, renew: null, sum: 0 });
-        if (c.paid_at && (!o.paid || c.paid_at > o.paid)) o.paid = c.paid_at;
-        if (c.renew_due && (!o.renew || c.renew_due > o.renew)) o.renew = c.renew_due;
-        o.sum += c.amount_won || 0;
-      });
-    }
-    data.forEach((r) => { r._ct = ct[r.id]; });
+    data.forEach((r) => { r._ct = r.last_paid_at || r.next_renew_due || r.total_paid_won ? { paid: r.last_paid_at, renew: r.next_renew_due, sum: r.total_paid_won } : null; });
     state.rows.push(...data); state.offset += data.length; state.done = data.length < PAGE;
     const total = state.counts[state.tab] || 0;
     state.descEl.textContent = `${total.toLocaleString()}곳` + (state.rows.length < total ? ` · ${state.rows.length.toLocaleString()}곳 표시` : '');
@@ -193,7 +217,7 @@
       sb.from('work_logs').select('*').eq('company_id', id).order('scheduled_on', { ascending: false }),
       sb.from('rounds').select('*').eq('company_id', id).order('created_at'),
       sb.from('holds').select('*').eq('company_id', id).order('started_at', { ascending: false }),
-      sb.from('guidelines').select('kind,created_at').eq('company_id', id).order('created_at', { ascending: false }),
+      sb.from('guidelines').select('*').eq('company_id', id).order('created_at', { ascending: false }),
       sb.from('company_events').select('*').eq('company_id', id).order('created_at'),
       sb.from('documents').select('id,kind,title,created_at').eq('company_id', id),
       sb.rpc('masked_cards', { p_company: id }),
@@ -217,6 +241,7 @@
           D.ct.length ? el('span', { text: `계약 ${D.ct.length}건 · 총 ${won(sum)}` }) : null,
           ...(co.tags || []).filter((t) => !['노션', '엑셀'].includes(t)).map((t) => el('span', { className: 'tag', text: t })),
         ].filter(Boolean)),
+        summaryView(co, D),
         tabsEl,
       ]),
       body,
@@ -225,10 +250,29 @@
       info: () => [co.stage === '결제' ? checklistView(co, D) : null, infoForm(co), eventsView(co, D.ev)],
       contract: () => [contractsView(D.ct), deliverablesView(D.dl), worksView(D.wk), holdsView(D.hd)],
       camp: () => [roundsView(co, D.rd)],
-      docs: () => [guidesView(D.gl), el('div', { className: 'dr-sec' }, [el('div', { className: 'sec-t', text: '서류 · 카드' }), el('div', { className: 'dr-empty', text: '사업자등록증·계약서 텍스트화, 카드 정보(대표만)는 ③ 단계에서 추가됩니다.' })])],
+      docs: () => [guidesView(co, D), el('div', { className: 'dr-sec' }, [el('div', { className: 'sec-t', text: '서류 · 카드' }), el('div', { className: 'dr-empty', text: '사업자등록증·계약서 텍스트화, 카드 정보(대표만)는 다음 단계에서 추가됩니다.' })])],
     };
     show(tab);
   }
+
+  // 상세 상단 한 줄 요약: 최근 결제 · 재계약 D-day · 남은 실행량 · 체크리스트
+  function summaryView(co, D) {
+    if (co.stage !== '결제') return el('div', { className: 'dr-sum' }, [
+      sumItem('단계', co.stage), sumItem('영업 담당', co.sales_owner_name || '미배정'), sumItem('연락처', co.phone || co.store_phone || '—'), sumItem('최근 기록', D.ev.length ? kst(D.ev[D.ev.length - 1].created_at) : '없음')]);
+    const last = D.ct[0];
+    const renew = D.ct.map((c) => c.renew_due).filter(Boolean).sort().pop();
+    const dd = renew ? Math.round((new Date(renew) - new Date(new Date().toISOString().slice(0, 10))) / 864e5) : null;
+    const cur = D.dl.filter((d) => !last || d.contract_id === last.id || !d.contract_id);
+    const left = cur.reduce((s, d) => s + Math.max(0, (Number(d.planned) || 0) - (Number(d.done) || 0)), 0);
+    const ck = checks(co, D).filter(([, v]) => v !== null);
+    return el('div', { className: 'dr-sum' }, [
+      sumItem('최근 결제', last?.paid_at ? `${String(last.paid_at).slice(2, 10).replace(/-/g, '.')} · ${won(last.amount_won)}` : '—'),
+      sumItem('재계약', renew ? (dd < 0 ? `${-dd}일 지남` : `D-${dd}`) : '—', dd != null && dd <= 30 ? 'warn' : ''),
+      sumItem('남은 실행량', cur.length ? `${left.toLocaleString()}건 · ${cur.length}개 항목` : '—'),
+      sumItem('체크리스트', `${ck.filter(([, v]) => v).length}/${ck.length}`, ck.every(([, v]) => v) ? 'ok' : ''),
+    ]);
+  }
+  const sumItem = (k, v, cls = '') => el('div', { className: 'dr-si ' + cls }, [el('small', { text: k }), el('b', { text: v })]);
 
   const sec = (title, kids) => el('div', { className: 'dr-sec' }, [el('div', { className: 'sec-t', text: title }), ...[].concat(kids)]);
   const table = (head, rows, numCols = []) => rows.length ? el('table', { className: 'dr-tbl' }, [
@@ -324,13 +368,88 @@
       el('div', { className: 'dr-soon', text: '회차별 명단·포스팅 확인은 ③ 단계에서 추가됩니다.' }),
     ].filter(Boolean));
   }
-  function guidesView(gls) {
-    const KINDS = ['종합', '체험단', '모집글', '영수증', '배포', '플레이스', '인스타 타겟'];
-    return sec('가이드라인', [
-      table(['종류', '최신 버전', '버전 수'], KINDS.map((k) => { const v = gls.filter((g) => g.kind === k); return [k, v[0] ? kst(v[0].created_at) : '없음', v.length]; }), [2]),
-      el('div', { className: 'dr-soon', text: '가이드라인 작성·버전 비교·[복사]는 ③ 단계에서 추가됩니다.' }),
-    ]);
+  // ── 가이드라인 7종 (행 = 버전, 종류별 최신이 현재본) ──
+  // 종합·모집글은 칸 입력 → 체험단 참고사항과 합쳐 보낼 문구 자동 조립. 나머지는 양식 텍스트를 채워 저장
+  const GUIDE_KINDS = ['종합', '모집글', '체험단', '영수증', '배포', '플레이스', '인스타 타겟'];
+  const GUIDE_HINT = { 종합: '선정된 블로거에게 보내는 안내', 모집글: '체험단 모집 공고', 체험단: '본문에 어필할 참고사항 (종합·모집글에 자동 포함)', 영수증: '영수증 리뷰', 배포: '블로그 배포(기자단)', 플레이스: '플레이스·SA 세팅 자료', '인스타 타겟': '인스타그램 타겟 광고' };
+  const GUIDE_TEMPLATE = {
+    체험단: '※참고사항\n(아래 내용들을 참고해, 본문 내에 지속적으로 어필해 주세요 !)\n\n1. \n2. \n3. \n4. \n5. \n\n- 체험 시 제공 가능한 메뉴\n1. \n2. \n\n- 블로그 글 작성 시 주의할 점\n1. \n\n- 블로그 글 작성 시 반드시 포함해야 할 부분\n1. \n\n- 블로그 하단 태그\n#\n\n- 영업시간\nOPEN :\nBreak time :\nCLOSE :',
+    영수증: '★영수증리뷰 가이드★\n\n1. 업체에 대한 장점/어필 내용\n- \n\n2. 경쟁업체 와의 차이점\n- \n\n3. 리뷰 작성에 대한 유의사항\n- \n\n4. 기타 요청사항\n- ',
+    배포: '※ 블로그 배포 가이드라인\n<기본 설명>\n - 실제로 체험하지 않고, 사진+가이드라인을 전달하여 포스팅을 올리는 방식입니다.\n - 기자단 캠페인은 최소 배포 단위가 10건입니다.\n\n<포스팅 사진 관련>\n - 1개의 포스팅 당 10장의 사진이 필요합니다.\n\n<포스팅 내용 관련>\n★ 체험단 가이드라인과 내용이 같으면 "체험단과 동일"로 적어주세요.\n\n - 업체의 특징 (10개 이상)\n 1. \n\n - 강조 / 필수 기재 사항\n 1. \n\n - 금지 단어 및 주의 사항\n 1. \n\n - 포스팅 하단 태그\n #',
+    플레이스: '※ 네이버 플레이스 및 SA 광고 세팅 가이드라인\n\n 1. 네이버 아이디 : \n 2. 비밀번호 : \n\n 3. 네이버 광고 아이디 : \n 4. 네이버 광고 비밀번호 : \n 5. 기초 정보 외 수정, 등록할 사항 (텍스트, 이미지) : \n 6. 사업자 등록증 사본 : ',
+    '인스타 타겟': '※ 인스타그램 타겟팅 광고 가이드라인\n\n<썸네일 이미지 관련>\n 1. 썸네일로 사용될 사진 (가장 매력적인 사진 3~5장)\n 2. 원하는 컬러톤 : \n 3. 썸네일 문구 (1문장 + 업체명) : \n\n<광고 피드의 텍스트 관련>\n - ',
+  };
+  const FORM_FIELDS = {
+    종합: [['store', '업체명'], ['address', '업체 주소'], ['booking', '예약 번호'], ['price', '체험 금액'], ['kw1', '필수 키워드'], ['kw2', '선택 키워드'], ['note', '특이사항 (줄마다 하나)', true]],
+    모집글: [['area', '지역 명칭'], ['sub', '부제목'], ['store', '업체명'], ['address', '업체 주소'], ['price', '체험 금액'], ['kw1', '필수 키워드'], ['kw2', '선택 키워드'], ['note', '특이사항 (줄마다 하나)', true]],
+  };
+  function assemble(kind, v, campBody) {
+    const notes = String(v.note || '').split('\n').map((x) => x.trim()).filter(Boolean).map((x) => (x.startsWith('-') ? x : '- ' + x)).join('\n');
+    const camp = String(campBody || '').trim();
+    if (kind === '종합') return [
+      '안녕하세요 선정되신 것 축하드립니다!', '리뷰노트 선정 업체 참고사항 발송해 드립니다!', '', '＊참고사항', '',
+      `업체명\t\t: ${v.store || ''}`, `업체 주소\t\t: ${v.address || ''}`, `예약 번호\t\t: ${v.booking || ''}`, `체험 금액\t\t: ${v.price || ''}`, '',
+      `필수 키워드 : ${v.kw1 || ''}`, `선택 키워드 : ${v.kw2 || ''}`, '', '*특이사항 : ', notes, '', camp].join('\n').trim();
+    return [`[지역 명칭]${v.area || ''}`, '', `부제목\t\t: ${v.sub || ''}`, `업체명\t\t: ${v.store || ''}`, `업체 주소\t\t: ${v.address || ''}`, `체험 금액\t\t: ${v.price || ''}`, '',
+      `필수 키워드 : ${v.kw1 || ''}`, `선택 키워드 : ${v.kw2 || ''}`, '', '*특이사항 : ', notes, '', camp].join('\n').trim();
   }
+  let guideKind = '종합';
+  function guidesView(co, D) {
+    const box = el('div', { className: 'dr-sec' });
+    const draw = () => {
+      const versions = D.gl.filter((g) => g.kind === guideKind);
+      const cur = versions[0];
+      const camp = D.gl.find((g) => g.kind === '체험단');
+      const kinds = el('div', { className: 'gk' }, GUIDE_KINDS.map((k) => {
+        const n = D.gl.filter((g) => g.kind === k).length;
+        return el('button', { type: 'button', className: k === guideKind ? 'on' : '', onclick: () => { guideKind = k; draw(); } }, [k, el('span', { className: 'n', text: n ? 'v' + n : '—' })]);
+      }));
+      const status = el('div', { className: 'sub' }, cur ? `현재 v${versions.length} · ${kst(cur.created_at)} · ${admins[cur.created_by] || '관리자'}` : `아직 없음 · ${GUIDE_HINT[guideKind]}`);
+      const save = async (body, fields) => {
+        if (!String(body || '').trim()) { toast('내용을 입력하세요'); return; }
+        if (cur && cur.body === body) { toast('바뀐 내용이 없습니다'); return; }
+        const { data, error } = await sb.from('guidelines').insert({ company_id: co.id, kind: guideKind, body, fields: fields || null, created_by: me }).select().single();
+        if (error) { toast('저장 실패: ' + error.message); return; }
+        D.gl.unshift(data);
+        await sb.from('company_events').insert({ company_id: co.id, actor: me, kind: 'system', body: `가이드라인(${guideKind}) v${versions.length + 1} 저장` });
+        toast(`${guideKind} v${versions.length + 1} 저장됨`); draw();
+      };
+      const copy = async (text) => { try { await navigator.clipboard.writeText(text); toast('복사됨 — 카톡·메일에 붙여넣으세요'); } catch { toast('복사 실패: 글을 직접 선택해 복사하세요'); } };
+      let editor;
+      if (FORM_FIELDS[guideKind]) {
+        const v = { store: co.name, address: co.address || '', booking: co.store_phone || co.phone || '', ...(cur?.fields || {}) };
+        const inputs = {};
+        const preview = el('textarea', { className: 'fi gd-preview', readOnly: true, rows: 14 });
+        const refresh = () => { Object.entries(inputs).forEach(([k, i]) => { v[k] = i.value; }); preview.value = assemble(guideKind, v, camp?.body); };
+        const grid = el('div', { className: 'dr-grid' }, FORM_FIELDS[guideKind].map(([k, label, area]) => {
+          inputs[k] = el(area ? 'textarea' : 'input', { className: 'fi', value: v[k] || '', oninput: refresh, ...(area ? { rows: 3 } : {}) });
+          return el('label', { className: area ? 'wide' : '' }, [el('span', { className: 'lbl', text: label }), inputs[k]]);
+        }));
+        refresh();
+        editor = [grid,
+          el('div', { className: 'lbl', text: camp ? `보낼 문구 (체험단 참고사항 v${D.gl.filter((g) => g.kind === '체험단').length} 포함)` : '보낼 문구 (체험단 참고사항을 먼저 작성하면 아래에 자동으로 붙습니다)' }),
+          preview,
+          el('div', { className: 'gd-btns' }, [el('button', { className: 'btn', type: 'button', text: '📋 복사', onclick: () => copy(preview.value) }),
+            el('button', { className: 'btn primary', type: 'button', text: '새 버전으로 저장', onclick: () => { refresh(); save(preview.value, { ...v }); } })])];
+      } else {
+        const ta = el('textarea', { className: 'fi gd-text', rows: 16, value: cur?.body ?? GUIDE_TEMPLATE[guideKind] ?? '' });
+        editor = [ta, el('div', { className: 'gd-btns' }, [
+          !cur && el('span', { className: 'sub', text: '기본 양식이 채워져 있습니다. 빈칸을 채워 저장하세요.' }),
+          el('button', { className: 'btn', type: 'button', text: '📋 복사', onclick: () => copy(ta.value) }),
+          el('button', { className: 'btn primary', type: 'button', text: '새 버전으로 저장', onclick: () => save(ta.value) })].filter(Boolean))];
+      }
+      const history = versions.length > 1 && el('details', { className: 'gd-hist' }, [el('summary', { text: `이전 버전 ${versions.length - 1}개 (날짜별 보관)` }),
+        ...versions.slice(1).map((g, i) => el('div', { className: 'gd-v' }, [
+          el('div', { className: 'gd-vh' }, [el('b', { text: `v${versions.length - 1 - i}` }), el('span', { className: 'sub', text: `${kst(g.created_at)} · ${admins[g.created_by] || '관리자'}` }),
+            el('button', { className: 'btn', type: 'button', text: '복사', onclick: () => copy(g.body) }),
+            el('button', { className: 'btn', type: 'button', text: '이 버전으로 되돌리기', onclick: () => save(g.body, g.fields) })]),
+          el('pre', { className: 'gd-pre', text: g.body })]))]);
+      box.replaceChildren(el('div', { className: 'sec-t', text: '가이드라인' }), kinds, status, ...editor, history || el('span'));
+    };
+    draw();
+    return box;
+  }
+
   // ── 결제 체크리스트 (데이터로 자동 판정) ──
   function checks(co, D) {
     const last = D.ct[0];
