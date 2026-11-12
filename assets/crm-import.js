@@ -54,14 +54,30 @@
     return rows.filter((r) => r.some((x) => x !== '')).map((r) => Object.fromEntries(head.map((h, i) => [h.trim(), r[i] ?? ''])));
   }
 
+  // 엑셀 시트 종류: 이름이 달라도 첫 줄 내용으로 알아본다
+  function sheetKind(name, rows) {
+    const n = clean(name).replace(/\s/g, '');
+    const top = rows.slice(0, 4).map((r) => (r || []).map((v) => clean(v)).join('|')).join('\n');
+    if (/총관리/.test(n) || (/업체명/.test(top) && /결제일자/.test(top) && /계약금액/.test(top))) return '총관리';
+    if (/홀딩/.test(n) || /^홀딩\|진행회차/m.test(top)) return '홀딩업체';
+    if (/특이/.test(n) || /업체명\|내용/.test(top)) return '특이업체';
+    if (/달력/.test(n) || /모집달력/.test(top)) return '달력';
+    return null;
+  }
   // ── 파일 읽기: 엑셀 시트 / 노션 zip 안의 _all.csv ──
   async function readFiles(files) {
-    const out = { excel: null, csv: {} };
+    const out = { excel: null, csv: {}, sheets: [] };
     for (const file of files) {
       if (/\.xlsx?$/i.test(file.name)) {
         await loadLib(LIBS.xlsx);
         const wb = XLSX.read(await file.arrayBuffer(), { type: 'array', cellDates: true });
-        out.excel = Object.fromEntries(wb.SheetNames.map((n) => [n, XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: true, defval: null })]));
+        out.excel = out.excel || {};
+        for (const n of wb.SheetNames) {
+          const rows = XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: true, defval: null });
+          const kind = sheetKind(n, rows);
+          out.sheets.push({ file: file.name, sheet: n, kind, head: (rows.find((r) => r && r.some((v) => v != null)) || []).filter((v) => v != null).slice(0, 8).join(' | '), rows: rows.length });
+          if (kind && !out.excel[kind]) out.excel[kind] = rows; // 같은 종류 시트가 여러 개면 처음 것
+        }
       } else if (/\.zip$/i.test(file.name)) {
         await loadLib(LIBS.jszip);
         await readZip(await JSZip.loadAsync(await file.arrayBuffer()), out);
@@ -328,7 +344,7 @@
       const tbl = (head, rows) => el('div', { className: 'card tbl-wrap' }, el('table', { className: 'tbl perf' }, [
         el('thead', {}, el('tr', {}, head.map((h) => el('th', { text: h })))), el('tbody', {}, rows.map((row) => el('tr', {}, row.map((v) => el('td', { text: v == null ? '—' : String(v) })))))]));
       const sample = cs.filter((c) => c.stage === '결제').slice(0, 8);
-      const files = ['총관리', '홀딩업체', '특이업체', '달력'].filter((n) => src.excel?.[n]).map((n) => '엑셀 ' + n).concat(Object.entries(src.csv).map(([k, v]) => `${LABEL[k] || ('노션 ' + k.split(':')[1] + ' DB')} ${v.rows.length.toLocaleString()}행`));
+      const files = src.sheets.filter((x) => x.kind).map((x) => `엑셀 ${x.kind}(${x.file} › ${x.sheet})`).concat(Object.entries(src.csv).map(([k, v]) => `${LABEL[k] || ('노션 ' + k.split(':')[1] + ' DB')} ${v.rows.length.toLocaleString()}행`));
       const go = el('button', { className: 'btn primary lg', type: 'button', text: `저장하기 (업체 ${(cs.length - r.skip).toLocaleString()}곳)`, onclick: async () => {
         go.disabled = true; const bar = el('div', { className: 'hint', text: '저장 중…' }); go.after(bar);
         try { await save(r, (d, t) => { bar.textContent = `저장 중… ${d.toLocaleString()} / ${t.toLocaleString()}`; }); bar.textContent = '✅ 저장 완료. 같은 파일로 다시 실행해도 중복 저장되지 않습니다.'; toast('가져오기 완료'); }
@@ -336,6 +352,8 @@
       } });
       out.replaceChildren(...[
         el('div', { className: 'hint', text: '읽은 파일: ' + files.join(' · ') }),
+        src.sheets.filter((x) => !x.kind).length ? el('div', { className: 'err', text: '인식 못한 엑셀 시트 (화면을 캡처해서 보내주세요): ' + src.sheets.filter((x) => !x.kind).map((x) => `${x.file} › ${x.sheet} [첫 줄: ${x.head || '비어 있음'}]`).join(' / ') }) : null,
+        !src.excel ? el('div', { className: 'err', text: '엑셀 파일이 없습니다. 계약 업체는 엑셀 총관리에서 가져옵니다.' }) : null,
         el('div', { className: 'kpi-row' }, [
           kpi('업체 (합친 뒤)', cs.length, `여러 출처에서 합쳐진 업체 ${merged.toLocaleString()}곳`),
           kpi('결제 업체', cnt((c) => c.stage === '결제'), `진행 중 ${cnt((c) => c.stage === '결제' && c.run_status === '진행 중')} · 홀딩 ${cnt((c) => c.run_status === '홀딩')} · 종료 ${cnt((c) => c.run_status === '계약종료')} · 환불 ${cnt((c) => c.run_status === '환불')}`),
