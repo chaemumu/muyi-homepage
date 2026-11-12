@@ -69,7 +69,9 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 #app{display:flex;min-height:var(--vh)}
 .sidebar{width:208px;flex-shrink:0;background:var(--sidebar);border-right:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:var(--vh)}
 .sb-logo{display:flex;align-items:center;gap:8px;padding:18px 18px 14px}
-.sb-logo img{height:24px;width:auto}
+.sb-logo{text-decoration:none;border-radius:var(--r);margin:6px 8px 0;padding:12px 10px 10px!important}
+.sb-logo:hover{background:var(--hover)}
+.sb-logo img{height:20px;width:auto;display:block}
 .sb-logo span{font-size:11px;font-weight:700;color:var(--t3);border:1px solid var(--line);border-radius:5px;padding:1px 6px;background:var(--surface)}
 .sb-nav{padding:6px 10px;display:grid;gap:2px}
 .nav-sec{font-size:11px;font-weight:600;color:var(--t4);padding:12px 10px 6px}
@@ -279,8 +281,8 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
 /* 15% 확대 상태라 노트북 화면에선 덜 중요한 열(업종, 최근 기록)을 숨긴다. 둘 다 펼친 칸에 나온다 */
-@media (max-width:1500px){.tbl:not(.perf) tr>:nth-child(4){display:none}}
-@media (max-width:1320px){.tbl:not(.perf) tr>:nth-child(9){display:none}}
+@media (max-width:1500px){.tbl:not(.perf):not(.co-tbl) tr>:nth-child(4){display:none}}
+@media (max-width:1320px){.tbl:not(.perf):not(.co-tbl) tr>:nth-child(9){display:none}}
 
 @media (max-width:900px){
   #app{flex-direction:column}
@@ -301,6 +303,48 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
   .kpi-row{grid-template-columns:1fr 1fr}
   .alert{margin-left:0}
 }
+
+/* ── SaaS 폴리시 레이어 (2026-11): 메인 블루 80% · 포인트 오렌지 20%, 틴트 배지, 스켈레톤, ⌘K ── */
+:root{--accent-50:#EEEDFD;--accent-100:#DCD9FB;--accent-h:#1609A8;--ring:0 0 0 3px var(--accent-50)}
+:root[data-theme="dark"]{--accent-50:rgba(79,68,240,.16);--accent-100:rgba(79,68,240,.32);--accent-h:#6A60FF}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 1px 2px rgba(30,16,199,.25),inset 0 1px 0 rgba(255,255,255,.12)}
+.btn.primary:hover{background:var(--accent-h);border-color:var(--accent-h)}
+.btn.brand{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.brand:hover{background:var(--brand-h);border-color:var(--brand-h)}
+.btn:active{transform:translateY(.5px)}
+.btn:focus-visible,.chip:focus-visible,.mi:focus-visible,.tab:focus-visible{outline:none;box-shadow:var(--ring)}
+.fi:focus{border-color:var(--accent);box-shadow:var(--ring)}
+.chip.on{border-color:var(--accent);background:var(--accent-50);color:var(--accent)}
+.mi.active{box-shadow:0 0 0 1px var(--line),0 1px 3px rgba(16,16,24,.06)}
+.mi.active svg{color:var(--accent)}
+.pill{border-color:color-mix(in srgb,var(--c,var(--t4)) 28%,var(--line));background:color-mix(in srgb,var(--c,var(--t4)) 9%,var(--surface));color:color-mix(in srgb,var(--c,var(--t2)) 70%,var(--t1))}
+.tbl th{font-size:11px;letter-spacing:.02em;text-transform:none;background:var(--surface-2)}
+.tbl td{height:44px}
+.tbl tbody tr:hover td{background:color-mix(in srgb,var(--accent) 3%,var(--surface))}
+.card{border-color:var(--line);box-shadow:0 1px 2px rgba(16,16,24,.04),0 0 0 1px rgba(16,16,24,.01)}
+.kpi{transition:border-color .15s,box-shadow .15s}
+.kpi:hover{border-color:var(--line-strong);box-shadow:var(--sh-pop)}
+.kpi-val{color:var(--t1)}
+.topbar h1{font-size:16px}
+.sb-search{display:flex;align-items:center;gap:8px;margin:0 10px 6px;height:32px;padding:0 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--t3);font-size:12px;text-align:left;width:calc(100% - 20px)}
+.sb-search:hover{border-color:var(--line-strong);color:var(--t2)}
+.sb-search kbd{margin-left:auto}
+.skel{display:block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--muted) 0%,var(--muted-2) 50%,var(--muted) 100%);background-size:200% 100%;animation:skel 1.2s ease-in-out infinite}
+@keyframes skel{from{background-position:200% 0}to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.skel{animation:none}.drawer{animation:none}}
+/* ⌘K 빠른 검색 */
+.cmdk-layer{position:fixed;inset:0;background:rgba(10,10,20,.32);backdrop-filter:blur(2px);z-index:2500;display:flex;justify-content:center;align-items:flex-start;padding:12vh 16px 16px}
+.cmdk{width:min(620px,100%);background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 64px rgba(10,10,30,.28);overflow:hidden;animation:rise .14s ease-out}
+.cmdk-in{display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid var(--line)}
+.cmdk-in input{flex:1;height:52px;border:0;outline:none;background:none;font-size:15px}
+.cmdk-list{max-height:min(420px,calc(var(--vh) - 30vh));overflow-y:auto;padding:6px}
+.cmdk-g{font-size:11px;font-weight:600;color:var(--t4);padding:8px 10px 4px}
+.cmdk-i{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:0;border-radius:8px;background:none;text-align:left;color:var(--t1)}
+.cmdk-i small{color:var(--t3);font-size:12px;margin-left:auto;white-space:nowrap}
+.cmdk-i.on{background:var(--accent-50)}
+.cmdk-i.on svg{color:var(--accent)}
+.cmdk-empty{padding:28px;text-align:center;color:var(--t3)}
+.cmdk-foot{display:flex;gap:12px;padding:8px 14px;border-top:1px solid var(--line);color:var(--t3);font-size:11px;background:var(--surface-2)}
 </style>
 </head>
 <body>
@@ -335,7 +379,8 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 
 <div id="app" hidden>
   <aside class="sidebar">
-    <div class="sb-logo"><img class="logo-l" src="/assets/logo/muyi-logo.svg" alt="MUYI"><img class="logo-d" src="/assets/logo/muyi-logo-white.svg" alt="MUYI"><span>CRM</span></div>
+    <a class="sb-logo" href="#today" id="homeLink" title="홈 (오늘 할 일)"><img class="logo-l" src="/assets/logo/muyi-mark.svg" alt="MUYI"><img class="logo-d" src="/assets/logo/muyi-mark-white.svg" alt="MUYI"><span>CRM</span></a>
+    <button class="sb-search" id="cmdkBtn" type="button"><svg class="i"><use href="#i-search"/></svg>검색 · 이동<kbd>Ctrl K</kbd></button>
     <nav class="sb-nav">
       <div class="nav-sec">업무</div>
       <button class="mi active" data-page="today"><svg class="i"><use href="#i-sun"/></svg>오늘 할 일<span class="mi-badge" id="todoBadge" hidden></span></button>
@@ -508,7 +553,9 @@ async function start() {
   sb.rpc('is_master').then(({ data }) => { $('navImport').hidden = !data; });
   $('meEmail').textContent = session.user.email;
   $('login').hidden = true; $('app').hidden = false;
+  const hadLead = !!deepLead;
   load();
+  if (!hadLead) routeFromHash();
 }
 
 async function load() {
@@ -960,7 +1007,58 @@ $('q').oninput = (e) => { filter.q = e.target.value; render(); };
 $('source').onchange = (e) => { filter.source = e.target.value; render(); };
 ['today', 'mine', 'unassigned'].forEach((k) => { $(k).onclick = () => { filter[k] = !filter[k]; render(); }; });
 // 단축키: / 검색, Esc 닫기, j/k 다음·이전 문의 열기 (입력 중엔 무시)
+// ── ⌘K / Ctrl+K 빠른 검색: 메뉴 · 문의 · 업체(가망·계약) ──
+const CMDK_PAGES = [['today', '오늘 할 일'], ['inbox', '문의함'], ['leads', '가망 업체'], ['clients', '계약 업체'], ['perf', '광고 성과']];
+function openCmdk() {
+  if (document.querySelector('.cmdk-layer')) return;
+  let items = [], sel = 0, seq = 0;
+  const input = el('input', { placeholder: '업체명 · 문의자 · 연락처 · 메뉴 검색', autocomplete: 'off' });
+  const list = el('div', { className: 'cmdk-list' });
+  const layer = el('div', { className: 'cmdk-layer', onclick: (e) => { if (e.target === layer) close(); } }, el('div', { className: 'cmdk' }, [
+    el('div', { className: 'cmdk-in' }, [el('span', { innerHTML: '<svg class="i"><use href="#i-search"/></svg>' }), input, el('kbd', { text: 'Esc' })]), list,
+    el('div', { className: 'cmdk-foot' }, [el('span', { text: '↑↓ 이동' }), el('span', { text: 'Enter 열기' }), el('span', { text: 'Esc 닫기' })])]));
+  const close = () => layer.remove();
+  const go = (it) => { close(); it.run(); };
+  const draw = () => {
+    if (!items.length) { list.replaceChildren(el('div', { className: 'cmdk-empty', text: input.value.trim() ? '찾는 결과가 없습니다' : '이름이나 연락처를 입력하세요' })); return; }
+    let last = null; const kids = [];
+    items.forEach((it, i) => {
+      if (it.group !== last) { kids.push(el('div', { className: 'cmdk-g', text: it.group })); last = it.group; }
+      const b = el('button', { type: 'button', className: 'cmdk-i' + (i === sel ? ' on' : ''), onclick: () => go(it), onmousemove: () => { if (sel !== i) { sel = i; draw(); } } },
+        [el('span', { innerHTML: `<svg class="i"><use href="#${it.icon}"/></svg>` }), el('span', { text: it.label }), it.hint && el('small', { text: it.hint })]);
+      kids.push(b);
+    });
+    list.replaceChildren(...kids);
+    list.querySelector('.cmdk-i.on')?.scrollIntoView({ block: 'nearest' });
+  };
+  const search = async () => {
+    const q = input.value.trim(), my = ++seq, ql = q.toLowerCase();
+    const pages = CMDK_PAGES.filter(([, t]) => !q || t.includes(q)).map(([k, t]) => ({ group: '메뉴', label: t, icon: 'i-inbox', run: () => showPage(k) }));
+    const leads = q ? groupRows().filter((r) => [r.name, r.phone, r.email].some((v) => (v || '').toLowerCase().includes(ql))).slice(0, 5)
+      .map((r) => ({ group: '문의함', label: r.name || '(이름 없음)', hint: [r.phone, r.status].filter(Boolean).join(' · '), icon: 'i-inbox', run: () => openFromToday(r.id) })) : [];
+    items = [...leads, ...pages]; sel = 0; draw();
+    if (q.length < 1) return;
+    const s = q.replace(/[,()%*\\]/g, ' ').trim();
+    const { data } = await sb.from('companies').select('id,name,brand,stage,run_status,phone,address').or(`name.ilike.*${s}*,phone.ilike.*${s}*,brand.ilike.*${s}*`).order('last_paid_at', { ascending: false, nullsFirst: false }).limit(8);
+    if (my !== seq) return;
+    const cos = (data || []).map((c) => ({ group: '업체', label: c.name, hint: [c.stage === '결제' ? c.run_status : c.stage, c.phone, (c.address || '').split(' ').slice(0, 2).join(' ')].filter(Boolean).join(' · '), icon: c.stage === '결제' ? 'i-check' : 'i-store',
+      run: () => { window.__openCompany = c.id; showPage(c.stage === '결제' ? 'clients' : 'leads'); } }));
+    items = [...cos, ...leads, ...pages]; sel = 0; draw();
+  };
+  let t; input.addEventListener('input', () => { clearTimeout(t); t = setTimeout(search, 160); });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); sel = Math.min(items.length - 1, sel + 1); draw(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); sel = Math.max(0, sel - 1); draw(); }
+    else if (e.key === 'Enter' && items[sel]) { e.preventDefault(); go(items[sel]); }
+    else if (e.key === 'Escape') { e.preventDefault(); close(); }
+  });
+  document.body.append(layer); search(); input.focus();
+}
+$('cmdkBtn').onclick = openCmdk;
+document.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k' && me) { e.preventDefault(); openCmdk(); } });
+
 document.addEventListener('keydown', (e) => {
+  if (page !== 'inbox') return; // 업체 화면은 crm-companies.js가 단축키를 처리
   if (e.key === 'Escape' && openId) { toggle(openId); return; }
   if (!me || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.key === '/') { e.preventDefault(); $('q').focus(); }
@@ -983,14 +1081,19 @@ $("themeBtn").onclick = () => {
 syncThemeBtn();
 
 // ── 메뉴 ──
+// ── 화면 이동 = 주소(#today · #inbox · #leads · #clients · #co-업체ID). 새로고침·뒤로가기·링크 공유가 그대로 동작 ──
+const PAGES = ['today', 'inbox', 'leads', 'clients', 'perf', 'import'];
 let page = 'today';
-function showPage(p) {
+function showPage(p, { push = true } = {}) {
+  if (!PAGES.includes(p)) p = 'today';
+  if (window.CRM_COMPANIES?.guard && !window.CRM_COMPANIES.guard()) return;
   page = p;
+  if (push && location.hash !== '#' + p) history.pushState(null, '', '#' + p);
   document.querySelectorAll('.mi[data-page]').forEach((x) => x.classList.toggle('active', x.dataset.page === p));
   ['today', 'inbox', 'leads', 'clients', 'perf', 'import'].forEach((k) => { $('pg-' + k).hidden = k !== p; });
   if (p === 'leads' || p === 'clients') {
     const go = () => window.CRM_COMPANIES.mount($('pg-' + p), p);
-    if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=3'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
+    if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=5'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
   if (p === 'today') renderToday();
   if (p === 'import' && !$('importBody').childElementCount) {
@@ -1000,6 +1103,17 @@ function showPage(p) {
   }
 }
 document.querySelectorAll('.mi[data-page]').forEach((b) => b.onclick = () => showPage(b.dataset.page));
+$('homeLink').onclick = (e) => { e.preventDefault(); showPage('today'); };
+async function routeFromHash() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (h.startsWith('co-')) {
+    const { data } = await sb.from('companies').select('stage').eq('id', h.slice(3)).maybeSingle();
+    if (!data) { toast('업체를 찾을 수 없습니다'); showPage('today', { push: false }); return; }
+    window.__openCompany = h.slice(3); showPage(data.stage === '결제' ? 'clients' : 'leads', { push: false }); return;
+  }
+  showPage(PAGES.includes(h) ? h : 'today', { push: false });
+}
+window.addEventListener('popstate', () => { if (me) routeFromHash(); });
 $('todayAdd').onclick = () => { showPage('inbox'); $('addForm').hidden = false; $('addForm').elements.name.focus(); };
 
 // ── 오늘 할 일: 방치된 신규 → 연락 밀린 문의 → 오늘 연락 예정. 누르면 문의함에서 그 건이 펼쳐진다 ──
