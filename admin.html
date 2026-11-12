@@ -244,6 +244,9 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 .todo-h .n.hot{background:var(--red);color:#fff}
 .todo-h small{color:var(--t3);font-size:12px}
 .todo-list{display:grid}
+.todo-group{margin:28px 0 -6px;font-size:12px;font-weight:700;color:var(--t3);letter-spacing:.04em;display:flex;align-items:center;gap:10px}
+.todo-group::after{content:'';flex:1;height:1px;background:var(--line)}
+.kpi-row.five{grid-template-columns:repeat(4,1fr)}
 .todo-row{display:grid;grid-template-columns:minmax(140px,1.2fr) 110px minmax(0,2fr) 110px 90px;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line-2);cursor:pointer;transition:background .1s}
 .todo-row:last-child{border-bottom:0}
 .todo-row:hover{background:var(--surface-2)}
@@ -1123,7 +1126,46 @@ function openFromToday(id) {
   view = 'table'; openId = id; showPage('inbox'); render();
   document.querySelector('tr.open')?.scrollIntoView({ block: 'center' });
 }
+// 오늘 할 일 — 계약 업체 일정 (재계약 임박 · 오늘 모집 · 포스팅 마감 지남 · 체크리스트 미완료). 1분 캐시
+let todayCo = null, todayCoAt = 0, todayCoLoading = false;
+async function loadTodayCompanies() {
+  if (todayCoLoading) return; todayCoLoading = true;
+  try {
+    const today = todayKst(), dom = +today.slice(8), addD = (n) => kstDay(Date.now() + n * 864e5);
+    const COLS = 'id,name,brand,phone,store_phone,sales_owner,manager_owner,sales_owner_name,manager_owner_name,next_renew_due,recruit_days,run_status';
+    const [renew, recruitCo, rdToday, rdLate, cts] = await Promise.all([
+      sb.from('companies').select(COLS).eq('stage', '결제').eq('run_status', '진행 중').gte('next_renew_due', addD(-30)).lte('next_renew_due', addD(30)).order('next_renew_due').limit(200),
+      sb.from('companies').select(COLS).eq('stage', '결제').eq('run_status', '진행 중').contains('recruit_days', [dom]).limit(200),
+      sb.from('rounds').select('id,company_id,round_label,round_no,recruit_on,state').eq('recruit_on', today).limit(200),
+      sb.from('rounds').select('id,company_id,round_label,round_no,deadline,state').lt('deadline', today).neq('state', '완료').limit(300),
+      sb.from('contracts').select('id,company_id,kind,paid_at,handover_at,tax_invoice').gte('paid_at', addD(-90)).limit(300),
+    ]);
+    const lateIds = (rdLate.data || []).map((r) => r.id);
+    const ros = lateIds.length ? await sb.from('roster').select('round_id,post_url').in('round_id', lateIds) : { data: [] };
+    const missing = {}; (ros.data || []).forEach((p) => { if (!p.post_url) missing[p.round_id] = (missing[p.round_id] || 0) + 1; });
+    const late = (rdLate.data || []).filter((r) => missing[r.id]).map((r) => ({ ...r, missing: missing[r.id] }));
+    const openCts = (cts.data || []).filter((c) => !c.handover_at || c.tax_invoice === '발행 필요');
+    const need = new Set([...(rdToday.data || []), ...late, ...openCts].map((x) => x.company_id));
+    const known = new Map([...(renew.data || []), ...(recruitCo.data || [])].map((c) => [c.id, c]));
+    const ask = [...need].filter((id) => !known.has(id));
+    if (ask.length) { const r = await sb.from('companies').select(COLS).in('id', ask); (r.data || []).forEach((c) => known.set(c.id, c)); }
+    const co = (id) => known.get(id);
+    const recruitMap = new Map((recruitCo.data || []).map((c) => [c.id, { co: c, label: '매월 ' + dom + '일 모집' }]));
+    (rdToday.data || []).forEach((r) => co(r.company_id) && recruitMap.set(r.company_id, { co: co(r.company_id), label: `${r.round_label || r.round_no}회차 모집` }));
+    todayCo = {
+      renew: (renew.data || []).map((c) => ({ co: c, d: Math.round((new Date(c.next_renew_due) - new Date(today)) / 864e5) })),
+      recruit: [...recruitMap.values()],
+      posting: late.filter((r) => co(r.company_id)).map((r) => ({ co: co(r.company_id), r })),
+      checklist: openCts.filter((c) => co(c.company_id)).map((c) => ({ co: co(c.company_id), c })),
+    };
+    todayCoAt = Date.now();
+  } catch (e) { console.error('TODAY_CO', e); }
+  todayCoLoading = false;
+  if (page === 'today') renderToday();
+}
+function openCompanyFromToday(id) { history.pushState(null, '', '#co-' + id); routeFromHash(); }
 function renderToday() {
+  if (me && Date.now() - todayCoAt > 60000) loadTodayCompanies();
   const today = todayKst(), month = today.slice(0, 7);
   const all = groupRows().filter((r) => !isAd(r));
   const mineOk = (r) => !todayMine || r.assignee === me;
@@ -1155,16 +1197,33 @@ function renderToday() {
     el('div', { className: 'todo-h' }, [el('b', { text: title }), el('span', { className: 'n' + (hot && list.length ? ' hot' : ''), text: list.length }), el('small', { text: hint })]),
     el('div', { className: 'card todo-list' }, list.length ? list.map(mk) : [el('div', { className: 'todo-empty', text: '없습니다 👍' })]),
   ]);
+  // 계약 업체 일정
+  const mineCo = (c) => !todayMine || c.sales_owner === me || c.manager_owner === me;
+  const T = todayCo ? {
+    renew: todayCo.renew.filter((x) => mineCo(x.co)), recruit: todayCo.recruit.filter((x) => mineCo(x.co)),
+    posting: todayCo.posting.filter((x) => mineCo(x.co)), checklist: todayCo.checklist.filter((x) => mineCo(x.co)),
+  } : null;
+  const coTotal = T ? T.renew.length + T.recruit.length + T.posting.length + T.checklist.length : 0;
+  const coItem = (c, memo, dueEl) => el('div', { className: 'todo-row', onclick: () => openCompanyFromToday(c.id) }, [
+    el('div', {}, [el('strong', { text: c.name }), el('div', { className: 'sub', text: [c.phone || c.store_phone, c.manager_owner_name ? '관리 ' + c.manager_owner_name : c.sales_owner_name ? '영업 ' + c.sales_owner_name : '미배정'].filter(Boolean).join(' · ') })]),
+    el('div', {}, (() => { const v = c.run_status || '진행 중', x = el('span', { className: 'pill', text: v }); x.style.setProperty('--c', { '진행 중': '#16A34A', 홀딩: '#D97706', 계약종료: '#A1A1AA', 환불: '#DC2626', 양도: '#71717A' }[v] || '#71717A'); return x; })()),
+    el('div', { className: 'memo', text: memo }), dueEl,
+    el('button', { className: 'btn', type: 'button', text: '열기' }),
+  ]);
+  const loadingList = el('div', { className: 'card todo-list' }, [0, 1].map(() => el('div', { className: 'todo-row' }, [el('span', { className: 'skel', style: 'width:60%' }), el('span', { className: 'skel', style: 'width:50%' }), el('span', { className: 'skel', style: 'width:80%' }), el('span'), el('span')])));
+  const coSection = (title, hint, list, mk, hot) => T ? section(title, hint, list, mk, hot) : el('div', {}, [el('div', { className: 'todo-h' }, [el('b', { text: title }), el('small', { text: hint })]), loadingList.cloneNode(true)]);
+  const grand = total + coTotal;
+  $('todoBadge').hidden = !grand; $('todoBadge').textContent = grand;
   const name = admins[me] || '관리자';
   $('todayBody').replaceChildren(
-    el('div', { className: 'hello' }, [el('h2', { text: `${name}님, 오늘 처리할 일 ${total}건` }),
-      el('span', { text: total ? '위에서부터 차례로 처리하세요.' : '밀린 일이 없습니다.' }),
+    el('div', { className: 'hello' }, [el('h2', { text: `${name}님, 오늘 처리할 일 ${grand}건` }),
+      el('span', { text: grand ? '위에서부터 차례로 처리하세요.' : '밀린 일이 없습니다.' }),
       el('button', { className: 'chip' + (todayMine ? ' on' : ''), type: 'button', text: '내 담당만', onclick: () => { todayMine = !todayMine; renderToday(); } })]),
     el('div', { className: 'kpi-row' }, [
-      kpi('오늘 처리할 일', total, `신규 ${fresh.length} · 밀림 ${over.length} · 오늘 ${todays.length}`),
+      kpi('문의 처리', total, `신규 ${fresh.length} · 밀림 ${over.length} · 오늘 ${todays.length}`),
+      kpi('계약 업체 일정', T ? coTotal : '…', T ? `재계약 ${T.renew.length} · 모집 ${T.recruit.length} · 포스팅 ${T.posting.length} · 체크 ${T.checklist.length}` : '불러오는 중'),
       kpi('미배정 문의', all.filter((r) => !r.assignee && active(r)).length, '담당자를 정해야 알림이 갑니다'),
       kpi('이번 달 문의', thisMonth.length, month.replace('-', '년 ') + '월'),
-      kpi('이번 달 계약', won.length, '상태를 계약으로 바꾼 건'),
     ]),
     section('새 문의 · 아직 연락 전', '들어온 지 오래된 순', fresh, (r) => {
       const h = Math.floor((Date.now() - new Date(r.created_at)) / 3600e3);
@@ -1172,6 +1231,11 @@ function renderToday() {
     }, true),
     section('연락 밀린 문의', '다음 연락일이 지났습니다', over, (r) => item(r, el('div', { className: 'due over', text: `${dayDiff(r.next_contact_at)}일 지남` })), true),
     section('오늘 연락 예정', '오늘로 잡아둔 연락', todays, (r) => item(r, el('div', { className: 'due', text: '오늘' }))),
+    el('div', { className: 'todo-group', text: '계약 업체' }),
+    coSection('오늘 모집', '오늘 체험단 모집할 업체', T?.recruit || [], (x) => coItem(x.co, x.label, el('div', { className: 'due', text: '오늘' })), true),
+    coSection('포스팅 마감 지남', '리뷰 마감일이 지났는데 포스팅 링크가 없는 블로거', T?.posting || [], (x) => coItem(x.co, `${x.r.round_label || x.r.round_no}회차 · 포스팅 없는 블로거 ${x.r.missing}명`, el('div', { className: 'due over', text: `${Math.round((new Date(todayKst()) - new Date(x.r.deadline)) / 864e5)}일 지남` })), true),
+    coSection('재계약 임박', '재계약 예정일 30일 전부터', T?.renew || [], (x) => coItem(x.co, `재계약 예정 ${x.co.next_renew_due}`, el('div', { className: 'due' + (x.d <= 7 ? ' over' : ''), text: x.d < 0 ? `${-x.d}일 지남` : x.d === 0 ? '오늘' : `D-${x.d}` }))),
+    coSection('결제 체크리스트 미완료', '최근 90일 결제 · 인수인계 확인 또는 세금계산서 발행 전', T?.checklist || [], (x) => coItem(x.co, [`${x.c.kind || '결제'} ${x.c.paid_at || ''}`, !x.c.handover_at && '인수인계 확인 전', x.c.tax_invoice === '발행 필요' && '세금계산서 발행 필요'].filter(Boolean).join(' · '), el('div', { className: 'due', text: x.c.paid_at ? x.c.paid_at.slice(5) : '' }))),
   );
 }
 
