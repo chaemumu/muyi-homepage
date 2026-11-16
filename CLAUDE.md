@@ -207,6 +207,7 @@ UX:
   계약 업체 = `service_type`(체험단 패키지·프로젝트·ETC) × 상태. 애매한 건 `needs_review`+`review_reason` → 담당자가 [확인 완료]
 - 정산(대표 전용, `assets/crm-settle.js`): `ledger`(매출 원장, 결제 등록 시 트리거로 자동 기록) · `settle_people`(김동환 60%, 4대보험 가입 보수 100만원) · `settlements`(월 확정) · `settle_prices`(정산계산기 실비 단가). RLS = `is_master()`
   월 정산 = 인센 합계 − 4대보험 가입 보수 → 3.3% 처리분(음수면 그대로 −표기), 원천세 = 3% + 0.3% 각 10원 절사
+- 캘린더(`assets/crm-calendar.js`): 체험단 = 업체 매월 모집일(`recruit_days`) 기준 모집 → 발표 → 마감 → 노출보고(간격 `crm_settings.camp_offsets`), 완료·날짜 변경은 `camp_tasks`. 계약 = 재계약일 + 실행 소진(남은 20% 이하)·수량 입력 14일 경과(`deliverables.updated_at`)
 - `naver-place`: 네이버 지도 URL → 업체명·주소·전화·업종 (관리자만, 저장 안 함)
 - 기타: `expo-gate`, `expo-copy`, `call-dispatch`(AI 1차 통화, 매분), `retell-webhook`, `capi-purchase`, `notify-assign`(담당 배정 1:1 알림), `daily-digest`(아침 요약 1:1), `meta-spend`
 - `push-crm`: 옛 CRM 연동, 410 비활성 — 대시보드에서 삭제 대상

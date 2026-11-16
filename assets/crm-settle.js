@@ -63,6 +63,8 @@
 .st-tbl .ex-btn{height:24px;padding:0 8px;border:1px dashed var(--line-strong);border-radius:12px;background:none;font-size:12px;color:var(--t2);font-variant-numeric:tabular-nums}
 .st-tbl .ex-btn:hover{border-color:var(--accent);color:var(--accent)}
 .st-tbl .ex-btn.set{border-style:solid;color:var(--t1)}
+.st-unpaid{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:10px 12px;border-radius:var(--r-lg);border:1px solid color-mix(in srgb,var(--red) 30%,var(--line));background:color-mix(in srgb,var(--red) 6%,var(--surface))}
+.st-unpaid b{color:var(--red);font-size:13px;margin-right:4px}
 .tg{height:24px;min-width:56px;padding:0 10px;border:1px solid color-mix(in srgb,var(--amber) 40%,var(--line));border-radius:12px;background:color-mix(in srgb,var(--amber) 10%,var(--surface));color:var(--amber);font-size:12px;font-weight:700;cursor:pointer}
 .tg.on{border-color:color-mix(in srgb,var(--green) 40%,var(--line));background:color-mix(in srgb,var(--green) 10%,var(--surface));color:var(--green)}
 .tg:hover{filter:brightness(.96)}
@@ -163,7 +165,7 @@
   const toggleCell = (r, k, label) => {
     const b = el('button', { type: 'button', className: 'tg', title: `눌러서 ${label} 완료 ↔ 미처리` });
     const paint = () => { const d = isDone(r[k]); b.classList.toggle('on', d); b.textContent = d ? '완료' : '미처리'; };
-    b.onclick = async (e) => { e.stopPropagation(); b.disabled = true; const next = isDone(r[k]) ? '미처리' : '완료'; if (await patchRow(r, { [k]: next })) paint(); b.disabled = false; };
+    b.onclick = async (e) => { e.stopPropagation(); b.disabled = true; const next = isDone(r[k]) ? '미처리' : '완료'; if (await patchRow(r, { [k]: next })) { paint(); if (k === 'checked') window.refreshSettleBadge?.(); } b.disabled = false; };
     paint(); return el('td', {}, b);
   };
   const editCell = (r) => el('td', { className: 'num' }, el('button', { className: 'btn sm', type: 'button', text: '수정', onclick: (e) => { e.stopPropagation(); rowModal(r); } }));
@@ -191,7 +193,13 @@
       rows.length ? el('tfoot', {}, el('tr', {}, [el('td', { colSpan: 3, text: `합계 ${rows.length}건` }), ntd(tAmt), ntd(tBase), el('td', { className: 'num', text: won(tExec) }), td(''), ntd(tInc), el('td', { colSpan: 2 }), el('td', { className: 'sub', text: `미처리 ${rows.filter((r) => !isDone(r.checked)).length}` }), td(''), td('')])) : null,
     ].filter(Boolean));
     const ppl = [...byP.entries()].sort((a, b) => b[1].base - a[1].base);
+    const { data: unpaid } = await sb.from('ledger').select('settle_month').eq('kind', '결제').gt('amount_won', 0).or('checked.is.null,checked.neq.완료').limit(5000);
+    const um = {}; (unpaid || []).forEach((x) => { um[x.settle_month] = (um[x.settle_month] || 0) + 1; });
+    const unpaidBar = Object.keys(um).length ? el('div', { className: 'st-unpaid' }, [el('b', { text: `! 입금확인 미처리 ${(unpaid || []).length}건` }),
+      ...Object.entries(um).sort((a, b) => b[0].localeCompare(a[0])).map(([m, n]) => el('button', { type: 'button', className: 'chip' + (m === S.month ? ' on' : ''), text: `${m.replace('-', '.')} ${n}`, onclick: () => { S.month = m; draw(); } }))]) : null;
+    window.refreshSettleBadge?.();
     return [
+      unpaidBar,
       el('div', { className: 'kpi-row st-kpi' }, [
         kpi('총 매출 (VAT 포함)', won(tAmt), `원금 ${won(tBase)}`),
         kpi('실행비 (VAT 포함)', won(tExec), noExec ? `실행비 미입력 ${noExec}건` : '전부 입력됨'),
