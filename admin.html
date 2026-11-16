@@ -453,7 +453,7 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
     </div>
 
     <div id="pg-calendar" hidden>
-      <header class="topbar"><h1>캘린더</h1><span class="count">체험단 모집 → 발표 → 마감 → 노출보고 · 계약 재계약 · 실행 소진</span></header>
+      <header class="topbar"><h1>캘린더</h1><span class="count">체험단 모집 → 발표 → 마감 → 2차 마감 · 계약 재계약 · 실행 소진</span></header>
       <div class="pg stack" id="calBody"></div>
     </div>
     <div id="pg-leads" hidden></div>
@@ -1126,7 +1126,7 @@ function showPage(p, { push = true } = {}) {
     if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=7'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
   if (p === 'today') renderToday();
-  if (p === 'calendar') loadScript('/assets/crm-calendar.js?v=1').then(() => window.CRM_CALENDAR.mount($('calBody'))).catch(() => toast('캘린더를 불러오지 못했습니다'));
+  if (p === 'calendar') loadScript('/assets/crm-calendar.js?v=3').then(() => window.CRM_CALENDAR.mount($('calBody'))).catch(() => toast('캘린더를 불러오지 못했습니다'));
   if (p === 'settle') {
     const go = () => window.CRM_SETTLE.mount($('settleBody'));
     if (window.CRM_SETTLE) go(); else { $('settleBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' })); const x = document.createElement('script'); x.src = '/assets/crm-settle.js?v=5'; x.onload = go; x.onerror = () => toast('정산 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
@@ -1197,7 +1197,7 @@ async function loadTodayCompanies() {
     };
     // 체험단 일정(오늘 + 밀린 것)과 실행 소진·수량 입력 알림은 캘린더 모듈이 계산
     try {
-      await loadScript('/assets/crm-calendar.js?v=1');
+      await loadScript('/assets/crm-calendar.js?v=3');
       const [camp, ex] = await Promise.all([window.CRM_CALENDAR.todayCamp(), window.CRM_CALENDAR.execAlerts()]);
       todayCo.recruit = camp.ev.sort((a, b) => a.due.localeCompare(b.due)).map((e) => ({ co: e.co, e, toggle: camp.toggle }));
       todayCo.exec = ex;
@@ -1280,7 +1280,7 @@ function renderToday() {
     coSection('체험단 일정', '오늘 할 일 + 밀린 것 · ✓를 누르면 완료 (캘린더에도 반영)', T?.recruit || [], (x) => {
       const late = x.e.due < todayKst();
       const btn = el('button', { className: 'btn sm', type: 'button', text: '✓ 완료', onclick: async (ev) => { ev.stopPropagation(); btn.disabled = true; if (await x.toggle(x.e)) { toast(`${x.co.name} ${x.e.step} 완료`); todayCoAt = 0; loadTodayCompanies(); } btn.disabled = false; } });
-      return coItem(x.co, `${x.e.step} · ${{ 모집: '모집글 업로드 · 링크 취합', 발표: '선정 · 가이드라인 발송', 마감: '마감 명단 · 링크 취합 전송', 노출보고: '노출 현황 · 순위 보고' }[x.e.step]}`, el('div', { className: 'due' + (late ? ' over' : '') }, [late ? `${Math.round((new Date(todayKst()) - new Date(x.e.due)) / 864e5)}일 지남 ` : '오늘 ', btn]));
+      return coItem(x.co, `${x.e.step} · ${{ 모집: '모집글 업로드 · 링크 취합', 발표: '선정 · 가이드라인 · 일정 안내', 마감: '마감 인원 확인 · 링크 취합', '2차마감': '부족 인원 마감 확인' }[x.e.step]}`, el('div', { className: 'due' + (late ? ' over' : '') }, [late ? `${Math.round((new Date(todayKst()) - new Date(x.e.due)) / 864e5)}일 지남 ` : '오늘 ', btn]));
     }, true),
     coSection('실행 소진', '남은 수량 20% 이하 · 0 = 소진 완료 → 재계약 제안', T?.exec || [], (x) => coItem(x.co, `${x.d.item} 남은 ${Math.max(0, x.left).toLocaleString()} / ${Number(x.d.planned).toLocaleString()}`, el('div', { className: 'due' + (x.left <= 0 ? ' over' : ''), text: x.left <= 0 ? '소진' : '임박' }))),
     coSection('실행 수량 입력 필요', '14일 넘게 실행 수량을 안 고친 진행 중 업체', T?.stale || [], (x) => coItem(x.co, `마지막 수정 ${kstDay(x.t)}`, el('div', { className: 'due', text: `${Math.round((Date.now() - new Date(x.t)) / 864e5)}일` }))),
