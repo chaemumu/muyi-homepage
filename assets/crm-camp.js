@@ -14,6 +14,7 @@
   const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
   const md = (s) => `${+s.slice(5, 7)}/${+s.slice(8)}`;
   const mdw = (s) => `${md(s)}(${DOWK[parse(s).getDay()]})`;
+  const kstShort = (t) => { const d = new Date(new Date(t).getTime() + 9 * 3600e3), y = d.getUTCFullYear(); return `${y !== new Date().getFullYear() ? y + '. ' : ''}${d.getUTCMonth() + 1}/${d.getUTCDate()} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`; };
   const kmd = (s) => `${+s.slice(5, 7)}월 ${+s.slice(8)}일`;
   const blogId = (u) => { const m = String(u || '').match(/blog\.naver\.com\/([A-Za-z0-9_-]+)/); return m ? m[1] : null; };
   const brandOf = (co) => (co.brand || String(co.name || '').split(/\s+/)[0] || '').trim();
@@ -100,6 +101,12 @@ textarea.ca-txt{width:100%;min-height:200px;margin-top:8px;font-family:inherit;f
 .ca-col{display:flex;flex-direction:column;gap:10px;min-width:0}
 .ca-sec{display:flex;align-items:center;gap:8px;min-height:30px}
 .ca-sec b{font-size:13px;margin-right:auto}
+.ca-sec .ca-when{font-size:11px;color:var(--t3);white-space:nowrap}
+.ca-sec b:has(+.ca-when){margin-right:0}
+.ca-sec .ca-when{margin-right:auto}
+.ca-hpm{width:min(720px,100%)!important;height:auto!important;max-height:calc(var(--vh,100vh) - 32px)}
+.ca-hist{display:grid;gap:6px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)}
+.ca-hist pre{margin:0;max-height:180px;overflow:auto;white-space:pre-wrap;font-family:inherit;font-size:12px;line-height:1.55;color:var(--t2)}
 textarea.ca-msg{width:100%;height:calc(var(--ph) - 300px);min-height:260px;resize:none;font-family:inherit;font-size:13px;line-height:1.6;white-space:pre-wrap}
 textarea.ca-g{width:100%;min-height:220px;font-family:inherit;font-size:13px;line-height:1.55}
 textarea.ca-g.sm{min-height:100px}
@@ -145,8 +152,8 @@ textarea.ca-g.sm{min-height:100px}
     const [rd, rds, gl, gb] = await Promise.all([
       sb.from('rounds').select('*').eq('company_id', co.id).eq('cycle_on', cycle).maybeSingle(),
       sb.from('rounds').select('id', { count: 'exact', head: true }).eq('company_id', co.id),
-      sb.from('guidelines').select('body,created_at').eq('company_id', co.id).eq('kind', '체험단').order('created_at', { ascending: false }).limit(1),
-      sb.from('crm_settings').select('value').eq('key', 'guide_brand:' + brandOf(co)).maybeSingle(),
+      sb.from('guidelines').select('body,created_at,created_by').eq('company_id', co.id).eq('kind', '체험단').order('created_at', { ascending: false }).limit(30),
+      sb.from('crm_settings').select('value,updated_at,updated_by').eq('key', 'guide_brand:' + brandOf(co)).maybeSingle(),
     ]);
     let round = rd.data;
     const ros = round ? (await sb.from('roster').select('*').eq('round_id', round.id).order('created_at')).data || [] : [];
@@ -327,11 +334,39 @@ textarea.ca-g.sm{min-height:100px}
     const sg = el('textarea', { className: 'fi ca-g sm', value: S.storeGuide, placeholder: '이 지점만의 특이사항 (예: 주차 가능, 월요일 휴무)' });
     const guideOut = el('textarea', { className: 'fi ca-msg', readOnly: true });
     bg.oninput = () => { S.brandGuide = bg.value; guideOut.value = guideTxt(); }; sg.oninput = () => { S.storeGuide = sg.value; guideOut.value = guideTxt(); };
-    const saveB = el('button', { className: 'btn sm', type: 'button', text: '저장', onclick: async () => { const { error } = await sb.from('crm_settings').upsert({ key: 'guide_brand:' + brandOf(co), value: S.brandGuide, updated_at: new Date().toISOString() }); toast(error ? '저장 실패: ' + error.message : `${brandOf(co)} 공통 가이드 저장`); } });
-    const saveS = el('button', { className: 'btn sm', type: 'button', text: '저장', onclick: async () => { const { error } = await sb.from('guidelines').insert({ company_id: co.id, kind: '체험단', body: S.storeGuide, created_by: me }); toast(error ? '저장 실패: ' + error.message : '지점 특이사항 저장'); } });
+    // 수정일 + 이전 버전 (브랜드 공통: guide_history 트리거 보관 · 지점: guidelines 저장 이력)
+    const when = (t, by) => t ? `수정 ${kstShort(t)}${by && admins[by] ? ' · ' + admins[by] : ''}` : '아직 저장 안 됨';
+    const meta = { brand: { at: gb.data?.updated_at, by: gb.data?.updated_by }, store: { at: gl.data?.[0]?.created_at, by: gl.data?.[0]?.created_by } };
+    const metaB = el('small', { className: 'ca-when' }), metaS = el('small', { className: 'ca-when' });
+    const paintMeta = () => { metaB.textContent = when(meta.brand.at, meta.brand.by); metaS.textContent = when(meta.store.at, meta.store.by); };
+    paintMeta();
+    const history = async (kind) => {
+      const rows = kind === 'brand'
+        ? ((await sb.from('guide_history').select('body,saved_at,saved_by,archived_at').eq('brand', brandOf(co)).order('archived_at', { ascending: false }).limit(30)).data || []).map((h) => ({ body: h.body, at: h.saved_at || h.archived_at, by: h.saved_by }))
+        : ((await sb.from('guidelines').select('body,created_at,created_by').eq('company_id', co.id).eq('kind', '체험단').order('created_at', { ascending: false }).limit(30)).data || []).slice(1).map((h) => ({ body: h.body, at: h.created_at, by: h.created_by }));
+      const target = kind === 'brand' ? bg : sg;
+      const H = layer([el('div', { className: 'pm-h' }, [el('h3', { text: `${kind === 'brand' ? brandOf(co) + ' 공통' : '지점 특이사항'} · 이전 버전` }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => H.close() })]),
+        el('div', { className: 'ca-body' }, rows.length ? rows.map((h) => el('div', { className: 'ca-hist' }, [el('div', { className: 'ca-sec' }, [el('b', { text: when(h.at, h.by).replace('수정 ', '') }), el('button', { className: 'btn sm', type: 'button', text: '이 버전 불러오기', onclick: () => { target.value = h.body || ''; target.dispatchEvent(new Event('input')); H.close(); toast('불러옴 — [저장]을 눌러야 적용됩니다'); } })]), el('pre', { text: h.body || '(빈 내용)' })]))
+          : [empty('ok', '보관된 이전 버전이 없어요', '저장할 때마다 바로 전 내용이 여기에 쌓입니다.')])]);
+      H.L.firstChild.classList.add('ca-hpm');
+    };
+    const histBtn = (kind) => el('button', { className: 'btn sm ghost', type: 'button', text: '이전 버전', onclick: () => history(kind) });
+    const saveB = el('button', { className: 'btn sm', type: 'button', text: '저장', onclick: async () => {
+      const at = new Date().toISOString();
+      const { error } = await sb.from('crm_settings').upsert({ key: 'guide_brand:' + brandOf(co), value: S.brandGuide, updated_at: at, updated_by: me });
+      if (error) { toast('저장 실패: ' + error.message); return; }
+      meta.brand = { at, by: me }; paintMeta(); toast(`${brandOf(co)} 공통 가이드 저장 (이전 내용은 보관됨)`);
+    } });
+    const saveS = el('button', { className: 'btn sm', type: 'button', text: '저장', onclick: async () => {
+      const { data, error } = await sb.from('guidelines').insert({ company_id: co.id, kind: '체험단', body: S.storeGuide, created_by: me }).select('created_at').single();
+      if (error) { toast('저장 실패: ' + error.message); return; }
+      meta.store = { at: data?.created_at || new Date().toISOString(), by: me }; paintMeta(); toast('지점 특이사항 저장 (이전 내용은 보관됨)');
+    } });
     panels.guide = el('div', { className: 'ca-panel ca-two' }, [
-      el('div', { className: 'ca-col' }, [el('div', { className: 'ca-sec' }, [el('b', { text: `${brandOf(co)} 공통` }), saveB]), bg, el('div', { className: 'ca-sec' }, [el('b', { text: '지점 특이사항' }), saveS]), sg]),
-      el('div', { className: 'ca-col' }, [el('div', { className: 'ca-sec' }, [el('b', { text: '블로거에게 보낼 가이드' })]), guideOut]),
+      el('div', { className: 'ca-col' }, [
+        el('div', { className: 'ca-sec' }, [el('b', { text: `${brandOf(co)} 공통` }), metaB, histBtn('brand'), saveB]), bg,
+        el('div', { className: 'ca-sec' }, [el('b', { text: '지점 특이사항' }), metaS, histBtn('store'), saveS]), sg]),
+      el('div', { className: 'ca-col' }, [el('div', { className: 'ca-sec' }, [el('b', { text: '블로거에게 보낼 가이드' }), el('small', { className: 'ca-when', text: '공통 + 지점 특이사항 자동 조합' })]), guideOut]),
     ]);
     foots.guide = [el('span', { className: 'sp' }), el('button', { className: 'btn primary', type: 'button', text: '가이드 복사', onclick: () => copy(guideOut.value, '가이드') })];
 

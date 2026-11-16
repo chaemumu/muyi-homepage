@@ -210,6 +210,7 @@ UX:
 - 캘린더(`assets/crm-calendar.js`): 체험단 = 업체 매월 모집일(`recruit_days`) 기준 모집 → 발표 → 마감 → 2차마감(간격 `crm_settings.camp_offsets`, 2차마감은 마감 인원 부족 시 +7일), 완료·인원·날짜 변경은 `camp_tasks`. 계약 = 재계약일 + 실행 소진(남은 20% 이하)·수량 입력 14일 경과(`deliverables.updated_at`)
 - 발표 도우미(`assets/crm-camp.js`, 캘린더 발표 팝업·[명단 변환]): 리뷰노트 엑셀 → 관리팀 TXT 명단(`rounds.cycle_on` + `roster`) · 점주 멘트 · 일정 이미지(canvas PNG) · 구글 캘린더 링크 · 블로거 가이드(`crm_settings 'guide_brand:<브랜드>'` + 지점 `guidelines` 체험단)
   Edge Function `camp-assist`(관리자만): nick(m.blog.naver.com nickName) · notes(신청메시지 → AI 특이사항, haiku) · posts(블로그 RSS에서 업체명 글 찾기)
+  블로거 가이드 이전 버전: 브랜드 공통은 `crm_settings` 수정 시 트리거(`archive_guide_brand`)가 `guide_history`에 자동 보관, 지점 특이사항은 `guidelines` 저장 이력. 화면에 수정일·수정자 + [이전 버전]
   마감 확인(`closeCheck`, 캘린더 마감·2차마감 팝업 [🔍 링크 확인]): 블로거 RSS에서 업체명 글 자동 수집 → `roster.post_url` 저장 → 마감 인원 반영(부족하면 2차마감)
   계약 캘린더 그룹: 진행 중 · 재계약 지남 · 홀딩 · 종료(뿌러짐) · 정보 없음(재계약일·결제일 비어 있음) — 표 정렬 가능
 - 문자(`assets/crm-sms.js`, 가망 목록 [문자 보내기] · 업체 상세 [문자]): Edge Function `sms-send`(관리자만, 알리고 `send_mass`, Secret `ALIGO_API_KEY`·`ALIGO_USER_ID`·`ALIGO_SENDER`)
