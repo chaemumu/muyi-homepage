@@ -73,6 +73,8 @@
 .rn-chip.hot{--c:var(--red)}
 .rn-chip.cold{--c:var(--t4)}
 .cnt{display:flex;align-items:center;gap:5px;width:100%;height:24px;padding:0 6px;border-radius:6px;border:1px solid color-mix(in srgb,var(--c) 30%,var(--line));background:color-mix(in srgb,var(--c) 8%,var(--surface));font-size:12px;cursor:pointer;text-align:left}
+.cal-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.cal-tools .cal-legend{flex:1;min-width:0}
 .cnt b{color:var(--c);font-weight:700;white-space:nowrap;flex:none}
 .cnt .n{margin-left:auto;font-weight:700;color:var(--t2);font-variant-numeric:tabular-nums}
 .cnt .ck{width:14px;height:14px;border-radius:4px;border:1.5px solid color-mix(in srgb,var(--c) 50%,var(--line));display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;flex:none}
@@ -286,13 +288,14 @@
           kids.push(closeBox);
         }
         kids.push(el('div', { className: 'cp-acts' }, [
+          e.step === '발표' ? el('button', { className: 'btn sm brand', type: 'button', text: '발표 도우미 ›', title: '명단 · 점주 안내 · 일정 이미지 · 가이드', onclick: () => { P.close(); openCamp({ co: e.co, cycle: e.cycle, cfg }); } }) : null,
           el('button', { className: 'btn sm ghost', type: 'button', text: '날짜', title: '이 일정만 날짜 옮기기', onclick: (x) => {
             const inp = el('input', { className: 'fi', type: 'date', value: e.due });
             inp.onchange = async () => { if (await moveDue(e, inp.value)) { P.mark(); toast(`${e.co.name} ${e.step} → ${md(inp.value)}`); P.close(); } };
             x.target.replaceWith(inp); inp.focus(); inp.showPicker?.();
           } }),
           el('button', { className: 'btn sm ghost', type: 'button', text: '업체', onclick: () => { P.close(); openCompanyFromToday(e.co.id); } }),
-        ]));
+        ].filter(Boolean)));
         ck.onchange = async () => {
           ck.disabled = true;
           if (isClose && !e.done && !(e.task?.target)) { const t = Number(target) || 0; if (t && await saveClose(e, t, t, cfg)) { P.mark(); paint(); return; } }
@@ -323,8 +326,13 @@
     ].filter(Boolean));
     const legend = el('div', { className: 'cal-legend' }, [...STEPS.map((s) => { const x = el('span', {}, [el('i'), `${s} (${s === '모집' ? '모집일' : s === '2차마감' ? '마감 +' + cfg.off['2차마감'] + '일 · 인원 부족 시' : '+' + cfg.off[s] + '일'})`]); x.firstChild.style.background = STEP_COLOR[s]; return x; }),
       el('span', { text: '· 숫자를 누르면 업체 목록 · 다 체크하면 ✓' })]);
-    return [legend, el('div', { className: 'cal-wrap' }, [el('div', { className: 'card' }, grid), side])];
+    const annEv = ev.filter((e) => e.step === '발표' && monthOf(e.due) === S.month);
+    const tools = el('div', { className: 'cal-tools' }, [legend, el('button', { className: 'btn primary', type: 'button', text: `명단 변환 · 발표 도우미${annEv.length ? ` (${annEv.length})` : ''}`, onclick: () => pickCamp(annEv, cfg) })]);
+    return [tools, el('div', { className: 'cal-wrap' }, [el('div', { className: 'card' }, grid), side])];
   }
+  const campLib = () => loadScript('/assets/crm-camp.js?v=1');
+  const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
+  const pickCamp = (evs, cfg) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
     const LBL = { 발표: '발표 = 모집일 +', 마감: '마감 = 모집일 +', '2차마감': '2차 마감 = 마감 +' };
     const F = Object.fromEntries(Object.keys(LBL).map((s) => [s, el('input', { className: 'fi', type: 'number', min: 0, value: cfg.off[s] })]));
