@@ -30,6 +30,8 @@
 .cal-legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--t3);align-items:center}
 .cal-legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:middle}
 .cal-wrap{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:12px;align-items:start}
+.cal-wrap>.stack,.cal-wrap>.stack>.card{min-width:0}
+.cg-wrap{overflow-x:auto}
 .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)}
 .cal-dow{padding:8px;font-size:11px;font-weight:600;color:var(--t3);border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--muted)}
 .cal-day{min-height:118px;padding:6px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:3px;cursor:pointer;background:var(--surface);min-width:0}
@@ -56,6 +58,17 @@
 .cs-g i{width:8px;height:8px;border-radius:2px;background:var(--c)}
 .cs-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 14px;border-bottom:1px solid var(--line-2);font-size:13px}
 .cs-row:last-child{border-bottom:0}
+.cs-list{display:grid}
+.cal-busy>.stack{opacity:.55;pointer-events:none;transition:opacity .15s}
+.cs-list.open{max-height:420px;overflow-y:auto}
+.cs-line{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:center;width:100%;padding:8px 14px;border:0;border-bottom:1px solid var(--line-2);background:none;text-align:left;cursor:pointer;font:inherit}
+.cs-line:hover{background:var(--surface-2)}
+.cs-line b{grid-column:1;font-size:13px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cs-line small{grid-column:1;font-size:11px;color:var(--t3);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cs-line small.late{color:var(--red)}
+.cs-line .go{grid-column:2;grid-row:1/3;color:var(--t4);font-size:16px}
+.cs-more{width:100%;height:36px;border:0;background:none;font-size:12px;font-weight:700;color:var(--accent);cursor:pointer}
+.cs-more:hover{background:var(--surface-2)}
 .cs-row .ck{width:24px;height:24px;border-radius:7px;border:1.5px solid var(--line-strong);background:var(--surface);display:grid;place-items:center;font-size:13px;font-weight:800;color:#fff;cursor:pointer}
 .cs-row.done .ck{background:var(--green);border-color:var(--green)}
 .cs-row.done .nm{color:var(--t3);text-decoration:line-through}
@@ -220,10 +233,20 @@
       el('b', { text: S.month.replace('-', '. ') }),
       el('button', { className: 'icon-btn', type: 'button', text: '›', title: '다음 달', onclick: () => { S.month = addMonth(S.month, 1); draw(); } }),
     ]);
-    const body = el('div', { className: 'stack' }, el('div', { className: 'hint', text: '불러오는 중…' }));
-    S.box.replaceChildren(el('div', { className: 'cal-top' }, [seg, mine, nav]), body);
-    try { body.replaceChildren(...(S.tab === 'camp' ? await campView() : await contractView())); }
-    catch (e) { body.replaceChildren(el('div', { className: 'err', text: '불러오기 실패: ' + e.message })); }
+    // 다시 그릴 때 화면을 비우지 않는다: 새 내용이 준비되면 한 번에 교체 (깜빡임·스크롤 튐 방지)
+    const top = el('div', { className: 'cal-top' }, [seg, mine, nav]);
+    const first = !S.box.querySelector('.cal-top');
+    if (first) S.box.replaceChildren(top, el('div', { className: 'stack' }, el('div', { className: 'hint', text: '불러오는 중…' })));
+    const tok = (S.drawTok = (S.drawTok || 0) + 1);
+    S.box.classList.add('cal-busy');
+    let kids;
+    try { kids = S.tab === 'camp' ? await campView() : await contractView(); }
+    catch (e) { kids = [el('div', { className: 'err', text: '불러오기 실패: ' + e.message })]; }
+    if (tok !== S.drawTok) return; // 더 최신 draw가 있으면 버림
+    S.box.classList.remove('cal-busy');
+    const y = window.scrollY;
+    S.box.replaceChildren(top, el('div', { className: 'stack' }, kids));
+    window.scrollTo(0, y);
   }
 
   // 달력 칸 (월요일 시작, 6주)
@@ -343,7 +366,7 @@
     const tools = el('div', { className: 'cal-tools' }, [legend, el('button', { className: 'btn primary', type: 'button', text: `명단 변환${annEv.length ? ` (${annEv.length})` : ''}`, onclick: () => pickCamp(annEv, cfg) })]);
     return [tools, el('div', { className: 'cal-wrap' }, [el('div', { className: 'card' }, grid), side])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=3');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=4');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   const pickCamp = (evs, cfg) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
@@ -395,7 +418,8 @@
   };
   async function contractView() {
     const days = gridDays(); const today = todayKst();
-    const [A, all] = await Promise.all([execAlerts(), sb.from('companies').select('id,name,run_status,service_type,next_renew_due,last_paid_at,total_paid_won,sales_owner,manager_owner,sales_owner_name,manager_owner_name').eq('stage', '결제').limit(3000)]);
+    if (!S.cc || Date.now() - S.cc.at > 60000) S.cc = { at: Date.now(), p: Promise.all([execAlerts(), sb.from('companies').select('id,name,run_status,service_type,next_renew_due,last_paid_at,total_paid_won,sales_owner,manager_owner,sales_owner_name,manager_owner_name').eq('stage', '결제').limit(3000)]) };
+    const [A, all] = await S.cc.p.catch((e) => { S.cc = null; throw e; });
     const f = (l) => S.mine ? l.filter((x) => isMine(x.co || x)) : l;
     const cos = f(all.data || []);
     const groups = Object.fromEntries(CGROUPS.map(([k]) => [k, []])); cos.forEach((c) => groupOf(c, today).forEach((g) => groups[g].push(c)));
@@ -425,15 +449,23 @@
       ])) : el('div', { className: 'cs-empty cs-char' }, [el('img', { src: '/assets/brand/muyi-char-idea.webp', alt: '' }), '이 그룹에 해당하는 업체가 없습니다.']),
     ]);
     const soon = cos.filter((c) => c.run_status === '진행 중' && c.next_renew_due && dayDiff(c.next_renew_due, today) <= 30 && dayDiff(c.next_renew_due, today) >= -30).sort((a, b) => a.next_renew_due.localeCompare(b.next_renew_due));
-    const sec = (title, n, list, emptyT) => el('div', { className: 'card' }, [el('div', { className: 'cs-h' }, [el('h3', { text: title }), el('span', { className: 'n', text: n })]), ...(list.length ? list : [el('div', { className: 'cs-empty', text: emptyT })])]);
-    const line = (c, sub, cls = '') => el('div', { className: 'cs-row' }, [el('span'), el('div', { className: 'nm' }, [c.name, el('small', { className: cls, text: sub })]), el('div', { className: 'acts' }, el('button', { className: 'btn sm ghost', type: 'button', text: '업체', onclick: () => openCompanyFromToday(c.id) }))]);
+    // 옆 카드: 업체당 한 줄(항목 묶음), 줄 전체 클릭 → 업체, 5줄 넘으면 [더 보기]
+    const sec = (key, title, items, emptyT) => {
+      const open = S.secOpen?.[key]; const n = items.length;
+      const more = n > 5 ? el('button', { className: 'cs-more', type: 'button', text: open ? '접기' : `${n - 5}곳 더 보기`, onclick: () => { S.secOpen = { ...S.secOpen, [key]: !open }; paintSide(); } }) : null;
+      return el('div', { className: 'card cs-card' }, [el('div', { className: 'cs-h' }, [el('h3', { text: title }), el('span', { className: 'n', text: n })]),
+        ...(n ? [el('div', { className: 'cs-list' + (open ? ' open' : '') }, (open ? items : items.slice(0, 5)).map(([c, sub, cls]) => el('button', { type: 'button', className: 'cs-line', onclick: () => openCompanyFromToday(c.id) }, [el('b', { text: c.name }), el('small', { className: cls || '', text: sub }), el('span', { className: 'go', text: '›' })]))), more] : [el('div', { className: 'cs-empty', text: emptyT })]).filter(Boolean)]);
+    };
+    const byCo = (list, fmt) => { const m = new Map(); list.forEach((x) => { const k = x.co.id; if (!m.has(k)) m.set(k, { co: x.co, xs: [] }); m.get(k).xs.push(x); }); return [...m.values()].map(({ co, xs }) => [co, fmt(xs)]); };
     const low = f(A.low), empty = f(A.empty), stale = f(A.stale);
-    const side = el('div', { className: 'cal-side' }, [
-      sec('재계약 임박 (±30일)', soon.length, soon.slice(0, 40).map((c) => { const dd = dayDiff(c.next_renew_due, today); return line(c, `${md(c.next_renew_due)} · ${dd < 0 ? -dd + '일 지남' : 'D-' + dd} · ${c.manager_owner_name || c.sales_owner_name || '미배정'}`, dd <= 7 ? 'late' : ''); }), '30일 안에 재계약할 업체가 없습니다.'),
-      sec('실행 소진 임박 (남은 20% 이하)', low.length, low.slice(0, 40).map((x) => line(x.co, `${x.d.item} ${Number(x.left).toLocaleString()} / ${Number(x.d.planned).toLocaleString()} 남음 · 재계약 제안`)), '없습니다.'),
-      sec('실행 소진 완료', empty.length, empty.slice(0, 40).map((x) => line(x.co, `${x.d.item} ${Number(x.d.done).toLocaleString()} / ${Number(x.d.planned).toLocaleString()} 완료`, 'late')), '없습니다.'),
-      sec('실행 수량 입력 필요 (14일)', stale.length, stale.slice(0, 40).map((x) => line(x.co, `마지막 수정 ${kstDay(x.t)}`)), '모든 업체 수량이 최신입니다.'),
-    ]);
+    const side = el('div', { className: 'cal-side' });
+    const paintSide = () => side.replaceChildren(
+      sec('soon', '재계약 임박 (±30일)', soon.map((c) => { const dd = dayDiff(c.next_renew_due, today); return [c, `${md(c.next_renew_due)} · ${dd < 0 ? -dd + '일 지남' : 'D-' + dd} · ${c.manager_owner_name || c.sales_owner_name || '미배정'}`, dd <= 7 ? 'late' : '']; }), '30일 안에 재계약할 업체가 없습니다.'),
+      sec('low', '실행 소진 임박 (남은 20% 이하)', byCo(low, (xs) => xs.map((x) => `${x.d.item} ${Number(x.left).toLocaleString()}/${Number(x.d.planned).toLocaleString()} 남음`).join(' · ')), '없습니다.'),
+      sec('empty', '실행 소진 완료 → 재계약 제안', byCo(empty, (xs) => `${xs.map((x) => x.d.item).join(' · ')} 완료`).map((r) => [...r, 'late']), '없습니다.'),
+      sec('stale', '실행 수량 입력 필요 (14일)', stale.map((x) => [x.co, `마지막 수정 ${kstDay(x.t)}`]), '모든 업체 수량이 최신입니다.'),
+    );
+    paintSide();
     const legend = el('div', { className: 'cal-legend' }, [el('span', {}, [el('i', { style: 'background:var(--t4)' }), 'D-31 이상']), el('span', {}, [el('i', { style: 'background:var(--amber)' }), 'D-30 ~ D-8']), el('span', {}, [el('i', { style: 'background:var(--red)' }), 'D-7 이내 · 지남']), el('span', { text: '· 업체를 누르면 상세가 열립니다' })]);
     return [el('div', { className: 'cal-tools' }, [seg]), legend, el('div', { className: 'cal-wrap' }, [el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), tbl]), side])];
   }
