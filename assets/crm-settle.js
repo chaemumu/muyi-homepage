@@ -76,11 +76,18 @@
 .st-people input{width:80px;height:28px;text-align:right}
 .cc-tbl td input.fi{height:30px;width:100%;text-align:right}
 .cc-tbl td input.fi.nm{text-align:left}
+.cc-tbl td input.fi.ro{border-color:transparent;background:transparent;box-shadow:none;cursor:default}
+.cc-unit{display:flex;align-items:center;gap:6px}
+.cc-unit .fi{flex:1;min-width:0}
+.ed-btn{flex:none;height:24px;padding:0 8px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font-size:11px;font-weight:600;color:var(--t3)}
+.ed-btn:hover{border-color:var(--accent);color:var(--accent)}
+.st-btns{display:inline-flex;gap:4px}
+.cc-tbl tr.editing td{background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
 .cc-tbl tr.used td{background:color-mix(in srgb,var(--accent) 5%,var(--surface))}
 .cc-sum{display:grid;gap:2px}
 .st-imp{display:grid;gap:8px}
 .pm.st-modal.wide{width:min(860px,100%)}
-.st-modal .dr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.st-modal .dr-grid,#settleBody .dr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .st-modal .dr-grid label.wide{grid-column:1/-1}
 @media (max-width:900px){.st-grid2{grid-template-columns:minmax(0,1fr)}.st-month{margin-left:0}.st-modal .dr-grid{grid-template-columns:1fr}.pm-layer{padding:0;place-items:stretch}.pm{width:100%!important;max-height:none;height:var(--vh,100vh);border-radius:0}}
 `;
@@ -126,6 +133,7 @@
   const kpi = (l, v, sub, neg) => el('div', { className: 'kpi' }, [el('div', { className: 'kpi-lbl', text: l }), el('div', { className: 'kpi-val' + (neg ? ' neg' : ''), text: v }), sub ? el('div', { className: 'kpi-sub', text: sub }) : null].filter(Boolean));
   const th = (t, num) => el('th', { className: num ? 'num' : '', text: t });
   const td = (t, cls = '') => el('td', { className: cls, text: t == null ? '—' : String(t) });
+  const editCell = (r) => el('td', { className: 'num' }, el('button', { className: 'btn sm', type: 'button', text: '수정', onclick: (e) => { e.stopPropagation(); rowModal(r); } }));
   const ntd = (n) => el('td', { className: 'num' + (n < 0 ? ' neg' : ''), text: n == null ? '—' : signed(n) });
 
   // ── 매출 원장 ──
@@ -139,15 +147,15 @@
     const byP = new Map();
     rows.forEach((r) => { const k = r.owner_name || '(미지정)'; const x = byP.get(k) || { n: 0, base: 0, exec: 0, inc: 0 }; x.n++; x.base += base(r); x.exec += execBase(r); x.inc += incentive(r); byP.set(k, x); });
     const tbl = el('table', { className: 'tbl st-tbl' }, [
-      el('thead', {}, el('tr', {}, [th('결제일'), th('영업사원'), th('업체'), th('품목'), th('결제금액', 1), th('원금', 1), th('실행비 (VAT 포함)', 1), th('인센율', 1), th('인센', 1), th('확인/입금'), th('특이사항')])),
+      el('thead', {}, el('tr', {}, [th('결제일'), th('영업사원'), th('업체'), th('품목'), th('결제금액', 1), th('원금', 1), th('실행비 (VAT 포함)', 1), th('인센율', 1), th('인센', 1), th('확인/입금'), th('특이사항'), th('')])),
       el('tbody', {}, rows.length ? rows.map((r) => el('tr', { className: 'click', onclick: () => rowModal(r) }, [
         td(r.paid_on.slice(5).replace('-', '/'), 'k'), td(r.owner_name), el('td', {}, [r.company_name || '—', r.kind !== '결제' && el('span', { className: 'st-tag' + (r.kind === '환불' || r.kind === '환수' ? ' neg' : ''), text: r.kind })].filter(Boolean)), td(r.item, 'sub'),
         ntd(r.amount_won), ntd(r.amount_won == null ? null : base(r)),
         el('td', { className: 'num' }, el('button', { className: 'ex-btn' + (r.exec_won != null ? ' set' : ''), type: 'button', text: r.exec_won != null ? won(r.exec_won) : '계산', title: '정산계산기로 실행비 계산', onclick: (e) => { e.stopPropagation(); calcModal(r); } })),
         td(r.incentive_fixed_won != null ? '고정' : r.incentive_rate != null ? Math.round(r.incentive_rate * 100) + '%' : '—', 'num sub'), ntd(incentive(r)),
-        td(r.checked, 'sub'), td(r.memo, 'sub memo'),
-      ])) : [el('tr', {}, el('td', { colSpan: 11, className: 'empty', text: '이 달 결제가 없습니다. CRM에서 [결제 등록]을 하면 자동으로 들어옵니다.' }))]),
-      rows.length ? el('tfoot', {}, el('tr', {}, [el('td', { colSpan: 4, text: `합계 ${rows.length}건` }), ntd(tAmt), ntd(tBase), el('td', { className: 'num', text: won(tExec) }), td(''), ntd(tInc), td(''), td('')])) : null,
+        td(r.checked, 'sub'), td(r.memo, 'sub memo'), editCell(r),
+      ])) : [el('tr', {}, el('td', { colSpan: 12, className: 'empty', text: '이 달 결제가 없습니다. CRM에서 [결제 등록]을 하면 자동으로 들어옵니다.' }))]),
+      rows.length ? el('tfoot', {}, el('tr', {}, [el('td', { colSpan: 4, text: `합계 ${rows.length}건` }), ntd(tAmt), ntd(tBase), el('td', { className: 'num', text: won(tExec) }), td(''), ntd(tInc), td(''), td(''), td('')])) : null,
     ].filter(Boolean));
     const ppl = [...byP.entries()].sort((a, b) => b[1].base - a[1].base);
     return [
@@ -301,12 +309,12 @@
         el('div', { className: 'card' }, [
           el('div', { className: 'st-head' }, [el('h3', { text: `${P.name} · ${S.month.replace('-', '년 ')}월 결제 ${rows.length}건` }), noExec ? el('span', { className: 'st-tag neg', text: `실행비 미입력 ${noExec}건` }) : null].filter(Boolean)),
           el('div', { className: 'tbl-wrap' }, el('table', { className: 'tbl st-tbl' }, [
-            el('thead', {}, el('tr', {}, [th('결제일'), th('업체'), th('원금', 1), th('실행원금', 1), th('차액', 1), th('율', 1), th('인센', 1)])),
+            el('thead', {}, el('tr', {}, [th('결제일'), th('업체'), th('원금', 1), th('실행원금', 1), th('차액', 1), th('율', 1), th('인센', 1), th('')])),
             el('tbody', {}, rows.length ? rows.map((r) => el('tr', { className: 'click', onclick: () => rowModal(r) }, [td(r.paid_on.slice(5).replace('-', '/'), 'k'),
               el('td', {}, [r.company_name || '—', r.kind !== '결제' && el('span', { className: 'st-tag neg', text: r.kind })].filter(Boolean)),
               ntd(base(r)), el('td', { className: 'num' }, el('button', { className: 'ex-btn' + (r.exec_won != null ? ' set' : ''), type: 'button', text: r.exec_won != null ? won(execBase(r)) : '계산', onclick: (e) => { e.stopPropagation(); calcModal(r); } })),
-              ntd(base(r) - execBase(r)), td(r.incentive_fixed_won != null ? '고정' : r.incentive_rate != null ? Math.round(r.incentive_rate * 100) + '%' : '—', 'num sub'), ntd(incentive(r))]))
-              : [el('tr', {}, el('td', { colSpan: 7, className: 'empty', text: '이 달 결제가 없습니다.' }))]),
+              ntd(base(r) - execBase(r)), td(r.incentive_fixed_won != null ? '고정' : r.incentive_rate != null ? Math.round(r.incentive_rate * 100) + '%' : '—', 'num sub'), ntd(incentive(r)), editCell(r)]))
+              : [el('tr', {}, el('td', { colSpan: 8, className: 'empty', text: '이 달 결제가 없습니다.' }))]),
           ])),
         ]),
         el('div', { className: 'card' }, [
@@ -337,9 +345,10 @@
     const fmt = (v) => { const d = String(v).replace(/[^\d]/g, ''); return d ? Number(d).toLocaleString() : ''; };
     const rowEl = (it) => {
       const tot = el('td', { className: 'num' });
-      const unit = fi({ inputMode: 'numeric', value: Number(it.unit || 0).toLocaleString() }), qty = fi({ inputMode: 'numeric', value: it.qty === '' ? '' : Number(it.qty).toLocaleString(), placeholder: '0' });
+      const unit = fi({ inputMode: 'numeric', value: Number(it.unit || 0).toLocaleString(), readOnly: !it.custom, className: 'fi' + (it.custom ? '' : ' ro'), tabIndex: it.custom ? 0 : -1 }), qty = fi({ inputMode: 'numeric', value: it.qty === '' ? '' : Number(it.qty).toLocaleString(), placeholder: '0' });
       const name = it.custom ? fi({ className: 'fi nm', value: it.name || '', placeholder: '항목명' }) : null;
-      const tr = el('tr', {}, [name ? el('td', {}, name) : td(it.name), el('td', {}, unit), el('td', {}, qty), tot]);
+      const unlock = it.custom ? null : el('button', { className: 'ed-btn', type: 'button', text: '수정', title: '이번 계산에서만 단가 바꾸기 (단가표는 그대로)', onclick: () => { unit.readOnly = false; unit.classList.remove('ro'); unit.tabIndex = 0; unit.focus(); unit.select(); unlock.remove(); } });
+      const tr = el('tr', {}, [name ? el('td', {}, name) : td(it.name), el('td', {}, el('div', { className: 'cc-unit' }, [unit, unlock].filter(Boolean))), el('td', {}, qty), tot]);
       const upd = () => { it.unit = num(unit.value) || 0; it.qty = num(qty.value) ?? ''; if (name) it.name = name.value.trim(); const t = (it.unit || 0) * (Number(it.qty) || 0); tot.textContent = t ? won(t) : '-'; tr.classList.toggle('used', !!t); paint(); };
       unit.addEventListener('input', () => { unit.value = fmt(unit.value); upd(); }); qty.addEventListener('input', () => { qty.value = fmt(qty.value); upd(); }); name?.addEventListener('input', upd);
       const t = (it.unit || 0) * (Number(it.qty) || 0); tot.textContent = t ? won(t) : '-'; tr.classList.toggle('used', !!t);
@@ -394,21 +403,33 @@
   async function pricesView() {
     const list = await loadPrices();
     const tbody = el('tbody');
-    const rowEl = (p) => {
+    // 보기 줄 ↔ 수정 줄: [수정]을 눌러야 입력칸이 열림 (실수로 단가가 바뀌지 않게)
+    const viewRow = (p) => el('tr', {}, [td(p.name), td(Number(p.unit_won || 0).toLocaleString(), 'num'),
+      el('td', {}, el('span', { className: 'st-tag' + (p.active === false ? ' neg' : ''), text: p.active === false ? '사용 안 함' : '사용' })),
+      el('td', { className: 'num' }, el('button', { className: 'btn sm', type: 'button', text: '수정', onclick: (e) => e.target.closest('tr').replaceWith(editRow(p)) }))]);
+    const editRow = (p) => {
       const name = fi({ value: p.name || '', placeholder: '품목' }), unit = fi({ inputMode: 'numeric', value: p.unit_won != null ? Number(p.unit_won).toLocaleString() : '' }), act = el('input', { type: 'checkbox', checked: p.active !== false });
-      const save = el('button', { className: 'btn sm', type: 'button', text: '저장', onclick: async () => {
+      unit.addEventListener('input', () => { const d = unit.value.replace(/[^\d]/g, ''); unit.value = d ? Number(d).toLocaleString() : ''; });
+      const save = el('button', { className: 'btn sm primary', type: 'button', text: '저장', onclick: async () => {
         const row = { name: name.value.trim(), unit_won: num(unit.value) || 0, active: act.checked, sort: p.sort ?? list.length + 1 };
         if (!row.name) { toast('품목명을 입력하세요'); return; }
+        save.disabled = true;
         const { error } = p.id ? await sb.from('settle_prices').update(row).eq('id', p.id) : await sb.from('settle_prices').insert(row);
+        save.disabled = false;
         if (error) { toast('저장 실패: ' + error.message); return; } toast('저장됨'); draw();
       } });
-      return el('tr', {}, [el('td', {}, name), el('td', { className: 'num' }, unit), el('td', {}, el('label', { className: 'st-people' }, [act, '사용'])), el('td', {}, save)]);
+      const cancel = el('button', { className: 'btn sm ghost', type: 'button', text: '취소', onclick: (e) => { const tr = e.target.closest('tr'); if (p.id) tr.replaceWith(viewRow(p)); else tr.remove(); } });
+      const tr = el('tr', { className: 'editing' }, [el('td', {}, name), el('td', { className: 'num' }, unit), el('td', {}, el('label', { className: 'st-people' }, [act, '사용'])), el('td', { className: 'num' }, el('span', { className: 'st-btns' }, [cancel, save]))]);
+      tr.addEventListener('keydown', (e) => { if (e.key === 'Enter') save.click(); if (e.key === 'Escape') cancel.click(); });
+      queueMicrotask(() => (p.id ? unit : name).focus());
+      return tr;
     };
+    const rowEl = viewRow;
     tbody.replaceChildren(...list.map(rowEl));
     return [
-      el('div', { className: 'hint', text: '정산계산기에 쓰는 실비 단가 (VAT 별도). 값을 바꾸고 [저장]을 누르세요. 안 쓰는 품목은 "사용"을 끄면 계산기에서 빠집니다.' }),
+      el('div', { className: 'hint', text: '정산계산기에 쓰는 실비 단가 (VAT 별도). 품목 오른쪽 [수정]을 눌러 바꾸고 [저장]하세요 (Enter 저장 · Esc 취소). 안 쓰는 품목은 "사용"을 끄면 계산기에서 빠집니다.' }),
       el('div', { className: 'card' }, el('div', { className: 'tbl-wrap' }, el('table', { className: 'tbl st-tbl cc-tbl' }, [el('thead', {}, el('tr', {}, [th('품목'), th('단가 (원)', 1), th(''), th('')])), tbody]))),
-      el('button', { className: 'btn', type: 'button', text: '+ 품목 추가', onclick: () => tbody.append(rowEl({})) }),
+      el('button', { className: 'btn', type: 'button', text: '+ 품목 추가', onclick: () => tbody.append(editRow({})) }),
     ];
   }
 
