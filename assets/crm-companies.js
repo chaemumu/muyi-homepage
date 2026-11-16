@@ -236,11 +236,12 @@
     state.listEl = el('tbody');
     state.moreEl = el('div', { className: 'co-more' });
     state.addBtn = mode === 'leads' ? el('button', { className: 'btn primary', type: 'button', text: '+ 가망 등록', onclick: () => leadModal(state.tab === 'expo') }) : null;
+    state.smsBtn = mode === 'leads' ? el('button', { className: 'btn', type: 'button', text: '문자 보내기', title: '지금 목록(필터 적용)에서 휴대폰 번호가 있는 업체에게 문자', onclick: () => smsOpen({ title: '지금 목록', load: async () => { const { data } = await withEvent(tabFilter(query('id,name,phone,store_phone'))).limit(2000); return (data || []).map((r) => ({ company_id: r.id, name: r.name, phone: r.phone || r.store_phone })); } }) }) : null;
     const filters = mode === 'leads'
       ? [ownerSel, chip('전화번호 있음', 'phoneOnly'), chip('확인 필요', 'review'), chip('보관함', 'archived'), el('span', { className: 'ml-auto' }), sortSel]
       : [ownerSel, el('span', { className: 'ml-auto' }), sortSel];
     box.replaceChildren(
-      el('header', { className: 'topbar' }, [el('h1', { text: M.title }), state.descEl, el('label', { className: 'search' }, [el('span', { innerHTML: '<svg class="i"><use href="#i-search"/></svg>' }).firstChild, search]), state.addBtn].filter(Boolean)),
+      el('header', { className: 'topbar' }, [el('h1', { text: M.title }), state.descEl, el('label', { className: 'search' }, [el('span', { innerHTML: '<svg class="i"><use href="#i-search"/></svg>' }).firstChild, search]), state.smsBtn, state.addBtn].filter(Boolean)),
       el('div', { className: 'pg' }, [
         M.segs ? state.segEl : null,
         state.tabsEl,
@@ -328,7 +329,7 @@
       .order(state.sort, { ascending: asc, nullsFirst: false });
     if (state.sort !== 'name') q = q.order('name');
     const { data, error } = await q.range(state.offset, state.offset + PAGE - 1);
-    if (error) { state.listEl.replaceChildren(el('tr', {}, el('td', { colSpan: 8, className: 'empty', text: '불러오기 실패: ' + error.message }))); return; }
+    if (error) { state.listEl.replaceChildren(el('tr', {}, el('td', { colSpan: 8, className: 'empty err', text: '불러오기 실패: ' + error.message }))); return; }
     state.rows.push(...data); state.offset += data.length; state.done = data.length < PAGE;
     const total = state.event ? null : state.counts[state.tab] || 0;
     state.descEl.textContent = total == null ? `${state.rows.length.toLocaleString()}곳${state.done ? '' : '+'}` : `${total.toLocaleString()}곳` + (state.rows.length < total ? ` · ${state.rows.length.toLocaleString()}곳 표시` : '');
@@ -372,6 +373,7 @@
   const addDaysIso = (n) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
 
   // ── 상세 패널 ──
+  const smsOpen = (o) => loadScript('/assets/crm-sms.js?v=1').then(() => window.CRM_SMS.open(o)).catch(() => toast('문자 화면을 불러오지 못했습니다'));
   let drawer = null;
   // 저장 안 한 변경이 있으면 닫기·이동 전에 확인
   function guard() { if (state?.dirty && !confirm('저장하지 않은 변경 내용이 있습니다. 버리고 이동할까요?')) return false; if (state) state.dirty = false; return true; }
@@ -451,8 +453,9 @@
     drawer.replaceChildren(
       el('div', { className: 'dr-h' + (client ? '' : ' lead') }, [
         el('div', { className: 'dr-top' }, [el('h2', { text: co.name }),
+          (co.phone || co.store_phone) && el('button', { className: 'btn sm', type: 'button', text: '문자', onclick: () => smsOpen({ title: co.name, load: async () => [{ company_id: co.id, name: co.name, phone: co.phone || co.store_phone }] }) }),
           el('button', { className: 'btn brand', type: 'button', text: client ? '재계약 등록' : '결제 등록', onclick: () => payModal(co, D) }),
-          el('button', { className: 'icon-btn', type: 'button', title: '닫기 (Esc)', text: '✕', onclick: close })]),
+          el('button', { className: 'icon-btn', type: 'button', title: '닫기 (Esc)', text: '✕', onclick: close })].filter(Boolean)),
         el('div', { className: 'dr-meta' }, [
           client ? dot(co.service_type || '구분 없음', SVC_COLOR[co.service_type] || 'var(--amber)') : dot(co.archived ? '보관' : '가망', STAGE_COLOR.가망),
           client && dot(co.run_status, RUN_COLOR[co.run_status]),
