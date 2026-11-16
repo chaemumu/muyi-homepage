@@ -79,6 +79,7 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 .mi:hover{background:var(--hover);color:var(--t1)}
 .mi.active{background:var(--surface);color:var(--t1);font-weight:600;box-shadow:0 0 0 1px var(--line),var(--sh)}
 .mi.active svg{color:var(--t1)}
+.mi-badge.alert{background:var(--red)}
 .mi-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:11px;font-weight:700;min-width:20px;height:18px;padding:0 6px;border-radius:9px;display:grid;place-items:center}
 .sb-foot{margin-top:auto;padding:10px;border-top:1px solid var(--line)}
 .me{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:var(--r)}
@@ -394,7 +395,7 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
       <button class="mi" data-page="clients"><svg class="i"><use href="#i-check"/></svg>계약 업체</button>
       <div class="nav-sec">관리</div>
       <button class="mi" data-page="perf"><svg class="i"><use href="#i-chart"/></svg>광고 성과</button>
-      <button class="mi" data-page="settle" id="navSettle" hidden><svg class="i"><use href="#i-won"/></svg>정산</button>
+      <button class="mi" data-page="settle" id="navSettle" hidden><svg class="i"><use href="#i-won"/></svg>정산<span class="mi-badge alert" id="settleBadge" hidden>!</span></button>
       <button class="mi" data-page="import" id="navImport" hidden><svg class="i"><use href="#i-upload"/></svg>가져오기</button>
     </nav>
     <div class="sb-foot">
@@ -560,7 +561,7 @@ async function start() {
     return;
   }
   me = session.user.id;
-  sb.rpc('is_master').then(({ data }) => { $('navImport').hidden = !data; $('navSettle').hidden = !data; });
+  sb.rpc('is_master').then(({ data }) => { $('navImport').hidden = !data; $('navSettle').hidden = !data; if (data) refreshSettleBadge(); });
   $('meEmail').textContent = session.user.email;
   $('login').hidden = true; $('app').hidden = false;
   const hadLead = !!deepLead;
@@ -1090,6 +1091,14 @@ $("themeBtn").onclick = () => {
 };
 syncThemeBtn();
 
+// 정산: 입금확인 미처리 결제가 있으면 사이드바 '정산' 옆에 ! (대표만, 5분마다 다시 확인)
+async function refreshSettleBadge() {
+  const { count } = await sb.from('ledger').select('id', { count: 'exact', head: true }).eq('kind', '결제').gt('amount_won', 0).or('checked.is.null,checked.neq.완료');
+  $('settleBadge').hidden = !count; $('settleBadge').title = count ? `입금확인 미처리 ${count}건` : '';
+}
+window.refreshSettleBadge = refreshSettleBadge;
+setInterval(() => { if (me && !$('navSettle').hidden && document.visibilityState === 'visible') refreshSettleBadge(); }, 300000);
+
 // ── 메뉴 ──
 // ── 화면 이동 = 주소(#today · #inbox · #leads · #clients · #co-업체ID). 새로고침·뒤로가기·링크 공유가 그대로 동작 ──
 const PAGES = ['today', 'inbox', 'leads', 'clients', 'perf', 'settle', 'import'];
@@ -1108,7 +1117,7 @@ function showPage(p, { push = true } = {}) {
   if (p === 'today') renderToday();
   if (p === 'settle') {
     const go = () => window.CRM_SETTLE.mount($('settleBody'));
-    if (window.CRM_SETTLE) go(); else { $('settleBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' })); const x = document.createElement('script'); x.src = '/assets/crm-settle.js?v=4'; x.onload = go; x.onerror = () => toast('정산 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
+    if (window.CRM_SETTLE) go(); else { $('settleBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' })); const x = document.createElement('script'); x.src = '/assets/crm-settle.js?v=5'; x.onload = go; x.onerror = () => toast('정산 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
   if (p === 'import' && !$('importBody').childElementCount) {
     $('importBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' }));
