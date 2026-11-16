@@ -210,6 +210,12 @@ UX:
 - 캘린더(`assets/crm-calendar.js`): 체험단 = 업체 매월 모집일(`recruit_days`) 기준 모집 → 발표 → 마감 → 2차마감(간격 `crm_settings.camp_offsets`, 2차마감은 마감 인원 부족 시 +7일), 완료·인원·날짜 변경은 `camp_tasks`. 계약 = 재계약일 + 실행 소진(남은 20% 이하)·수량 입력 14일 경과(`deliverables.updated_at`)
 - 발표 도우미(`assets/crm-camp.js`, 캘린더 발표 팝업·[명단 변환]): 리뷰노트 엑셀 → 관리팀 TXT 명단(`rounds.cycle_on` + `roster`) · 점주 멘트 · 일정 이미지(canvas PNG) · 구글 캘린더 링크 · 블로거 가이드(`crm_settings 'guide_brand:<브랜드>'` + 지점 `guidelines` 체험단)
   Edge Function `camp-assist`(관리자만): nick(m.blog.naver.com nickName) · notes(신청메시지 → AI 특이사항, haiku) · posts(블로그 RSS에서 업체명 글 찾기)
+  마감 확인(`closeCheck`, 캘린더 마감·2차마감 팝업 [🔍 링크 확인]): 블로거 RSS에서 업체명 글 자동 수집 → `roster.post_url` 저장 → 마감 인원 반영(부족하면 2차마감)
+  계약 캘린더 그룹: 진행 중 · 재계약 지남 · 홀딩 · 종료(뿌러짐) · 정보 없음(재계약일·결제일 비어 있음) — 표 정렬 가능
+- 문자(`assets/crm-sms.js`, 가망 목록 [문자 보내기] · 업체 상세 [문자]): Edge Function `sms-send`(관리자만, 알리고 `send_mass`, Secret `ALIGO_API_KEY`·`ALIGO_USER_ID`·`ALIGO_SENDER`)
+  광고 문자는 서버에서 강제: `(광고)` 표기 + 080 무료수신거부 문구(`crm_settings 'sms_config'`) + 밤 9시~아침 8시 차단. `sms_optout` 번호·중복·유선 자동 제외, 전부 `sms_logs` 기록 → **안전장치 제거 금지**(정보통신망법 50조)
+  템플릿 `crm_settings 'sms_templates'`, `#{업체명}` 자동 치환
+- 브랜드 이미지 `assets/brand/`: 로고(`muyi-logo-tagline*.png`, 일정 이미지용) · 캐릭터 4종(`muyi-char*.webp`, 빈 화면·오류·완료 안내에만 사용)
 - `naver-place`: 네이버 지도 URL → 업체명·주소·전화·업종 (관리자만, 저장 안 함)
 - 기타: `expo-gate`, `expo-copy`, `call-dispatch`(AI 1차 통화, 매분), `retell-webhook`, `capi-purchase`, `notify-assign`(담당 배정 1:1 알림), `daily-digest`(아침 요약 1:1), `meta-spend`
 - `push-crm`: 옛 CRM 연동, 410 비활성 — 대시보드에서 삭제 대상

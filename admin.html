@@ -151,6 +151,9 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 .tbl tbody tr.late td:first-child{box-shadow:inset 3px 0 0 var(--red)}
 .tbl td.name strong{color:var(--t1);font-weight:600}
 .empty{text-align:center;color:var(--t3);padding:56px 0!important;height:auto!important}
+.empty::before{content:'';display:block;width:88px;height:88px;margin:0 auto 10px;background:url(/assets/brand/muyi-char.webp) center/contain no-repeat;opacity:.92}
+.empty.err::before{background-image:url(/assets/brand/muyi-char-cry.webp)}
+.hello-char{width:56px;height:auto;flex:none;align-self:center}
 .who{display:inline-flex;align-items:center;gap:6px}
 .who.none{color:var(--t4)}
 
@@ -285,8 +288,8 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
 /* 15% 확대 상태라 노트북 화면에선 덜 중요한 열(업종, 최근 기록)을 숨긴다. 둘 다 펼친 칸에 나온다 */
-@media (max-width:1500px){.tbl:not(.perf):not(.co-tbl):not(.st-tbl) tr>:nth-child(4){display:none}}
-@media (max-width:1320px){.tbl:not(.perf):not(.co-tbl):not(.st-tbl) tr>:nth-child(9){display:none}}
+@media (max-width:1500px){.tbl:not(.perf):not(.co-tbl):not(.st-tbl):not(.cg-tbl) tr>:nth-child(4){display:none}}
+@media (max-width:1320px){.tbl:not(.perf):not(.co-tbl):not(.st-tbl):not(.cg-tbl) tr>:nth-child(9){display:none}}
 
 @media (max-width:900px){
   #app{flex-direction:column}
@@ -1123,10 +1126,10 @@ function showPage(p, { push = true } = {}) {
   PAGES.forEach((k) => { $('pg-' + k).hidden = k !== p; });
   if (p === 'leads' || p === 'clients') {
     const go = () => window.CRM_COMPANIES.mount($('pg-' + p), p);
-    if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=7'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
+    if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=8'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
   if (p === 'today') renderToday();
-  if (p === 'calendar') loadScript('/assets/crm-calendar.js?v=3').then(() => window.CRM_CALENDAR.mount($('calBody'))).catch(() => toast('캘린더를 불러오지 못했습니다'));
+  if (p === 'calendar') loadScript('/assets/crm-calendar.js?v=4').then(() => window.CRM_CALENDAR.mount($('calBody'))).catch(() => toast('캘린더를 불러오지 못했습니다'));
   if (p === 'settle') {
     const go = () => window.CRM_SETTLE.mount($('settleBody'));
     if (window.CRM_SETTLE) go(); else { $('settleBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' })); const x = document.createElement('script'); x.src = '/assets/crm-settle.js?v=5'; x.onload = go; x.onerror = () => toast('정산 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
@@ -1197,7 +1200,7 @@ async function loadTodayCompanies() {
     };
     // 체험단 일정(오늘 + 밀린 것)과 실행 소진·수량 입력 알림은 캘린더 모듈이 계산
     try {
-      await loadScript('/assets/crm-calendar.js?v=3');
+      await loadScript('/assets/crm-calendar.js?v=4');
       const [camp, ex] = await Promise.all([window.CRM_CALENDAR.todayCamp(), window.CRM_CALENDAR.execAlerts()]);
       todayCo.recruit = camp.ev.sort((a, b) => a.due.localeCompare(b.due)).map((e) => ({ co: e.co, e, toggle: camp.toggle }));
       todayCo.exec = ex;
@@ -1261,9 +1264,9 @@ function renderToday() {
   $('todoBadge').hidden = !grand; $('todoBadge').textContent = grand;
   const name = admins[me] || '관리자';
   $('todayBody').replaceChildren(
-    el('div', { className: 'hello' }, [el('h2', { text: `${name}님, 오늘 처리할 일 ${grand}건` }),
+    el('div', { className: 'hello' }, [!grand && el('img', { className: 'hello-char', src: '/assets/brand/muyi-char-idea.webp', alt: '' }), el('h2', { text: `${name}님, 오늘 처리할 일 ${grand}건` }),
       el('span', { text: grand ? '위에서부터 차례로 처리하세요.' : '밀린 일이 없습니다.' }),
-      el('button', { className: 'chip' + (todayMine ? ' on' : ''), type: 'button', text: '내 담당만', onclick: () => { todayMine = !todayMine; renderToday(); } })]),
+      el('button', { className: 'chip' + (todayMine ? ' on' : ''), type: 'button', text: '내 담당만', onclick: () => { todayMine = !todayMine; renderToday(); } })].filter(Boolean)),
     el('div', { className: 'kpi-row' }, [
       kpi('문의 처리', total, `신규 ${fresh.length} · 밀림 ${over.length} · 오늘 ${todays.length}`),
       kpi('계약 업체 일정', T ? coTotal : '…', T ? `체험단 ${T.recruit.length} · 재계약 ${T.renew.length} · 소진 ${T.exec.length} · 체크 ${T.checklist.length} · 확인 ${T.review.length}` : '불러오는 중'),

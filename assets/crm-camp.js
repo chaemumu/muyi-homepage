@@ -5,6 +5,9 @@
 (function () {
   const XLSX_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
   const DOWK = ['일', '월', '화', '수', '목', '금', '토'];
+  const STEP_C = { 모집: '#2563EB', 발표: '#8B5CF6', 체험: '#10B981', 마감: '#EE4E00', '2차마감': '#E11D48' };
+  const LOGO = '/assets/brand/muyi-logo-tagline.png';
+  let logoImg = null; const logoReady = new Promise((ok) => { const i = new Image(); i.onload = () => { logoImg = i; ok(); }; i.onerror = () => ok(); i.src = LOGO; });
   const pad = (n) => String(n).padStart(2, '0');
   const parse = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
   const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -66,6 +69,15 @@
 .ca-prog{height:4px;border-radius:2px;background:var(--muted);overflow:hidden}
 .ca-prog i{display:block;height:100%;background:#1E10C7;transition:width .3s}
 .ca-pick{display:grid;gap:6px}
+.ca-st{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:10px}
+.ca-st.ok{background:color-mix(in srgb,#10B981 15%,var(--surface));color:#047857}
+.ca-st.no{background:color-mix(in srgb,#E11D48 12%,var(--surface));color:#BE123C}
+.ca-st.off{background:var(--muted);color:var(--t3)}
+.ca-empty{display:grid;justify-items:center;gap:8px;padding:28px 16px;text-align:center}
+.ca-empty img{width:120px;height:auto}
+.ca-empty b{font-size:16px}
+.ca-empty span{font-size:13px;color:var(--t3);max-width:420px}
+.ca-tbl a{color:var(--accent);font-weight:600}
 .ca-pick button{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);text-align:left;cursor:pointer}
 .ca-pick button:hover{border-color:#1E10C7}
 .ca-pick button b{font-size:14px}
@@ -110,7 +122,7 @@
       tab: ros.length ? 'owner' : 'list', saved: !!ros.length,
       storeGuide: gl.data?.[0]?.body || '', brandGuide: typeof gb.data?.value === 'string' ? gb.data.value : '',
     };
-    const C = { 모집: '#1E10C7', 발표: '#7C3AED', 체험: '#2563EB', 마감: '#EE4E00' };
+    const C = STEP_C;
     const chip = (k, t) => { const s = el('span', {}, [el('i'), t]); s.style.setProperty('--c', C[k]); return s; };
     const head = el('div', { className: 'ca-head' }, [
       el('div', { className: 'ca-title' }, [el('h3', { text: co.name }), el('span', { className: 'rd', text: `${S.roundNo}회차` }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]),
@@ -124,16 +136,17 @@
     const live = () => S.rows.filter((r) => !r.off);
 
     // TXT 명단 (관리팀 양식)
-    const rosterTxt = (withNote = true) => [
+    const rosterTxt = () => [
       `----------${S.roundNo}---------- 몇 팀 : ${S.teams}팀`, `리뷰기간 : ${S.weeks}주`, '', `리뷰노트 마감일 : ~ ${kmd(p.deadline)}`, '',
-      ...S.rows.flatMap((r) => [r.nickname || '(닉네임)', r.name + (r.off ? '\t\t\t취소' : ''), r.phone, r.blog, ...(r.post ? [r.post] : []), ...(withNote && r.note && !r.off ? [`* ${r.note}`] : []), '']),
+      ...S.rows.flatMap((r) => [(r.nickname || r.name) + (r.off ? '\t\t\t취소' : ''), r.name, r.phone, r.post || r.blog, '']),
     ].join('\n');
     const ownerMsg = () => [
       `안녕하세요 사장님, 무이(MUYI)입니다 😊`,
       `${co.name} ${S.roundNo}회차 체험단 명단이 나와서 연락드립니다!`, '',
       `📅 일정`, `· 체험+리뷰 기간: ${mdw(p.reviewFrom)} ~ ${mdw(p.reviewTo)}`, `· 리뷰 마감: ${mdw(p.deadline)}`, '',
       `👥 선정 블로거 ${live().length}명`,
-      ...live().map((r, i) => `${i + 1}. ${r.nickname || r.name} (${r.name}) ${r.phone}${r.note ? `\n   └ ${r.note}` : ''}`), '',
+      ...live().flatMap((r) => [r.nickname || r.name, r.name, r.phone, r.blog, '']),
+      ...(live().some((r) => r.note) ? ['📝 특이사항', ...live().filter((r) => r.note).map((r) => `· ${r.nickname || r.name}: ${r.note}`), ''] : []),
       `블로거분들이 예약 문의 시 "리뷰노트 체험단으로 선정된 OOO입니다"라고 연락드릴 예정이에요.`,
       `방문 시 '무이 체험단'이라고 말씀드리니 확인 부탁드립니다.`,
       `일정표 이미지와 캘린더 링크도 함께 보내드릴게요. 궁금하신 점은 언제든 편하게 연락 주세요. 감사합니다! 🙏`,
@@ -246,7 +259,7 @@
     // ③ 일정 이미지 · 구글 캘린더
     function imageView() {
       const cv = el('canvas', { width: 1080, height: 1350 });
-      draw(cv);
+      draw(cv); logoReady.then(() => draw(cv));
       const dl = () => { const a = el('a', { href: cv.toDataURL('image/png'), download: `${co.name}_${S.roundNo}회차_일정.png` }); document.body.append(a); a.click(); a.remove(); };
       const cp = async () => { try { const blob = await new Promise((r) => cv.toBlob(r, 'image/png')); await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); toast('이미지 복사됨 — 카톡에 붙여넣기'); } catch { toast('이 브라우저는 이미지 복사를 지원하지 않아요 — [PNG 저장]을 써주세요'); } };
       return [el('div', { className: 'ca-img' }, [cv, el('div', { className: 'ca-links' }, [
@@ -256,56 +269,57 @@
     }
     function draw(cv) {
       const x = cv.getContext('2d'), W = cv.width, H = cv.height;
-      const F = (w, s) => `${w} ${s}px "Pretendard","Noto Sans KR",system-ui,sans-serif`;
-      const BLUE = '#1E10C7', ORANGE = '#EE4E00', PURPLE = '#7C3AED', REVIEW = '#3B82F6', INK = '#16161D', SUB = '#6B6B76';
-      x.fillStyle = '#F4F5FA'; x.fillRect(0, 0, W, H);
-      // 머리
-      x.fillStyle = BLUE; x.fillRect(0, 0, W, 250);
-      x.fillStyle = 'rgba(255,255,255,.08)'; x.beginPath(); x.arc(W - 80, 40, 220, 0, Math.PI * 2); x.fill();
-      x.fillStyle = '#fff'; x.font = F(900, 40); x.fillText('muy!', 64, 92);
-      x.font = F(600, 22); x.fillStyle = 'rgba(255,255,255,.75)'; x.fillText(`체험단 ${S.roundNo}회차 일정 안내`, 64, 138);
-      x.font = F(800, 54); x.fillStyle = '#fff'; fit(x, co.name, 64, 205, W - 128, 54, F, 800);
-      // 단계 카드 4개
-      const steps = [['모집', `${mdw(p.recruitFrom)} ~ ${mdw(p.recruitTo)}`, BLUE], ['발표', mdw(p.announce), PURPLE], ['체험 + 리뷰', `${mdw(p.reviewFrom)} ~ ${mdw(p.reviewTo)}`, REVIEW], ['리뷰 마감 ♥', mdw(p.deadline), ORANGE]];
-      const cw = (W - 128 - 36) / 4;
+      const F = (w, sz) => `${w} ${sz}px "Pretendard","Noto Sans KR",system-ui,sans-serif`;
+      const BLUE = '#1E10C7', INK = '#14141B', SUB = '#6B6B76', LINE = '#E7E7EE';
+      const tint = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
+      x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+      // 머리: 로고 + 업체명
+      if (logoImg) { const lh = 66, lw = logoImg.width * (lh / logoImg.height); x.drawImage(logoImg, 64, 56, lw, lh); }
+      else { x.fillStyle = BLUE; x.font = F(900, 48); x.fillText('muy!', 64, 108); }
+      const badge = `체험단 ${S.roundNo}회차 일정`; x.font = F(800, 22); const bw = x.measureText(badge).width + 40;
+      rr(x, W - 64 - bw, 66, bw, 46, 23, tint('#1E10C7', 0.08)); x.fillStyle = BLUE; x.fillText(badge, W - 64 - bw + 20, 97);
+      x.fillStyle = INK; fit(x, co.name, 64, 200, W - 128, 60, F, 900);
+      x.fillStyle = SUB; x.font = F(600, 22); x.fillText(`선정 블로거 ${live().length || S.teams}명 · 리뷰 기간 ${S.weeks}주`, 64, 240);
+      // 단계 타임라인 (4칸)
+      const steps = [['모집', `${md(p.recruitFrom)} ~ ${md(p.recruitTo)}`, STEP_C.모집], ['발표', mdw(p.announce), STEP_C.발표], ['체험 + 리뷰', `${md(p.reviewFrom)} ~ ${md(p.reviewTo)}`, STEP_C.체험], ['리뷰 마감', mdw(p.deadline), STEP_C.마감]];
+      const cw = (W - 128 - 30) / 4, ty = 282;
       steps.forEach(([t, v, c], i) => {
-        const cx = 64 + i * (cw + 12), cy = 286;
-        rr(x, cx, cy, cw, 120, 18, '#fff'); x.fillStyle = c; rr(x, cx, cy, cw, 8, 4, c);
-        x.fillStyle = c; x.font = F(800, 22); x.fillText(t, cx + 18, cy + 50);
-        x.fillStyle = INK; fit(x, v, cx + 18, cy + 90, cw - 30, 24, F, 700);
+        const cx = 64 + i * (cw + 10);
+        rr(x, cx, ty, cw, 124, 20, tint(c, 0.1));
+        x.beginPath(); x.arc(cx + 30, ty + 36, 9, 0, Math.PI * 2); x.fillStyle = c; x.fill();
+        x.fillStyle = c; x.font = F(800, 21); x.fillText(t + (i === 3 ? ' ♥' : ''), cx + 48, ty + 44);
+        x.fillStyle = INK; fit(x, v, cx + 22, ty + 92, cw - 36, 27, F, 800);
+        if (i < 3) { x.fillStyle = tint(c, 0.5); x.font = F(800, 22); x.fillText('›', cx + cw - 2, ty + 70); }
       });
-      // 달력 (모집 시작 달 ~ 마감 달, 최대 2개)
+      // 달력
       const months = []; let m = p.recruitFrom.slice(0, 7); const last = p.deadline.slice(0, 7);
       while (m <= last && months.length < 2) { months.push(m); const d = parse(m + '-01'); d.setMonth(d.getMonth() + 1); m = iso(d).slice(0, 7); }
-      const top = 440, gap = 24, mh = (H - top - 110 - gap * (months.length - 1)) / months.length;
-      months.forEach((mm, i) => month(x, mm, 64, top + i * (mh + gap), W - 128, mh));
-      // 바닥 안내
-      x.fillStyle = SUB; x.font = F(600, 20);
-      const ft = '리뷰는 마감일까지 꼭 등록해 주세요 · 마감일에 무이가 등록 현황을 확인해 드립니다';
-      x.fillText(ft, (W - x.measureText(ft).width) / 2, H - 56);
-      function month(x, mm, X, Y, w, h) {
-        const [yy, mo] = mm.split('-').map(Number); const first = new Date(yy, mo - 1, 1); const dim = new Date(yy, mo, 0).getDate(); const lead = first.getDay();
-        rr(x, X, Y, w, h, 22, '#fff');
-        x.fillStyle = INK; x.font = F(800, 30); x.fillText(`${mo}월`, X + 28, Y + 50); const mw = x.measureText(`${mo}월`).width; x.fillStyle = SUB; x.font = F(600, 18); x.fillText(String(yy), X + 28 + mw + 12, Y + 50);
-        const gx = X + 20, gy = Y + 76, cwid = (w - 40) / 7, rows = Math.ceil((lead + dim) / 7), ch = (h - 96) / Math.max(rows, 5);
-        x.font = F(700, 17); ['일', '월', '화', '수', '목', '금', '토'].forEach((d, k) => { x.fillStyle = k === 0 ? '#E11D48' : k === 6 ? BLUE : SUB; x.fillText(d, gx + k * cwid + cwid / 2 - 8, gy); });
+      const top = 440, foot = 120, gap = 22, mh = (H - top - foot - gap * (months.length - 1)) / months.length;
+      months.forEach((mm, i) => month(mm, 64, top + i * (mh + gap), W - 128, mh));
+      // 바닥 띠
+      x.fillStyle = BLUE; x.fillRect(0, H - 96, W, 96);
+      x.fillStyle = '#fff'; x.font = F(800, 26); const t1 = `리뷰는 ${kmd(p.deadline)}까지 꼭 등록해 주세요`; x.fillText(t1, 64, H - 52);
+      x.font = F(600, 18); x.fillStyle = 'rgba(255,255,255,.75)'; x.fillText('마감일에 무이가 등록 현황을 확인해 드립니다', 64, H - 24);
+      function month(mm, X, Y, w, h) {
+        const [yy, mo] = mm.split('-').map(Number); const lead = new Date(yy, mo - 1, 1).getDay(); const dim = new Date(yy, mo, 0).getDate();
+        rr(x, X, Y, w, h, 24, '#F7F7FB');
+        x.fillStyle = INK; x.font = F(900, 32); x.fillText(`${mo}월`, X + 28, Y + 52);
+        const mw = x.measureText(`${mo}월`).width; x.fillStyle = SUB; x.font = F(600, 18); x.fillText(String(yy), X + 36 + mw, Y + 52);
+        // 범례
+        let lx = X + w - 28; [['마감', STEP_C.마감], ['체험+리뷰', STEP_C.체험], ['발표', STEP_C.발표], ['모집', STEP_C.모집]].forEach(([t, c]) => { x.font = F(700, 16); const tw = x.measureText(t).width; lx -= tw; x.fillStyle = SUB; x.fillText(t, lx, Y + 50); lx -= 22; rr(x, lx, Y + 36, 14, 14, 4, c); lx -= 18; });
+        const gx = X + 18, gy = Y + 92, cwid = (w - 36) / 7, rows = Math.ceil((lead + dim) / 7), ch = (h - 110) / Math.max(rows, 5);
+        x.font = F(700, 16); ['일', '월', '화', '수', '목', '금', '토'].forEach((d, k) => { x.fillStyle = k === 0 ? '#E11D48' : k === 6 ? BLUE : SUB; const tw = x.measureText(d).width; x.fillText(d, gx + k * cwid + (cwid - tw) / 2, gy); });
         for (let d = 1; d <= dim; d++) {
           const idx = lead + d - 1, r = Math.floor(idx / 7), c = idx % 7, s = `${mm}-${pad(d)}`;
           const cx = gx + c * cwid, cy = gy + 14 + r * ch;
-          let bg = null, fg = c === 0 ? '#E11D48' : INK, bold = 600;
-          if (s >= p.recruitFrom && s < p.announce) bg = 'rgba(30,16,199,.12)';
-          if (s >= p.reviewFrom && s <= p.reviewTo) bg = 'rgba(59,130,246,.16)';
-          if (s === p.announce) { bg = PURPLE; fg = '#fff'; bold = 800; }
-          if (s === p.deadline) { bg = ORANGE; fg = '#fff'; bold = 800; }
-          if (bg) rr(x, cx + 3, cy + 3, cwid - 6, ch - 6, 12, bg);
-          const ny = cy + Math.min(34, ch / 2 + 9);
-          x.fillStyle = fg; x.font = F(bold, 24); x.fillText(String(d), cx + 14, ny);
-          const tag = s === p.deadline ? '마감' : s === p.announce ? '발표' : s === p.recruitFrom ? '모집 시작' : s === p.reviewFrom ? '체험 시작' : '';
-          if (tag) {
-            x.font = F(800, 13); const tw = x.measureText(tag).width, tx = cx + cwid - tw - 14;
-            x.fillStyle = s === p.deadline || s === p.announce ? '#fff' : s === p.recruitFrom ? BLUE : '#1D4ED8'; x.fillText(tag, tx, ny - 2);
-            if (s === p.deadline) { x.font = F(800, 20); x.fillText('♥', cx + 14 + x.measureText(String(d)).width + 22, ny); }
-          }
+          let fill = '#fff', fg = c === 0 ? '#E11D48' : INK, strong = false, tag = '';
+          if (s >= p.recruitFrom && s < p.announce) { fill = tint(STEP_C.모집, 0.14); tag = s === p.recruitFrom ? '모집 시작' : ''; }
+          if (s >= p.reviewFrom && s <= p.reviewTo) { fill = tint(STEP_C.체험, 0.16); tag = s === p.reviewFrom ? '체험 시작' : ''; }
+          if (s === p.announce) { fill = STEP_C.발표; fg = '#fff'; strong = true; tag = '발표'; }
+          if (s === p.deadline) { fill = STEP_C.마감; fg = '#fff'; strong = true; tag = '마감 ♥'; }
+          rr(x, cx + 3, cy + 3, cwid - 6, ch - 6, 12, fill);
+          x.fillStyle = fg; x.font = F(strong ? 900 : 700, 24); x.fillText(String(d), cx + 14, cy + 32);
+          if (tag) { x.font = F(800, 13); x.fillStyle = strong ? '#fff' : (tag === '모집 시작' ? STEP_C.모집 : '#047857'); const tw = x.measureText(tag).width; x.fillText(tag, cx + cwid - tw - 13, cy + ch - 13); }
         }
       }
     }
@@ -331,5 +345,69 @@
     render();
   }
 
-  window.CRM_CAMP = { open, pick, period };
+
+  // ── 마감 확인: 명단 블로거의 블로그 RSS에서 업체명이 들어간 글을 찾아 링크 취합 → 마감 인원 반영 ──
+  const CHAR = { idea: '/assets/brand/muyi-char-idea.webp', cry: '/assets/brand/muyi-char-cry.webp', ok: '/assets/brand/muyi-char.webp' };
+  const empty = (img, title, sub, btn) => el('div', { className: 'ca-empty' }, [el('img', { src: CHAR[img], alt: '' }), el('b', { text: title }), sub ? el('span', { text: sub }) : null, btn || null].filter(Boolean));
+  async function closeCheck({ co, cycle, cfg, step = '마감', onCount }) {
+    const p = period(cycle, cfg);
+    const { data: round } = await sb.from('rounds').select('*').eq('company_id', co.id).eq('cycle_on', cycle).maybeSingle();
+    const head = el('div', { className: 'ca-head' }, [
+      el('div', { className: 'ca-title' }, [el('h3', { text: `${co.name} · ${step} 확인` }), round ? el('span', { className: 'rd', text: `${round.round_no}회차` }) : null, el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })].filter(Boolean)),
+      el('div', { className: 'ca-tl' }, [(() => { const sp = el('span', {}, [el('i'), `체험+리뷰 ${mdw(p.reviewFrom)} ~ ${mdw(p.reviewTo)}`]); sp.style.setProperty('--c', STEP_C.체험); return sp; })(), (() => { const sp = el('span', {}, [el('i'), `리뷰 마감 ${mdw(p.deadline)} ♥`]); sp.style.setProperty('--c', STEP_C.마감); return sp; })()]),
+    ]);
+    const body = el('div', { className: 'ca-body' });
+    const P = layer([head, body]);
+    if (!round) { body.replaceChildren(empty('idea', '아직 저장된 명단이 없어요', '발표 도우미에서 리뷰노트 엑셀로 명단을 먼저 저장하면, 여기서 글 링크를 자동으로 모을 수 있어요.', el('button', { className: 'btn primary', type: 'button', text: '발표 도우미 열기', onclick: () => { P.close(); open({ co, cycle, cfg }); } }))); return; }
+    const { data: ros } = await sb.from('roster').select('*').eq('round_id', round.id).order('created_at');
+    const rows = (ros || []).map((r) => ({ ...r }));
+    const status = el('div', { className: 'ca-hint' });
+    const prog = el('div', { className: 'ca-prog', hidden: true }, el('i', { style: 'width:0' }));
+    const tbody = el('tbody');
+    const live = () => rows.filter((r) => !r.cancelled);
+    const sum = el('b');
+    const paint = () => {
+      tbody.replaceChildren(...rows.map((r) => {
+        const inp = el('input', { className: 'fi', value: r.post_url || '', placeholder: '글 링크 (자동 확인 또는 붙여넣기)' });
+        inp.oninput = () => { r.post_url = inp.value.trim() || null; r._dirty = true; paintSum(); };
+        const st = r.cancelled ? ['취소', 'off'] : r.post_url ? ['제출', 'ok'] : ['미제출', 'no'];
+        return el('tr', { className: r.cancelled ? 'off' : '' }, [el('td', {}, el('span', { className: 'ca-st ' + st[1], text: st[0] })), el('td', { text: r.nickname || '' }), el('td', { text: r.name || '' }), el('td', { text: r.phone || '' }),
+          el('td', {}, r.blog_url ? el('a', { href: r.blog_url, target: '_blank', rel: 'noopener', text: blogId(r.blog_url) || '블로그' }) : '—'), el('td', { className: 'note' }, inp), el('td', { className: 'ca-hint', text: r._title || '' })]);
+      }));
+      paintSum();
+    };
+    const paintSum = () => { const n = live().filter((r) => r.post_url).length; sum.textContent = `제출 ${n} / ${live().length}명${live().length - n ? ` · 미제출 ${live().length - n}명` : ' · 전원 제출 🎉'}`; };
+    const keys = () => { const name = String(co.name || ''), brand = brandOf(co), branch = name.replace(brand, '').trim(); return [...new Set([name, name.replace(/\s+/g, ''), branch.length >= 2 ? (brand + branch) : '', branch.length >= 3 ? branch : ''].filter(Boolean))]; };
+    async function check() {
+      const todo = live().filter((r) => !r.post_url && blogId(r.blog_url));
+      if (!todo.length) { status.textContent = '확인할 블로거가 없습니다 (이미 모두 링크가 있어요).'; return; }
+      prog.hidden = false; prog.firstChild.style.width = '20%'; status.textContent = `${todo.length}명 블로그에서 "${keys()[0]}" 글 찾는 중…`;
+      const { data, error } = await sb.functions.invoke('camp-assist', { body: { action: 'posts', ids: todo.map((r) => blogId(r.blog_url)), keywords: keys() } });
+      prog.firstChild.style.width = '100%'; setTimeout(() => { prog.hidden = true; }, 600);
+      if (error) { status.textContent = '자동 확인 실패 — 링크를 직접 붙여넣어 주세요.'; return; }
+      const since = parse(addDays(p.reviewFrom, -3)).getTime();
+      let found = 0;
+      todo.forEach((r) => { const list = (data.posts[blogId(r.blog_url)] || []).filter((x) => !x.date || new Date(x.date).getTime() >= since); if (list[0]) { r.post_url = list[0].url; r._title = list[0].title; r._dirty = true; found++; } });
+      status.textContent = `새로 찾은 글 ${found}건. 못 찾은 블로거는 비공개·최근 글 밖일 수 있어요 — 직접 확인 후 붙여넣어 주세요.`;
+      paint();
+    }
+    async function save() {
+      const dirty = rows.filter((r) => r._dirty);
+      for (const r of dirty) { const { error } = await sb.from('roster').update({ post_url: r.post_url }).eq('id', r.id); if (error) { toast('저장 실패: ' + error.message); return false; } r._dirty = false; }
+      return true;
+    }
+    const txt = () => [`----------${round.round_no}---------- 몇 팀 : ${round.teams || live().length}팀`, `리뷰기간 : ${round.review_weeks || 4}주`, '', `리뷰노트 마감일 : ~ ${kmd(p.deadline)}`, '',
+      ...rows.flatMap((r) => [(r.nickname || r.name) + (r.cancelled ? '\t\t\t취소' : r.post_url ? '' : '\t\t\t미제출'), r.name, r.phone, r.post_url || r.blog_url, ''])].join('\n');
+    paint();
+    body.replaceChildren(
+      el('div', { className: 'ca-box' }, [el('div', { className: 'bar' }, [sum, el('button', { className: 'btn primary', type: 'button', text: '🔍 링크 자동 확인', onclick: check })]), prog, status]),
+      el('div', { className: 'ca-scroll' }, el('table', { className: 'ca-tbl' }, [el('thead', {}, el('tr', {}, ['상태', '닉네임', '이름', '번호', '블로그', '글 링크', '찾은 글'].map((h) => el('th', { text: h })))), tbody])),
+      el('div', { className: 'ca-box' }, [el('div', { className: 'bar' }, [el('b', { text: '마감 명단 (닉네임 · 이름 · 번호 · 글 링크)' }),
+        el('button', { className: 'btn', type: 'button', text: '명단 복사', onclick: () => copy(txt(), '마감 명단') }),
+        el('button', { className: 'btn', type: 'button', text: '링크 저장', onclick: async () => { if (await save()) toast('글 링크 저장'); } }),
+        onCount ? el('button', { className: 'btn brand', type: 'button', text: '저장 + 마감 인원 반영', onclick: async () => { if (!(await save())) return; const n = live().filter((r) => r.post_url).length; await onCount(n, round.teams || live().length); P.close(); } }) : null].filter(Boolean))]),
+    );
+  }
+
+  window.CRM_CAMP = { open, pick, period, closeCheck };
 })();

@@ -5,7 +5,7 @@
 (function () {
   const BASE_STEPS = ['모집', '발표', '마감'];
   const STEPS = ['모집', '발표', '마감', '2차마감'];
-  const STEP_COLOR = { 모집: '#1E10C7', 발표: '#7C3AED', 마감: '#EE4E00', '2차마감': '#DC2626' };
+  const STEP_COLOR = { 모집: '#2563EB', 발표: '#8B5CF6', 마감: '#EE4E00', '2차마감': '#E11D48' }; // crm-camp.js STEP_C와 같은 색
   const STEP_HINT = { 모집: '모집글 업로드 · 링크 취합', 발표: '선정 · 가이드라인 · 일정 안내', 마감: '마감 인원 확인 · 링크 취합', '2차마감': '부족 인원 마감 확인' };
   const DOW = ['월', '화', '수', '목', '금', '토', '일'];
   const pad = (n) => String(n).padStart(2, '0');
@@ -75,6 +75,18 @@
 .cnt{display:flex;align-items:center;gap:5px;width:100%;height:24px;padding:0 6px;border-radius:6px;border:1px solid color-mix(in srgb,var(--c) 30%,var(--line));background:color-mix(in srgb,var(--c) 8%,var(--surface));font-size:12px;cursor:pointer;text-align:left}
 .cal-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .cal-tools .cal-legend{flex:1;min-width:0}
+.cg-seg button{display:inline-flex;align-items:center;gap:6px}
+.cg-seg button i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.cg-seg button .n{font-size:11px;font-weight:700;color:var(--t3)}
+.cg-wrap{max-height:520px;overflow:auto}
+.cg-tbl td{font-size:13px}
+.cs-h h3{white-space:nowrap}
+.cs-h select{width:auto;margin-left:auto}
+.cg-tbl tr.click{cursor:pointer}
+.cg-tbl tr.click:hover td{background:var(--muted)}
+.cg-miss{font-size:11px;font-weight:700;color:#7C3AED;background:color-mix(in srgb,#7C3AED 10%,var(--surface));padding:2px 8px;border-radius:10px;white-space:nowrap}
+.cs-char{display:grid;justify-items:center;gap:8px}
+.cs-char img{width:84px;height:auto}
 .cnt b{color:var(--c);font-weight:700;white-space:nowrap;flex:none}
 .cnt .n{margin-left:auto;font-weight:700;color:var(--t2);font-variant-numeric:tabular-nums}
 .cnt .ck{width:14px;height:14px;border-radius:4px;border:1.5px solid color-mix(in srgb,var(--c) 50%,var(--line));display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;flex:none}
@@ -288,6 +300,7 @@
           kids.push(closeBox);
         }
         kids.push(el('div', { className: 'cp-acts' }, [
+          isClose ? el('button', { className: 'btn sm', type: 'button', text: '🔍 링크 확인', title: '블로거 글 링크 자동 취합 → 마감 인원 반영', onclick: () => { P.close(); campLib().then(() => window.CRM_CAMP.closeCheck({ co: e.co, cycle: e.cycle, cfg, step: e.step, onCount: async (n, t) => { if (await saveClose(e, n, t, cfg)) { toast(n >= t ? `${e.co.name} 마감 완료 (${n}/${t})` : `${e.co.name} ${t - n}명 부족 → 2차 마감 생성`); draw(); } } })); } }) : null,
           e.step === '발표' ? el('button', { className: 'btn sm brand', type: 'button', text: '발표 도우미 ›', title: '명단 · 점주 안내 · 일정 이미지 · 가이드', onclick: () => { P.close(); openCamp({ co: e.co, cycle: e.cycle, cfg }); } }) : null,
           el('button', { className: 'btn sm ghost', type: 'button', text: '날짜', title: '이 일정만 날짜 옮기기', onclick: (x) => {
             const inp = el('input', { className: 'fi', type: 'date', value: e.due });
@@ -330,7 +343,7 @@
     const tools = el('div', { className: 'cal-tools' }, [legend, el('button', { className: 'btn primary', type: 'button', text: `명단 변환 · 발표 도우미${annEv.length ? ` (${annEv.length})` : ''}`, onclick: () => pickCamp(annEv, cfg) })]);
     return [tools, el('div', { className: 'cal-wrap' }, [el('div', { className: 'card' }, grid), side])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=1');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=2');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   const pickCamp = (evs, cfg) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
@@ -370,28 +383,59 @@
     const stale = Object.entries(lastTouch).filter(([, t]) => t < cut).map(([id, t]) => ({ co: byId.get(id), t }));
     return { low, empty, stale, co: co || [] };
   }
+  // 계약 그룹: 진행 중 · 재계약 지남 · 홀딩 · 종료(계약종료·환불·양도) · 정보 없음(재계약일·결제일 비어 있음)
+  const CGROUPS = [['run', '진행 중', '#16A34A'], ['past', '재계약 지남', '#E11D48'], ['hold', '홀딩', '#D97706'], ['end', '종료', '#71717A'], ['none', '정보 없음', '#7C3AED']];
+  const groupOf = (c, today) => {
+    const g = [];
+    if (c.run_status === '진행 중') g.push(c.next_renew_due && c.next_renew_due < today ? 'past' : 'run');
+    else if (c.run_status === '홀딩') g.push('hold');
+    else g.push('end');
+    if (!c.next_renew_due || !c.last_paid_at) g.push('none');
+    return g;
+  };
   async function contractView() {
     const days = gridDays(); const today = todayKst();
-    const A = await execAlerts();
+    const [A, all] = await Promise.all([execAlerts(), sb.from('companies').select('id,name,run_status,service_type,next_renew_due,last_paid_at,total_paid_won,sales_owner,manager_owner,sales_owner_name,manager_owner_name').eq('stage', '결제').limit(3000)]);
     const f = (l) => S.mine ? l.filter((x) => isMine(x.co || x)) : l;
-    const co = f(A.co);
-    const byDay = {}; co.filter((c) => c.next_renew_due && c.next_renew_due >= days[0] && c.next_renew_due <= days[41]).forEach((c) => { (byDay[c.next_renew_due] = byDay[c.next_renew_due] || []).push(c); });
-    const chip = (c) => { const dd = dayDiff(c.next_renew_due, today); const b = el('button', { type: 'button', className: 'chip-ev rn-chip' + (dd <= 7 ? ' hot' : dd > 30 ? ' cold' : ''), title: `${c.name} 재계약 ${dd < 0 ? -dd + '일 지남' : 'D-' + dd} — 누르면 업체 열기`, onclick: (e) => { e.stopPropagation(); openCompanyFromToday(c.id); } }, [el('span', { className: 's', text: dd < 0 ? '지남' : 'D-' + dd }), el('span', { className: 'n', text: c.name })]); return b; };
+    const cos = f(all.data || []);
+    const groups = Object.fromEntries(CGROUPS.map(([k]) => [k, []])); cos.forEach((c) => groupOf(c, today).forEach((g) => groups[g].push(c)));
+    if (!S.cgroup) S.cgroup = 'run';
+    const cur = groups[S.cgroup];
+    const seg = el('div', { className: 'cal-seg cg-seg' }, CGROUPS.map(([k, t, c]) => { const b = el('button', { type: 'button', className: S.cgroup === k ? 'on' : '', onclick: () => { S.cgroup = k; draw(); } }, [el('i'), t, el('span', { className: 'n', text: groups[k].length })]); b.style.setProperty('--c', c); return b; }));
+    const byDay = {}; cur.filter((c) => c.next_renew_due && c.next_renew_due >= days[0] && c.next_renew_due <= days[41]).forEach((c) => { (byDay[c.next_renew_due] = byDay[c.next_renew_due] || []).push(c); });
+    const chip = (c) => { const dd = dayDiff(c.next_renew_due, today); return el('button', { type: 'button', className: 'chip-ev rn-chip' + (dd <= 7 ? ' hot' : dd > 30 ? ' cold' : ''), title: `${c.name} 재계약 ${dd < 0 ? -dd + '일 지남' : 'D-' + dd} — 누르면 업체 열기`, onclick: (e) => { e.stopPropagation(); openCompanyFromToday(c.id); } }, [el('span', { className: 's', text: dd < 0 ? '지남' : 'D-' + dd }), el('span', { className: 'n', text: c.name })]); };
     const cells = days.map((d) => { const list = (byDay[d] || []).sort((a, b) => a.name.localeCompare(b.name));
       return el('div', { className: 'cal-day' + (monthOf(d) !== S.month ? ' out' : '') + (d === today ? ' today' : '') }, [el('div', { className: 'dn' }, el('b', { text: String(+d.slice(8)) })), ...list.slice(0, 4).map(chip), list.length > 4 ? el('div', { className: 'cal-more', text: `+${list.length - 4}곳 더` }) : null].filter(Boolean)); });
     const grid = el('div', { className: 'cal-grid' }, [...DOW.map((w) => el('div', { className: 'cal-dow', text: w })), ...cells]);
-    const soon = co.filter((c) => c.next_renew_due && dayDiff(c.next_renew_due, today) <= 30 && dayDiff(c.next_renew_due, today) >= -30).sort((a, b) => a.next_renew_due.localeCompare(b.next_renew_due));
-    const sec = (title, n, rows, empty) => el('div', { className: 'card' }, [el('div', { className: 'cs-h' }, [el('h3', { text: title }), el('span', { className: 'n', text: n })]), ...(rows.length ? rows : [el('div', { className: 'cs-empty', text: empty })])]);
+    // 그룹 목록 (정렬 · 빠진 정보 표시)
+    const SORT = { renew: ['재계약일순', (a, b) => String(a.next_renew_due || '9999').localeCompare(String(b.next_renew_due || '9999'))], paid: ['최근 결제순', (a, b) => String(b.last_paid_at || '').localeCompare(String(a.last_paid_at || ''))], name: ['이름순', (a, b) => a.name.localeCompare(b.name)] };
+    if (!S.csort) S.csort = 'renew';
+    const sortSel = el('select', { className: 'fi', onchange: (e) => { S.csort = e.target.value; draw(); } }, Object.entries(SORT).map(([k, [t]]) => el('option', { value: k, text: t, selected: S.csort === k })));
+    const miss = (c) => [!c.next_renew_due && '재계약일 없음', !c.last_paid_at && '결제일 없음', !(c.manager_owner_name || c.sales_owner_name) && '담당 없음'].filter(Boolean);
+    const rows = cur.slice().sort(SORT[S.csort][1]);
+    const RUNC = { '진행 중': '#16A34A', 홀딩: '#D97706', 계약종료: '#A1A1AA', 환불: '#DC2626', 양도: '#71717A' };
+    const tbl = el('div', { className: 'card' }, [
+      el('div', { className: 'cs-h' }, [el('h3', { text: `${CGROUPS.find(([k]) => k === S.cgroup)[1]} ${rows.length}곳` }), sortSel]),
+      rows.length ? el('div', { className: 'tbl-wrap cg-wrap' }, el('table', { className: 'tbl cg-tbl' }, [
+        el('thead', {}, el('tr', {}, ['업체', '상태', '구분', '담당', '최근 결제', '재계약', '확인할 것', ''].map((h) => el('th', { text: h })))),
+        el('tbody', {}, rows.slice(0, 300).map((c) => { const dd = c.next_renew_due ? dayDiff(c.next_renew_due, today) : null; const m = miss(c); const st = el('span', { className: 'pill', text: c.run_status || '—' }); st.style.setProperty('--c', RUNC[c.run_status] || '#71717A');
+          return el('tr', { className: 'click', onclick: () => openCompanyFromToday(c.id) }, [el('td', {}, el('b', { text: c.name })), el('td', {}, st), el('td', { className: 'sub', text: c.service_type || '—' }), el('td', { className: 'sub', text: c.manager_owner_name || c.sales_owner_name || '미배정' }),
+            el('td', { className: 'sub', text: c.last_paid_at || '—' }), el('td', { className: dd != null && dd < 0 ? 'err' : 'sub', text: c.next_renew_due ? `${c.next_renew_due}${dd < 0 ? ` (${-dd}일 지남)` : dd <= 30 ? ` (D-${dd})` : ''}` : '—' }),
+            el('td', {}, m.length ? el('span', { className: 'cg-miss', text: m.join(' · ') }) : el('span', { className: 'sub', text: '—' })), el('td', {}, el('button', { className: 'btn sm ghost', type: 'button', text: '열기' }))]); })),
+      ])) : el('div', { className: 'cs-empty cs-char' }, [el('img', { src: '/assets/brand/muyi-char-idea.webp', alt: '' }), '이 그룹에 해당하는 업체가 없습니다.']),
+    ]);
+    const soon = cos.filter((c) => c.run_status === '진행 중' && c.next_renew_due && dayDiff(c.next_renew_due, today) <= 30 && dayDiff(c.next_renew_due, today) >= -30).sort((a, b) => a.next_renew_due.localeCompare(b.next_renew_due));
+    const sec = (title, n, list, emptyT) => el('div', { className: 'card' }, [el('div', { className: 'cs-h' }, [el('h3', { text: title }), el('span', { className: 'n', text: n })]), ...(list.length ? list : [el('div', { className: 'cs-empty', text: emptyT })])]);
     const line = (c, sub, cls = '') => el('div', { className: 'cs-row' }, [el('span'), el('div', { className: 'nm' }, [c.name, el('small', { className: cls, text: sub })]), el('div', { className: 'acts' }, el('button', { className: 'btn sm ghost', type: 'button', text: '업체', onclick: () => openCompanyFromToday(c.id) }))]);
     const low = f(A.low), empty = f(A.empty), stale = f(A.stale);
     const side = el('div', { className: 'cal-side' }, [
       sec('재계약 임박 (±30일)', soon.length, soon.slice(0, 40).map((c) => { const dd = dayDiff(c.next_renew_due, today); return line(c, `${md(c.next_renew_due)} · ${dd < 0 ? -dd + '일 지남' : 'D-' + dd} · ${c.manager_owner_name || c.sales_owner_name || '미배정'}`, dd <= 7 ? 'late' : ''); }), '30일 안에 재계약할 업체가 없습니다.'),
-      sec('실행 소진 임박 (남은 수량 20% 이하)', low.length, low.slice(0, 40).map((x) => line(x.co, `${x.d.item} ${Number(x.left).toLocaleString()} / ${Number(x.d.planned).toLocaleString()} 남음 · 재계약 제안`)), '없습니다.'),
+      sec('실행 소진 임박 (남은 20% 이하)', low.length, low.slice(0, 40).map((x) => line(x.co, `${x.d.item} ${Number(x.left).toLocaleString()} / ${Number(x.d.planned).toLocaleString()} 남음 · 재계약 제안`)), '없습니다.'),
       sec('실행 소진 완료', empty.length, empty.slice(0, 40).map((x) => line(x.co, `${x.d.item} ${Number(x.d.done).toLocaleString()} / ${Number(x.d.planned).toLocaleString()} 완료`, 'late')), '없습니다.'),
-      sec('실행 수량 입력 필요 (14일 넘게 안 고침)', stale.length, stale.slice(0, 40).map((x) => line(x.co, `마지막 수정 ${kstDay(x.t)}`)), '모든 업체 수량이 최신입니다.'),
+      sec('실행 수량 입력 필요 (14일)', stale.length, stale.slice(0, 40).map((x) => line(x.co, `마지막 수정 ${kstDay(x.t)}`)), '모든 업체 수량이 최신입니다.'),
     ]);
     const legend = el('div', { className: 'cal-legend' }, [el('span', {}, [el('i', { style: 'background:var(--t4)' }), 'D-31 이상']), el('span', {}, [el('i', { style: 'background:var(--amber)' }), 'D-30 ~ D-8']), el('span', {}, [el('i', { style: 'background:var(--red)' }), 'D-7 이내 · 지남']), el('span', { text: '· 업체를 누르면 상세가 열립니다' })]);
-    return [legend, el('div', { className: 'cal-wrap' }, [el('div', { className: 'card' }, grid), side])];
+    return [el('div', { className: 'cal-tools' }, [seg]), legend, el('div', { className: 'cal-wrap' }, [el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), tbl]), side])];
   }
 
   // 오늘 할 일용: 오늘 + 지난 미완료 체험단 일정
