@@ -5,7 +5,7 @@
 (function () {
   const BASE_STEPS = ['모집', '발표', '마감'];
   const STEPS = ['모집', '발표', '마감', '2차마감'];
-  const STEP_COLOR = { 모집: '#2563EB', 발표: '#8B5CF6', 마감: '#EE4E00', '2차마감': '#E11D48' }; // crm-camp.js STEP_C와 같은 색
+  const STEP_COLOR = { 모집: '#3B6FC4', 발표: '#B7791F', 마감: '#D9572B', '2차마감': '#A23E62' }; // crm-camp.js STEP_C와 같은 색
   const STEP_HINT = { 모집: '모집글 업로드 · 링크 취합', 발표: '선정 · 가이드라인 · 일정 안내', 마감: '마감 인원 확인 · 링크 취합', '2차마감': '부족 인원 마감 확인' };
   const DOW = ['월', '화', '수', '목', '금', '토', '일'];
   const pad = (n) => String(n).padStart(2, '0');
@@ -301,7 +301,7 @@
         }
         kids.push(el('div', { className: 'cp-acts' }, [
           isClose ? el('button', { className: 'btn sm', type: 'button', text: '🔍 링크 확인', title: '블로거 글 링크 자동 취합 → 마감 인원 반영', onclick: () => { P.close(); campLib().then(() => window.CRM_CAMP.closeCheck({ co: e.co, cycle: e.cycle, cfg, step: e.step, onCount: async (n, t) => { if (await saveClose(e, n, t, cfg)) { toast(n >= t ? `${e.co.name} 마감 완료 (${n}/${t})` : `${e.co.name} ${t - n}명 부족 → 2차 마감 생성`); draw(); } } })); } }) : null,
-          e.step === '발표' ? el('button', { className: 'btn sm brand', type: 'button', text: '발표 도우미 ›', title: '명단 · 점주 안내 · 일정 이미지 · 가이드', onclick: () => { P.close(); openCamp({ co: e.co, cycle: e.cycle, cfg }); } }) : null,
+          e.step === '발표' ? el('button', { className: 'btn sm brand', type: 'button', text: '명단 변환 ›', title: '명단 · 점주 안내 · 일정 이미지 · 가이드', onclick: () => { P.close(); openCamp({ co: e.co, cycle: e.cycle, cfg }); } }) : null,
           el('button', { className: 'btn sm ghost', type: 'button', text: '날짜', title: '이 일정만 날짜 옮기기', onclick: (x) => {
             const inp = el('input', { className: 'fi', type: 'date', value: e.due });
             inp.onchange = async () => { if (await moveDue(e, inp.value)) { P.mark(); toast(`${e.co.name} ${e.step} → ${md(inp.value)}`); P.close(); } };
@@ -340,10 +340,10 @@
     const legend = el('div', { className: 'cal-legend' }, [...STEPS.map((s) => { const x = el('span', {}, [el('i'), `${s} (${s === '모집' ? '모집일' : s === '2차마감' ? '마감 +' + cfg.off['2차마감'] + '일 · 인원 부족 시' : '+' + cfg.off[s] + '일'})`]); x.firstChild.style.background = STEP_COLOR[s]; return x; }),
       el('span', { text: '· 숫자를 누르면 업체 목록 · 다 체크하면 ✓' })]);
     const annEv = ev.filter((e) => e.step === '발표' && monthOf(e.due) === S.month);
-    const tools = el('div', { className: 'cal-tools' }, [legend, el('button', { className: 'btn primary', type: 'button', text: `명단 변환 · 발표 도우미${annEv.length ? ` (${annEv.length})` : ''}`, onclick: () => pickCamp(annEv, cfg) })]);
+    const tools = el('div', { className: 'cal-tools' }, [legend, el('button', { className: 'btn primary', type: 'button', text: `명단 변환${annEv.length ? ` (${annEv.length})` : ''}`, onclick: () => pickCamp(annEv, cfg) })]);
     return [tools, el('div', { className: 'cal-wrap' }, [el('div', { className: 'card' }, grid), side])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=2');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=3');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   const pickCamp = (evs, cfg) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
