@@ -453,7 +453,7 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
     <div id="pg-clients" hidden></div>
 
     <div id="pg-settle" hidden>
-      <header class="topbar"><h1>정산</h1><span class="count">대표 전용 · 매출 원장 · 월 정산 · 정산계산기</span></header>
+      <header class="topbar"><h1>정산</h1><span class="count">대표 전용 · 매출 원장 · 월 정산 · 단가표</span></header>
       <div class="pg stack" id="settleBody"></div>
     </div>
 
@@ -1103,12 +1103,12 @@ function showPage(p, { push = true } = {}) {
   PAGES.forEach((k) => { $('pg-' + k).hidden = k !== p; });
   if (p === 'leads' || p === 'clients') {
     const go = () => window.CRM_COMPANIES.mount($('pg-' + p), p);
-    if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=6'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
+    if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=7'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
   if (p === 'today') renderToday();
   if (p === 'settle') {
     const go = () => window.CRM_SETTLE.mount($('settleBody'));
-    if (window.CRM_SETTLE) go(); else { $('settleBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' })); const x = document.createElement('script'); x.src = '/assets/crm-settle.js?v=1'; x.onload = go; x.onerror = () => toast('정산 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
+    if (window.CRM_SETTLE) go(); else { $('settleBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' })); const x = document.createElement('script'); x.src = '/assets/crm-settle.js?v=4'; x.onload = go; x.onerror = () => toast('정산 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
   if (p === 'import' && !$('importBody').childElementCount) {
     $('importBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' }));

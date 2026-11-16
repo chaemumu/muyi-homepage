@@ -18,6 +18,11 @@
   const addMonth = (m, n) => { const [y, mo] = m.split('-').map(Number); const d = new Date(y, mo - 1 + n, 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
   const keyOf = (name) => String(name || '').trim().replace(/\s+/g, '').replace(/[()（）\[\]·.,'"]/g, '').toLowerCase();
   const KINDS = ['결제', '환불', '환수', '지급'];
+  // 결제방식 4가지 · 세금계산서/입금확인은 완료 ↔ 미처리 두 상태
+  const PAY_METHODS = ['개인 카드', '개인 현금', '법인 카드', '법인 현금'];
+  const normPay = (v) => { if (v == null || v === '') return null; const x = String(v), t = /카드/.test(x) ? '카드' : /현금|계좌|이체/.test(x) ? '현금' : null; return t ? `${/법인/.test(x) ? '법인' : '개인'} ${t}` : x; };
+  const isDone = (v) => /완료|확인/.test(String(v || '')) && !/필요|미처리|미완료/.test(String(v || ''));
+  const doneVal = (v) => (isDone(v) ? '완료' : '미처리');
   const XLSX_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
   const loadLib = (src) => new Promise((ok, ng) => {
     if (window.XLSX) return ok();
@@ -50,12 +55,19 @@
 .st-tbl td.num,.st-tbl th.num{text-align:right;font-variant-numeric:tabular-nums}
 .st-tbl td.neg{color:var(--red)}
 .st-tbl td.k{white-space:nowrap}
+#settleBody .st-tbl th,#settleBody .st-tbl td{padding-left:8px;padding-right:8px}
+.st-tbl td.co small{display:block;font-size:11px;color:var(--t3);margin-top:1px}
 .st-tbl tr.click{cursor:pointer}
 .st-tbl tr.click:hover td{background:var(--muted)}
 .st-tbl tfoot td{font-weight:700;border-top:1px solid var(--line-strong);background:var(--surface-2)}
 .st-tbl .ex-btn{height:24px;padding:0 8px;border:1px dashed var(--line-strong);border-radius:12px;background:none;font-size:12px;color:var(--t2);font-variant-numeric:tabular-nums}
 .st-tbl .ex-btn:hover{border-color:var(--accent);color:var(--accent)}
 .st-tbl .ex-btn.set{border-style:solid;color:var(--t1)}
+.tg{height:24px;min-width:56px;padding:0 10px;border:1px solid color-mix(in srgb,var(--amber) 40%,var(--line));border-radius:12px;background:color-mix(in srgb,var(--amber) 10%,var(--surface));color:var(--amber);font-size:12px;font-weight:700;cursor:pointer}
+.tg.on{border-color:color-mix(in srgb,var(--green) 40%,var(--line));background:color-mix(in srgb,var(--green) 10%,var(--surface));color:var(--green)}
+.tg:hover{filter:brightness(.96)}
+.pm-sel{height:26px;padding:0 6px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:12px;color:var(--t1);cursor:pointer}
+.pm-sel.empty{color:var(--t3);border-style:dashed}
 .st-tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 6px;border-radius:8px;background:var(--muted);color:var(--t2);margin-left:4px}
 .st-tag.neg{background:color-mix(in srgb,var(--red) 12%,var(--surface));color:var(--red)}
 .st-calc{display:grid;gap:2px;font-variant-numeric:tabular-nums}
@@ -76,11 +88,21 @@
 .st-people input{width:80px;height:28px;text-align:right}
 .cc-tbl td input.fi{height:30px;width:100%;text-align:right}
 .cc-tbl td input.fi.nm{text-align:left}
+.cc-tbl td input.fi.ro{border-color:transparent;background:transparent;box-shadow:none;cursor:default}
+.cc-unit{display:flex;align-items:center;gap:6px}
+.cc-unit .fi{flex:1;min-width:0}
+.ed-btn{flex:none;height:24px;padding:0 8px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font-size:11px;font-weight:600;color:var(--t3)}
+.ed-btn:hover{border-color:var(--accent);color:var(--accent)}
+.st-btns{display:inline-flex;gap:4px}
+.cc-tbl tr.editing td{background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
 .cc-tbl tr.used td{background:color-mix(in srgb,var(--accent) 5%,var(--surface))}
 .cc-sum{display:grid;gap:2px}
+.nv-line{display:flex;gap:6px;align-items:center}
+.nv-line .fi{flex:1;min-width:0}
+.nv-line .btn{flex:none;height:34px}
 .st-imp{display:grid;gap:8px}
 .pm.st-modal.wide{width:min(860px,100%)}
-.st-modal .dr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.st-modal .dr-grid,#settleBody .dr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .st-modal .dr-grid label.wide{grid-column:1/-1}
 @media (max-width:900px){.st-grid2{grid-template-columns:minmax(0,1fr)}.st-month{margin-left:0}.st-modal .dr-grid{grid-template-columns:1fr}.pm-layer{padding:0;place-items:stretch}.pm{width:100%!important;max-height:none;height:var(--vh,100vh);border-radius:0}}
 `;
@@ -91,12 +113,12 @@
 
   function mount(box) {
     S = { box, tab: 'ledger', month: ym(todayKst()), rows: [], people: [], person: null, prices: [] };
-    try { const t = localStorage.getItem('crm-settle-tab'); if (t) S.tab = t; } catch {}
+    try { const t = localStorage.getItem('crm-settle-tab'); if (['ledger', 'settle', 'prices'].includes(t)) S.tab = t; } catch {}
     draw();
   }
 
   async function draw() {
-    const tabs = [['ledger', '매출 원장'], ['settle', '월 정산'], ['calc', '정산계산기'], ['prices', '단가표']];
+    const tabs = [['ledger', '매출 원장'], ['settle', '월 정산'], ['prices', '단가표']];
     const seg = el('div', { className: 'st-seg' }, tabs.map(([k, t]) => el('button', { type: 'button', className: S.tab === k ? 'on' : '', text: t, onclick: () => { S.tab = k; try { localStorage.setItem('crm-settle-tab', k); } catch {} draw(); } })));
     const monthNav = ['ledger', 'settle'].includes(S.tab) ? el('div', { className: 'st-month' }, [
       el('button', { className: 'icon-btn', type: 'button', text: '‹', title: '이전 달', onclick: () => { S.month = addMonth(S.month, -1); draw(); } }),
@@ -108,7 +130,6 @@
     try {
       if (S.tab === 'ledger') body.replaceChildren(...await ledgerView());
       else if (S.tab === 'settle') body.replaceChildren(...await settleView());
-      else if (S.tab === 'calc') body.replaceChildren(...await calcView());
       else body.replaceChildren(...await pricesView());
     } catch (e) { body.replaceChildren(el('div', { className: 'err', text: '불러오기 실패: ' + e.message })); }
   }
@@ -126,6 +147,26 @@
   const kpi = (l, v, sub, neg) => el('div', { className: 'kpi' }, [el('div', { className: 'kpi-lbl', text: l }), el('div', { className: 'kpi-val' + (neg ? ' neg' : ''), text: v }), sub ? el('div', { className: 'kpi-sub', text: sub }) : null].filter(Boolean));
   const th = (t, num) => el('th', { className: num ? 'num' : '', text: t });
   const td = (t, cls = '') => el('td', { className: cls, text: t == null ? '—' : String(t) });
+  // 표에서 바로 바꾸기: 결제방식(4가지) · 세금계산서/입금확인(누르면 완료 ↔ 미처리)
+  async function patchRow(r, patch) {
+    const { error } = await sb.from('ledger').update(patch).eq('id', r.id);
+    if (error) { toast('저장 실패: ' + error.message); return false; }
+    Object.assign(r, patch); return true;
+  }
+  const payCell = (r) => {
+    const cur = normPay(r.pay_method);
+    const sel = el('select', { className: 'pm-sel' + (cur ? '' : ' empty'), title: '결제방식', onclick: (e) => e.stopPropagation() },
+      [el('option', { value: '', text: '선택' }), ...PAY_METHODS.map((v) => el('option', { value: v, text: v, selected: v === cur })), cur && !PAY_METHODS.includes(cur) ? el('option', { value: cur, text: cur, selected: true }) : null].filter(Boolean));
+    sel.onchange = async () => { const v = sel.value || null; if (await patchRow(r, { pay_method: v })) { sel.classList.toggle('empty', !v); toast(`결제방식 → ${v || '없음'}`); } else sel.value = cur || ''; };
+    return el('td', {}, sel);
+  };
+  const toggleCell = (r, k, label) => {
+    const b = el('button', { type: 'button', className: 'tg', title: `눌러서 ${label} 완료 ↔ 미처리` });
+    const paint = () => { const d = isDone(r[k]); b.classList.toggle('on', d); b.textContent = d ? '완료' : '미처리'; };
+    b.onclick = async (e) => { e.stopPropagation(); b.disabled = true; const next = isDone(r[k]) ? '미처리' : '완료'; if (await patchRow(r, { [k]: next })) paint(); b.disabled = false; };
+    paint(); return el('td', {}, b);
+  };
+  const editCell = (r) => el('td', { className: 'num' }, el('button', { className: 'btn sm', type: 'button', text: '수정', onclick: (e) => { e.stopPropagation(); rowModal(r); } }));
   const ntd = (n) => el('td', { className: 'num' + (n < 0 ? ' neg' : ''), text: n == null ? '—' : signed(n) });
 
   // ── 매출 원장 ──
@@ -139,15 +180,15 @@
     const byP = new Map();
     rows.forEach((r) => { const k = r.owner_name || '(미지정)'; const x = byP.get(k) || { n: 0, base: 0, exec: 0, inc: 0 }; x.n++; x.base += base(r); x.exec += execBase(r); x.inc += incentive(r); byP.set(k, x); });
     const tbl = el('table', { className: 'tbl st-tbl' }, [
-      el('thead', {}, el('tr', {}, [th('결제일'), th('영업사원'), th('업체'), th('품목'), th('결제금액', 1), th('원금', 1), th('실행비 (VAT 포함)', 1), th('인센율', 1), th('인센', 1), th('확인/입금'), th('특이사항')])),
+      el('thead', {}, el('tr', {}, [th('결제일'), th('영업사원'), th('업체 · 품목'), th('결제금액', 1), th('원금', 1), th('실행비 (VAT 포함)', 1), th('인센율', 1), th('인센', 1), th('결제방식'), th('세금계산서'), th('입금확인'), th('특이사항'), th('')])),
       el('tbody', {}, rows.length ? rows.map((r) => el('tr', { className: 'click', onclick: () => rowModal(r) }, [
-        td(r.paid_on.slice(5).replace('-', '/'), 'k'), td(r.owner_name), el('td', {}, [r.company_name || '—', r.kind !== '결제' && el('span', { className: 'st-tag' + (r.kind === '환불' || r.kind === '환수' ? ' neg' : ''), text: r.kind })].filter(Boolean)), td(r.item, 'sub'),
+        td(r.paid_on.slice(5).replace('-', '/'), 'k'), td(r.owner_name), el('td', { className: 'co' }, [r.company_name || '—', r.kind !== '결제' && el('span', { className: 'st-tag' + (r.kind === '환불' || r.kind === '환수' ? ' neg' : ''), text: r.kind }), r.item && el('small', { text: r.item })].filter(Boolean)),
         ntd(r.amount_won), ntd(r.amount_won == null ? null : base(r)),
         el('td', { className: 'num' }, el('button', { className: 'ex-btn' + (r.exec_won != null ? ' set' : ''), type: 'button', text: r.exec_won != null ? won(r.exec_won) : '계산', title: '정산계산기로 실행비 계산', onclick: (e) => { e.stopPropagation(); calcModal(r); } })),
         td(r.incentive_fixed_won != null ? '고정' : r.incentive_rate != null ? Math.round(r.incentive_rate * 100) + '%' : '—', 'num sub'), ntd(incentive(r)),
-        td(r.checked, 'sub'), td(r.memo, 'sub memo'),
-      ])) : [el('tr', {}, el('td', { colSpan: 11, className: 'empty', text: '이 달 결제가 없습니다. CRM에서 [결제 등록]을 하면 자동으로 들어옵니다.' }))]),
-      rows.length ? el('tfoot', {}, el('tr', {}, [el('td', { colSpan: 4, text: `합계 ${rows.length}건` }), ntd(tAmt), ntd(tBase), el('td', { className: 'num', text: won(tExec) }), td(''), ntd(tInc), td(''), td('')])) : null,
+        payCell(r), toggleCell(r, 'tax_invoice', '세금계산서'), toggleCell(r, 'checked', '입금'), td(r.memo, 'sub memo'), editCell(r),
+      ])) : [el('tr', {}, el('td', { colSpan: 13, className: 'empty', text: '이 달 결제가 없습니다. CRM에서 [결제 등록]을 하면 자동으로 들어옵니다.' }))]),
+      rows.length ? el('tfoot', {}, el('tr', {}, [el('td', { colSpan: 3, text: `합계 ${rows.length}건` }), ntd(tAmt), ntd(tBase), el('td', { className: 'num', text: won(tExec) }), td(''), ntd(tInc), el('td', { colSpan: 2 }), el('td', { className: 'sub', text: `미처리 ${rows.filter((r) => !isDone(r.checked)).length}` }), td(''), td('')])) : null,
     ].filter(Boolean));
     const ppl = [...byP.entries()].sort((a, b) => b[1].base - a[1].base);
     return [
@@ -172,9 +213,9 @@
   }
 
   function csv(rows) {
-    const H = ['정산월', '결제일', '영업사원', '업체', '품목', '구분', '결제금액', '원금', '실행비', '실행원금', '인센율', '인센', '확인/입금', '특이사항'];
+    const H = ['정산월', '결제일', '영업사원', '업체', '품목', '구분', '결제금액', '원금', '실행비', '실행원금', '인센율', '인센', '결제방식', '세금계산서', '입금확인', '특이사항'];
     const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const lines = [H.map(q).join(','), ...rows.map((r) => [r.settle_month, r.paid_on, r.owner_name, r.company_name, r.item, r.kind, r.amount_won, Math.round(base(r)), r.exec_won, Math.round(execBase(r)), r.incentive_rate, incentive(r), r.checked, r.memo].map(q).join(','))];
+    const lines = [H.map(q).join(','), ...rows.map((r) => [r.settle_month, r.paid_on, r.owner_name, r.company_name, r.item, r.kind, r.amount_won, Math.round(base(r)), r.exec_won, Math.round(execBase(r)), r.incentive_rate, incentive(r), normPay(r.pay_method), doneVal(r.tax_invoice), doneVal(r.checked), r.memo].map(q).join(','))];
     const a = el('a', { href: URL.createObjectURL(new Blob(['﻿' + lines.join('\n')], { type: 'text/csv' })), download: `매출원장_${S.month}.csv` });
     document.body.append(a); a.click(); a.remove();
   }
@@ -203,11 +244,26 @@
       exec_won: fi({ inputMode: 'numeric', value: r.exec_won != null ? Math.round(r.exec_won).toLocaleString() : '' }),
       rate: fi({ inputMode: 'decimal', value: r.incentive_rate != null ? Math.round(r.incentive_rate * 1000) / 10 : '', placeholder: '예: 60' }),
       fixed: fi({ inputMode: 'numeric', value: r.incentive_fixed_won != null ? Math.round(r.incentive_fixed_won).toLocaleString() : '', placeholder: '촬영비·환수(−) 등' }),
-      pay_method: fi({ value: r.pay_method || '' }), tax_invoice: fi({ value: r.tax_invoice || '' }),
-      checked: fi({ value: r.checked || '', placeholder: '완료 / 확인' }), memo: fi({ rows: 2, value: r.memo || '' }, 'textarea'),
+      pay_method: fi({}, 'select', [el('option', { value: '', text: '선택' }), ...PAY_METHODS.map((v) => el('option', { value: v, text: v, selected: v === normPay(r.pay_method) }))]),
+      tax_invoice: fi({}, 'select', ['미처리', '완료'].map((v) => el('option', { value: v, text: v, selected: v === doneVal(r.tax_invoice) }))),
+      checked: fi({}, 'select', ['미처리', '완료'].map((v) => el('option', { value: v, text: v, selected: v === doneVal(r.checked) }))), memo: fi({ rows: 2, value: r.memo || '' }, 'textarea'),
     };
     const owners = el('datalist', { id: 'st-owners' }, [...new Set([...S.people.map((p) => p.name), ...Object.values(admins)])].map((n) => el('option', { value: n })));
     F.owner_name.addEventListener('change', () => { const p = S.people.find((x) => x.name === F.owner_name.value.trim()); if (p && !F.rate.value) F.rate.value = p.rate * 100; });
+    let execItems = r.exec_items || null;
+    const calcBtn = el('button', { className: 'btn sm', type: 'button', text: execItems?.length ? `계산기 (${execItems.length}개 항목)` : '계산기', onclick: () => openCalc() });
+    async function openCalc() {
+      await Promise.all([loadPrices(), S.people.length ? null : loadPeople()]);
+      const seed = { amount_won: num(F.amount_won.value), exec_items: execItems, incentive_rate: num(F.rate.value) != null ? num(F.rate.value) / 100 : (S.people.find((p) => p.name === F.owner_name.value.trim())?.rate ?? null) };
+      const { view, apply } = calculator(seed, async (v) => {
+        F.exec_won.value = Number(v.exec_won).toLocaleString(); execItems = v.exec_items;
+        if (v.amount_won && !num(F.amount_won.value)) F.amount_won.value = Number(v.amount_won).toLocaleString();
+        if (!num(F.rate.value) && v.incentive_rate) F.rate.value = Math.round(v.incentive_rate * 1000) / 10;
+        calcBtn.textContent = execItems.length ? `계산기 (${execItems.length}개 항목)` : '계산기';
+        calc(); inner.remove(); F.exec_won.focus();
+      });
+      const inner = modal('정산계산기 · 실행비', view, [el('button', { className: 'btn lg ghost', type: 'button', text: '닫기', onclick: () => inner.remove() }), el('button', { className: 'btn primary lg', type: 'button', text: '실행비에 넣기', onclick: apply })], true);
+    }
     const preview = el('div', { className: 'hint' });
     const calc = () => { const t = { amount_won: num(F.amount_won.value), exec_won: num(F.exec_won.value), incentive_rate: num(F.rate.value) != null ? num(F.rate.value) / 100 : null, incentive_fixed_won: num(F.fixed.value) }; preview.textContent = `원금 ${won(base(t))} · 실행원금 ${won(execBase(t))} · 인센 ${signed(incentive(t))}`; };
     Object.values(F).forEach((x) => x.addEventListener('input', calc)); calc();
@@ -216,9 +272,9 @@
       err.textContent = '';
       if (!F.paid_on.value) { err.textContent = '결제일을 입력하세요'; return; }
       const row = { paid_on: F.paid_on.value, settle_month: F.settle_month.value || F.paid_on.value.slice(0, 7), owner_name: F.owner_name.value.trim() || null, company_name: F.company_name.value.trim() || null,
-        item: F.item.value.trim() || null, kind: F.kind.value, amount_won: num(F.amount_won.value), exec_won: num(F.exec_won.value),
+        item: F.item.value.trim() || null, kind: F.kind.value, amount_won: num(F.amount_won.value), exec_won: num(F.exec_won.value), exec_items: execItems,
         incentive_rate: num(F.rate.value) != null ? num(F.rate.value) / 100 : null, incentive_fixed_won: num(F.fixed.value),
-        pay_method: F.pay_method.value.trim() || null, tax_invoice: F.tax_invoice.value.trim() || null, checked: F.checked.value.trim() || null, memo: F.memo.value.trim() || null };
+        pay_method: F.pay_method.value || null, tax_invoice: F.tax_invoice.value, checked: F.checked.value, memo: F.memo.value.trim() || null };
       const { error } = isNew ? await sb.from('ledger').insert({ ...row, created_by: me }) : await sb.from('ledger').update(row).eq('id', r.id);
       if (error) { err.textContent = '저장 실패: ' + error.message; return; }
       layer.remove(); toast('저장됨'); draw();
@@ -231,8 +287,8 @@
     const layer = modal(isNew ? '원장 줄 추가' : `${r.company_name || '원장'} 수정`, [
       owners,
       el('div', { className: 'dr-grid' }, [lab('결제일', F.paid_on), lab('정산 월', F.settle_month), lab('영업사원', F.owner_name), lab('구분', F.kind), lab('업체', F.company_name), lab('품목', F.item),
-        lab('결제금액 (VAT 포함)', F.amount_won), lab('실행비 (VAT 포함)', F.exec_won), lab('인센율 (%)', F.rate), lab('고정 인센 (있으면 율 대신)', F.fixed),
-        lab('결제방식', F.pay_method), lab('세금계산서', F.tax_invoice), lab('확인/입금', F.checked), lab('특이사항', F.memo, true)]),
+        lab('결제금액 (VAT 포함)', F.amount_won), lab('실행비 (VAT 포함)', el('div', { className: 'nv-line' }, [F.exec_won, calcBtn])), lab('인센율 (%)', F.rate), lab('고정 인센 (있으면 율 대신)', F.fixed),
+        lab('결제방식', F.pay_method), lab('세금계산서', F.tax_invoice), lab('입금확인', F.checked), lab('특이사항', F.memo, true)]),
       preview, r.contract_id ? el('div', { className: 'hint', text: 'CRM 결제 등록에서 온 줄입니다 (결제금액·결제일은 계약을 고치면 함께 바뀜).' }) : null, err,
     ].filter(Boolean), [del, el('span', { className: 'ml-auto' }), el('button', { className: 'btn lg ghost', type: 'button', text: '취소', onclick: () => layer.remove() }), el('button', { className: 'btn primary lg', type: 'button', text: '저장', onclick: save })].filter(Boolean));
   }
@@ -301,12 +357,12 @@
         el('div', { className: 'card' }, [
           el('div', { className: 'st-head' }, [el('h3', { text: `${P.name} · ${S.month.replace('-', '년 ')}월 결제 ${rows.length}건` }), noExec ? el('span', { className: 'st-tag neg', text: `실행비 미입력 ${noExec}건` }) : null].filter(Boolean)),
           el('div', { className: 'tbl-wrap' }, el('table', { className: 'tbl st-tbl' }, [
-            el('thead', {}, el('tr', {}, [th('결제일'), th('업체'), th('원금', 1), th('실행원금', 1), th('차액', 1), th('율', 1), th('인센', 1)])),
+            el('thead', {}, el('tr', {}, [th('결제일'), th('업체'), th('원금', 1), th('실행원금', 1), th('차액', 1), th('율', 1), th('인센', 1), th('')])),
             el('tbody', {}, rows.length ? rows.map((r) => el('tr', { className: 'click', onclick: () => rowModal(r) }, [td(r.paid_on.slice(5).replace('-', '/'), 'k'),
               el('td', {}, [r.company_name || '—', r.kind !== '결제' && el('span', { className: 'st-tag neg', text: r.kind })].filter(Boolean)),
               ntd(base(r)), el('td', { className: 'num' }, el('button', { className: 'ex-btn' + (r.exec_won != null ? ' set' : ''), type: 'button', text: r.exec_won != null ? won(execBase(r)) : '계산', onclick: (e) => { e.stopPropagation(); calcModal(r); } })),
-              ntd(base(r) - execBase(r)), td(r.incentive_fixed_won != null ? '고정' : r.incentive_rate != null ? Math.round(r.incentive_rate * 100) + '%' : '—', 'num sub'), ntd(incentive(r))]))
-              : [el('tr', {}, el('td', { colSpan: 7, className: 'empty', text: '이 달 결제가 없습니다.' }))]),
+              ntd(base(r) - execBase(r)), td(r.incentive_fixed_won != null ? '고정' : r.incentive_rate != null ? Math.round(r.incentive_rate * 100) + '%' : '—', 'num sub'), ntd(incentive(r)), editCell(r)]))
+              : [el('tr', {}, el('td', { colSpan: 8, className: 'empty', text: '이 달 결제가 없습니다.' }))]),
           ])),
         ]),
         el('div', { className: 'card' }, [
@@ -337,9 +393,10 @@
     const fmt = (v) => { const d = String(v).replace(/[^\d]/g, ''); return d ? Number(d).toLocaleString() : ''; };
     const rowEl = (it) => {
       const tot = el('td', { className: 'num' });
-      const unit = fi({ inputMode: 'numeric', value: Number(it.unit || 0).toLocaleString() }), qty = fi({ inputMode: 'numeric', value: it.qty === '' ? '' : Number(it.qty).toLocaleString(), placeholder: '0' });
+      const unit = fi({ inputMode: 'numeric', value: Number(it.unit || 0).toLocaleString(), readOnly: !it.custom, className: 'fi' + (it.custom ? '' : ' ro'), tabIndex: it.custom ? 0 : -1 }), qty = fi({ inputMode: 'numeric', value: it.qty === '' ? '' : Number(it.qty).toLocaleString(), placeholder: '0' });
       const name = it.custom ? fi({ className: 'fi nm', value: it.name || '', placeholder: '항목명' }) : null;
-      const tr = el('tr', {}, [name ? el('td', {}, name) : td(it.name), el('td', {}, unit), el('td', {}, qty), tot]);
+      const unlock = it.custom ? null : el('button', { className: 'ed-btn', type: 'button', text: '수정', title: '이번 계산에서만 단가 바꾸기 (단가표는 그대로)', onclick: () => { unit.readOnly = false; unit.classList.remove('ro'); unit.tabIndex = 0; unit.focus(); unit.select(); unlock.remove(); } });
+      const tr = el('tr', {}, [name ? el('td', {}, name) : td(it.name), el('td', {}, el('div', { className: 'cc-unit' }, [unit, unlock].filter(Boolean))), el('td', {}, qty), tot]);
       const upd = () => { it.unit = num(unit.value) || 0; it.qty = num(qty.value) ?? ''; if (name) it.name = name.value.trim(); const t = (it.unit || 0) * (Number(it.qty) || 0); tot.textContent = t ? won(t) : '-'; tr.classList.toggle('used', !!t); paint(); };
       unit.addEventListener('input', () => { unit.value = fmt(unit.value); upd(); }); qty.addEventListener('input', () => { qty.value = fmt(qty.value); upd(); }); name?.addEventListener('input', upd);
       const t = (it.unit || 0) * (Number(it.qty) || 0); tot.textContent = t ? won(t) : '-'; tr.classList.toggle('used', !!t);
@@ -373,11 +430,6 @@
     } : null;
     return { view, apply };
   }
-  async function calcView() {
-    await Promise.all([loadPrices(), S.people.length ? null : loadPeople()]);
-    const { view } = calculator(null, null);
-    return [el('div', { className: 'hint', text: '패키지 정산: 결제 원금에서 실비(단가 × 수량)를 빼고 인센율을 곱합니다. 원장 줄의 [계산] 버튼으로 열면 결과를 그 줄에 저장할 수 있습니다.' }), ...view];
-  }
   async function calcModal(r) {
     await Promise.all([loadPrices(), S.people.length ? null : loadPeople()]);
     const { view, apply } = calculator(r, async (v) => {
@@ -394,21 +446,33 @@
   async function pricesView() {
     const list = await loadPrices();
     const tbody = el('tbody');
-    const rowEl = (p) => {
+    // 보기 줄 ↔ 수정 줄: [수정]을 눌러야 입력칸이 열림 (실수로 단가가 바뀌지 않게)
+    const viewRow = (p) => el('tr', {}, [td(p.name), td(Number(p.unit_won || 0).toLocaleString(), 'num'),
+      el('td', {}, el('span', { className: 'st-tag' + (p.active === false ? ' neg' : ''), text: p.active === false ? '사용 안 함' : '사용' })),
+      el('td', { className: 'num' }, el('button', { className: 'btn sm', type: 'button', text: '수정', onclick: (e) => e.target.closest('tr').replaceWith(editRow(p)) }))]);
+    const editRow = (p) => {
       const name = fi({ value: p.name || '', placeholder: '품목' }), unit = fi({ inputMode: 'numeric', value: p.unit_won != null ? Number(p.unit_won).toLocaleString() : '' }), act = el('input', { type: 'checkbox', checked: p.active !== false });
-      const save = el('button', { className: 'btn sm', type: 'button', text: '저장', onclick: async () => {
+      unit.addEventListener('input', () => { const d = unit.value.replace(/[^\d]/g, ''); unit.value = d ? Number(d).toLocaleString() : ''; });
+      const save = el('button', { className: 'btn sm primary', type: 'button', text: '저장', onclick: async () => {
         const row = { name: name.value.trim(), unit_won: num(unit.value) || 0, active: act.checked, sort: p.sort ?? list.length + 1 };
         if (!row.name) { toast('품목명을 입력하세요'); return; }
+        save.disabled = true;
         const { error } = p.id ? await sb.from('settle_prices').update(row).eq('id', p.id) : await sb.from('settle_prices').insert(row);
+        save.disabled = false;
         if (error) { toast('저장 실패: ' + error.message); return; } toast('저장됨'); draw();
       } });
-      return el('tr', {}, [el('td', {}, name), el('td', { className: 'num' }, unit), el('td', {}, el('label', { className: 'st-people' }, [act, '사용'])), el('td', {}, save)]);
+      const cancel = el('button', { className: 'btn sm ghost', type: 'button', text: '취소', onclick: (e) => { const tr = e.target.closest('tr'); if (p.id) tr.replaceWith(viewRow(p)); else tr.remove(); } });
+      const tr = el('tr', { className: 'editing' }, [el('td', {}, name), el('td', { className: 'num' }, unit), el('td', {}, el('label', { className: 'st-people' }, [act, '사용'])), el('td', { className: 'num' }, el('span', { className: 'st-btns' }, [cancel, save]))]);
+      tr.addEventListener('keydown', (e) => { if (e.key === 'Enter') save.click(); if (e.key === 'Escape') cancel.click(); });
+      queueMicrotask(() => (p.id ? unit : name).focus());
+      return tr;
     };
+    const rowEl = viewRow;
     tbody.replaceChildren(...list.map(rowEl));
     return [
-      el('div', { className: 'hint', text: '정산계산기에 쓰는 실비 단가 (VAT 별도). 값을 바꾸고 [저장]을 누르세요. 안 쓰는 품목은 "사용"을 끄면 계산기에서 빠집니다.' }),
+      el('div', { className: 'hint', text: '정산계산기에 쓰는 실비 단가 (VAT 별도). 품목 오른쪽 [수정]을 눌러 바꾸고 [저장]하세요 (Enter 저장 · Esc 취소). 안 쓰는 품목은 "사용"을 끄면 계산기에서 빠집니다.' }),
       el('div', { className: 'card' }, el('div', { className: 'tbl-wrap' }, el('table', { className: 'tbl st-tbl cc-tbl' }, [el('thead', {}, el('tr', {}, [th('품목'), th('단가 (원)', 1), th(''), th('')])), tbody]))),
-      el('button', { className: 'btn', type: 'button', text: '+ 품목 추가', onclick: () => tbody.append(rowEl({})) }),
+      el('button', { className: 'btn', type: 'button', text: '+ 품목 추가', onclick: () => tbody.append(editRow({})) }),
     ];
   }
 
@@ -484,10 +548,10 @@
           import_key: `xls:${name}:${r + 1}`, paid_on: paid, settle_month: month, branch: branch ? String(branch).trim() : null, owner_name: owner,
           company_name: company == null ? null : String(company).trim(), company_id: nk && co.has(nk) && !dupe.has(nk) ? co.get(nk) : null,
           item: itemS, kind, in_revenue: val(r, col('총 매출')) === '포함', in_promo: val(r, col('프모 매출')) === '포함',
-          pay_method: val(r, col('결제방식')) == null ? null : String(val(r, col('결제방식'))), tax_invoice: val(r, col('세금계산서')) == null ? null : String(val(r, col('세금계산서'))),
+          pay_method: normPay(val(r, col('결제방식'))), tax_invoice: doneVal(val(r, col('세금계산서'))),
           amount_won: typeof amount === 'number' ? amount : null, exec_won: typeof exec === 'number' ? exec : null,
           incentive_rate: typeof rate === 'number' ? rate : null, incentive_fixed_won: fixed,
-          checked: val(r, col('확인/입금')) == null ? null : String(val(r, col('확인/입금'))), memo: val(r, col('특이사항')) == null ? null : String(val(r, col('특이사항'))), created_by: me,
+          checked: doneVal(val(r, col('확인/입금'))), memo: val(r, col('특이사항')) == null ? null : String(val(r, col('특이사항'))), created_by: me,
         });
       }
     }

@@ -908,7 +908,7 @@
       amount: f('input', { inputMode: 'numeric', placeholder: '1,584,000' }), price: f('select', {}, ['정상', '할인', '프로모션', '서비스'].map((v) => el('option', { value: v, text: v }))),
       product: f('input', { placeholder: '예: 체험단 패키지 15개월 (블15)' }),
       svc: f('select', {}, SVC.map((v) => el('option', { value: v, text: v, selected: v === (co.service_type || '체험단 패키지') }))),
-      method: f('select', {}, ['카드', '카드 수기결제', '현금(계좌이체)'].map((v) => el('option', { value: v, text: v }))),
+      method: f('select', {}, ['개인 카드', '개인 현금', '법인 카드', '법인 현금'].map((v) => el('option', { value: v, text: v }))),
       tax: f('select', {}, ['발행 필요', '발행 완료', '해당 없음'].map((v) => el('option', { value: v, text: v }))),
       cardCo: f('input', { placeholder: '예: 신한' }), cardNo: f('input', { inputMode: 'numeric', placeholder: '0000-0000-0000-0000', autocomplete: 'off' }),
       cardExp: f('input', { placeholder: 'MM/YY', autocomplete: 'off' }), cardInst: f('input', { placeholder: '일시불 / 3개월' }),
