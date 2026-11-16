@@ -364,6 +364,7 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
   <symbol id="i-store" viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9h18"/><path d="M9 20v-6h6v6"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
   <symbol id="i-won" viewBox="0 0 24 24"><path d="M3 7l3 10 3-10 3 10 3-10 3 10 3-10"/><path d="M2 11h20M2 14h20"/></symbol>
   <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 21V9m0 0-4 4m4-4 4 4M4 3h16"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></symbol>
@@ -390,6 +391,7 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
       <div class="nav-sec">업무</div>
       <button class="mi active" data-page="today"><svg class="i"><use href="#i-sun"/></svg>오늘 할 일<span class="mi-badge" id="todoBadge" hidden></span></button>
       <button class="mi" data-page="inbox"><svg class="i"><use href="#i-inbox"/></svg>문의함<span class="mi-badge" id="newBadge" hidden></span></button>
+      <button class="mi" data-page="calendar"><svg class="i"><use href="#i-cal"/></svg>캘린더</button>
       <div class="nav-sec">업체</div>
       <button class="mi" data-page="leads"><svg class="i"><use href="#i-store"/></svg>가망 업체</button>
       <button class="mi" data-page="clients"><svg class="i"><use href="#i-check"/></svg>계약 업체</button>
@@ -450,6 +452,10 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
       </div>
     </div>
 
+    <div id="pg-calendar" hidden>
+      <header class="topbar"><h1>캘린더</h1><span class="count">체험단 모집 → 발표 → 마감 → 노출보고 · 계약 재계약 · 실행 소진</span></header>
+      <div class="pg stack" id="calBody"></div>
+    </div>
     <div id="pg-leads" hidden></div>
     <div id="pg-clients" hidden></div>
 
@@ -1019,7 +1025,7 @@ $('source').onchange = (e) => { filter.source = e.target.value; render(); };
 ['today', 'mine', 'unassigned'].forEach((k) => { $(k).onclick = () => { filter[k] = !filter[k]; render(); }; });
 // 단축키: / 검색, Esc 닫기, j/k 다음·이전 문의 열기 (입력 중엔 무시)
 // ── ⌘K / Ctrl+K 빠른 검색: 메뉴 · 문의 · 업체(가망·계약) ──
-const CMDK_PAGES = [['today', '오늘 할 일'], ['inbox', '문의함'], ['leads', '가망 업체'], ['clients', '계약 업체'], ['perf', '광고 성과']];
+const CMDK_PAGES = [['today', '오늘 할 일'], ['inbox', '문의함'], ['calendar', '캘린더'], ['leads', '가망 업체'], ['clients', '계약 업체'], ['perf', '광고 성과']];
 function openCmdk() {
   if (document.querySelector('.cmdk-layer')) return;
   let items = [], sel = 0, seq = 0;
@@ -1091,6 +1097,11 @@ $("themeBtn").onclick = () => {
 };
 syncThemeBtn();
 
+const loadScript = (src) => new Promise((ok, ng) => {
+  const key = src.split('?')[0];
+  if (document.querySelector(`script[data-k="${key}"]`)?.dataset.ok) return ok();
+  const x = document.createElement('script'); x.src = src; x.dataset.k = key; x.onload = () => { x.dataset.ok = '1'; ok(); }; x.onerror = ng; document.head.appendChild(x);
+});
 // 정산: 입금확인 미처리 결제가 있으면 사이드바 '정산' 옆에 ! (대표만, 5분마다 다시 확인)
 async function refreshSettleBadge() {
   const { count } = await sb.from('ledger').select('id', { count: 'exact', head: true }).eq('kind', '결제').gt('amount_won', 0).or('checked.is.null,checked.neq.완료');
@@ -1101,7 +1112,7 @@ setInterval(() => { if (me && !$('navSettle').hidden && document.visibilityState
 
 // ── 메뉴 ──
 // ── 화면 이동 = 주소(#today · #inbox · #leads · #clients · #co-업체ID). 새로고침·뒤로가기·링크 공유가 그대로 동작 ──
-const PAGES = ['today', 'inbox', 'leads', 'clients', 'perf', 'settle', 'import'];
+const PAGES = ['today', 'inbox', 'calendar', 'leads', 'clients', 'perf', 'settle', 'import'];
 let page = 'today';
 function showPage(p, { push = true } = {}) {
   if (!PAGES.includes(p)) p = 'today';
@@ -1115,6 +1126,7 @@ function showPage(p, { push = true } = {}) {
     if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=7'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
   if (p === 'today') renderToday();
+  if (p === 'calendar') loadScript('/assets/crm-calendar.js?v=1').then(() => window.CRM_CALENDAR.mount($('calBody'))).catch(() => toast('캘린더를 불러오지 못했습니다'));
   if (p === 'settle') {
     const go = () => window.CRM_SETTLE.mount($('settleBody'));
     if (window.CRM_SETTLE) go(); else { $('settleBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' })); const x = document.createElement('script'); x.src = '/assets/crm-settle.js?v=5'; x.onload = go; x.onerror = () => toast('정산 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
@@ -1181,7 +1193,15 @@ async function loadTodayCompanies() {
       posting: late.filter((r) => co(r.company_id)).map((r) => ({ co: co(r.company_id), r })),
       checklist: openCts.filter((c) => co(c.company_id)).map((c) => ({ co: co(c.company_id), c })),
       review: (rev.data || []).map((c) => ({ co: c })),
+      exec: { low: [], empty: [], stale: [] },
     };
+    // 체험단 일정(오늘 + 밀린 것)과 실행 소진·수량 입력 알림은 캘린더 모듈이 계산
+    try {
+      await loadScript('/assets/crm-calendar.js?v=1');
+      const [camp, ex] = await Promise.all([window.CRM_CALENDAR.todayCamp(), window.CRM_CALENDAR.execAlerts()]);
+      todayCo.recruit = camp.ev.sort((a, b) => a.due.localeCompare(b.due)).map((e) => ({ co: e.co, e, toggle: camp.toggle }));
+      todayCo.exec = ex;
+    } catch (e) { console.error('TODAY_CAMP', e); }
     todayCoAt = Date.now();
   } catch (e) { console.error('TODAY_CO', e); }
   todayCoLoading = false;
@@ -1226,8 +1246,9 @@ function renderToday() {
   const T = todayCo ? {
     renew: todayCo.renew.filter((x) => mineCo(x.co)), recruit: todayCo.recruit.filter((x) => mineCo(x.co)),
     posting: todayCo.posting.filter((x) => mineCo(x.co)), checklist: todayCo.checklist.filter((x) => mineCo(x.co)), review: todayCo.review,
+    exec: [...todayCo.exec.empty, ...todayCo.exec.low].filter((x) => mineCo(x.co)), stale: todayCo.exec.stale.filter((x) => mineCo(x.co)),
   } : null;
-  const coTotal = T ? T.renew.length + T.recruit.length + T.posting.length + T.checklist.length + T.review.length : 0;
+  const coTotal = T ? T.renew.length + T.recruit.length + T.posting.length + T.checklist.length + T.review.length + T.exec.length + T.stale.length : 0;
   const coItem = (c, memo, dueEl) => el('div', { className: 'todo-row', onclick: () => openCompanyFromToday(c.id) }, [
     el('div', {}, [el('strong', { text: c.name }), el('div', { className: 'sub', text: [c.phone || c.store_phone, c.manager_owner_name ? '관리 ' + c.manager_owner_name : c.sales_owner_name ? '영업 ' + c.sales_owner_name : '미배정'].filter(Boolean).join(' · ') })]),
     el('div', {}, (() => { const v = c.stage && c.stage !== '결제' ? '가망' : c.run_status || '진행 중', x = el('span', { className: 'pill', text: v }); x.style.setProperty('--c', { '진행 중': '#16A34A', 홀딩: '#D97706', 계약종료: '#A1A1AA', 환불: '#DC2626', 양도: '#71717A' }[v] || '#71717A'); return x; })()),
@@ -1245,7 +1266,7 @@ function renderToday() {
       el('button', { className: 'chip' + (todayMine ? ' on' : ''), type: 'button', text: '내 담당만', onclick: () => { todayMine = !todayMine; renderToday(); } })]),
     el('div', { className: 'kpi-row' }, [
       kpi('문의 처리', total, `신규 ${fresh.length} · 밀림 ${over.length} · 오늘 ${todays.length}`),
-      kpi('계약 업체 일정', T ? coTotal : '…', T ? `재계약 ${T.renew.length} · 모집 ${T.recruit.length} · 포스팅 ${T.posting.length} · 체크 ${T.checklist.length} · 확인 ${T.review.length}` : '불러오는 중'),
+      kpi('계약 업체 일정', T ? coTotal : '…', T ? `체험단 ${T.recruit.length} · 재계약 ${T.renew.length} · 소진 ${T.exec.length} · 체크 ${T.checklist.length} · 확인 ${T.review.length}` : '불러오는 중'),
       kpi('미배정 문의', all.filter((r) => !r.assignee && active(r)).length, '담당자를 정해야 알림이 갑니다'),
       kpi('이번 달 문의', thisMonth.length, month.replace('-', '년 ') + '월'),
     ]),
@@ -1256,7 +1277,13 @@ function renderToday() {
     section('연락 밀린 문의', '다음 연락일이 지났습니다', over, (r) => item(r, el('div', { className: 'due over', text: `${dayDiff(r.next_contact_at)}일 지남` })), true),
     section('오늘 연락 예정', '오늘로 잡아둔 연락', todays, (r) => item(r, el('div', { className: 'due', text: '오늘' }))),
     el('div', { className: 'todo-group', text: '계약 업체' }),
-    coSection('오늘 모집', '오늘 체험단 모집할 업체', T?.recruit || [], (x) => coItem(x.co, x.label, el('div', { className: 'due', text: '오늘' })), true),
+    coSection('체험단 일정', '오늘 할 일 + 밀린 것 · ✓를 누르면 완료 (캘린더에도 반영)', T?.recruit || [], (x) => {
+      const late = x.e.due < todayKst();
+      const btn = el('button', { className: 'btn sm', type: 'button', text: '✓ 완료', onclick: async (ev) => { ev.stopPropagation(); btn.disabled = true; if (await x.toggle(x.e)) { toast(`${x.co.name} ${x.e.step} 완료`); todayCoAt = 0; loadTodayCompanies(); } btn.disabled = false; } });
+      return coItem(x.co, `${x.e.step} · ${{ 모집: '모집글 업로드 · 링크 취합', 발표: '선정 · 가이드라인 발송', 마감: '마감 명단 · 링크 취합 전송', 노출보고: '노출 현황 · 순위 보고' }[x.e.step]}`, el('div', { className: 'due' + (late ? ' over' : '') }, [late ? `${Math.round((new Date(todayKst()) - new Date(x.e.due)) / 864e5)}일 지남 ` : '오늘 ', btn]));
+    }, true),
+    coSection('실행 소진', '남은 수량 20% 이하 · 0 = 소진 완료 → 재계약 제안', T?.exec || [], (x) => coItem(x.co, `${x.d.item} 남은 ${Math.max(0, x.left).toLocaleString()} / ${Number(x.d.planned).toLocaleString()}`, el('div', { className: 'due' + (x.left <= 0 ? ' over' : ''), text: x.left <= 0 ? '소진' : '임박' }))),
+    coSection('실행 수량 입력 필요', '14일 넘게 실행 수량을 안 고친 진행 중 업체', T?.stale || [], (x) => coItem(x.co, `마지막 수정 ${kstDay(x.t)}`, el('div', { className: 'due', text: `${Math.round((Date.now() - new Date(x.t)) / 864e5)}일` }))),
     coSection('포스팅 마감 지남', '리뷰 마감일이 지났는데 포스팅 링크가 없는 블로거', T?.posting || [], (x) => coItem(x.co, `${x.r.round_label || x.r.round_no}회차 · 포스팅 없는 블로거 ${x.r.missing}명`, el('div', { className: 'due over', text: `${Math.round((new Date(todayKst()) - new Date(x.r.deadline)) / 864e5)}일 지남` })), true),
     coSection('재계약 임박', '재계약 예정일 30일 전부터', T?.renew || [], (x) => coItem(x.co, `재계약 예정 ${x.co.next_renew_due}`, el('div', { className: 'due' + (x.d <= 7 ? ' over' : ''), text: x.d < 0 ? `${-x.d}일 지남` : x.d === 0 ? '오늘' : `D-${x.d}` }))),
     coSection('결제 체크리스트 미완료', '최근 90일 결제 · 인수인계 확인 또는 세금계산서 발행 전', T?.checklist || [], (x) => coItem(x.co, [`${x.c.kind || '결제'} ${x.c.paid_at || ''}`, !x.c.handover_at && '인수인계 확인 전', x.c.tax_invoice === '발행 필요' && '세금계산서 발행 필요'].filter(Boolean).join(' · '), el('div', { className: 'due', text: x.c.paid_at ? x.c.paid_at.slice(5) : '' }))),
