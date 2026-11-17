@@ -1,2 +1,6 @@
 .claude/worktrees/
 node_modules/
+
+# raw source material, not served
+assets/logos.zip
+muyi_unzip/

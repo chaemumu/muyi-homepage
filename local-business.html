@@ -369,6 +369,10 @@ a{color:inherit}
   color:#B9B3FF;background:rgba(52,40,240,.14);border:1px solid rgba(140,130,255,.32);
   transition:color var(--dur) var(--ease),background var(--dur) var(--ease),border-color var(--dur) var(--ease),transform var(--dur) var(--ease);
 }
+.hd-studio{color:var(--brand-hi);background:rgba(238,78,0,.1);border-color:rgba(238,78,0,.45)}
+.hd-studio:hover{background:rgba(238,78,0,.22)!important;border-color:var(--brand)!important}
+.studio-band{border-top:1px solid var(--line);padding:clamp(2.5rem,6vw,4rem) 0;text-align:center}
+.studio-band h2{font-size:clamp(1.4rem,3vw,2.1rem);font-weight:900;letter-spacing:-.03em;line-height:1.25;margin:.6rem 0 1.4rem}
 .hd-switch:hover{color:#fff;background:rgba(52,40,240,.3);border-color:rgba(160,150,255,.6);transform:translateY(-2px)}
 #hd.stuck .hd-switch{padding:.5rem clamp(.7rem,2vw,1rem)}
 
@@ -1099,6 +1103,7 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   </a>
   <div class="hd-r">
     <a href="/" class="hd-switch">Enterprise</a>
+    <a href="/shortform-marketing" class="hd-switch hd-studio">MUYI Studio</a>
     <a href="#cta" class="hd-cta js-scroll">무료 진단받기</a>
   </div>
 </header>
@@ -1393,6 +1398,15 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
         <div class="ind-tags"><span class="tag">방문 유도</span><span class="tag">플레이스</span><span class="tag">단골 관리</span></div>
       </article>
     </div>
+  </div>
+</section>
+
+<!-- 무이 스튜디오(숏폼) 페이지로 이동 -->
+<section class="studio-band">
+  <div class="wrap rise">
+    <span class="eyebrow dsp">MUYI studio</span>
+    <h2>직접 찍은 매장 릴스,<br>영상으로 먼저 보세요</h2>
+    <a href="/shortform-marketing" class="btn btn-primary">촬영 레퍼런스 보기 <span class="btn-arrow">→</span></a>
   </div>
 </section>
 
