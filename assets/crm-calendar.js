@@ -97,6 +97,38 @@
 .cal-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .cal-tools .cal-legend{flex:1;min-width:0}
 .cal-tools .sp{flex:1}
+.ct-hint{font-size:12px;color:var(--t3)}
+.ct-grid{user-select:none}
+.ct-grid.dragging .ct-bar{pointer-events:none}
+.ct-grid.dragging{cursor:grabbing}
+.ct-dows{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-bottom:1px solid var(--line)}
+.ct-week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-template-rows:26px repeat(4,23px) 1fr;min-height:128px;position:relative;border-bottom:1px solid var(--line)}
+.ct-day{grid-row:1 / -1;border-right:1px solid var(--line);padding:6px;cursor:cell;display:flex;flex-direction:column;justify-content:space-between;background:var(--surface)}
+.ct-day:nth-child(7){border-right:0}
+.ct-day.out{background:var(--surface-2)}
+.ct-day.out .dn b{color:var(--t4)}
+.ct-day.today .dn b{background:var(--accent);color:#fff;border-radius:10px;padding:0 6px}
+.ct-day .dn b{font-size:12px}
+.ct-day.pick{background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+.ct-day .cal-more{align-self:flex-start}
+.ct-bar{position:relative;z-index:1;margin:1px 3px;height:21px;display:flex;align-items:center;gap:4px;min-width:0;padding:0 7px;border:0;border-radius:5px;background:color-mix(in srgb,var(--c) 16%,var(--surface));color:color-mix(in srgb,var(--c) 80%,var(--t1));font-size:11.5px;font-weight:600;text-align:left;cursor:grab;box-shadow:inset 3px 0 0 var(--c)}
+.ct-bar:hover{background:color-mix(in srgb,var(--c) 26%,var(--surface))}
+.ct-bar.cont-l{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:0;box-shadow:none}
+.ct-bar.cont-r{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:0}
+.ct-bar.done{opacity:.55}
+.ct-bar.done .tt{text-decoration:line-through}
+.ct-bar .st{flex:none;font-size:10px;font-weight:800;opacity:.85}
+.ct-bar .tt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ct-bar.list{width:100%;height:34px;margin:0 0 6px;font-size:13px;cursor:pointer}
+.ct-stat{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:10px 14px;border-bottom:1px solid var(--line-2)}
+.ct-stat div{display:grid;justify-items:center}
+.ct-stat b{font-size:18px}
+.ct-stat small{font-size:10.5px;color:var(--t3)}
+.ct-pm{width:min(560px,100%)!important}
+.ct-pm .pm-f .sp{flex:1}
+.ct-pm .fs-btns .chip.on{border-color:var(--c,var(--accent));color:var(--c,var(--accent));background:color-mix(in srgb,var(--c,var(--accent)) 10%,var(--surface))}
+.ct-form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media (max-width:720px){.ct-week{grid-template-rows:22px repeat(4,18px) 1fr;min-height:110px}.ct-bar{font-size:10px;padding:0 4px}.ct-form{grid-template-columns:1fr 1fr}}
 .cal-info{width:30px;height:30px;border-radius:50%;border:1px solid var(--line-strong);font:italic 700 14px Georgia,serif;color:var(--t2);background:var(--surface)}
 .cal-info:hover{color:var(--accent);border-color:var(--accent)}
 .ci-pm{width:min(640px,100%)!important}
@@ -298,6 +330,12 @@
         '매월 모집일 자체를 바꾸기: 모집 목록의 [모집일] 또는 오른쪽 [모집일 미설정]',
         `지난 미완료는 추적 시작일(${cfg.start}) 이후 일정만 셉니다`,
       ]),
+      sec('무이 콘텐츠 달력 (자체 마케팅 제작)', [
+        '달력에서 날짜를 누르거나 여러 날을 끌어서 고르면 바로 등록 창 (구글 캘린더처럼)',
+        '막대를 끌어 다른 날짜에 놓으면 기간 그대로 옮겨지고, 누르면 수정·삭제',
+        `채널: ${CH.map(([k]) => k).join(' · ')} — 위 채널 탭을 누르면 그 채널만`,
+        `진행 상태: ${CST.join(' → ')} (업로드 완료는 흐리게·취소선)`,
+      ]),
       sec('계약 (재계약) 달력', [
         dot('var(--t4)', '재계약 D-31 이상'), dot('var(--amber)', 'D-30 ~ D-8'), dot('var(--red)', 'D-7 이내 · 지남'),
         dot('#B7791F', '홀딩'), dot('var(--t4)', '종료 · 환불 (취소선)'),
@@ -333,12 +371,12 @@
   function mount(box) {
     S.box = box;
     if (!S.month) { S.month = monthOf(todayKst()); S.sel = todayKst(); }
-    try { const t = localStorage.getItem('crm-cal-tab'); if (t === 'camp' || t === 'contract') S.tab = t; S.mine = localStorage.getItem('crm-cal-mine') === '1'; } catch {}
+    try { const t = localStorage.getItem('crm-cal-tab'); if (['camp', 'contract', 'content'].includes(t)) S.tab = t; S.mine = localStorage.getItem('crm-cal-mine') === '1'; } catch {}
     draw();
   }
 
   async function draw() {
-    const seg = el('div', { className: 'cal-seg' }, [['camp', '체험단'], ['contract', '계약']].map(([k, t]) => el('button', { type: 'button', className: S.tab === k ? 'on' : '', text: t, onclick: () => { S.tab = k; try { localStorage.setItem('crm-cal-tab', k); } catch {} draw(); } })));
+    const seg = el('div', { className: 'cal-seg' }, [['camp', '체험단'], ['contract', '계약'], ['content', '무이 콘텐츠']].map(([k, t]) => el('button', { type: 'button', className: S.tab === k ? 'on' : '', text: t, onclick: () => { S.tab = k; try { localStorage.setItem('crm-cal-tab', k); } catch {} draw(); } })));
     const mine = el('button', { className: 'chip' + (S.mine ? ' on' : ''), type: 'button', text: '내 담당만', onclick: () => { S.mine = !S.mine; try { localStorage.setItem('crm-cal-mine', S.mine ? '1' : '0'); } catch {} draw(); } });
     const nav = el('div', { className: 'cal-month' }, [
       el('button', { className: 'btn sm', type: 'button', text: '오늘', onclick: () => { S.month = monthOf(todayKst()); S.sel = todayKst(); draw(); } }),
@@ -354,13 +392,126 @@
     const tok = (S.drawTok = (S.drawTok || 0) + 1);
     S.box.classList.add('cal-busy');
     let kids;
-    try { kids = S.tab === 'camp' ? await campView() : await contractView(); }
+    try { kids = S.tab === 'camp' ? await campView() : S.tab === 'contract' ? await contractView() : await contentView(); }
     catch (e) { kids = [el('div', { className: 'err', text: '불러오기 실패: ' + e.message })]; }
     if (tok !== S.drawTok) return; // 더 최신 draw가 있으면 버림
     S.box.classList.remove('cal-busy');
     const y = window.scrollY;
     S.box.replaceChildren(top, el('div', { className: 'stack' }, kids));
     window.scrollTo(0, y);
+  }
+
+  // ── 무이 콘텐츠 (자체 마케팅 제작 일정): 구글 캘린더처럼 날짜를 끌어 등록 · 막대를 끌어 옮기기 · 눌러서 수정 ──
+  const CH = [['유튜브', '#E11D48'], ['인스타', '#C026D3'], ['숏폼·릴스', '#EA580C'], ['영상', '#2563EB'], ['블로그', '#16A34A'], ['기타', '#71717A']];
+  const CH_C = Object.fromEntries(CH);
+  const CST = ['기획', '촬영', '편집', '업로드 완료', '보류'];
+  async function contentView() {
+    const days = gridDays(), today = todayKst();
+    const { data, error } = await sb.from('content_items').select('*').lte('starts_on', days[41]).gte('ends_on', days[0]).order('starts_on').limit(1000);
+    if (error) throw error;
+    const items = (S.mine ? (data || []).filter((x) => x.owner === me) : data || []).filter((x) => !S.cch || x.channel === S.cch);
+    // 채널 필터 (누르면 그 채널만)
+    const inMonth = (data || []).filter((x) => x.starts_on <= `${S.month}-31` && x.ends_on >= `${S.month}-01`);
+    const chSeg = el('div', { className: 'cal-seg cg-seg' }, [['', '#1E10C7'], ...CH].map(([k, c]) => { const b = el('button', { type: 'button', className: (S.cch || '') === k ? 'on' : '', onclick: () => { S.cch = (S.cch || '') === k ? '' : k; draw(); } }, [el('i'), k || '전체', el('span', { className: 'n', text: (k ? inMonth.filter((x) => x.channel === k) : inMonth).length })]); b.style.setProperty('--c', c); return b; }));
+    // 주 단위 줄: 막대가 여러 날에 걸쳐 이어짐 (겹치면 아래 줄로)
+    let sel = null; // 끌어서 고르는 중인 범위 {a, b}
+    const weeks = [];
+    for (let w = 0; w < 6; w++) {
+      const wd = days.slice(w * 7, w * 7 + 7);
+      const segs = items.filter((x) => x.starts_on <= wd[6] && x.ends_on >= wd[0]).map((x) => ({ x, a: Math.max(0, wd.indexOf(x.starts_on < wd[0] ? wd[0] : x.starts_on)), b: wd.indexOf(x.ends_on > wd[6] ? wd[6] : x.ends_on) }))
+        .sort((p, q) => p.a - q.a || (q.b - q.a) - (p.b - p.a));
+      const lanes = []; segs.forEach((g) => { let l = lanes.findIndex((end) => end < g.a); if (l < 0) { l = lanes.length; lanes.push(-1); } lanes[l] = g.b; g.l = l; });
+      const MAXL = 4;
+      const row = el('div', { className: 'ct-week' });
+      wd.forEach((d, i) => {
+        const more = segs.filter((g) => g.l >= MAXL && g.a <= i && g.b >= i).length;
+        const c = el('div', { className: 'ct-day' + (monthOf(d) !== S.month ? ' out' : '') + (d === today ? ' today' : '') }, [el('div', { className: 'dn' }, el('b', { text: String(+d.slice(8)) })), more ? el('button', { type: 'button', className: 'cal-more', text: `+${more}개`, onclick: (e) => { e.stopPropagation(); dayList(d); } }) : null].filter(Boolean));
+        c.style.gridColumn = `${i + 1}`; c.dataset.d = d;
+        c.addEventListener('pointerdown', (e) => { if (e.button !== 0 || e.target.closest('.ct-bar, .cal-more')) return; e.preventDefault(); sel = { a: d, b: d }; grid.classList.add('dragging'); paintSel(); });
+        c.addEventListener('pointerenter', () => { if (sel) { sel.b = d; paintSel(); } if (mv) { mv.to = d; paintMove(); } });
+        row.append(c);
+      });
+      segs.filter((g) => g.l < MAXL).forEach((g) => {
+        const x = g.x, done = x.status === '업로드 완료';
+        const bar = el('button', { type: 'button', className: 'ct-bar' + (done ? ' done' : '') + (x.starts_on < wd[0] ? ' cont-l' : '') + (x.ends_on > wd[6] ? ' cont-r' : ''), title: `${x.title} · ${x.channel || '채널 없음'} · ${x.status}\n${x.starts_on}${x.ends_on !== x.starts_on ? ' ~ ' + x.ends_on : ''}${x.owner_name ? ' · ' + x.owner_name : ''}\n끌어서 옮기기 · 눌러서 수정` },
+          [el('span', { className: 'st', text: done ? '✓' : x.status === '기획' ? '' : x.status }), el('span', { className: 'tt', text: x.title })]);
+        bar.style.gridColumn = `${g.a + 1} / ${g.b + 2}`; bar.style.gridRow = `${g.l + 2}`; bar.style.setProperty('--c', CH_C[x.channel] || '#71717A');
+        bar.addEventListener('pointerdown', (e) => { if (e.button !== 0) return; e.preventDefault(); e.stopPropagation(); mv = { x0: e.clientX, y0: e.clientY, x, from: wd[Math.max(g.a, 0)], grab: null, to: null, moved: false }; const cell = row.children[g.a]; mv.grab = (() => { const r = bar.getBoundingClientRect(); const i = Math.min(6, Math.max(0, g.a + Math.floor((e.clientX - r.left) / (r.width / (g.b - g.a + 1))))); return wd[i]; })(); mv.to = mv.grab; });
+        bar.addEventListener('click', (e) => { e.stopPropagation(); if (!mvJustMoved) itemModal(x); });
+        row.append(bar);
+      });
+      weeks.push(row);
+    }
+    // 끌어서 범위 고르기 → 손 떼면 등록 창
+    const allCells = () => [...grid.querySelectorAll('.ct-day')];
+    function paintSel() { const [a, b] = sel ? [sel.a, sel.b].sort() : ['', '']; allCells().forEach((c) => c.classList.toggle('pick', !!sel && c.dataset.d >= a && c.dataset.d <= b)); }
+    // 막대 옮기기
+    let mv = null, mvJustMoved = false;
+    function paintMove() { if (!mv) return; const delta = dayDiff(mv.to, mv.grab), a = addDays(mv.x.starts_on, delta), b = addDays(mv.x.ends_on, delta); if (delta) mv.moved = true; allCells().forEach((c) => c.classList.toggle('pick', mv.moved && c.dataset.d >= a && c.dataset.d <= b)); }
+    const up = async () => {
+      grid.classList.remove('dragging');
+      if (sel) { const [a, b] = [sel.a, sel.b].sort(); sel = null; paintSel(); itemModal({ starts_on: a, ends_on: b }); return; }
+      if (mv) {
+        const m = mv; mv = null; allCells().forEach((c) => c.classList.remove('pick'));
+        const delta = m.to ? dayDiff(m.to, m.grab) : 0;
+        if (!m.moved || !delta) return;
+        mvJustMoved = true; setTimeout(() => { mvJustMoved = false; }, 0);
+        const patch = { starts_on: addDays(m.x.starts_on, delta), ends_on: addDays(m.x.ends_on, delta) };
+        const { error } = await sb.from('content_items').update(patch).eq('id', m.x.id);
+        if (error) { toast('저장 실패: ' + error.message); return; }
+        toast(`${m.x.title} → ${md(patch.starts_on)}${patch.ends_on !== patch.starts_on ? ' ~ ' + md(patch.ends_on) : ''}`); draw();
+      }
+    };
+    document.removeEventListener('pointerup', S.ctUp || (() => {})); S.ctUp = up; document.addEventListener('pointerup', up);
+    // 막대를 4px 넘게 움직이면 그때부터 끌기 (그냥 누르면 수정 창)
+    const moveStart = (e) => { if (mv && !grid.classList.contains('dragging') && Math.hypot(e.clientX - mv.x0, e.clientY - mv.y0) > 4) grid.classList.add('dragging'); };
+    document.removeEventListener('pointermove', S.ctMove || (() => {})); S.ctMove = moveStart; document.addEventListener('pointermove', moveStart);
+    const grid = el('div', { className: 'ct-grid' }, [el('div', { className: 'ct-dows' }, DOW.map((w) => el('div', { className: 'cal-dow', text: w }))), ...weeks]);
+    function dayList(d) {
+      const list = items.filter((x) => x.starts_on <= d && x.ends_on >= d);
+      const P = popup(`${md(d)} 콘텐츠 ${list.length}개`, list.map((x) => { const b = el('button', { type: 'button', className: 'ct-bar list', onclick: () => { P.close(); itemModal(x); } }, [el('span', { className: 'st', text: x.status }), el('span', { className: 'tt', text: x.title })]); b.style.setProperty('--c', CH_C[x.channel] || '#71717A'); return b; }));
+    }
+    // 오른쪽: 이번 달 상태별
+    const mine = inMonth.filter((x) => !S.cch || x.channel === S.cch);
+    const side = el('div', { className: 'cal-side' }, [
+      el('div', { className: 'card cs-card' }, [el('div', { className: 'cs-h' }, [el('h3', { text: `${+S.month.slice(5)}월 콘텐츠` }), el('span', { className: 'n', text: mine.length })]),
+        el('div', { className: 'ct-stat' }, CST.map((st) => el('div', {}, [el('b', { text: mine.filter((x) => x.status === st).length }), el('small', { text: st })]))),
+        el('div', { className: 'cs-list' }, mine.filter((x) => x.status !== '업로드 완료').sort((a, b) => a.ends_on.localeCompare(b.ends_on)).slice(0, 12).map((x) => el('button', { type: 'button', className: 'cs-line', onclick: () => itemModal(x) }, [el('b', { text: x.title }), el('small', { className: x.ends_on < today ? 'late' : '', text: `${x.channel || '—'} · ${x.status} · ${x.ends_on < today ? '마감 지남 ' : ''}~${md(x.ends_on)}` }), el('span', { className: 'go', text: '›' })])))]),
+      el('button', { className: 'btn primary', type: 'button', text: '+ 콘텐츠 추가', onclick: () => itemModal({ starts_on: today, ends_on: today }) }),
+    ]);
+    return [el('div', { className: 'cal-tools' }, [chSeg, el('span', { className: 'sp' }), el('span', { className: 'ct-hint', text: '날짜를 끌어서 등록 · 막대를 끌어서 옮기기' })]), el('div', { className: 'cal-wrap' }, [el('div', { className: 'card' }, grid), side])];
+  }
+  // 콘텐츠 등록·수정 창
+  function itemModal(x) {
+    const isNew = !x.id;
+    const f = (tag, props, kids) => el(tag, { className: 'fi', ...props }, kids || []);
+    const F = { title: f('input', { value: x.title || '', placeholder: '예: 체험단 브이로그 2편 · 릴스 3개' }), s: f('input', { type: 'date', value: x.starts_on }), e: f('input', { type: 'date', value: x.ends_on || x.starts_on }),
+      owner: f('select', {}, [el('option', { value: '', text: '담당 없음' }), ...Object.entries(admins).map(([id, n]) => el('option', { value: id, text: n, selected: id === (isNew ? me : x.owner) }))]),
+      link: f('input', { value: x.link || '', placeholder: '기획안·드라이브·업로드 링크' }), memo: f('textarea', { rows: 3, value: x.memo || '', placeholder: '메모 (컨셉·촬영 장소·필요한 것)' }) };
+    let ch = x.channel || '', st = x.status || '기획';
+    const chips = (list, get, set, colors) => { const box = el('div', { className: 'fs-btns' }); const paint = () => box.replaceChildren(...list.map((v) => { const b = el('button', { type: 'button', className: 'chip' + (get() === v ? ' on' : ''), text: v, onclick: () => { set(v); paint(); } }); if (colors) b.style.setProperty('--c', colors[v]); return b; })); paint(); return box; };
+    F.s.oninput = () => { if (!F.e.value || F.e.value < F.s.value) F.e.value = F.s.value; };
+    const L = (t, c) => el('label', {}, [el('span', { className: 'lbl', text: t }), c]);
+    const err = el('div', { className: 'err' });
+    const save = async () => {
+      const title = F.title.value.trim(); if (!title) { err.textContent = '제목을 입력하세요'; return; }
+      if (!F.s.value) { err.textContent = '시작일을 고르세요'; return; }
+      const row = { title, channel: ch || null, status: st, starts_on: F.s.value, ends_on: F.e.value && F.e.value >= F.s.value ? F.e.value : F.s.value, owner: F.owner.value || null, owner_name: F.owner.value ? admins[F.owner.value] : null, link: F.link.value.trim() || null, memo: F.memo.value.trim() || null };
+      const q = isNew ? sb.from('content_items').insert(row) : sb.from('content_items').update(row).eq('id', x.id);
+      const { error } = await q; if (error) { err.textContent = '저장 실패: ' + error.message; return; }
+      P.close(); toast(isNew ? `${title} 등록` : '저장됨'); draw();
+    };
+    const del = isNew ? null : el('button', { className: 'btn ghost', type: 'button', text: '삭제', onclick: async () => { if (!confirm(`${x.title} 삭제할까요?`)) return; const { error } = await sb.from('content_items').delete().eq('id', x.id); if (error) { toast('삭제 실패: ' + error.message); return; } P.close(); toast('삭제됨'); draw(); } });
+    const P = popup(isNew ? '콘텐츠 추가' : '콘텐츠 수정', [
+      L('제목', F.title),
+      el('div', {}, [el('span', { className: 'lbl', text: '채널' }), chips(CH.map(([k]) => k), () => ch, (v) => { ch = ch === v ? '' : v; }, CH_C)]),
+      el('div', {}, [el('span', { className: 'lbl', text: '진행 상태' }), chips(CST, () => st, (v) => { st = v; })]),
+      el('div', { className: 'ct-form' }, [L('시작', F.s), L('끝', F.e), L('담당', F.owner)]),
+      L('링크', F.link), L('메모', F.memo), err,
+    ], [del, el('span', { className: 'sp' }), el('button', { className: 'btn primary', type: 'button', text: isNew ? '등록' : '저장', onclick: save })].filter(Boolean));
+    P.layer.firstChild.classList.add('ct-pm');
+    F.title.focus();
+    F.title.addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); });
   }
 
   // 달력 칸 (월요일 시작, 6주)
