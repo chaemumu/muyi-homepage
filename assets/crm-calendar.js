@@ -359,6 +359,7 @@
         '칸에는 업체명이 보입니다. 업체명을 누르면 완료(초록) · 다시 누르면 취소',
         '날짜 바꾸기: 업체명을 끌어 다른 날짜에 놓기',
         '많은 날은 … +n 으로 줄어듭니다. 오른쪽 위 [⤢ 전체 보기]로 모든 칸을 펼칩니다',
+        '리뷰노트 명단: 리뷰노트 캠페인 화면에서 북마크 [리뷰노트 → MUYI] → 이 화면에서 Ctrl+V → 업체 자동 선택·명단 채움',
         '발표 옆 📋 = 명단 변환 · 마감 옆 🔍 = 링크 확인(부족하면 2차마감) · +14 = 연장 + 해당 없는 블로거 안내 문자 · 모집 옆 ⚙ = 매월 모집일 변경',
         `지난 미완료는 추적 시작일(${cfg.start}) 이후 일정만 셉니다`,
       ]),
@@ -680,12 +681,27 @@
       ])) : el('div', { className: 'cs-empty cs-char' }, [el('img', { src: '/assets/brand/muyi-char-idea.webp', alt: '' }), '이 달에 해당하는 일정이 없습니다.']),
     ]);
     const annEv = ev.filter((e) => e.step === '발표' && monthOf(e.due) === S.month);
+    // 리뷰노트 북마크로 복사한 명단을 캘린더에서 Ctrl+V → 캠페인 제목으로 업체를 찾아 명단 변환을 바로 연다
+    document.removeEventListener('paste', S.rnPaste || (() => {}));
+    S.rnPaste = async (x) => {
+      if (S.tab !== 'camp' || !S.box?.isConnected || document.querySelector('.pm-layer') || /input|textarea/i.test(x.target?.tagName || '')) return;
+      const t = x.clipboardData?.getData('text') || ''; if (!/^MUYI-RN:/.test(t)) return;
+      x.preventDefault(); await campLib(); const rn = window.CRM_CAMP.parseRN(t);
+      if (!rn) { toast('붙여넣은 명단을 읽지 못했습니다 — 북마크를 다시 눌러주세요'); return; }
+      // 발표 업체 우선(최근 60일~다음 달), 없으면 체험단 진행 중 전체
+      const { ev: near } = await campEvents(addDays(today, -60), addDays(today, 45));
+      const anns = near.filter((e) => e.step === '발표');
+      const seen = new Set(anns.map((e) => e.co.id));
+      near.filter((e) => e.step === '모집' && !seen.has(e.co.id)).forEach((e) => { seen.add(e.co.id); anns.push({ ...e, step: '발표', due: e.ann || null }); });
+      pickCamp(anns, cfg, rn);
+    };
+    document.addEventListener('paste', S.rnPaste);
     const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), expandBtn, el('button', { className: 'btn primary', type: 'button', text: `명단 변환${annEv.length ? ` (${annEv.length})` : ''}`, onclick: () => pickCamp(annEv, cfg) })]);
     return [tools, el('div', { className: 'cal-wrap' }, [el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), list]), side])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=5');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=6');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
-  const pickCamp = (evs, cfg) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
+  const pickCamp = (evs, cfg, rn) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg, rn)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
     const gap = Math.max(0, (cfg.off.마감 || 0) - (cfg.off.발표 || 0));
     const F = { 마감: el('input', { className: 'fi', type: 'number', min: 0, value: gap }), '2차마감': el('input', { className: 'fi', type: 'number', min: 0, value: cfg.off['2차마감'] }) };
