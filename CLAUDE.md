@@ -212,7 +212,7 @@ UX:
   Edge Function `camp-assist`(관리자만): nick(m.blog.naver.com nickName) · notes(신청메시지 → AI 특이사항, haiku) · posts(블로그 RSS에서 업체명 글 찾기)
   블로거 가이드 이전 버전: 브랜드 공통은 `crm_settings` 수정 시 트리거(`archive_guide_brand`)가 `guide_history`에 자동 보관, 지점 특이사항은 `guidelines` 저장 이력. 화면에 수정일·수정자 + [이전 버전]
   마감 확인(`closeCheck`, 캘린더 마감·2차마감 팝업 [🔍 링크 확인]): 블로거 RSS에서 업체명 글 자동 수집 → `roster.post_url` 저장 → 마감 인원 반영(부족하면 2차마감)
-  계약 캘린더 그룹: 진행 중 · 재계약 지남 · 홀딩 · 종료(뿌러짐) · 정보 없음(재계약일·결제일 비어 있음) — 표 정렬 가능
+  계약 캘린더 그룹: 전체(기본, 모든 상태의 재계약일을 상태색으로) · 진행 중 · 재계약 지남 · 홀딩 · 종료(뿌러짐) · 정보 없음(재계약일·결제일 비어 있음) — 표 정렬 가능
 - 문자(`assets/crm-sms.js`, 가망 목록 [문자 보내기] · 업체 상세 [문자]): Edge Function `sms-send`(관리자만, 알리고 `send_mass`, Secret `ALIGO_API_KEY`·`ALIGO_USER_ID`·`ALIGO_SENDER`)
   광고 문자는 서버에서 강제: `(광고)` 표기 + 080 무료수신거부 문구(`crm_settings 'sms_config'`) + 밤 9시~아침 8시 차단. `sms_optout` 번호·중복·유선 자동 제외, 전부 `sms_logs` 기록 → **안전장치 제거 금지**(정보통신망법 50조)
   템플릿 `crm_settings 'sms_templates'`, `#{업체명}` 자동 치환

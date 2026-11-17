@@ -48,7 +48,8 @@
 .chip-ev.done .n{text-decoration:line-through}
 .chip-ev.late{border-color:var(--red);box-shadow:inset 3px 0 0 var(--red)}
 .chip-ev.muted{opacity:.55}
-.cal-more{font-size:11px;font-weight:600;color:var(--t3);padding:0 4px}
+.cal-more{font-size:11px;font-weight:600;color:var(--t3);padding:0 4px;border:0;background:none;text-align:left;cursor:pointer}
+.cal-more:hover{color:var(--accent)}
 .cal-side{display:grid;gap:12px;position:sticky;top:12px}
 .cal-side .card{overflow:hidden}
 .cs-h{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
@@ -82,9 +83,14 @@
 .cs-set label{display:flex;align-items:center;gap:8px;font-size:13px}
 .cs-set label span{flex:1}
 .cs-set input{width:70px;height:30px;text-align:right}
-.rn-chip{--c:var(--amber)}
+.rn-chip{--c:var(--amber);height:auto;min-height:22px;flex-direction:column;align-items:flex-start;gap:0;padding:3px 6px;text-align:left}
+.rn-chip .s{font-size:10px;line-height:1.3}
+.rn-chip .n{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3;font-size:11.5px;word-break:keep-all}
 .rn-chip.hot{--c:var(--red)}
 .rn-chip.cold{--c:var(--t4)}
+.rn-chip.hold{--c:#B7791F}
+.rn-chip.end{--c:var(--t4);opacity:.75}
+.rn-chip.end .n{text-decoration:line-through}
 .cnt{display:flex;align-items:center;gap:5px;width:100%;height:24px;padding:0 6px;border-radius:6px;border:1px solid color-mix(in srgb,var(--c) 30%,var(--line));background:color-mix(in srgb,var(--c) 8%,var(--surface));font-size:12px;cursor:pointer;text-align:left}
 .cal-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .cal-tools .cal-legend{flex:1;min-width:0}
@@ -407,9 +413,9 @@
     return { low, empty, stale, co: co || [] };
   }
   // 계약 그룹: 진행 중 · 재계약 지남 · 홀딩 · 종료(계약종료·환불·양도) · 정보 없음(재계약일·결제일 비어 있음)
-  const CGROUPS = [['run', '진행 중', '#16A34A'], ['past', '재계약 지남', '#E11D48'], ['hold', '홀딩', '#D97706'], ['end', '종료', '#71717A'], ['none', '정보 없음', '#7C3AED']];
+  const CGROUPS = [['all', '전체', '#1E10C7'], ['run', '진행 중', '#16A34A'], ['past', '재계약 지남', '#E11D48'], ['hold', '홀딩', '#D97706'], ['end', '종료', '#71717A'], ['none', '정보 없음', '#7C3AED']];
   const groupOf = (c, today) => {
-    const g = [];
+    const g = ['all'];
     if (c.run_status === '진행 중') g.push(c.next_renew_due && c.next_renew_due < today ? 'past' : 'run');
     else if (c.run_status === '홀딩') g.push('hold');
     else g.push('end');
@@ -423,13 +429,18 @@
     const f = (l) => S.mine ? l.filter((x) => isMine(x.co || x)) : l;
     const cos = f(all.data || []);
     const groups = Object.fromEntries(CGROUPS.map(([k]) => [k, []])); cos.forEach((c) => groupOf(c, today).forEach((g) => groups[g].push(c)));
-    if (!S.cgroup) S.cgroup = 'run';
+    if (!S.cgroup) S.cgroup = 'all';
     const cur = groups[S.cgroup];
     const seg = el('div', { className: 'cal-seg cg-seg' }, CGROUPS.map(([k, t, c]) => { const b = el('button', { type: 'button', className: S.cgroup === k ? 'on' : '', onclick: () => { S.cgroup = k; draw(); } }, [el('i'), t, el('span', { className: 'n', text: groups[k].length })]); b.style.setProperty('--c', c); return b; }));
     const byDay = {}; cur.filter((c) => c.next_renew_due && c.next_renew_due >= days[0] && c.next_renew_due <= days[41]).forEach((c) => { (byDay[c.next_renew_due] = byDay[c.next_renew_due] || []).push(c); });
-    const chip = (c) => { const dd = dayDiff(c.next_renew_due, today); return el('button', { type: 'button', className: 'chip-ev rn-chip' + (dd <= 7 ? ' hot' : dd > 30 ? ' cold' : ''), title: `${c.name} 재계약 ${dd < 0 ? -dd + '일 지남' : 'D-' + dd} — 누르면 업체 열기`, onclick: (e) => { e.stopPropagation(); openCompanyFromToday(c.id); } }, [el('span', { className: 's', text: dd < 0 ? '지남' : 'D-' + dd }), el('span', { className: 'n', text: c.name })]); };
-    const cells = days.map((d) => { const list = (byDay[d] || []).sort((a, b) => a.name.localeCompare(b.name));
-      return el('div', { className: 'cal-day' + (monthOf(d) !== S.month ? ' out' : '') + (d === today ? ' today' : '') }, [el('div', { className: 'dn' }, el('b', { text: String(+d.slice(8)) })), ...list.slice(0, 4).map(chip), list.length > 4 ? el('div', { className: 'cal-more', text: `+${list.length - 4}곳 더` }) : null].filter(Boolean)); });
+    // 칩: 진행 중은 D-day 색, 홀딩·종료(계약종료·환불·양도)는 상태로 표시 (전체 탭에서 한눈에)
+    const chip = (c) => { const dd = dayDiff(c.next_renew_due, today); const st = c.run_status === '진행 중' ? null : c.run_status;
+      const tag = st ? (st === '홀딩' ? '홀딩' : st === '환불' ? '환불' : '종료') : dd < 0 ? '지남' : 'D-' + dd;
+      const cls = st ? (st === '홀딩' ? ' hold' : ' end') : dd <= 7 ? ' hot' : dd > 30 ? ' cold' : '';
+      return el('button', { type: 'button', className: 'chip-ev rn-chip' + cls, title: `${c.name} · ${st || '진행 중'} · 재계약 ${c.next_renew_due} (${dd < 0 ? -dd + '일 지남' : 'D-' + dd}) — 누르면 업체 열기`, onclick: (e) => { e.stopPropagation(); openCompanyFromToday(c.id); } }, [el('span', { className: 's', text: tag }), el('span', { className: 'n', text: c.name })]); };
+    const pri = (c) => ({ '진행 중': 0, 홀딩: 1 })[c.run_status] ?? 2;
+    const cells = days.map((d) => { const list = (byDay[d] || []).sort((a, b) => pri(a) - pri(b) || a.name.localeCompare(b.name));
+      return el('div', { className: 'cal-day' + (monthOf(d) !== S.month ? ' out' : '') + (d === today ? ' today' : '') }, [el('div', { className: 'dn' }, el('b', { text: String(+d.slice(8)) })), ...list.slice(0, 4).map(chip), list.length > 4 ? el('button', { type: 'button', className: 'cal-more', text: `+${list.length - 4}곳 더`, onclick: (e) => { e.stopPropagation(); popup(`${+d.slice(5, 7)}월 ${+d.slice(8)}일 재계약 ${list.length}곳`, list.map(chip)); } }) : null].filter(Boolean)); });
     const grid = el('div', { className: 'cal-grid' }, [...DOW.map((w) => el('div', { className: 'cal-dow', text: w })), ...cells]);
     // 그룹 목록 (정렬 · 빠진 정보 표시)
     const SORT = { renew: ['재계약일순', (a, b) => String(a.next_renew_due || '9999').localeCompare(String(b.next_renew_due || '9999'))], paid: ['최근 결제순', (a, b) => String(b.last_paid_at || '').localeCompare(String(a.last_paid_at || ''))], name: ['이름순', (a, b) => a.name.localeCompare(b.name)] };
