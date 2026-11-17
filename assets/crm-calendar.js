@@ -156,6 +156,28 @@
 .cnt.done{border-color:color-mix(in srgb,var(--green) 40%,var(--line));background:color-mix(in srgb,var(--green) 10%,var(--surface))}
 .cnt.done .ck{background:var(--green);border-color:var(--green)}
 .cnt.late{box-shadow:inset 3px 0 0 var(--red);border-color:var(--red)}
+.cal-grid.camp .cal-day{cursor:default;gap:2px}
+.cc{display:flex;align-items:center;min-width:0;height:21px;border-radius:5px;background:color-mix(in srgb,var(--c) 13%,var(--surface));box-shadow:inset 3px 0 0 var(--c);cursor:grab;flex:none}
+.cc.dragging{opacity:.4}
+.cc-n{flex:1;min-width:0;height:100%;padding:0 4px 0 7px;border:0;background:none;text-align:left;font-size:11.5px;font-weight:600;color:color-mix(in srgb,var(--c) 75%,var(--t1));overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.cc-x{flex:none;height:17px;min-width:17px;margin-right:2px;padding:0 3px;border:0;border-radius:4px;background:color-mix(in srgb,var(--c) 18%,var(--surface));font-size:10px;font-weight:800;color:color-mix(in srgb,var(--c) 80%,var(--t1));cursor:pointer;line-height:17px}
+.cc-x:hover{background:var(--c);color:#fff}
+@media (hover:hover){.cc-x{display:none}.cc:hover .cc-x{display:block}.cc:hover .cc-n{padding-right:2px}}
+.cc.done{--c:var(--green);background:color-mix(in srgb,var(--green) 22%,var(--surface))}
+.cc.done .cc-n::before{content:'✓ ';font-weight:800}
+.cc.late .cc-n{text-decoration:underline wavy color-mix(in srgb,var(--red) 60%,transparent);text-underline-offset:3px}
+.cc-more{border:0;background:none;padding:0 4px;text-align:left;font-size:11px;font-weight:700;color:var(--t3);cursor:pointer}
+.cc-more:hover{color:var(--accent)}
+.cal-grid.camp:not(.expand) .cal-day{max-height:118px;overflow:hidden}
+.cal-grid.camp:not(.expand) .cal-day .cc:nth-of-type(n+6){display:none}
+.cal-grid.camp.expand .cc-more{display:none}
+.cs-pend{display:grid;grid-template-columns:auto minmax(0,1fr) 128px;gap:8px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--line-2);cursor:grab}
+.cs-pend:last-child{border-bottom:0}
+.cs-pend .nm{font-size:13px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cs-pend small{display:block;font-size:11px;color:var(--t3);font-weight:500}
+.cs-pend input{height:28px;font-size:12px}
+.cs-hint{padding:8px 14px 0;font-size:11.5px}
+.cg-tbl .btn.ok{color:var(--green);border-color:color-mix(in srgb,var(--green) 40%,var(--line))}
 .cs-late{display:flex;gap:8px;align-items:center;width:100%;padding:8px 14px;border:0;border-bottom:1px solid var(--line-2);background:none;text-align:left;font-size:13px;cursor:pointer}
 .cs-late:hover{background:var(--surface-2)}
 .cs-late b{color:var(--red);min-width:40px}
@@ -240,25 +262,31 @@
     const camp = (co.data || []).filter((c) => (c.recruit_days || []).length);
     const byId = new Map((co.data || []).map((c) => [c.id, c]));
     const noDays = (co.data || []).filter((c) => !(c.recruit_days || []).length && c.service_type === '체험단 패키지');
-    const ev = [];
+    const ev = [], pending = [];
     let m = addMonth(monthOf(addDays(from, -maxOff)), 0);
     const last = monthOf(to);
     for (; m <= last; m = addMonth(m, 1)) {
       const [y, mo] = m.split('-').map(Number), dim = new Date(y, mo, 0).getDate();
       for (const c of camp) for (const d of new Set(c.recruit_days.map((x) => Math.min(Number(x) || 1, dim)))) {
         const cycle = `${m}-${pad(d)}`;
-        for (const step of BASE_STEPS) {
-          const t = tasks.get(`${c.id}|${cycle}|${step}`);
-          const due = t?.due_on || (step === '모집' ? cycle : addDays(cycle, cfg.off[step] || 0));
-          if (due < from || due > to) continue;
-          ev.push({ co: c, cycle, step, due, task: t, done: !!t?.done_at });
-        }
+        // 모집은 혼자 움직임(모집 기간이 업체마다 다름). 발표는 날짜를 정해야 생김(그 전엔 '발표일 미정').
+        // 마감 = 발표 + (마감 간격 − 발표 간격, 기본 14일). 추적 시작일 이전 회차는 예전처럼 간격으로 계산.
+        const tM = tasks.get(`${c.id}|${cycle}|모집`), tA = tasks.get(`${c.id}|${cycle}|발표`), tD = tasks.get(`${c.id}|${cycle}|마감`);
+        const legacy = cycle < cfg.start || (tA && !tA.due_on);
+        const ann = tA?.due_on || (legacy ? addDays(cycle, cfg.off.발표 || 0) : null);
+        const dl = tD?.due_on || (ann ? addDays(ann, (cfg.off.마감 || 0) - (cfg.off.발표 || 0)) : null);
+        const push = (step, due, t) => { if (due && due >= from && due <= to) ev.push({ co: c, cycle, step, due, task: t, done: !!t?.done_at, ann, dl }); };
+        push('모집', tM?.due_on || cycle, tM);
+        push('발표', ann, tA); push('마감', dl, tD);
+        if (!ann && cycle >= cfg.start && cycle <= to) pending.push({ co: c, cycle, step: '발표', due: null, recruit: tM?.due_on || cycle, task: tA, done: false });
       }
     }
     // 2차마감: 마감에서 인원이 모자라면 생긴 행
     (tk.data || []).filter((t) => t.step === '2차마감' && byId.has(t.company_id) && t.due_on >= from && t.due_on <= to)
       .forEach((t) => ev.push({ co: byId.get(t.company_id), cycle: t.cycle_on, step: '2차마감', due: t.due_on, task: t, done: !!t.done_at }));
-    return { ev, noDays, cfg };
+    // 2차마감에도 발표·마감 날짜를 붙여둠 (링크 확인·연장 안내용)
+    ev.filter((e) => e.step === '2차마감').forEach((e) => { const d = ev.find((x) => x.step === '마감' && x.co.id === e.co.id && x.cycle === e.cycle); if (d) { e.ann = d.ann; e.dl = d.dl; } });
+    return { ev, noDays, cfg, pending };
   }
   // 체험단 기간 (일정 이미지·구글 캘린더용): 모집일 ~ 발표 · 체험+리뷰 = 발표 다음날 ~ 마감 전날 · 마감
   function campPeriod(cycle, cfg) {
@@ -274,21 +302,24 @@
   }
   const toggle = (e) => saveTask(e, { done_at: e.done ? null : new Date().toISOString(), done_by: e.done ? null : me });
   const moveDue = (e, due) => saveTask(e, { due_on: due || null });
-  // 한 업체·한 회차의 단계 날짜 옮기기. withLater면 뒤 단계(발표·마감·2차마감 중 미완료)도 같은 일수만큼
-  async function moveStep(e, to, withLater, cfg) {
-    const delta = dayDiff(to, e.due); if (!delta) return true;
-    const order = STEPS.indexOf(e.step);
-    const { data: rows } = await sb.from('camp_tasks').select('*').eq('company_id', e.co.id).eq('cycle_on', e.cycle);
-    const have = new Map((rows || []).map((t) => [t.step, t]));
-    const steps = STEPS.filter((s, i) => i === order || (withLater && i > order && (BASE_STEPS.includes(s) || have.has(s))));
-    for (const s of steps) {
-      const t = have.get(s); if (s !== e.step && t?.done_at) continue;
-      const cur = s === e.step ? e.due : (t?.due_on || (s === '모집' ? e.cycle : addDays(e.cycle, cfg.off[s] || 0)));
-      const row = { company_id: e.co.id, cycle_on: e.cycle, step: s, due_on: addDays(cur, delta), done_at: t?.done_at || null, done_by: t?.done_by || null, target: t?.target ?? null, closed: t?.closed ?? null };
+  // 날짜 옮기기: 모집·마감·2차마감은 그것만, 발표는 마감도 같은 일수만큼 (마감을 따로 옮겨뒀으면 그 날짜도 같이)
+  async function moveStep(e, to) {
+    const from = e.due;
+    if (from === to) return true;
+    const get = async (step) => (await sb.from('camp_tasks').select('*').eq('company_id', e.co.id).eq('cycle_on', e.cycle).eq('step', step).maybeSingle()).data;
+    const put = async (step, cur, patch) => {
+      const row = { company_id: e.co.id, cycle_on: e.cycle, step, due_on: cur?.due_on || null, done_at: cur?.done_at || null, done_by: cur?.done_by || null, target: cur?.target ?? null, closed: cur?.closed ?? null, ...patch };
       const { error } = await sb.from('camp_tasks').upsert(row, { onConflict: 'company_id,cycle_on,step' });
-      if (error) { toast('저장 실패: ' + error.message); return false; }
+      if (error) { toast('저장 실패: ' + error.message); return false; } return true;
+    };
+    if (!(await put(e.step, await get(e.step), { due_on: to }))) return false;
+    let dlTxt = '';
+    if (e.step === '발표') {
+      const d = await get('마감');
+      if (d?.due_on && from) { const nd = addDays(d.due_on, dayDiff(to, from)); if (!(await put('마감', d, { due_on: nd }))) return false; dlTxt = ` · 마감 ${md(nd)}`; }
+      else { const cfg = await loadCfg(); dlTxt = ` · 마감 ${md(addDays(to, (cfg.off.마감 || 0) - (cfg.off.발표 || 0)))}`; }
     }
-    toast(`${e.co.name} ${steps.join('·')} ${delta > 0 ? '+' : ''}${delta}일 → ${md(to)}${steps.length > 1 ? ' 부터' : ''}`);
+    toast(`${e.co.name} ${e.step} → ${md(to)}${dlTxt}`);
     return true;
   }
   const parseDays = (v) => [...new Set(String(v).split(/[^\d]+/).map(Number).filter((x) => x >= 1 && x <= 31))].sort((a, b) => a - b);
@@ -316,18 +347,20 @@
     const dot = (c, t) => { const i = el('span', { className: 'ci-dot' }); i.style.background = c; return el('span', {}, [i, t]); };
     popup('캘린더 사용법 · 기준', [
       sec('체험단 일정 (모든 업체 같은 간격)', [
-        dot(STEP_COLOR.모집, `모집 — 매월 모집일 (업체마다 설정)`),
-        dot(STEP_COLOR.발표, `발표 — 모집일 +${o.발표 || 0}일 · 선정 · 가이드라인 · 일정 안내`),
-        dot(STEP_COLOR.마감, `마감 — 모집일 +${o.마감 || 0}일 ♥ · 마감 인원 확인 · 링크 취합`),
-        dot(STEP_COLOR['2차마감'], `2차마감 — 마감 +${o['2차마감'] || 0}일 · 마감 인원이 모자랄 때만 자동 생성`),
+        dot(STEP_COLOR.모집, `모집 — 매월 모집일 (업체마다 설정). 모집은 혼자 움직이고 발표·마감에 영향 없음`),
+        dot(STEP_COLOR.발표, `발표 — 날짜가 정해지면 오른쪽 '발표일 미정'에서 끌어 달력에 놓기 · 선정·가이드라인·일정 안내`),
+        dot(STEP_COLOR.마감, `마감 — 발표 +${(o.마감 || 0) - (o.발표 || 0)}일 ♥ (발표를 옮기면 같이 옮겨짐) · 링크 취합`),
+        dot(STEP_COLOR['2차마감'], `2차마감 — 인원 부족이면 마감 +${o['2차마감'] || 0}일 자동 · 연장(+14)은 마감 옆 [+14] 버튼`),
         `체험+리뷰 기간 = 발표 다음날 ~ 마감 전날`,
         `간격은 오른쪽 [⚙ 단계 간격 설정]에서 바꾸며, 바꾸면 이 설명도 같이 바뀝니다`,
       ]),
       sec('체험단 쓰는 법', [
         '위 [모집·발표·마감·2차마감]을 누르면 그 단계만 달력과 아래 목록에 나옵니다 (다시 누르면 전체)',
-        '칸의 숫자 = 완료/전체. 누르면 업체 목록 → 체크하면 완료, 다 체크되면 ✓',
-        '날짜 바꾸기: 목록의 ⠿를 끌어 달력 날짜에 놓기 (또는 [날짜]) — 뒤 일정도 같이 옮길지 물어봅니다',
-        '매월 모집일 자체를 바꾸기: 모집 목록의 [모집일] 또는 오른쪽 [모집일 미설정]',
+        '칸에는 업체명이 보입니다. 업체명을 누르면 완료(초록) · 다시 누르면 취소',
+        '날짜 바꾸기: 업체명을 끌어 다른 날짜에 놓기',
+        '많은 날은 … +n 으로 줄어듭니다. 오른쪽 위 [⤢ 전체 보기]로 모든 칸을 펼칩니다',
+        '리뷰노트 명단: 리뷰노트에서 북마크 [리뷰노트 → MUYI] 한 번 → 최근 캠페인 명단이 업체별로 CRM에 바로 저장 (설치: 명단 변환 → 명단 탭 → 리뷰노트 북마크 설치)',
+        '발표 옆 📋 = 명단 변환 · 마감 옆 🔍 = 링크 확인(부족하면 2차마감) · +14 = 연장 + 해당 없는 블로거 안내 문자 · 모집 옆 ⚙ = 매월 모집일 변경',
         `지난 미완료는 추적 시작일(${cfg.start}) 이후 일정만 셉니다`,
       ]),
       sec('무이 콘텐츠 달력 (자체 마케팅 제작)', [
@@ -346,11 +379,29 @@
       ]),
     ]).layer.firstChild.classList.add('ci-pm');
   }
-  async function dropCamp(e, d, cfg) {
+  async function dropCamp(e, d) {
     if (d === e.due) return;
-    const later = STEPS.slice(STEPS.indexOf(e.step) + 1).filter((s) => BASE_STEPS.includes(s));
-    const withLater = later.length ? confirm(`${e.co.name} ${e.step}: ${md(e.due)} → ${md(d)}\n\n뒤 일정(${later.join('·')})도 같은 날짜만큼 옮길까요?\n[확인] 같이 옮기기 · [취소] 이 일정만`) : false;
-    if (await moveStep(e, d, withLater, cfg)) { await draw(); flash([d]); }
+    if (await moveStep(e, d)) { await draw(); flash([d]); }
+  }
+
+  // 마감 연장 → 마감일 +14일 2차마감 (표기는 2차마감). 리뷰노트가 참여자 전원에게 연장 연락을 보내므로,
+  // 이미 글을 올린(해당 없는) 블로거에게 보낼 안내 문자를 바로 연다 (문자는 알리고 연동 후 발송)
+  const EXTEND_DAYS = 14;
+  async function extendClose(e) {
+    const due = addDays(e.due, EXTEND_DAYS);
+    if (!confirm(`${e.co.name} 마감 연장\n${md(e.due)} → ${md(due)} 2차마감을 만들까요?`)) return;
+    const t = e.task;
+    const { error } = await sb.from('camp_tasks').upsert({ company_id: e.co.id, cycle_on: e.cycle, step: '2차마감', due_on: due, target: t?.target ? Math.max(0, t.target - (t.closed || 0)) || null : null }, { onConflict: 'company_id,cycle_on,step' });
+    if (error) { toast('연장 실패: ' + error.message); return; }
+    toast(`${e.co.name} 연장 → ${md(due)} 2차마감`); await draw(); flash([due]);
+    const { data: round } = await sb.from('rounds').select('id').eq('company_id', e.co.id).eq('cycle_on', e.cycle).maybeSingle();
+    const { data: ros } = round ? await sb.from('roster').select('nickname,name,phone,post_url,cancelled').eq('round_id', round.id) : { data: [] };
+    const done = (ros || []).filter((r) => r.post_url && !r.cancelled && r.phone);
+    if (!done.length) { toast(round ? '글을 이미 올린 블로거가 없어 따로 보낼 안내가 없습니다' : '저장된 명단이 없어 안내 대상을 찾지 못했습니다 (명단 변환에서 명단 저장)'); return; }
+    await loadScript('/assets/crm-sms.js?v=3');
+    window.CRM_SMS.open({ title: `${e.co.name} 연장 안내 · 이미 등록한 블로거 ${done.length}명`, ad: false,
+      text: `안녕하세요, 무이(MUYI)입니다.\n${e.co.name} 체험단 리뷰 마감 연장 안내를 받으셨다면, 이미 리뷰를 등록해주셔서 해당되지 않습니다.\n참여해주셔서 감사합니다 :)`,
+      load: async () => done.map((r) => ({ company_id: e.co.id, name: r.nickname || r.name, phone: r.phone })) });
   }
   // 마감 인원 저장 → 다 찼으면 완료, 모자라면 +7일 2차마감(남은 인원) 생성·갱신
   async function saveClose(e, closed, target, cfg) {
@@ -372,7 +423,18 @@
     S.box = box;
     if (!S.month) { S.month = monthOf(todayKst()); S.sel = todayKst(); }
     try { const t = localStorage.getItem('crm-cal-tab'); if (['camp', 'contract', 'content'].includes(t)) S.tab = t; S.mine = localStorage.getItem('crm-cal-mine') === '1'; } catch {}
-    draw();
+    const link = window.__openCamp; delete window.__openCamp;
+    if (link) { S.tab = 'camp'; S.month = monthOf(link.cycle); }
+    draw().then(() => link && openCampLink(link.id, link.cycle));
+  }
+  // 바깥 링크(#camp-업체_회차, 리뷰노트 북마크 결과)로 그 회차의 명단 변환 열기 — 실제 발표·마감 날짜로
+  async function openCampLink(id, cycle) {
+    const cfg = await loadCfg();
+    const { data: co } = await sb.from('companies').select('id,name,brand,recruit_days,camp_teams,phone,store_phone,rep_name,sales_owner,manager_owner,sales_owner_name,manager_owner_name,service_type').eq('id', id).maybeSingle();
+    if (!co) { toast('업체를 찾을 수 없습니다'); return; }
+    const { ev } = await campEvents(cycle, addDays(cycle, 90));
+    const e = ev.find((x) => x.co.id === id && x.cycle === cycle);
+    openCamp({ co, cycle, cfg, announce: e?.ann || undefined, deadline: e?.dl || undefined });
   }
 
   async function draw() {
@@ -536,92 +598,72 @@
   }
   async function campView() {
     const days = gridDays(); const today = todayKst();
-    const { ev: all, noDays, cfg } = await campEvents(days[0], days[41]);
+    const { ev: all, noDays, cfg, pending: pendAll } = await campEvents(days[0], days[41]);
     const ev = S.mine ? all.filter((e) => isMine(e.co)) : all;
+    const pending = S.mine ? pendAll.filter((e) => isMine(e.co)) : pendAll;
     if (S.cstep === undefined) S.cstep = '';
+    if (S.expand === undefined) try { S.expand = localStorage.getItem('crm-cal-expand') === '1'; } catch { S.expand = false; }
     const shown = S.cstep ? ev.filter((e) => e.step === S.cstep) : ev;
-    const byDay = {}; shown.forEach((e) => { ((byDay[e.due] = byDay[e.due] || {})[e.step] = byDay[e.due][e.step] || []).push(e); });
-    // 칸: 단계별 숫자만. 다 체크되면 ✓
-    const stepBtn = (d, s, list) => {
-      const done = list.filter((e) => e.done).length, allDone = done === list.length;
-      const late = !allDone && d < today && d >= cfg.start;
-      const b = el('button', { type: 'button', className: 'cnt' + (allDone ? ' done' : '') + (late ? ' late' : ''), title: `${s} ${list.length}곳 (${done} 완료) — 눌러서 보기` },
-        [el('span', { className: 'ck', text: allDone ? '✓' : '' }), el('b', { text: s }), el('span', { className: 'n', text: allDone ? String(list.length) : `${done}/${list.length}` })]);
-      b.style.setProperty('--c', STEP_COLOR[s]);
-      b.onclick = (x) => { x.stopPropagation(); dayPopup(d, s); };
+    const byDay = {}; shown.forEach((e) => { (byDay[e.due] = byDay[e.due] || []).push(e); });
+    // 칸 = 업체명. 누르면 완료(초록)/취소 · 끌어서 다른 날짜 · 옆 작은 버튼: 발표 📋 명단 변환 / 마감 🔍 링크 확인 · +14 연장
+    const chip = (e) => {
+      const st = evState(e, today, cfg.start);
+      const b = el('div', { className: 'cc' + (e.done ? ' done' : '') + (st === 'late' ? ' late' : ''), draggable: true });
+      b.style.setProperty('--c', STEP_COLOR[e.step]);
+      const tip = () => `${e.step} · ${e.co.name}${e.done ? ' · 완료' : st === 'late' ? ' · 밀림' : ''}${e.step === '마감' && e.task?.target ? ` · ${e.task.closed ?? 0}/${e.task.target}명` : ''}\n누르면 ${e.done ? '완료 취소' : '완료'} · 끌어서 날짜 변경`;
+      const nm = el('button', { type: 'button', className: 'cc-n', text: e.co.name, title: tip(), onclick: async (x) => {
+        x.stopPropagation(); nm.disabled = true;
+        if (await toggle(e)) { b.classList.toggle('done', e.done); b.classList.toggle('late', !e.done && evState(e, today, cfg.start) === 'late'); nm.title = tip(); toast(`${e.co.name} ${e.step} ${e.done ? '완료' : '완료 취소'}`); }
+        nm.disabled = false;
+      } });
+      const mini = (t, title, fn) => el('button', { type: 'button', className: 'cc-x', text: t, title, onclick: (x) => { x.stopPropagation(); fn(); } });
+      const acts = [
+        e.step === '발표' && mini('📋', '명단 변환 (명단·점주 안내·일정표·가이드)', () => openCamp({ co: e.co, cycle: e.cycle, cfg, announce: e.due, deadline: e.dl })),
+        (e.step === '마감' || e.step === '2차마감') && mini('🔍', '블로그 글 링크 자동 확인 → 마감 인원 반영 (부족하면 +7일 2차마감)', () => campLib().then(() => window.CRM_CAMP.closeCheck({ co: e.co, cycle: e.cycle, cfg, step: e.step, announce: e.ann, deadline: e.due,
+          onCount: async (n, t) => { if (await saveClose(e, n, t, cfg)) { toast(n >= t ? `${e.co.name} 마감 완료 (${n}/${t})` : `${e.co.name} ${t - n}명 부족 → ${md(addDays(e.due, cfg.off['2차마감'] || 7))} 2차마감`); draw(); } } }))),
+        e.step === '마감' && mini('+14', '마감 연장 → 마감일 +14일 2차마감 (해당 없는 블로거 안내 문자)', () => extendClose(e)),
+        e.step === '모집' && mini('⚙', '매월 모집일 바꾸기', () => editDays(e.co)),
+      ].filter(Boolean);
+      b.append(nm, ...acts);
+      b.addEventListener('dragstart', (x) => { x.stopPropagation(); startDrag(x, { kind: 'camp', e, label: e.co.name }, b.closest('.pm-layer')); b.classList.add('dragging'); });
+      b.addEventListener('dragend', () => { b.classList.remove('dragging'); endDrag(b.closest('.pm-layer')); });
       return b;
     };
+    const MAXC = 4;
     const cells = days.map((d) => {
-      const m = byDay[d] || {};
-      const cell = el('div', { className: 'cal-day' + (monthOf(d) !== S.month ? ' out' : '') + (d === today ? ' today' : ''), onclick: () => Object.keys(m).length && dayPopup(d) }, [
+      const list = (byDay[d] || []).sort((a, b) => STEPS.indexOf(a.step) - STEPS.indexOf(b.step) || a.co.name.localeCompare(b.co.name));
+      const cell = el('div', { className: 'cal-day' + (monthOf(d) !== S.month ? ' out' : '') + (d === today ? ' today' : '') }, [
         el('div', { className: 'dn' }, el('b', { text: String(+d.slice(8)) })),
-        ...STEPS.filter((s) => m[s]).map((s) => stepBtn(d, s, m[s])),
-      ]);
-      dropZone(cell, d, (g) => { if (g.kind !== 'camp') return; g.close?.(); dropCamp(g.e, d, cfg); });
+        ...list.map(chip),
+        list.length > MAXC ? el('button', { type: 'button', className: 'cc-more', text: `… +${list.length - MAXC}`, title: '전체 보기', onclick: (x) => { x.stopPropagation(); setExpand(true); } }) : null,
+      ].filter(Boolean));
+      dropZone(cell, d, (g) => { if (g.kind !== 'camp') return; g.close?.(); dropCamp(g.e, d); });
       return cell;
     });
-    const grid = el('div', { className: 'cal-grid' }, [...DOW.map((w) => el('div', { className: 'cal-dow', text: w })), ...cells]);
+    const grid = el('div', { className: 'cal-grid camp' + (S.expand ? ' expand' : '') }, [...DOW.map((w) => el('div', { className: 'cal-dow', text: w })), ...cells]);
+    const expandBtn = el('button', { className: 'btn sm', type: 'button' });
+    const setExpand = (v) => { S.expand = v; grid.classList.toggle('expand', v); expandBtn.textContent = v ? '⤡ 접기' : '⤢ 전체 보기'; try { localStorage.setItem('crm-cal-expand', v ? '1' : '0'); } catch {} };
+    expandBtn.onclick = () => setExpand(!S.expand); setExpand(S.expand);
+    const goDay = (d) => { if (monthOf(d) !== S.month) { S.month = monthOf(d); draw().then(() => flash([d])); return; } setExpand(true); const c = S.box.querySelector(`.cal-day[data-d="${d}"]`); c?.scrollIntoView({ block: 'center', behavior: 'smooth' }); flash([d]); };
 
-    // 팝업: 그날(또는 그 단계) 업체 목록 · 체크 · 마감 인원
-    function dayPopup(d, only) {
-      const m = byDay[d] || {};
-      const P = popup(`${md(d)} ${only || '체험단 일정'}`, []);
-      const body = P.layer.querySelector('.pm-b');
-      const paint = () => body.replaceChildren(...STEPS.filter((s) => m[s] && (!only || s === only)).flatMap((s) => {
-        const list = m[s].sort((a, b) => a.co.name.localeCompare(b.co.name));
-        const h = el('div', { className: 'cp-h' }, [el('i'), el('b', { text: `${s} ${list.length}곳` }), el('span', { text: STEP_HINT[s] }), el('span', { className: 'n', text: `${list.filter((e) => e.done).length}/${list.length} 완료` })]);
-        h.style.setProperty('--c', STEP_COLOR[s]);
-        return [h, ...list.map((e) => row(e))];
-      }));
-      const row = (e) => {
-        const st = evState(e, today, cfg.start);
-        const ck = el('input', { type: 'checkbox', className: 'cp-ck', checked: e.done, title: '처리 완료' });
-        const isClose = e.step === '마감' || e.step === '2차마감';
-        const target = e.task?.target ?? (e.step === '마감' ? e.co.camp_teams : null);
-        const handle = el('span', { className: 'cp-drag', text: '⠿', title: '끌어서 달력의 다른 날짜에 놓기', draggable: true });
-        handle.addEventListener('dragstart', (x) => startDrag(x, { kind: 'camp', e, label: e.co.name, close: P.close }, P.layer));
-        handle.addEventListener('dragend', () => { if (P.layer.isConnected) endDrag(P.layer); });
-        const kids = [el('div', { className: 'cp-lead' }, [handle, ck]), el('div', { className: 'cp-nm' }, [el('b', { text: e.co.name }), el('small', { className: st === 'late' ? 'late' : '', text: [e.done ? '완료' : st === 'late' ? `${dayDiff(today, e.due)}일 지남` : '대기', e.co.manager_owner_name || e.co.sales_owner_name || ''].filter(Boolean).join(' · ') })])];
-        let closeBox = null;
-        if (isClose) {
-          const cIn = el('input', { className: 'fi', type: 'number', min: 0, value: e.task?.closed ?? '', placeholder: '0' });
-          const tIn = el('input', { className: 'fi', type: 'number', min: 0, value: target ?? '', placeholder: '총' });
-          const sv = el('button', { className: 'btn sm', type: 'button', text: '저장', onclick: async () => {
-            const c = Number(cIn.value) || 0, t = Number(tIn.value) || 0;
-            if (!t) { toast('총 인원을 넣어주세요'); return; }
-            if (await saveClose(e, c, t, cfg)) { P.mark(); toast(c >= t ? `${e.co.name} 마감 완료 (${c}/${t})` : `${e.co.name} ${t - c}명 부족 → ${md(addDays(e.due, cfg.off['2차마감'] || 7))} 2차 마감 생성`); paint(); }
-          } });
-          closeBox = el('div', { className: 'cp-close' }, [cIn, el('span', { text: '/' }), tIn, el('span', { text: '명' }), sv]);
-          kids.push(closeBox);
-        }
-        kids.push(el('div', { className: 'cp-acts' }, [
-          isClose ? el('button', { className: 'btn sm', type: 'button', text: '🔍 링크 확인', title: '블로거 글 링크 자동 취합 → 마감 인원 반영', onclick: () => { P.close(); campLib().then(() => window.CRM_CAMP.closeCheck({ co: e.co, cycle: e.cycle, cfg, step: e.step, onCount: async (n, t) => { if (await saveClose(e, n, t, cfg)) { toast(n >= t ? `${e.co.name} 마감 완료 (${n}/${t})` : `${e.co.name} ${t - n}명 부족 → 2차 마감 생성`); draw(); } } })); } }) : null,
-          e.step === '발표' ? el('button', { className: 'btn sm brand', type: 'button', text: '명단 변환 ›', title: '명단 · 점주 안내 · 일정 이미지 · 가이드', onclick: () => { P.close(); openCamp({ co: e.co, cycle: e.cycle, cfg }); } }) : null,
-          el('button', { className: 'btn sm ghost', type: 'button', text: '날짜', title: '이 일정만 날짜 옮기기', onclick: (x) => {
-            const inp = el('input', { className: 'fi', type: 'date', value: e.due });
-            inp.onchange = async () => { if (!inp.value) return; P.close(); await dropCamp(e, inp.value, cfg); };
-            x.target.replaceWith(inp); inp.focus(); inp.showPicker?.();
-          } }),
-          e.step === '모집' ? el('button', { className: 'btn sm ghost', type: 'button', text: '모집일', title: '매월 모집일 바꾸기 (다음 달부터 계속 적용)', onclick: () => { P.close(); editDays(e.co); } }) : null,
-          el('button', { className: 'btn sm ghost', type: 'button', text: '업체', onclick: () => { P.close(); openCompanyFromToday(e.co.id); } }),
-        ].filter(Boolean)));
-        ck.onchange = async () => {
-          ck.disabled = true;
-          if (isClose && !e.done && !(e.task?.target)) { const t = Number(target) || 0; if (t && await saveClose(e, t, t, cfg)) { P.mark(); paint(); return; } }
-          if (await toggle(e)) { P.mark(); paint(); } else ck.checked = e.done;
-          ck.disabled = false;
-        };
-        return el('div', { className: 'cp-row' + (e.done ? ' done' : '') + (st === 'late' ? ' late' : '') }, kids);
-      };
-      paint();
-    }
-
-    // 오른쪽: 지난 미완료 · 모집일 미설정 · 설정
+    // 오른쪽: 발표일 미정 · 지난 미완료 · 모집일 미설정 · 설정
     const lateAll = ev.filter((e) => evState(e, today, cfg.start) === 'late');
     const lateByDay = {}; lateAll.forEach((e) => { (lateByDay[e.due] = lateByDay[e.due] || []).push(e); });
+    const pendRow = (e) => {
+      const b = el('div', { className: 'cs-pend', draggable: true, title: '끌어서 달력의 발표일에 놓기' }, [el('span', { className: 'cp-drag', text: '⠿' }), el('div', { className: 'nm' }, [e.co.name, el('small', { text: `모집 ${md(e.recruit)} · 발표일을 정해주세요` })])]);
+      const inp = el('input', { className: 'fi', type: 'date', title: '발표일 선택' });
+      inp.onchange = () => inp.value && dropCamp(e, inp.value);
+      b.append(inp);
+      b.addEventListener('dragstart', (x) => startDrag(x, { kind: 'camp', e, label: e.co.name }));
+      b.addEventListener('dragend', () => endDrag());
+      return b;
+    };
     const side = el('div', { className: 'cal-side' }, [
+      el('div', { className: 'card' }, [el('div', { className: 'cs-h' }, [el('h3', { text: '발표일 미정' }), el('span', { className: 'n', text: pending.length })]),
+        ...(pending.length ? [el('div', { className: 'hint cs-hint', text: '모집이 끝나 발표일이 정해지면 끌어서 달력에 놓으세요. 마감은 발표 +' + ((cfg.off.마감 || 0) - (cfg.off.발표 || 0)) + '일로 자동.' }), ...pending.sort((a, b) => a.recruit.localeCompare(b.recruit)).slice(0, 40).map(pendRow)]
+          : [el('div', { className: 'cs-empty', text: '발표일이 정해지지 않은 업체가 없습니다' })])]),
       el('div', { className: 'card' }, [el('div', { className: 'cs-h' }, [el('h3', { text: '지난 미완료' }), el('span', { className: 'n late', text: lateAll.length })]),
-        ...(lateAll.length ? Object.entries(lateByDay).sort((a, b) => a[0].localeCompare(b[0])).map(([d, l]) => el('button', { type: 'button', className: 'cs-late', onclick: () => dayPopup(d) }, [el('b', { text: md(d) }), el('span', { text: STEPS.map((s) => { const n = l.filter((e) => e.step === s).length; return n ? `${s} ${n}` : ''; }).filter(Boolean).join(' · ') }), el('span', { className: 'go', text: '열기 ›' })]))
+        ...(lateAll.length ? Object.entries(lateByDay).sort((a, b) => a[0].localeCompare(b[0])).map(([d, l]) => el('button', { type: 'button', className: 'cs-late', onclick: () => goDay(d) }, [el('b', { text: md(d) }), el('span', { text: l.map((e) => `${e.step} ${e.co.name}`).slice(0, 3).join(' · ') + (l.length > 3 ? ` 외 ${l.length - 3}` : '') }), el('span', { className: 'go', text: '보기 ›' })]))
           : [el('div', { className: 'cs-empty', text: '밀린 일정이 없습니다 👍' })])]),
       noDays.length ? el('div', { className: 'card' }, [el('div', { className: 'cs-h' }, [el('h3', { text: '모집일 미설정 (체험단 진행 중)' }), el('span', { className: 'n', text: noDays.length })]),
         ...noDays.slice(0, 30).map((c) => { const inp = el('input', { className: 'fi', placeholder: '예: 1, 16', title: '매월 모집일 (쉼표로 여러 날)' });
@@ -645,24 +687,42 @@
       listRows.length ? el('div', { className: 'tbl-wrap cg-wrap' }, el('table', { className: 'tbl cg-tbl' }, [
         el('thead', {}, el('tr', {}, ['날짜', '단계', '업체', '상태', '담당', ''].map((h) => el('th', { text: h })))),
         el('tbody', {}, listRows.slice(0, 400).map((e) => { const [t, cls] = stTxt(e); const pill = el('span', { className: 'pill', text: e.step }); pill.style.setProperty('--c', STEP_COLOR[e.step]);
-          return el('tr', { className: 'click', onclick: () => dayPopup(e.due, e.step) }, [el('td', { className: 'sub', text: mdw(e.due) }), el('td', {}, pill), el('td', {}, el('b', { text: e.co.name })), el('td', { className: cls, text: t }), el('td', { className: 'sub', text: e.co.manager_owner_name || e.co.sales_owner_name || '미배정' }), el('td', {}, el('button', { className: 'btn sm ghost', type: 'button', text: '열기' }))]); })),
+          const ck = el('button', { className: 'btn sm' + (e.done ? ' ok' : ''), type: 'button', text: e.done ? '✓ 완료' : '완료', onclick: async (x) => { x.stopPropagation(); if (await toggle(e)) draw(); } });
+          return el('tr', { className: 'click', onclick: () => goDay(e.due) }, [el('td', { className: 'sub', text: mdw(e.due) }), el('td', {}, pill), el('td', {}, el('b', { text: e.co.name })), el('td', { className: cls, text: t }), el('td', { className: 'sub', text: e.co.manager_owner_name || e.co.sales_owner_name || '미배정' }), el('td', {}, ck)]); })),
       ])) : el('div', { className: 'cs-empty cs-char' }, [el('img', { src: '/assets/brand/muyi-char-idea.webp', alt: '' }), '이 달에 해당하는 일정이 없습니다.']),
     ]);
-    const annEv = ev.filter((e) => e.step === '발표' && monthOf(e.due) === S.month);
-    const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), el('button', { className: 'btn primary', type: 'button', text: `명단 변환${annEv.length ? ` (${annEv.length})` : ''}`, onclick: () => pickCamp(annEv, cfg) })]);
+    // 명단 변환 대상: 이 달 발표 + 발표일 미정(모집 끝나고 명단 나올 업체)
+    const annEv = [...ev.filter((e) => e.step === '발표' && monthOf(e.due) === S.month), ...pending.map((e) => ({ ...e, due: null }))];
+    // 리뷰노트 북마크로 복사한 명단을 캘린더에서 Ctrl+V → 캠페인 제목으로 업체를 찾아 명단 변환을 바로 연다
+    document.removeEventListener('paste', S.rnPaste || (() => {}));
+    S.rnPaste = async (x) => {
+      if (S.tab !== 'camp' || !S.box?.isConnected || document.querySelector('.pm-layer') || /input|textarea/i.test(x.target?.tagName || '')) return;
+      const t = x.clipboardData?.getData('text') || ''; if (!/^MUYI-RN:/.test(t)) return;
+      x.preventDefault(); await campLib(); const rn = window.CRM_CAMP.parseRN(t);
+      if (!rn) { toast('붙여넣은 명단을 읽지 못했습니다 — 북마크를 다시 눌러주세요'); return; }
+      // 발표 업체 우선(최근 60일~다음 달), 없으면 체험단 진행 중 전체
+      const { ev: near } = await campEvents(addDays(today, -60), addDays(today, 45));
+      const anns = near.filter((e) => e.step === '발표');
+      const seen = new Set(anns.map((e) => e.co.id));
+      near.filter((e) => e.step === '모집' && !seen.has(e.co.id)).forEach((e) => { seen.add(e.co.id); anns.push({ ...e, step: '발표', due: e.ann || null }); });
+      pickCamp(anns, cfg, rn);
+    };
+    document.addEventListener('paste', S.rnPaste);
+    const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), expandBtn, el('button', { className: 'btn primary', type: 'button', text: `명단 변환${annEv.length ? ` (${annEv.length})` : ''}`, onclick: () => pickCamp(annEv, cfg) })]);
     return [tools, el('div', { className: 'cal-wrap' }, [el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), list]), side])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=4');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=7');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
-  const pickCamp = (evs, cfg) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
+  const pickCamp = (evs, cfg, rn) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg, rn)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
-    const LBL = { 발표: '발표 = 모집일 +', 마감: '마감 = 모집일 +', '2차마감': '2차 마감 = 마감 +' };
-    const F = Object.fromEntries(Object.keys(LBL).map((s) => [s, el('input', { className: 'fi', type: 'number', min: 0, value: cfg.off[s] })]));
+    const gap = Math.max(0, (cfg.off.마감 || 0) - (cfg.off.발표 || 0));
+    const F = { 마감: el('input', { className: 'fi', type: 'number', min: 0, value: gap }), '2차마감': el('input', { className: 'fi', type: 'number', min: 0, value: cfg.off['2차마감'] }) };
     const d = el('details', {}, [el('summary', { className: 'cs-h', text: '⚙ 단계 간격 설정' }), el('div', { className: 'cs-set' }, [
-      ...Object.entries(F).map(([s, inp]) => el('label', {}, [el('span', { text: LBL[s] }), inp, '일'])),
-      el('div', { className: 'hint', text: '모든 업체에 같은 간격이 적용됩니다. 한 건만 옮길 땐 팝업의 [날짜]를 쓰세요.' }),
+      el('label', {}, [el('span', { text: '마감 = 발표 +' }), F.마감, '일']),
+      el('label', {}, [el('span', { text: '2차마감(인원 부족) = 마감 +' }), F['2차마감'], '일']),
+      el('div', { className: 'hint', text: `모집은 업체마다 달라 따로 움직이고, 발표일은 정해질 때 달력에 놓습니다. 연장은 항상 마감 +${EXTEND_DAYS}일.` }),
       el('button', { className: 'btn primary', type: 'button', text: '저장', onclick: async () => {
-        const v = Object.fromEntries(Object.entries(F).map(([s, i]) => [s, Math.max(0, Number(i.value) || 0)]));
+        const ann = cfg.off.발표 || 0, v = { 발표: ann, 마감: ann + Math.max(0, Number(F.마감.value) || 0), '2차마감': Math.max(0, Number(F['2차마감'].value) || 0) };
         const { error } = await sb.from('crm_settings').upsert({ key: 'camp_offsets', value: v, updated_at: new Date().toISOString() });
         if (error) { toast('저장 실패: ' + error.message); return; } S.cfg = null; toast('단계 간격 저장'); draw();
       } })])]);

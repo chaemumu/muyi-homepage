@@ -20,7 +20,87 @@
   const brandOf = (co) => (co.brand || String(co.name || '').split(/\s+/)[0] || '').trim();
   const loadLib = (src) => new Promise((ok, ng) => { if (window.XLSX) return ok(); const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => ng(new Error('엑셀 라이브러리를 불러오지 못했습니다')); document.head.appendChild(s); });
   const copy = async (text, what) => { try { await navigator.clipboard.writeText(text); toast(`${what} 복사됨`); } catch { toast('복사 실패 — 직접 선택해서 복사하세요'); } };
-  const period = (cycle, cfg) => { const ann = addDays(cycle, cfg.off.발표 || 0), dl = addDays(cycle, cfg.off.마감 || 0); return { recruitFrom: cycle, recruitTo: ann, announce: ann, reviewFrom: addDays(ann, 1), reviewTo: addDays(dl, -1), deadline: dl }; };
+  // ── 리뷰노트 북마크 (1개로 전부): 리뷰노트에 로그인된 브라우저에서 누르면 선정 명단을 CRM에 바로 저장 ──
+  //  · 캠페인 화면(주소에 번호)에서 누르면 그 캠페인만, 내 캠페인 목록 등 다른 화면에서 누르면 최근 45일 안에 움직인 캠페인 전부
+  //  · 리뷰노트 계정은 저장하지 않음 (그 브라우저 로그인으로 리뷰노트 자체 API 호출). CRM에는 개인 키로 Edge Function rn-import에 보냄
+  //  · 이 함수는 리뷰노트 페이지 안에서 실행되므로 바깥 변수를 쓰지 않는다 (KEY·FN은 북마크를 만들 때 문자열로 바꿔 넣음)
+  function rnGrab() {
+    (async () => {
+      const KEY = '__RN_KEY__', FN = '__RN_FN__';
+      const box = (() => { let b = document.getElementById('muyi-rn'); if (!b) { b = document.createElement('div'); b.id = 'muyi-rn'; b.style.cssText = 'position:fixed;z-index:2147483647;right:16px;top:16px;width:380px;max-height:80vh;overflow:auto;padding:16px;border-radius:12px;background:#1E10C7;color:#fff;font:13px/1.55 system-ui,sans-serif;box-shadow:0 12px 40px rgba(0,0,0,.3)'; document.body.appendChild(b); } return b; })();
+      const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      const say = (h) => { box.innerHTML = '<div style="display:flex;justify-content:space-between;gap:8px"><b>MUYI · 리뷰노트 명단</b><button data-x style="border:0;background:none;color:#fff;cursor:pointer;font-size:16px">✕</button></div>' + h; box.querySelector('[data-x]').onclick = () => box.remove(); };
+      try {
+        if (!/reviewnote/.test(location.hostname)) { say('리뷰노트(reviewnote.co.kr)에서 눌러주세요.'); return; }
+        const tok = (() => { for (const st of [localStorage, sessionStorage]) for (let i = 0; i < st.length; i++) { const k = st.key(i), v = st.getItem(k) || ''; if (!/token|auth|jwt|session/i.test(k)) continue; try { const j = JSON.parse(v); const t = j && (j.accessToken || j.token || j.access_token || (j.state && (j.state.accessToken || j.state.token))); if (typeof t === 'string') return t; } catch (e) {} if (/^[\w-]+\.[\w-]+\.[\w-]+$/.test(v)) return v; } return null; })();
+        const get = async (u) => { let r = await fetch(u, { credentials: 'include', headers: { Accept: 'application/json' } }); if ((r.status === 401 || r.status === 403) && tok) r = await fetch(u, { credentials: 'include', headers: { Accept: 'application/json', Authorization: 'Bearer ' + tok } }); if (!r.ok) throw new Error(r.status === 401 ? '리뷰노트 로그인이 필요합니다' : '리뷰노트 응답 ' + r.status); return r.json(); };
+        const arr = (x) => Array.isArray(x) ? x : x && typeof x === 'object' ? (['objects', 'data', 'items', 'list', 'applies', 'selectedApplies', 'results', 'rows', 'campaigns'].map((k) => x[k]).find(Array.isArray) || Object.values(x).map(arr).find((a) => a && a.length) || []) : [];
+        const titleOf = (c) => c && (c.title || c.name || c.campaignName || (c.campaign && (c.campaign.title || c.campaign.name))) || '';
+        const dates = (o, out = [], d = 0) => { if (o && typeof o === 'object' && d < 3) Object.values(o).forEach((v) => { if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v)) out.push(v.slice(0, 10)); else dates(v, out, d + 1); }); return out; };
+        const m = location.pathname.match(/campaigns?\/(?:[a-z]+\/)?(\d{4,})/) || location.pathname.match(/(\d{5,})/);
+        let list = [];
+        if (m) {
+          say('선정 명단 가져오는 중…');
+          const c = await get('/api/campaign?id=' + m[1]).catch(() => null);
+          list = [{ id: m[1], title: titleOf(c && (c.data || c)) || document.title }];
+        } else {
+          say('내 캠페인 목록 확인 중…');
+          const cut = new Date(Date.now() - 45 * 864e5).toISOString().slice(0, 10);
+          for (let page = 0; page < 15; page++) {
+            const r = await get('/api/v2/campaigns/advertiserCampaigns?page=' + page);
+            const objs = arr(r); if (!objs.length) break;
+            objs.forEach((c) => { const id = c.id || c.campaignId || (c.campaign && c.campaign.id); const ds = dates(c).sort(); if (id && (!ds.length || ds[ds.length - 1] >= cut)) list.push({ id: String(id), title: titleOf(c) }); });
+          }
+          if (!list.length) { say('최근 45일 안에 진행된 캠페인이 없습니다. 캠페인 화면에서 직접 눌러도 됩니다.'); return; }
+        }
+        let n = 0; const camps = [];
+        for (const c of list) { say(`선정 명단 가져오는 중… ${++n}/${list.length}<br><small>${esc(c.title)}</small>`); try { const rows = arr(await get('/api/campaign/' + c.id + '/selectedApplies')); if (rows.length) camps.push({ ...c, rows }); } catch (e) { if (/로그인/.test(e.message)) throw e; } }
+        if (!camps.length) { say('선정된 블로거가 있는 캠페인이 없습니다.'); return; }
+        const send = async (cs) => { const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: KEY, campaigns: cs }) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'CRM 응답 ' + r.status); return j.results || []; };
+        say(`CRM에 저장 중… (${camps.length}개 캠페인 · 닉네임·특이사항 정리)`);
+        let res = await send(camps);
+        const LBL = { saved: ['저장', '#7CF2B0'], updated: ['갱신', '#7CF2B0'], same: ['이미 저장', '#cfd2ff'], pick: ['업체 선택', '#FFD27A'], no_cycle: ['모집일 없음', '#FFB4B4'], conflict: ['확인 필요', '#FFB4B4'], empty: ['명단 없음', '#cfd2ff'], error: ['실패', '#FFB4B4'] };
+        const paint = () => {
+          const ok = res.filter((r) => r.status === 'saved' || r.status === 'updated').length;
+          say(`<div style="margin:6px 0 10px">${ok}개 저장 · 전체 ${res.length}개</div>` + res.map((r, i) => { const [t, c] = LBL[r.status] || [r.status, '#fff'];
+            return `<div style="padding:8px 0;border-top:1px solid rgba(255,255,255,.18)"><div><b style="color:${c}">${t}</b> ${esc(r.company || r.title)} <small style="opacity:.7">${r.count}명</small></div>`
+              + (r.link ? `<a href="${esc(r.link)}" target="_blank" style="color:#fff;font-weight:700">CRM에서 점주 안내 열기 ›</a>` : `<small style="opacity:.8">${esc(r.msg || '')}</small>`)
+              + (r.status === 'pick' && r.candidates && r.candidates.length ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">' + r.candidates.map((cd) => `<button data-i="${i}" data-co="${esc(cd.id)}" style="border:0;border-radius:6px;padding:3px 8px;cursor:pointer">${esc(cd.name)}</button>`).join('') + '</div>' : '') + '</div>'; }).join(''));
+          box.querySelectorAll('[data-co]').forEach((b) => b.onclick = async () => { const i = +b.dataset.i, cp = camps.find((c) => c.id === res[i].id); b.textContent = '저장 중…'; try { const [r] = await send([{ ...cp, company_id: b.dataset.co }]); res[i] = r; } catch (e) { res[i] = { ...res[i], status: 'error', msg: e.message }; } paint(); });
+        };
+        paint();
+      } catch (e) { say('<div style="margin-top:6px">' + esc(e.message) + '</div><small style="opacity:.8">리뷰노트에 로그인된 상태인지 확인해주세요.</small>'); }
+    })();
+  }
+  const RN_FN = 'https://pacyhanuwuizcxwoggen.supabase.co/functions/v1/rn-import';
+  const rnBookmark = (key) => 'javascript:' + encodeURIComponent('(' + rnGrab.toString().replace('__RN_KEY__', key).replace('__RN_FN__', RN_FN) + ')()');
+  // 개인 키: 북마크 안에만 있고 DB에는 sha256만 (rn_keys). 다시 만들면 예전 북마크는 멈춤
+  async function rnNewKey() {
+    const key = [...crypto.getRandomValues(new Uint8Array(24))].map((b) => b.toString(16).padStart(2, '0')).join('');
+    const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(key)))].map((b) => b.toString(16).padStart(2, '0')).join('');
+    const { data: { user } } = await sb.auth.getUser();
+    const { error } = await sb.from('rn_keys').upsert({ user_id: user.id, key_hash: hash, created_at: new Date().toISOString(), last_used_at: null });
+    if (error) throw error;
+    return key;
+  }
+  // 리뷰노트 응답 → 명단 행. 칸 이름이 바뀌어도 값 모양으로 찾는다 (이름·연락처·블로그·신청메시지·등급·방문수)
+  function rnRows(rows) {
+    const flat = (o, pre = '', out = {}, d = 0) => { if (o && typeof o === 'object' && d < 4) for (const [k, v] of Object.entries(o)) { if (v && typeof v === 'object' && !Array.isArray(v)) flat(v, pre + k + '.', out, d + 1); else out[pre + k] = v; } return out; };
+    const str = (v) => (v == null ? '' : String(v)).trim();
+    return rows.map((r) => {
+      const f = Object.entries(flat(r)).map(([k, v]) => [k, str(v)]).filter(([, v]) => v);
+      const by = (re, test) => (f.find(([k, v]) => re.test(k) && (!test || test(v))) || [])[1] || '';
+      const phone = (f.find(([, v]) => /^0\d{1,2}[-\s.]?\d{3,4}[-\s.]?\d{4}$/.test(v)) || [])[1] || by(/phone|mobile|tel|연락/i);
+      const blog = (f.find(([, v]) => /blog\.naver\.com|m\.blog\.naver/.test(v)) || [])[1] || by(/blog|channel|sns|url|link/i, (v) => /^https?:/.test(v));
+      const name = by(/(^|\.)(realName|userName|name|이름|성함)$/i, (v) => !/^https?:/.test(v)) || by(/name/i, (v) => !/^https?:|campaign/i.test(v));
+      const msg = f.filter(([k]) => /message|msg|comment|content|reason|introduce|신청/i.test(k)).map(([, v]) => v).sort((a, b) => b.length - a.length)[0] || '';
+      const grade = by(/grade|level|rank|등급/i);
+      const visits = Number(by(/visit|daily|today|방문/i).replace(/[^\d]/g, '')) || null;
+      return { blog, name, phone: window.fmtPhone ? window.fmtPhone(phone) || '' : phone, msg, grade, visits, area: by(/address|addr|area|주소/i), score: by(/score|점수/i), nickname: by(/nick/i), note: '', post: by(/review.*url|post.*url|reviewUrl|postUrl/i, (v) => /^https?:/.test(v)), off: false };
+    }).filter((r) => r.name || r.blog || r.phone);
+  }
+  // 발표일은 따로 정해짐(달력에서 고름) → 넘어오면 그 날짜, 마감은 넘어온 날짜 또는 발표 + (마감−발표) 간격
+  const period = (cycle, cfg, o = {}) => { const ann = o.announce || addDays(cycle, cfg.off.발표 || 0), dl = o.deadline || addDays(ann, (cfg.off.마감 || 0) - (cfg.off.발표 || 0)); return { recruitFrom: cycle, recruitTo: ann, announce: ann, reviewFrom: addDays(ann, 1), reviewTo: addDays(dl, -1), deadline: dl }; };
 
   if (!document.getElementById('crm-camp-css')) {
     const st = document.createElement('style'); st.id = 'crm-camp-css';
@@ -83,6 +163,17 @@
 .ca-pick button:hover{border-color:#1E10C7}
 .ca-pick button b{font-size:14px}
 .ca-pick button span{margin-left:auto;font-size:12px;color:var(--t3)}
+.ca-rn{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ca-rn-t{font-size:12px;color:var(--t3);white-space:nowrap}
+.ca-rn .ca-paste{flex:1;min-width:240px;height:34px;border-style:dashed}
+.rn-pm{width:min(640px,100%)!important;height:auto!important}
+.rn-how ol{margin:0;padding-left:20px;display:grid;gap:10px}
+.rn-how li b{display:block;font-size:13.5px}
+.rn-how li small{display:block;color:var(--t3);font-size:12px;line-height:1.5}
+.rn-drag{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:14px;border:1px dashed var(--line-strong);border-radius:12px;background:var(--surface-2)}
+.rn-bm{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:18px;background:#1E10C7;color:#fff!important;font-weight:800;text-decoration:none;cursor:grab}
+.rn-drag span{font-size:12.5px;color:var(--t2)}
+.rn-how .bar{display:flex;justify-content:flex-end}
 .ca-pm{--ph:min(860px,calc(var(--vh,100vh) - 32px));height:var(--ph)}
 .ca-body{scrollbar-gutter:stable;overflow-anchor:none}
 .ca-panel{display:grid;gap:12px;align-content:start;min-width:0}
@@ -136,19 +227,55 @@ textarea.ca-g.sm{min-height:100px}
     return { L, close };
   }
 
+  // 리뷰노트 북마크 설치 안내 (개인 키가 든 북마크를 만들어 줌)
+  async function rnInstall() {
+    const holder = el('div', { className: 'rn-drag' }, el('span', { text: '북마크 만드는 중…' }));
+    const { data: cur } = await sb.from('rn_keys').select('created_at,last_used_at').maybeSingle();
+    const make = async () => {
+      try { const key = await rnNewKey(); const href = rnBookmark(key);
+        const a = el('a', { className: 'rn-bm', href, text: '📋 리뷰노트 → MUYI', title: '이 버튼을 북마크바로 끌어다 놓으세요', onclick: (e) => { e.preventDefault(); toast('여기서 누르는 게 아니라, 북마크바로 끌어다 놓으세요'); } });
+        holder.replaceChildren(a, el('span', { text: '← 이 버튼을 마우스로 잡아 북마크바에 놓으세요 (북마크는 이것 하나면 됩니다)' }), el('button', { className: 'btn sm', type: 'button', text: '주소 복사', onclick: () => copy(href, '북마크 주소') }));
+      } catch (e) { holder.replaceChildren(el('span', { text: '북마크를 만들지 못했습니다: ' + e.message })); }
+    };
+    const step = (t, sub) => el('li', {}, [el('b', { text: t }), sub ? el('small', { text: sub }) : null].filter(Boolean));
+    const P = layer([el('div', { className: 'pm-h' }, [el('h3', { text: '리뷰노트 명단 → CRM 자동 저장 · 북마크 설치' }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]),
+      el('div', { className: 'ca-body rn-how' }, [
+        holder,
+        cur ? el('div', { className: 'ca-hint', text: `이미 만든 북마크가 있습니다 (${String(cur.created_at).slice(0, 10)} 생성${cur.last_used_at ? ' · 마지막 사용 ' + String(cur.last_used_at).slice(0, 10) : ''}). 새로 만들면 예전 북마크는 더 이상 작동하지 않습니다.` }) : null,
+        el('ol', {}, [
+          step('북마크바 켜기', '크롬: Ctrl + Shift + B (맥 ⌘ + Shift + B)'),
+          step('위 파란 버튼을 북마크바로 끌어다 놓기 (딱 1개)', '끌기가 안 되면 [주소 복사] → 북마크바 우클릭 → 페이지 추가 → 이름 "리뷰노트 → MUYI", URL에 붙여넣기'),
+          step('리뷰노트에 로그인한 상태에서 북마크 누르기', '내 캠페인 목록 화면 = 최근 45일 캠페인 전부 한 번에 · 캠페인 화면 = 그 캠페인만'),
+          step('오른쪽 위에 캠페인별 결과가 뜹니다', '저장 → [CRM에서 점주 안내 열기] · 업체를 못 찾으면 버튼으로 골라 저장 · 이미 저장한 캠페인은 다시 눌러도 겹치지 않음(인원이 바뀌면 갱신)'),
+          step('CRM에서는 명단·닉네임·특이사항이 이미 들어가 있음', '점주 안내 멘트·일정표·캘린더 링크만 복사해서 보내면 끝. 발표일이 비어 있던 회차는 저장한 날이 발표일이 됩니다'),
+        ]),
+        el('div', { className: 'ca-hint', text: '리뷰노트 아이디·비밀번호는 저장하지 않습니다. 북마크에는 본인 전용 키가 들어 있어 명단 저장만 할 수 있고, 저장 기록은 본인 이름으로 남습니다. 북마크를 다른 사람에게 주지 마세요.' }),
+      ].filter(Boolean))]);
+    P.L.firstChild.classList.add('rn-pm');
+    if (cur) holder.replaceChildren(el('button', { className: 'btn primary', type: 'button', text: '내 북마크 새로 만들기', onclick: make }), el('span', { text: '북마크바에 이미 있으면 그대로 쓰면 됩니다' }));
+    else make();
+  }
   // 업체 고르기 (달력 우상단 [명단 변환])
-  function pick(events, cfg) {
-    const list = events.slice().sort((a, b) => a.due.localeCompare(b.due) || a.co.name.localeCompare(b.co.name));
+  // 캠페인 제목 ↔ 업체 맞추기: 공백·기호 빼고 업체명이 제목에 들어 있으면 강하게, 지점명만 맞으면 약하게
+  const norm = (t) => String(t || '').replace(/\[[^\]]*\]|\([^)]*\)/g, ' ').replace(/[^0-9A-Za-z가-힣]/g, '').toLowerCase();
+  const matchScore = (co, title) => { const T = norm(title), n = norm(co.name), br = norm(String(co.name || '').replace(co.brand || String(co.name).split(/\s+/)[0], '')); if (!T || !n) return 0; if (T.includes(n)) return 3; if (br.length >= 2 && T.includes(br) && (!co.brand || T.includes(norm(co.brand)))) return 2; if (br.length >= 2 && T.includes(br)) return 1; return 0; };
+  function pick(events, cfg, rn) {
+    const list = events.slice().sort((a, b) => (rn ? matchScore(b.co, rn.title) - matchScore(a.co, rn.title) : 0) || String(a.due || '9').localeCompare(String(b.due || '9')) || a.co.name.localeCompare(b.co.name));
+    if (rn) { // 같은 업체 여러 회차면 오늘과 가장 가까운 발표 회차로
+      const today = todayKst(), far = (e) => e.due ? Math.abs(parse(e.due) - parse(today)) : 9e15;
+      const top = list.filter((e) => matchScore(e.co, rn.title) === 3);
+      if (top.length && new Set(top.map((e) => e.co.id)).size === 1) { const e = top.sort((a, b) => far(a) - far(b))[0]; open({ co: e.co, cycle: e.cycle, cfg, announce: e.due, deadline: e.dl, rn }); return; }
+    }
     const q = el('input', { className: 'fi', type: 'search', placeholder: '업체명 검색' });
     const box = el('div', { className: 'ca-pick' });
-    const paint = () => { const s = q.value.trim(); box.replaceChildren(...(list.filter((e) => !s || e.co.name.includes(s)).slice(0, 60).map((e) => el('button', { type: 'button', onclick: () => { P.close(); open({ co: e.co, cycle: e.cycle, cfg }); } }, [el('b', { text: e.co.name }), el('span', { text: `발표 ${mdw(e.due)}${e.done ? ' · 완료' : ''}` })]))) || []); if (!box.childElementCount) box.append(el('div', { className: 'ca-hint', text: '이 달에 발표할 업체가 없습니다.' })); };
+    const paint = () => { const s = q.value.trim(); box.replaceChildren(...(list.filter((e) => !s || e.co.name.includes(s)).slice(0, 60).map((e) => el('button', { type: 'button', onclick: () => { P.close(); open({ co: e.co, cycle: e.cycle, cfg, announce: e.due, deadline: e.dl, rn }); } }, [el('b', { text: e.co.name }), el('span', { text: `${e.due ? '발표 ' + mdw(e.due) : '발표일 미정'}${e.done ? ' · 완료' : ''}` })]))) || []); if (!box.childElementCount) box.append(el('div', { className: 'ca-hint', text: '이 달에 발표할 업체가 없습니다.' })); };
     q.oninput = paint;
-    const P = layer([el('div', { className: 'pm-h' }, [el('h3', { text: '명단 변환 · 업체 선택' }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]), el('div', { className: 'ca-body' }, [q, box])]);
+    const P = layer([el('div', { className: 'pm-h' }, [el('h3', { text: rn ? `어느 업체 명단인가요? · ${rn.title || '캠페인 ' + rn.id}` : '명단 변환 · 업체 선택' }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]), el('div', { className: 'ca-body' }, [rn ? el('div', { className: 'ca-hint', text: `리뷰노트 명단 ${rn.rows.length}명 — 업체를 고르면 바로 채워집니다 (제목이 비슷한 업체가 위에)` }) : null, q, box].filter(Boolean))]);
     paint(); q.focus();
   }
 
-  async function open({ co, cycle, cfg }) {
-    const p = period(cycle, cfg);
+  async function open({ co, cycle, cfg, announce, deadline, rn }) {
+    const p = period(cycle, cfg, { announce, deadline });
     const [rd, rds, gl, gb] = await Promise.all([
       sb.from('rounds').select('*').eq('company_id', co.id).eq('cycle_on', cycle).maybeSingle(),
       sb.from('rounds').select('id', { count: 'exact', head: true }).eq('company_id', co.id),
@@ -267,14 +394,17 @@ textarea.ca-g.sm{min-height:100px}
       S.imgDirty = true; if (S.tab === 'image' || S.tab === 'owner') refreshImg();
     };
     async function ingest(f) {
-      status.textContent = '엑셀 읽는 중…'; prog.hidden = false; prog.firstChild.style.width = '15%';
+      status.textContent = f.rn ? `리뷰노트 명단 읽는 중… (${f.rn.title || '캠페인 ' + f.rn.id})` : '엑셀 읽는 중…'; prog.hidden = false; prog.firstChild.style.width = '15%';
       try {
+        if (f.rn) { S.rows = rnRows(f.rn.rows); if (!S.rows.length) throw new Error('붙여넣은 명단에서 이름·연락처·블로그를 찾지 못했습니다'); }
+        else {
         await loadLib(XLSX_SRC);
         const wb = XLSX.read(await f.arrayBuffer(), { type: 'array' });
         const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
         const pk = (o, ...ks) => { for (const k of ks) { const hit = Object.keys(o).find((h) => h.replace(/\s/g, '') === k.replace(/\s/g, '')); if (hit && String(o[hit]).trim()) return String(o[hit]).trim(); } return ''; };
         S.rows = raw.map((o) => ({ blog: pk(o, '계정url', '블로그', 'url'), name: pk(o, '이름', '성함'), phone: pk(o, '연락처', '전화번호'), msg: pk(o, '신청메시지', '신청 메시지'), grade: pk(o, '등급'), visits: Number(pk(o, '일 방문', '일방문').replace(/[^\d]/g, '')) || null, area: pk(o, '주소'), score: pk(o, '노출점수'), nickname: '', note: '', post: '', off: false })).filter((r) => r.name || r.blog);
         if (!S.rows.length) throw new Error('명단을 찾지 못했습니다 (이름·계정url 칸 확인)');
+        }
         S.ownerEdited = false; S.saved = false; paintSteps();
         paintRows(); prog.firstChild.style.width = '35%'; status.textContent = `${S.rows.length}명 읽음 · 네이버 닉네임 가져오는 중…`;
         const ids = [...new Set(S.rows.map((r) => blogId(r.blog)).filter(Boolean))];
@@ -290,8 +420,16 @@ textarea.ca-g.sm{min-height:100px}
     }
     const lab = (t, x) => el('label', { className: 'ca-f' }, [el('span', { className: 'lbl', text: t }), x]);
     const txtWrap = el('details', { className: 'ca-det' }, [el('summary', { text: '관리팀 TXT 미리보기' }), txt]);
+    // 리뷰노트 북마크로 복사한 명단 붙여넣기 (이 창이 열려 있으면 어디서든 Ctrl+V)
+    const takePaste = (txt) => { if (!/^MUYI-RN:/.test(txt || '')) return false; try { const rn = JSON.parse(txt.slice(8)); ingest({ rn }); return true; } catch { toast('붙여넣은 내용을 읽지 못했습니다 — 북마크를 다시 눌러 복사해주세요'); return true; } };
+    const pasteIn = el('input', { className: 'fi ca-paste', placeholder: '리뷰노트 북마크로 복사한 명단을 여기에 붙여넣기 (Ctrl+V)' });
+    pasteIn.addEventListener('paste', (e) => { if (takePaste(e.clipboardData.getData('text'))) { e.preventDefault(); pasteIn.value = ''; } });
+    const onDocPaste = (e) => { if (!P.L.isConnected) { document.removeEventListener('paste', onDocPaste); return; } if (S.tab !== 'list' || e.target === pasteIn) return; if (takePaste(e.clipboardData?.getData('text'))) e.preventDefault(); };
+    document.addEventListener('paste', onDocPaste);
+    const rnHow = el('button', { className: 'btn sm ghost', type: 'button', text: '리뷰노트 북마크 설치', onclick: () => rnInstall() });
     panels.list = el('div', { className: 'ca-panel' }, [
       el('div', { className: 'ca-row' }, [lab('회차', F.no), lab('모집 팀', F.teams), lab('리뷰 기간(주)', F.weeks), el('div', { className: 'ca-f grow' }, [drop])]),
+      el('div', { className: 'ca-rn' }, [el('span', { className: 'ca-rn-t', text: '또는 리뷰노트에서 바로' }), pasteIn, rnHow]),
       prog, status, listEmpty, tableWrap, txtWrap,
     ]);
     const saveBtn = el('button', { className: 'btn brand', type: 'button', text: '저장하고 점주 안내 ›', onclick: async () => {
@@ -380,7 +518,8 @@ textarea.ca-g.sm{min-height:100px}
     }
     body.append(...Object.values(panels));
     const P = layer([head, stepsEl, body, foot]);
-    paintRows(); go(S.tab);
+    paintRows(); go(rn ? 'list' : S.tab);
+    if (rn) ingest({ rn });
 
     function draw(cv) {
       const x = cv.getContext('2d'), W = cv.width, H = cv.height;
@@ -445,8 +584,8 @@ textarea.ca-g.sm{min-height:100px}
   // ── 마감 확인: 명단 블로거의 블로그 RSS에서 업체명이 들어간 글을 찾아 링크 취합 → 마감 인원 반영 ──
   const CHAR = { idea: '/assets/brand/muyi-char-idea.webp', cry: '/assets/brand/muyi-char-cry.webp', ok: '/assets/brand/muyi-char.webp' };
   const empty = (img, title, sub, btn) => el('div', { className: 'ca-empty' }, [el('img', { src: CHAR[img], alt: '' }), el('b', { text: title }), sub ? el('span', { text: sub }) : null, btn || null].filter(Boolean));
-  async function closeCheck({ co, cycle, cfg, step = '마감', onCount }) {
-    const p = period(cycle, cfg);
+  async function closeCheck({ co, cycle, cfg, step = '마감', onCount, announce, deadline }) {
+    const p = period(cycle, cfg, { announce, deadline: step === '마감' ? deadline : undefined });
     const { data: round } = await sb.from('rounds').select('*').eq('company_id', co.id).eq('cycle_on', cycle).maybeSingle();
     const head = el('div', { className: 'ca-head' }, [
       el('div', { className: 'ca-title' }, [el('h3', { text: `${co.name} · ${step} 확인` }), round ? el('span', { className: 'rd', text: `${round.round_no}회차` }) : null, el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })].filter(Boolean)),
@@ -504,5 +643,6 @@ textarea.ca-g.sm{min-height:100px}
     );
   }
 
-  window.CRM_CAMP = { open, pick, period, closeCheck };
+  const parseRN = (txt) => { if (!/^MUYI-RN:/.test(txt || '')) return null; try { return JSON.parse(txt.slice(8)); } catch { return null; } };
+  window.CRM_CAMP = { open, pick, period, closeCheck, parseRN };
 })();

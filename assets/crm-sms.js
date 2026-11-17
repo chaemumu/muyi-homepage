@@ -40,7 +40,7 @@
     document.head.appendChild(st);
   }
 
-  async function open({ title, load }) {
+  async function open({ title, load, text: preset, ad: adDefault = true }) {
     const L = el('div', { className: 'pm-layer', onclick: (e) => { if (e.target === L) close(); } });
     const onKey = (e) => { if (e.key === 'Escape' && document.body.lastElementChild === L) close(); };
     const close = () => { document.removeEventListener('keydown', onKey); L.remove(); };
@@ -56,8 +56,8 @@
     const valid = [], bad = { nophone: 0, dup: 0, opt: 0 };
     list.forEach((t) => { const d = digits(t.phone); if (!okPhone(d)) { bad.nophone++; return; } if (seen.has(d)) { bad.dup++; return; } if (opt.has(d)) { bad.opt++; return; } seen.add(d); valid.push({ ...t, phone: d }); });
 
-    const text = el('textarea', { className: 'fi sm-text', value: templates[0]?.body || '', placeholder: '내용 — #{업체명} 은 업체마다 자동으로 바뀝니다' });
-    const ad = el('input', { type: 'checkbox', checked: true });
+    const text = el('textarea', { className: 'fi sm-text', value: preset ?? templates[0]?.body ?? '', placeholder: '내용 — #{업체명} 은 업체마다 자동으로 바뀝니다' });
+    const ad = el('input', { type: 'checkbox', checked: adDefault });
     const optIn = el('input', { className: 'fi', value: C.optout, placeholder: '무료거부 080-000-0000' });
     const testIn = el('input', { className: 'fi', type: 'tel', placeholder: '내 번호로 테스트 (010-…)' });
     const meter = el('span');
