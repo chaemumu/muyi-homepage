@@ -59,7 +59,7 @@
     const text = el('textarea', { className: 'fi sm-text', value: templates[0]?.body || '', placeholder: '내용 — #{업체명} 은 업체마다 자동으로 바뀝니다' });
     const ad = el('input', { type: 'checkbox', checked: true });
     const optIn = el('input', { className: 'fi', value: C.optout, placeholder: '무료거부 080-000-0000' });
-    const testIn = el('input', { className: 'fi', placeholder: '내 번호로 테스트 (010-…)' });
+    const testIn = el('input', { className: 'fi', type: 'tel', placeholder: '내 번호로 테스트 (010-…)' });
     const meter = el('span');
     const preview = el('div', { className: 'sm-bubble' }), ptype = el('div', { className: 'sm-type' });
     const compose = (name) => { const t = text.value.trim().replaceAll('#{업체명}', name || '사장님'); return ad.checked ? `(광고) ${t}\n\n${optIn.value.trim()}` : t; };
@@ -94,7 +94,7 @@
         body.replaceChildren(el('div', { className: 'sm-ok', style: 'grid-column:1/-1' }, [el('img', { src: r.failed ? '/assets/brand/muyi-char-cry.webp' : '/assets/brand/muyi-char-idea.webp', alt: '' }), el('b', { text: `${r.sent.toLocaleString()}건 발송${r.failed ? ` · 실패 ${r.failed}건` : ''}` }), el('span', { className: 'ca-hint', text: [r.skipped ? `제외 ${r.skipped}건 (수신거부·중복·번호 오류)` : '', ...(r.errors || [])].filter(Boolean).join(' · ') || '보낸 내용은 문자 발송 기록에 남습니다.' }), el('button', { className: 'btn', type: 'button', text: '닫기', onclick: close })]));
       } catch (e) { toast('발송 실패: ' + e.message); paint(); }
     } });
-    const optAdd = el('input', { className: 'fi', placeholder: '수신거부 번호 추가 (010-…)' });
+    const optAdd = el('input', { className: 'fi', type: 'tel', placeholder: '수신거부 번호 추가 (010-…)' });
     const optBtn = el('button', { className: 'btn sm', type: 'button', text: '추가', onclick: async () => { const d = digits(optAdd.value); if (!okPhone(d)) { toast('휴대폰 번호를 확인해주세요'); return; } const { error } = await sb.from('sms_optout').upsert({ phone: d, created_by: me }); if (error) { toast('저장 실패: ' + error.message); return; } toast('수신거부 등록 — 앞으로 이 번호는 자동 제외됩니다'); optAdd.value = ''; } });
     body.replaceChildren(
       el('div', { className: 'sm-col' }, [

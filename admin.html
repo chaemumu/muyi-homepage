@@ -153,6 +153,11 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 .empty{text-align:center;color:var(--t3);padding:56px 0!important;height:auto!important}
 .empty::before{content:'';display:block;width:88px;height:88px;margin:0 auto 10px;background:url(/assets/brand/muyi-char.webp) center/contain no-repeat;opacity:.92}
 .empty.err::before{background-image:url(/assets/brand/muyi-char-cry.webp)}
+.addr-pm{width:min(520px,100%)!important;height:min(560px,calc(var(--vh,100vh) - 32px))}
+.addr-box{flex:1;min-height:0}
+.addr-layer{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.35);display:grid;place-items:center;padding:16px}
+.addr-pm{background:var(--surface);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.addr-pm .pm-h{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
 .hello-char{width:56px;height:auto;flex:none;align-self:center}
 .who{display:inline-flex;align-items:center;gap:6px}
 .who.none{color:var(--t4)}
@@ -431,7 +436,7 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
       <div class="pg">
         <form class="add-form" id="addForm" hidden>
           <input class="fi" name="name" placeholder="이름 또는 업체명" required>
-          <input class="fi" name="phone" placeholder="연락처" inputmode="tel" required>
+          <input class="fi" name="phone" type="tel" placeholder="010-0000-0000" inputmode="tel" required>
           <input class="fi" name="type" placeholder="업종 (선택)">
           <input class="fi" name="message" placeholder="문의 내용 (전화·카톡 등으로 받은 내용)">
           <button class="btn primary" type="submit">등록</button>
@@ -1105,6 +1110,41 @@ const loadScript = (src) => new Promise((ok, ng) => {
   if (document.querySelector(`script[data-k="${key}"]`)?.dataset.ok) return ok();
   const x = document.createElement('script'); x.src = src; x.dataset.k = key; x.onload = () => { x.dataset.ok = '1'; ok(); }; x.onerror = ng; document.head.appendChild(x);
 });
+// ── 전화번호 자동 하이픈: CRM 전체의 type=tel 입력칸 (01036268216 → 010-3626-8216, 02·050x·15xx 대표번호 포함) ──
+function fmtPhone(v) {
+  if (v == null) return null;
+  const d = String(v).replace(/\D/g, '');
+  if (!d) return String(v).trim() || null;
+  if (/^1[5-9]\d{2}/.test(d)) return d.length > 4 ? `${d.slice(0, 4)}-${d.slice(4, 8)}` : d;            // 1588-1234
+  if (d.startsWith('02')) { const r = d.slice(2); return !r ? d : r.length <= 3 ? `02-${r}` : r.length <= 7 ? `02-${r.slice(0, 3)}-${r.slice(3)}` : `02-${r.slice(0, 4)}-${r.slice(4, 8)}`; } // 02-123-4567 · 02-1234-5678
+  const h = /^050\d/.test(d) ? 4 : 3, r = d.slice(h);                                                   // 0507-xxxx-xxxx · 010-xxxx-xxxx · 031-xxx-xxxx
+  if (!r) return d;
+  if (r.length <= 3) return `${d.slice(0, h)}-${r}`;
+  if (r.length <= 7) return `${d.slice(0, h)}-${r.slice(0, 3)}-${r.slice(3)}`;
+  return `${d.slice(0, h)}-${r.slice(0, 4)}-${r.slice(4, 8)}`;
+}
+const fixPhone = (x) => { const p = x.selectionStart === x.value.length; const f = fmtPhone(x.value) || ''; if (f !== x.value) { x.value = f; if (p) x.setSelectionRange(f.length, f.length); } };
+document.addEventListener('input', (e) => { const x = e.target; if (x.matches?.('input[type=tel], input[data-phone]') && !e.isComposing) fixPhone(x); }, true);
+document.addEventListener('focusout', (e) => { const x = e.target; if (x.matches?.('input[type=tel], input[data-phone]') && x.value) fixPhone(x); }, true);
+// ── 주소 검색: 다음(카카오) 우편번호 서비스 — 무료·키 없음. 창 안에 띄워 도로명 주소를 칸에 넣음 ──
+async function addrSearch(input) {
+  try { await loadScript('https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'); } catch { toast('주소 검색을 불러오지 못했습니다 — 직접 입력해주세요'); return; }
+  const box = el('div', { className: 'addr-box' });
+  const L = el('div', { className: 'pm-layer addr-layer', onclick: (e) => { if (e.target === L) L.remove(); } }, el('div', { className: 'pm addr-pm' }, [
+    el('div', { className: 'pm-h' }, [el('h3', { text: '주소 검색' }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => L.remove() })]), box]));
+  document.body.append(L);
+  new window.daum.Postcode({
+    width: '100%', height: '100%',
+    oncomplete: (d) => {
+      const extra = [d.bname && /[동로가]$/.test(d.bname) ? d.bname : '', d.buildingName && d.apartment === 'Y' ? d.buildingName : d.buildingName].filter(Boolean).join(', ');
+      const addr = (d.roadAddress || d.jibunAddress) + (extra ? ` (${extra})` : '');
+      input.value = addr; input.dispatchEvent(new Event('input', { bubbles: true })); input.dispatchEvent(new Event('change', { bubbles: true }));
+      L.remove(); input.focus(); input.setSelectionRange(addr.length, addr.length);
+      toast('주소 입력됨 — 상세 주소(층·호)를 이어서 적어주세요');
+    },
+  }).embed(box, { autoClose: false });
+}
+window.fmtPhone = fmtPhone; window.addrSearch = addrSearch;
 // 정산: 입금확인 미처리 결제가 있으면 사이드바 '정산' 옆에 ! (대표만, 5분마다 다시 확인)
 async function refreshSettleBadge() {
   const { count } = await sb.from('ledger').select('id', { count: 'exact', head: true }).eq('kind', '결제').gt('amount_won', 0).or('checked.is.null,checked.neq.완료');
@@ -1126,10 +1166,10 @@ function showPage(p, { push = true } = {}) {
   PAGES.forEach((k) => { $('pg-' + k).hidden = k !== p; });
   if (p === 'leads' || p === 'clients') {
     const go = () => window.CRM_COMPANIES.mount($('pg-' + p), p);
-    if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=8'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
+    if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=9'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
   if (p === 'today') renderToday();
-  if (p === 'calendar') loadScript('/assets/crm-calendar.js?v=6').then(() => window.CRM_CALENDAR.mount($('calBody'))).catch(() => toast('캘린더를 불러오지 못했습니다'));
+  if (p === 'calendar') loadScript('/assets/crm-calendar.js?v=9').then(() => window.CRM_CALENDAR.mount($('calBody'))).catch(() => toast('캘린더를 불러오지 못했습니다'));
   if (p === 'settle') {
     const go = () => window.CRM_SETTLE.mount($('settleBody'));
     if (window.CRM_SETTLE) go(); else { $('settleBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' })); const x = document.createElement('script'); x.src = '/assets/crm-settle.js?v=5'; x.onload = go; x.onerror = () => toast('정산 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
@@ -1200,7 +1240,7 @@ async function loadTodayCompanies() {
     };
     // 체험단 일정(오늘 + 밀린 것)과 실행 소진·수량 입력 알림은 캘린더 모듈이 계산
     try {
-      await loadScript('/assets/crm-calendar.js?v=6');
+      await loadScript('/assets/crm-calendar.js?v=9');
       const [camp, ex] = await Promise.all([window.CRM_CALENDAR.todayCamp(), window.CRM_CALENDAR.execAlerts()]);
       todayCo.recruit = camp.ev.sort((a, b) => a.due.localeCompare(b.due)).map((e) => ({ co: e.co, e, toggle: camp.toggle }));
       todayCo.exec = ex;
