@@ -359,7 +359,7 @@
         '칸에는 업체명이 보입니다. 업체명을 누르면 완료(초록) · 다시 누르면 취소',
         '날짜 바꾸기: 업체명을 끌어 다른 날짜에 놓기',
         '많은 날은 … +n 으로 줄어듭니다. 오른쪽 위 [⤢ 전체 보기]로 모든 칸을 펼칩니다',
-        '리뷰노트 명단: 리뷰노트 캠페인 화면에서 북마크 [리뷰노트 → MUYI] → 이 화면에서 Ctrl+V → 업체 자동 선택·명단 채움',
+        '리뷰노트 명단: 리뷰노트에서 북마크 [리뷰노트 → MUYI] 한 번 → 최근 캠페인 명단이 업체별로 CRM에 바로 저장 (설치: 명단 변환 → 명단 탭 → 리뷰노트 북마크 설치)',
         '발표 옆 📋 = 명단 변환 · 마감 옆 🔍 = 링크 확인(부족하면 2차마감) · +14 = 연장 + 해당 없는 블로거 안내 문자 · 모집 옆 ⚙ = 매월 모집일 변경',
         `지난 미완료는 추적 시작일(${cfg.start}) 이후 일정만 셉니다`,
       ]),
@@ -423,7 +423,18 @@
     S.box = box;
     if (!S.month) { S.month = monthOf(todayKst()); S.sel = todayKst(); }
     try { const t = localStorage.getItem('crm-cal-tab'); if (['camp', 'contract', 'content'].includes(t)) S.tab = t; S.mine = localStorage.getItem('crm-cal-mine') === '1'; } catch {}
-    draw();
+    const link = window.__openCamp; delete window.__openCamp;
+    if (link) { S.tab = 'camp'; S.month = monthOf(link.cycle); }
+    draw().then(() => link && openCampLink(link.id, link.cycle));
+  }
+  // 바깥 링크(#camp-업체_회차, 리뷰노트 북마크 결과)로 그 회차의 명단 변환 열기 — 실제 발표·마감 날짜로
+  async function openCampLink(id, cycle) {
+    const cfg = await loadCfg();
+    const { data: co } = await sb.from('companies').select('id,name,brand,recruit_days,camp_teams,phone,store_phone,rep_name,sales_owner,manager_owner,sales_owner_name,manager_owner_name,service_type').eq('id', id).maybeSingle();
+    if (!co) { toast('업체를 찾을 수 없습니다'); return; }
+    const { ev } = await campEvents(cycle, addDays(cycle, 90));
+    const e = ev.find((x) => x.co.id === id && x.cycle === cycle);
+    openCamp({ co, cycle, cfg, announce: e?.ann || undefined, deadline: e?.dl || undefined });
   }
 
   async function draw() {
@@ -680,7 +691,8 @@
           return el('tr', { className: 'click', onclick: () => goDay(e.due) }, [el('td', { className: 'sub', text: mdw(e.due) }), el('td', {}, pill), el('td', {}, el('b', { text: e.co.name })), el('td', { className: cls, text: t }), el('td', { className: 'sub', text: e.co.manager_owner_name || e.co.sales_owner_name || '미배정' }), el('td', {}, ck)]); })),
       ])) : el('div', { className: 'cs-empty cs-char' }, [el('img', { src: '/assets/brand/muyi-char-idea.webp', alt: '' }), '이 달에 해당하는 일정이 없습니다.']),
     ]);
-    const annEv = ev.filter((e) => e.step === '발표' && monthOf(e.due) === S.month);
+    // 명단 변환 대상: 이 달 발표 + 발표일 미정(모집 끝나고 명단 나올 업체)
+    const annEv = [...ev.filter((e) => e.step === '발표' && monthOf(e.due) === S.month), ...pending.map((e) => ({ ...e, due: null }))];
     // 리뷰노트 북마크로 복사한 명단을 캘린더에서 Ctrl+V → 캠페인 제목으로 업체를 찾아 명단 변환을 바로 연다
     document.removeEventListener('paste', S.rnPaste || (() => {}));
     S.rnPaste = async (x) => {
@@ -699,7 +711,7 @@
     const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), expandBtn, el('button', { className: 'btn primary', type: 'button', text: `명단 변환${annEv.length ? ` (${annEv.length})` : ''}`, onclick: () => pickCamp(annEv, cfg) })]);
     return [tools, el('div', { className: 'cal-wrap' }, [el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), list]), side])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=6');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=7');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   const pickCamp = (evs, cfg, rn) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg, rn)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
