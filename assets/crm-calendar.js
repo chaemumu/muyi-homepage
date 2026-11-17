@@ -16,6 +16,8 @@
   const monthOf = (s) => s.slice(0, 7);
   const addMonth = (m, n) => { const [y, mo] = m.split('-').map(Number); const d = new Date(y, mo - 1 + n, 1); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; };
   const md = (s) => `${+s.slice(5, 7)}/${+s.slice(8)}`;
+  const mdw = (s) => `${md(s)}(${DOW_KO[new Date(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8)).getDay()]})`;
+  const DOW_KO = ['일', '월', '화', '수', '목', '금', '토'];
 
   if (!document.getElementById('crm-cal-css')) {
     const st = document.createElement('style'); st.id = 'crm-cal-css';
@@ -94,6 +96,16 @@
 .cnt{display:flex;align-items:center;gap:5px;width:100%;height:24px;padding:0 6px;border-radius:6px;border:1px solid color-mix(in srgb,var(--c) 30%,var(--line));background:color-mix(in srgb,var(--c) 8%,var(--surface));font-size:12px;cursor:pointer;text-align:left}
 .cal-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .cal-tools .cal-legend{flex:1;min-width:0}
+.cal-tools .sp{flex:1}
+.cal-info{width:30px;height:30px;border-radius:50%;border:1px solid var(--line-strong);font:italic 700 14px Georgia,serif;color:var(--t2);background:var(--surface)}
+.cal-info:hover{color:var(--accent);border-color:var(--accent)}
+.ci-pm{width:min(640px,100%)!important}
+.ci-sec{display:grid;gap:6px;padding:4px 0 10px}
+.ci-sec b{font-size:13px}
+.ci-sec ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:12.5px;color:var(--t2);line-height:1.5}
+.ci-dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.cg-tbl td.today{color:var(--accent);font-weight:700}
+.cg-tbl td.ok{color:var(--green)}
 .cg-seg button{display:inline-flex;align-items:center;gap:6px}
 .cg-seg button i{width:8px;height:8px;border-radius:50%;background:var(--c)}
 .cg-seg button .n{font-size:11px;font-weight:700;color:var(--t3)}
@@ -127,7 +139,17 @@
 .cp-h b{color:var(--c)}
 .cp-h span{color:var(--t3);font-size:12px}
 .cp-h .n{margin-left:auto;font-weight:700}
-.cp-row{display:grid;grid-template-columns:22px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.cp-drag{cursor:grab;color:var(--t3);font-size:18px;line-height:1;user-select:none;padding:2px 3px;border-radius:4px}
+.cp-drag:hover{background:var(--muted);color:var(--t1)}
+.cp-drag:active{cursor:grabbing}
+.pm-layer.dragging{pointer-events:none;background:transparent}
+.pm-layer.dragging .pm{opacity:.18}
+.cal-day.drop{outline:2px dashed var(--accent);outline-offset:-3px;background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+.cal-day.flash{animation:calFlash 1.6s ease-out 2}
+@keyframes calFlash{0%{box-shadow:inset 0 0 0 3px var(--accent)}100%{box-shadow:inset 0 0 0 3px transparent}}
+.rn-chip[draggable=true]{cursor:grab}
+.cp-lead{display:flex;gap:6px;align-items:center}
+.cp-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
 .cp-row.done{background:color-mix(in srgb,var(--green) 6%,var(--surface));border-color:color-mix(in srgb,var(--green) 30%,var(--line))}
 .cp-row.done .cp-nm b{color:var(--t3);text-decoration:line-through}
 .cp-row.late{border-color:var(--red)}
@@ -147,7 +169,20 @@
     document.head.appendChild(st);
   }
 
-  const S = { box: null, tab: 'camp', month: null, sel: null, mine: false, cfg: null };
+  const S = { box: null, tab: 'camp', month: null, sel: null, mine: false, cfg: null, drag: null };
+  // 끌어다 놓기: 칸(cal-day)에 data-d 날짜 → S.drag(옮길 대상)를 그 날짜로. 팝업에서 끌면 팝업이 투명해져 아래 달력에 놓을 수 있다
+  const dropZone = (cell, d, onDrop) => {
+    cell.dataset.d = d;
+    cell.addEventListener('dragover', (x) => { if (!S.drag) return; x.preventDefault(); x.dataTransfer.dropEffect = 'move'; cell.classList.add('drop'); });
+    cell.addEventListener('dragleave', () => cell.classList.remove('drop'));
+    cell.addEventListener('drop', (x) => { x.preventDefault(); cell.classList.remove('drop'); const g = S.drag; S.drag = null; if (g) onDrop(g, d); });
+  };
+  const startDrag = (x, payload, layer) => {
+    S.drag = payload; x.dataTransfer.effectAllowed = 'move'; try { x.dataTransfer.setData('text/plain', payload.label || ''); } catch {}
+    if (layer) setTimeout(() => layer.classList.add('dragging'), 0);
+  };
+  const endDrag = (layer) => { layer?.classList.remove('dragging'); document.querySelectorAll('.cal-day.drop').forEach((c) => c.classList.remove('drop')); setTimeout(() => { S.drag = null; }, 50); };
+  const flash = (dates) => setTimeout(() => dates.forEach((d) => S.box.querySelector(`.cal-day[data-d="${d}"]`)?.classList.add('flash')), 50);
   const isMine = (c) => c.sales_owner === me || c.manager_owner === me || (admins[me] && (c.sales_owner_name === admins[me] || c.manager_owner_name === admins[me]));
 
   async function loadCfg() {
@@ -207,6 +242,78 @@
   }
   const toggle = (e) => saveTask(e, { done_at: e.done ? null : new Date().toISOString(), done_by: e.done ? null : me });
   const moveDue = (e, due) => saveTask(e, { due_on: due || null });
+  // 한 업체·한 회차의 단계 날짜 옮기기. withLater면 뒤 단계(발표·마감·2차마감 중 미완료)도 같은 일수만큼
+  async function moveStep(e, to, withLater, cfg) {
+    const delta = dayDiff(to, e.due); if (!delta) return true;
+    const order = STEPS.indexOf(e.step);
+    const { data: rows } = await sb.from('camp_tasks').select('*').eq('company_id', e.co.id).eq('cycle_on', e.cycle);
+    const have = new Map((rows || []).map((t) => [t.step, t]));
+    const steps = STEPS.filter((s, i) => i === order || (withLater && i > order && (BASE_STEPS.includes(s) || have.has(s))));
+    for (const s of steps) {
+      const t = have.get(s); if (s !== e.step && t?.done_at) continue;
+      const cur = s === e.step ? e.due : (t?.due_on || (s === '모집' ? e.cycle : addDays(e.cycle, cfg.off[s] || 0)));
+      const row = { company_id: e.co.id, cycle_on: e.cycle, step: s, due_on: addDays(cur, delta), done_at: t?.done_at || null, done_by: t?.done_by || null, target: t?.target ?? null, closed: t?.closed ?? null };
+      const { error } = await sb.from('camp_tasks').upsert(row, { onConflict: 'company_id,cycle_on,step' });
+      if (error) { toast('저장 실패: ' + error.message); return false; }
+    }
+    toast(`${e.co.name} ${steps.join('·')} ${delta > 0 ? '+' : ''}${delta}일 → ${md(to)}${steps.length > 1 ? ' 부터' : ''}`);
+    return true;
+  }
+  const parseDays = (v) => [...new Set(String(v).split(/[^\d]+/).map(Number).filter((x) => x >= 1 && x <= 31))].sort((a, b) => a - b);
+  async function saveDays(co, ds) {
+    const { error } = await sb.from('companies').update({ recruit_days: ds.length ? ds : null }).eq('id', co.id);
+    if (error) { toast('저장 실패: ' + error.message); return false; }
+    const cfg = await loadCfg(), m = S.month;
+    const dates = ds.flatMap((d) => { const c = `${m}-${pad(Math.min(d, new Date(+m.slice(0, 4), +m.slice(5), 0).getDate()))}`; return [['모집', c], ['발표', addDays(c, cfg.off.발표 || 0)], ['마감', addDays(c, cfg.off.마감 || 0)]]; });
+    toast(ds.length ? `${co.name} 매월 ${ds.join(', ')}일 모집 → 이번 달 ${dates.map(([s, d]) => `${s} ${md(d)}`).join(' · ')} (칸 숫자에 포함)` : `${co.name} 모집일 해제`);
+    await draw(); flash(dates.map(([, d]) => d));
+    return true;
+  }
+  function editDays(co) {
+    const inp = el('input', { className: 'fi', value: (co.recruit_days || []).join(', '), placeholder: '예: 1, 16' });
+    const P = popup(`${co.name} · 매월 모집일`, [
+      el('div', { className: 'hint', text: '매월 이 날짜에 모집 → 발표 → 마감 일정이 자동으로 생깁니다. 한 번만 날짜가 바뀌는 경우는 달력에서 끌어서 옮기세요.' }), inp,
+    ], [el('button', { className: 'btn ghost', type: 'button', text: '모집일 해제', onclick: async () => { if (confirm(`${co.name}을 체험단 달력에서 뺄까요?`) && await saveDays(co, [])) P.close(); } }),
+      el('button', { className: 'btn primary', type: 'button', text: '저장', onclick: async () => { const ds = parseDays(inp.value); if (!ds.length) { toast('1~31 사이 날짜를 넣어주세요'); return; } if (await saveDays(co, ds)) P.close(); } })]);
+    inp.focus();
+  }
+  // ⓘ 사용법·기준: 열 때마다 현재 설정(단계 간격 등)으로 만든다 → 설정이 바뀌면 설명도 자동으로 바뀜
+  async function showInfo() {
+    const cfg = await loadCfg(), o = cfg.off;
+    const sec = (t, items) => el('div', { className: 'ci-sec' }, [el('b', { text: t }), el('ul', {}, items.map((x) => el('li', {}, x)))]);
+    const dot = (c, t) => { const i = el('span', { className: 'ci-dot' }); i.style.background = c; return el('span', {}, [i, t]); };
+    popup('캘린더 사용법 · 기준', [
+      sec('체험단 일정 (모든 업체 같은 간격)', [
+        dot(STEP_COLOR.모집, `모집 — 매월 모집일 (업체마다 설정)`),
+        dot(STEP_COLOR.발표, `발표 — 모집일 +${o.발표 || 0}일 · 선정 · 가이드라인 · 일정 안내`),
+        dot(STEP_COLOR.마감, `마감 — 모집일 +${o.마감 || 0}일 ♥ · 마감 인원 확인 · 링크 취합`),
+        dot(STEP_COLOR['2차마감'], `2차마감 — 마감 +${o['2차마감'] || 0}일 · 마감 인원이 모자랄 때만 자동 생성`),
+        `체험+리뷰 기간 = 발표 다음날 ~ 마감 전날`,
+        `간격은 오른쪽 [⚙ 단계 간격 설정]에서 바꾸며, 바꾸면 이 설명도 같이 바뀝니다`,
+      ]),
+      sec('체험단 쓰는 법', [
+        '위 [모집·발표·마감·2차마감]을 누르면 그 단계만 달력과 아래 목록에 나옵니다 (다시 누르면 전체)',
+        '칸의 숫자 = 완료/전체. 누르면 업체 목록 → 체크하면 완료, 다 체크되면 ✓',
+        '날짜 바꾸기: 목록의 ⠿를 끌어 달력 날짜에 놓기 (또는 [날짜]) — 뒤 일정도 같이 옮길지 물어봅니다',
+        '매월 모집일 자체를 바꾸기: 모집 목록의 [모집일] 또는 오른쪽 [모집일 미설정]',
+        `지난 미완료는 추적 시작일(${cfg.start}) 이후 일정만 셉니다`,
+      ]),
+      sec('계약 (재계약) 달력', [
+        dot('var(--t4)', '재계약 D-31 이상'), dot('var(--amber)', 'D-30 ~ D-8'), dot('var(--red)', 'D-7 이내 · 지남'),
+        dot('#B7791F', '홀딩'), dot('var(--t4)', '종료 · 환불 (취소선)'),
+        '재계약일은 [결제 등록]·[재계약 등록] 시 결제일 + 기간으로 자동 계산, 업체 상세에서 직접 수정 가능',
+        '칩을 끌어 다른 날짜에 놓으면 재계약일 변경',
+        '그룹: 전체 · 진행 중 · 재계약 지남 · 홀딩 · 종료 · 정보 없음(재계약일·결제일 비어 있음)',
+        '실행 소진: 남은 수량 20% 이하 = 임박, 0 = 완료 → 재계약 제안 · 수량 입력 14일 넘게 안 고치면 알림',
+      ]),
+    ]).layer.firstChild.classList.add('ci-pm');
+  }
+  async function dropCamp(e, d, cfg) {
+    if (d === e.due) return;
+    const later = STEPS.slice(STEPS.indexOf(e.step) + 1).filter((s) => BASE_STEPS.includes(s));
+    const withLater = later.length ? confirm(`${e.co.name} ${e.step}: ${md(e.due)} → ${md(d)}\n\n뒤 일정(${later.join('·')})도 같은 날짜만큼 옮길까요?\n[확인] 같이 옮기기 · [취소] 이 일정만`) : false;
+    if (await moveStep(e, d, withLater, cfg)) { await draw(); flash([d]); }
+  }
   // 마감 인원 저장 → 다 찼으면 완료, 모자라면 +7일 2차마감(남은 인원) 생성·갱신
   async function saveClose(e, closed, target, cfg) {
     const full = target > 0 && closed >= target;
@@ -240,7 +347,8 @@
       el('button', { className: 'icon-btn', type: 'button', text: '›', title: '다음 달', onclick: () => { S.month = addMonth(S.month, 1); draw(); } }),
     ]);
     // 다시 그릴 때 화면을 비우지 않는다: 새 내용이 준비되면 한 번에 교체 (깜빡임·스크롤 튐 방지)
-    const top = el('div', { className: 'cal-top' }, [seg, mine, nav]);
+    const info = el('button', { className: 'icon-btn cal-info', type: 'button', text: 'i', title: '캘린더 사용법 · 기준', onclick: () => showInfo() });
+    const top = el('div', { className: 'cal-top' }, [seg, mine, info, nav]);
     const first = !S.box.querySelector('.cal-top');
     if (first) S.box.replaceChildren(top, el('div', { className: 'stack' }, el('div', { className: 'hint', text: '불러오는 중…' })));
     const tok = (S.drawTok = (S.drawTok || 0) + 1);
@@ -279,7 +387,9 @@
     const days = gridDays(); const today = todayKst();
     const { ev: all, noDays, cfg } = await campEvents(days[0], days[41]);
     const ev = S.mine ? all.filter((e) => isMine(e.co)) : all;
-    const byDay = {}; ev.forEach((e) => { ((byDay[e.due] = byDay[e.due] || {})[e.step] = byDay[e.due][e.step] || []).push(e); });
+    if (S.cstep === undefined) S.cstep = '';
+    const shown = S.cstep ? ev.filter((e) => e.step === S.cstep) : ev;
+    const byDay = {}; shown.forEach((e) => { ((byDay[e.due] = byDay[e.due] || {})[e.step] = byDay[e.due][e.step] || []).push(e); });
     // 칸: 단계별 숫자만. 다 체크되면 ✓
     const stepBtn = (d, s, list) => {
       const done = list.filter((e) => e.done).length, allDone = done === list.length;
@@ -292,10 +402,12 @@
     };
     const cells = days.map((d) => {
       const m = byDay[d] || {};
-      return el('div', { className: 'cal-day' + (monthOf(d) !== S.month ? ' out' : '') + (d === today ? ' today' : ''), onclick: () => Object.keys(m).length && dayPopup(d) }, [
+      const cell = el('div', { className: 'cal-day' + (monthOf(d) !== S.month ? ' out' : '') + (d === today ? ' today' : ''), onclick: () => Object.keys(m).length && dayPopup(d) }, [
         el('div', { className: 'dn' }, el('b', { text: String(+d.slice(8)) })),
         ...STEPS.filter((s) => m[s]).map((s) => stepBtn(d, s, m[s])),
       ]);
+      dropZone(cell, d, (g) => { if (g.kind !== 'camp') return; g.close?.(); dropCamp(g.e, d, cfg); });
+      return cell;
     });
     const grid = el('div', { className: 'cal-grid' }, [...DOW.map((w) => el('div', { className: 'cal-dow', text: w })), ...cells]);
 
@@ -315,7 +427,10 @@
         const ck = el('input', { type: 'checkbox', className: 'cp-ck', checked: e.done, title: '처리 완료' });
         const isClose = e.step === '마감' || e.step === '2차마감';
         const target = e.task?.target ?? (e.step === '마감' ? e.co.camp_teams : null);
-        const kids = [ck, el('div', { className: 'cp-nm' }, [el('b', { text: e.co.name }), el('small', { className: st === 'late' ? 'late' : '', text: [e.done ? '완료' : st === 'late' ? `${dayDiff(today, e.due)}일 지남` : '대기', e.co.manager_owner_name || e.co.sales_owner_name || ''].filter(Boolean).join(' · ') })])];
+        const handle = el('span', { className: 'cp-drag', text: '⠿', title: '끌어서 달력의 다른 날짜에 놓기', draggable: true });
+        handle.addEventListener('dragstart', (x) => startDrag(x, { kind: 'camp', e, label: e.co.name, close: P.close }, P.layer));
+        handle.addEventListener('dragend', () => { if (P.layer.isConnected) endDrag(P.layer); });
+        const kids = [el('div', { className: 'cp-lead' }, [handle, ck]), el('div', { className: 'cp-nm' }, [el('b', { text: e.co.name }), el('small', { className: st === 'late' ? 'late' : '', text: [e.done ? '완료' : st === 'late' ? `${dayDiff(today, e.due)}일 지남` : '대기', e.co.manager_owner_name || e.co.sales_owner_name || ''].filter(Boolean).join(' · ') })])];
         let closeBox = null;
         if (isClose) {
           const cIn = el('input', { className: 'fi', type: 'number', min: 0, value: e.task?.closed ?? '', placeholder: '0' });
@@ -333,9 +448,10 @@
           e.step === '발표' ? el('button', { className: 'btn sm brand', type: 'button', text: '명단 변환 ›', title: '명단 · 점주 안내 · 일정 이미지 · 가이드', onclick: () => { P.close(); openCamp({ co: e.co, cycle: e.cycle, cfg }); } }) : null,
           el('button', { className: 'btn sm ghost', type: 'button', text: '날짜', title: '이 일정만 날짜 옮기기', onclick: (x) => {
             const inp = el('input', { className: 'fi', type: 'date', value: e.due });
-            inp.onchange = async () => { if (await moveDue(e, inp.value)) { P.mark(); toast(`${e.co.name} ${e.step} → ${md(inp.value)}`); P.close(); } };
+            inp.onchange = async () => { if (!inp.value) return; P.close(); await dropCamp(e, inp.value, cfg); };
             x.target.replaceWith(inp); inp.focus(); inp.showPicker?.();
           } }),
+          e.step === '모집' ? el('button', { className: 'btn sm ghost', type: 'button', text: '모집일', title: '매월 모집일 바꾸기 (다음 달부터 계속 적용)', onclick: () => { P.close(); editDays(e.co); } }) : null,
           el('button', { className: 'btn sm ghost', type: 'button', text: '업체', onclick: () => { P.close(); openCompanyFromToday(e.co.id); } }),
         ].filter(Boolean)));
         ck.onchange = async () => {
@@ -359,18 +475,31 @@
       noDays.length ? el('div', { className: 'card' }, [el('div', { className: 'cs-h' }, [el('h3', { text: '모집일 미설정 (체험단 진행 중)' }), el('span', { className: 'n', text: noDays.length })]),
         ...noDays.slice(0, 30).map((c) => { const inp = el('input', { className: 'fi', placeholder: '예: 1, 16', title: '매월 모집일 (쉼표로 여러 날)' });
           const save = el('button', { className: 'btn sm', type: 'button', text: '저장', onclick: async () => {
-            const ds = [...new Set(inp.value.split(/[^\d]+/).map(Number).filter((x) => x >= 1 && x <= 31))].sort((a, b) => a - b);
+            const ds = parseDays(inp.value);
             if (!ds.length) { toast('1~31 사이 날짜를 넣어주세요'); return; }
-            const { error } = await sb.from('companies').update({ recruit_days: ds }).eq('id', c.id); if (error) { toast('저장 실패: ' + error.message); return; }
-            toast(`${c.name} 매월 ${ds.join(', ')}일 모집`); draw(); } });
+            save.disabled = true; await saveDays(c, ds); save.disabled = false; } });
           return el('div', { className: 'cs-row' }, [el('span'), el('div', { className: 'nm', text: c.name }), el('div', { className: 'acts' }, [inp, save])]); })]) : null,
       settingsCard(cfg),
     ].filter(Boolean));
-    const legend = el('div', { className: 'cal-legend' }, [...STEPS.map((s) => { const x = el('span', {}, [el('i'), `${s} (${s === '모집' ? '모집일' : s === '2차마감' ? '마감 +' + cfg.off['2차마감'] + '일 · 인원 부족 시' : '+' + cfg.off[s] + '일'})`]); x.firstChild.style.background = STEP_COLOR[s]; return x; }),
-      el('span', { text: '· 숫자를 누르면 업체 목록 · 다 체크하면 ✓' })]);
+    // 단계 선택: 누르면 그 단계만 달력·아래 목록에 (다시 누르거나 [전체]로 해제)
+    const inMonth = ev.filter((e) => monthOf(e.due) === S.month);
+    const stepSeg = el('div', { className: 'cal-seg cg-seg' }, [['', '전체', '#1E10C7'], ...STEPS.map((x) => [x, x, STEP_COLOR[x]])].map(([k, t, c]) => {
+      const n = (k ? inMonth.filter((e) => e.step === k) : inMonth).length;
+      const b = el('button', { type: 'button', className: S.cstep === k ? 'on' : '', onclick: () => { S.cstep = S.cstep === k ? '' : k; draw(); } }, [el('i'), t, el('span', { className: 'n', text: n })]);
+      b.style.setProperty('--c', c); return b; }));
+    const listRows = (S.cstep ? inMonth.filter((e) => e.step === S.cstep) : inMonth).sort((a, b) => a.due.localeCompare(b.due) || STEPS.indexOf(a.step) - STEPS.indexOf(b.step) || a.co.name.localeCompare(b.co.name));
+    const stTxt = (e) => { const st = evState(e, today, cfg.start); return e.done ? ['완료', 'ok'] : st === 'late' ? [`${dayDiff(today, e.due)}일 지남`, 'err'] : e.due === today ? ['오늘', 'today'] : ['예정', 'sub']; };
+    const list = el('div', { className: 'card' }, [
+      el('div', { className: 'cs-h' }, [el('h3', { text: `${+S.month.slice(5)}월 ${S.cstep || '체험단 일정'} ${listRows.length}건` }), el('span', { className: 'n', text: `완료 ${listRows.filter((e) => e.done).length}` })]),
+      listRows.length ? el('div', { className: 'tbl-wrap cg-wrap' }, el('table', { className: 'tbl cg-tbl' }, [
+        el('thead', {}, el('tr', {}, ['날짜', '단계', '업체', '상태', '담당', ''].map((h) => el('th', { text: h })))),
+        el('tbody', {}, listRows.slice(0, 400).map((e) => { const [t, cls] = stTxt(e); const pill = el('span', { className: 'pill', text: e.step }); pill.style.setProperty('--c', STEP_COLOR[e.step]);
+          return el('tr', { className: 'click', onclick: () => dayPopup(e.due, e.step) }, [el('td', { className: 'sub', text: mdw(e.due) }), el('td', {}, pill), el('td', {}, el('b', { text: e.co.name })), el('td', { className: cls, text: t }), el('td', { className: 'sub', text: e.co.manager_owner_name || e.co.sales_owner_name || '미배정' }), el('td', {}, el('button', { className: 'btn sm ghost', type: 'button', text: '열기' }))]); })),
+      ])) : el('div', { className: 'cs-empty cs-char' }, [el('img', { src: '/assets/brand/muyi-char-idea.webp', alt: '' }), '이 달에 해당하는 일정이 없습니다.']),
+    ]);
     const annEv = ev.filter((e) => e.step === '발표' && monthOf(e.due) === S.month);
-    const tools = el('div', { className: 'cal-tools' }, [legend, el('button', { className: 'btn primary', type: 'button', text: `명단 변환${annEv.length ? ` (${annEv.length})` : ''}`, onclick: () => pickCamp(annEv, cfg) })]);
-    return [tools, el('div', { className: 'cal-wrap' }, [el('div', { className: 'card' }, grid), side])];
+    const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), el('button', { className: 'btn primary', type: 'button', text: `명단 변환${annEv.length ? ` (${annEv.length})` : ''}`, onclick: () => pickCamp(annEv, cfg) })]);
+    return [tools, el('div', { className: 'cal-wrap' }, [el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), list]), side])];
   }
   const campLib = () => loadScript('/assets/crm-camp.js?v=4');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
@@ -437,10 +566,24 @@
     const chip = (c) => { const dd = dayDiff(c.next_renew_due, today); const st = c.run_status === '진행 중' ? null : c.run_status;
       const tag = st ? (st === '홀딩' ? '홀딩' : st === '환불' ? '환불' : '종료') : dd < 0 ? '지남' : 'D-' + dd;
       const cls = st ? (st === '홀딩' ? ' hold' : ' end') : dd <= 7 ? ' hot' : dd > 30 ? ' cold' : '';
-      return el('button', { type: 'button', className: 'chip-ev rn-chip' + cls, title: `${c.name} · ${st || '진행 중'} · 재계약 ${c.next_renew_due} (${dd < 0 ? -dd + '일 지남' : 'D-' + dd}) — 누르면 업체 열기`, onclick: (e) => { e.stopPropagation(); openCompanyFromToday(c.id); } }, [el('span', { className: 's', text: tag }), el('span', { className: 'n', text: c.name })]); };
+      const b = el('button', { type: 'button', draggable: true, className: 'chip-ev rn-chip' + cls, title: `${c.name} · ${st || '진행 중'} · 재계약 ${c.next_renew_due} (${dd < 0 ? -dd + '일 지남' : 'D-' + dd}) — 누르면 업체 열기 · 끌어서 다른 날짜로 옮기기`, onclick: (e) => { e.stopPropagation(); openCompanyFromToday(c.id); } }, [el('span', { className: 's', text: tag }), el('span', { className: 'n', text: c.name })]);
+      b.addEventListener('dragstart', (x) => { x.stopPropagation(); startDrag(x, { kind: 'renew', c, label: c.name }, b.closest('.pm-layer')); });
+      b.addEventListener('dragend', () => endDrag(b.closest('.pm-layer')));
+      return b; };
+    // 재계약일 옮기기 (끌어다 놓기)
+    const dropRenew = async (c, d) => {
+      if (d === c.next_renew_due) return;
+      if (!confirm(`${c.name} 재계약일\n${c.next_renew_due} → ${d}\n\n바꿀까요?`)) return;
+      const { error } = await sb.from('companies').update({ next_renew_due: d }).eq('id', c.id);
+      if (error) { toast('저장 실패: ' + error.message); return; }
+      document.querySelector('.pm-layer')?.remove();
+      toast(`${c.name} 재계약일 → ${md(d)}`); S.cc = null; await draw(); flash([d]);
+    };
     const pri = (c) => ({ '진행 중': 0, 홀딩: 1 })[c.run_status] ?? 2;
     const cells = days.map((d) => { const list = (byDay[d] || []).sort((a, b) => pri(a) - pri(b) || a.name.localeCompare(b.name));
-      return el('div', { className: 'cal-day' + (monthOf(d) !== S.month ? ' out' : '') + (d === today ? ' today' : '') }, [el('div', { className: 'dn' }, el('b', { text: String(+d.slice(8)) })), ...list.slice(0, 4).map(chip), list.length > 4 ? el('button', { type: 'button', className: 'cal-more', text: `+${list.length - 4}곳 더`, onclick: (e) => { e.stopPropagation(); popup(`${+d.slice(5, 7)}월 ${+d.slice(8)}일 재계약 ${list.length}곳`, list.map(chip)); } }) : null].filter(Boolean)); });
+      const cell = el('div', { className: 'cal-day' + (monthOf(d) !== S.month ? ' out' : '') + (d === today ? ' today' : '') }, [el('div', { className: 'dn' }, el('b', { text: String(+d.slice(8)) })), ...list.slice(0, 4).map(chip), list.length > 4 ? el('button', { type: 'button', className: 'cal-more', text: `+${list.length - 4}곳 더`, onclick: (e) => { e.stopPropagation(); popup(`${+d.slice(5, 7)}월 ${+d.slice(8)}일 재계약 ${list.length}곳`, list.map(chip)); } }) : null].filter(Boolean));
+      dropZone(cell, d, (g) => g.kind === 'renew' && dropRenew(g.c, d));
+      return cell; });
     const grid = el('div', { className: 'cal-grid' }, [...DOW.map((w) => el('div', { className: 'cal-dow', text: w })), ...cells]);
     // 그룹 목록 (정렬 · 빠진 정보 표시)
     const SORT = { renew: ['재계약일순', (a, b) => String(a.next_renew_due || '9999').localeCompare(String(b.next_renew_due || '9999'))], paid: ['최근 결제순', (a, b) => String(b.last_paid_at || '').localeCompare(String(a.last_paid_at || ''))], name: ['이름순', (a, b) => a.name.localeCompare(b.name)] };
@@ -477,8 +620,7 @@
       sec('stale', '실행 수량 입력 필요 (14일)', stale.map((x) => [x.co, `마지막 수정 ${kstDay(x.t)}`]), '모든 업체 수량이 최신입니다.'),
     );
     paintSide();
-    const legend = el('div', { className: 'cal-legend' }, [el('span', {}, [el('i', { style: 'background:var(--t4)' }), 'D-31 이상']), el('span', {}, [el('i', { style: 'background:var(--amber)' }), 'D-30 ~ D-8']), el('span', {}, [el('i', { style: 'background:var(--red)' }), 'D-7 이내 · 지남']), el('span', { text: '· 업체를 누르면 상세가 열립니다' })]);
-    return [el('div', { className: 'cal-tools' }, [seg]), legend, el('div', { className: 'cal-wrap' }, [el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), tbl]), side])];
+    return [el('div', { className: 'cal-tools' }, [seg]), el('div', { className: 'cal-wrap' }, [el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), tbl]), side])];
   }
 
   // 오늘 할 일용: 오늘 + 지난 미완료 체험단 일정
