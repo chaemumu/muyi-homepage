@@ -431,7 +431,7 @@ tbody.busy{opacity:.45;transition:opacity .12s;pointer-events:none}
   const addDaysIso = (n) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
 
   // ── 상세 패널 ──
-  const smsOpen = (o) => loadScript('/assets/crm-sms.js?v=2').then(() => window.CRM_SMS.open(o)).catch(() => toast('문자 화면을 불러오지 못했습니다'));
+  const smsOpen = (o) => loadScript('/assets/crm-sms.js?v=3').then(() => window.CRM_SMS.open(o)).catch(() => toast('문자 화면을 불러오지 못했습니다'));
   let drawer = null;
   // 저장 안 한 변경이 있으면 닫기·이동 전에 확인
   function guard() { if (state?.dirty && !confirm('저장하지 않은 변경 내용이 있습니다. 버리고 이동할까요?')) return false; if (state) state.dirty = false; return true; }

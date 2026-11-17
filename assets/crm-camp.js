@@ -20,7 +20,8 @@
   const brandOf = (co) => (co.brand || String(co.name || '').split(/\s+/)[0] || '').trim();
   const loadLib = (src) => new Promise((ok, ng) => { if (window.XLSX) return ok(); const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => ng(new Error('엑셀 라이브러리를 불러오지 못했습니다')); document.head.appendChild(s); });
   const copy = async (text, what) => { try { await navigator.clipboard.writeText(text); toast(`${what} 복사됨`); } catch { toast('복사 실패 — 직접 선택해서 복사하세요'); } };
-  const period = (cycle, cfg) => { const ann = addDays(cycle, cfg.off.발표 || 0), dl = addDays(cycle, cfg.off.마감 || 0); return { recruitFrom: cycle, recruitTo: ann, announce: ann, reviewFrom: addDays(ann, 1), reviewTo: addDays(dl, -1), deadline: dl }; };
+  // 발표일은 따로 정해짐(달력에서 고름) → 넘어오면 그 날짜, 마감은 넘어온 날짜 또는 발표 + (마감−발표) 간격
+  const period = (cycle, cfg, o = {}) => { const ann = o.announce || addDays(cycle, cfg.off.발표 || 0), dl = o.deadline || addDays(ann, (cfg.off.마감 || 0) - (cfg.off.발표 || 0)); return { recruitFrom: cycle, recruitTo: ann, announce: ann, reviewFrom: addDays(ann, 1), reviewTo: addDays(dl, -1), deadline: dl }; };
 
   if (!document.getElementById('crm-camp-css')) {
     const st = document.createElement('style'); st.id = 'crm-camp-css';
@@ -141,14 +142,14 @@ textarea.ca-g.sm{min-height:100px}
     const list = events.slice().sort((a, b) => a.due.localeCompare(b.due) || a.co.name.localeCompare(b.co.name));
     const q = el('input', { className: 'fi', type: 'search', placeholder: '업체명 검색' });
     const box = el('div', { className: 'ca-pick' });
-    const paint = () => { const s = q.value.trim(); box.replaceChildren(...(list.filter((e) => !s || e.co.name.includes(s)).slice(0, 60).map((e) => el('button', { type: 'button', onclick: () => { P.close(); open({ co: e.co, cycle: e.cycle, cfg }); } }, [el('b', { text: e.co.name }), el('span', { text: `발표 ${mdw(e.due)}${e.done ? ' · 완료' : ''}` })]))) || []); if (!box.childElementCount) box.append(el('div', { className: 'ca-hint', text: '이 달에 발표할 업체가 없습니다.' })); };
+    const paint = () => { const s = q.value.trim(); box.replaceChildren(...(list.filter((e) => !s || e.co.name.includes(s)).slice(0, 60).map((e) => el('button', { type: 'button', onclick: () => { P.close(); open({ co: e.co, cycle: e.cycle, cfg, announce: e.due, deadline: e.dl }); } }, [el('b', { text: e.co.name }), el('span', { text: `발표 ${mdw(e.due)}${e.done ? ' · 완료' : ''}` })]))) || []); if (!box.childElementCount) box.append(el('div', { className: 'ca-hint', text: '이 달에 발표할 업체가 없습니다.' })); };
     q.oninput = paint;
     const P = layer([el('div', { className: 'pm-h' }, [el('h3', { text: '명단 변환 · 업체 선택' }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]), el('div', { className: 'ca-body' }, [q, box])]);
     paint(); q.focus();
   }
 
-  async function open({ co, cycle, cfg }) {
-    const p = period(cycle, cfg);
+  async function open({ co, cycle, cfg, announce, deadline }) {
+    const p = period(cycle, cfg, { announce, deadline });
     const [rd, rds, gl, gb] = await Promise.all([
       sb.from('rounds').select('*').eq('company_id', co.id).eq('cycle_on', cycle).maybeSingle(),
       sb.from('rounds').select('id', { count: 'exact', head: true }).eq('company_id', co.id),
@@ -445,8 +446,8 @@ textarea.ca-g.sm{min-height:100px}
   // ── 마감 확인: 명단 블로거의 블로그 RSS에서 업체명이 들어간 글을 찾아 링크 취합 → 마감 인원 반영 ──
   const CHAR = { idea: '/assets/brand/muyi-char-idea.webp', cry: '/assets/brand/muyi-char-cry.webp', ok: '/assets/brand/muyi-char.webp' };
   const empty = (img, title, sub, btn) => el('div', { className: 'ca-empty' }, [el('img', { src: CHAR[img], alt: '' }), el('b', { text: title }), sub ? el('span', { text: sub }) : null, btn || null].filter(Boolean));
-  async function closeCheck({ co, cycle, cfg, step = '마감', onCount }) {
-    const p = period(cycle, cfg);
+  async function closeCheck({ co, cycle, cfg, step = '마감', onCount, announce, deadline }) {
+    const p = period(cycle, cfg, { announce, deadline: step === '마감' ? deadline : undefined });
     const { data: round } = await sb.from('rounds').select('*').eq('company_id', co.id).eq('cycle_on', cycle).maybeSingle();
     const head = el('div', { className: 'ca-head' }, [
       el('div', { className: 'ca-title' }, [el('h3', { text: `${co.name} · ${step} 확인` }), round ? el('span', { className: 'rd', text: `${round.round_no}회차` }) : null, el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })].filter(Boolean)),
