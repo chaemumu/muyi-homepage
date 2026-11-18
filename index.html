@@ -805,7 +805,7 @@ button.cli-case{font-family:inherit;width:100%;cursor:pointer;color:inherit}
 .ct-dl-btn:hover{background:#150dab;transform:translateY(-1px);box-shadow:0 6px 16px rgba(30,16,199,.35)}
 .ct-footer{grid-column:1/-1;grid-row:2;padding-top:.8rem;border-top:1px solid var(--c-border);display:flex;flex-direction:column;gap:1.3rem}
 .ct-footer-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem}
-.ct-footer-links{display:flex;align-items:center;gap:1.2rem}
+.ct-footer-links{display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap;row-gap:.35rem}
 .ct-footer-links button{font-size:.78rem;letter-spacing:.04em;color:rgba(10,10,26,.45);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;transition:color .3s}
 .ct-footer-links button:hover{color:var(--c-brand)}
 .ct-footer-links .ft-sep{width:1px;height:10px;background:rgba(10,10,26,.12)}
@@ -2067,6 +2067,10 @@ select.fi:focus{border-color:rgba(30,16,199,.6);background:#eef1ff}
         <button type="button" onclick="openLegalModal('privacy')">개인정보처리방침</button>
         <span class="ft-sep"></span>
         <button type="button" onclick="openLegalModal('terms')">이용약관</button>
+        <span class="ft-sep"></span>
+        <a class="ct-ft-lnk" href="/b2b-marketing">B2B 마케팅</a>
+        <span class="ft-sep"></span>
+        <a class="ct-ft-lnk" href="/shortform-marketing">숏폼 마케팅</a>
         <span class="ft-sep"></span>
         <!-- 공공기관 홍보 페이지는 개발 완료 전까지 노출 중단(public-sector.html은 유지). 다시 열 때 아래 두 줄 주석 해제
         <a class="ct-ft-lnk" href="/public-sector">공공기관 홍보</a>
