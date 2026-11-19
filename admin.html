@@ -293,7 +293,7 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
 /* 15% 확대 상태라 노트북 화면에선 덜 중요한 열(업종, 최근 기록)을 숨긴다. 둘 다 펼친 칸에 나온다 */
-@media (max-width:1500px){.tbl:not(.perf):not(.co-tbl):not(.st-tbl):not(.cg-tbl) tr>:nth-child(4){display:none}}
+@media (max-width:1500px){.tbl:not(.perf):not(.co-tbl):not(.st-tbl):not(.cg-tbl):not(.ac-tbl) tr>:nth-child(4){display:none}}
 @media (max-width:1320px){.tbl:not(.perf):not(.co-tbl):not(.st-tbl):not(.cg-tbl) tr>:nth-child(9){display:none}}
 
 @media (max-width:900px){
@@ -375,6 +375,7 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
   <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
   <symbol id="i-won" viewBox="0 0 24 24"><path d="M3 7l3 10 3-10 3 10 3-10 3 10 3-10"/><path d="M2 11h20M2 14h20"/></symbol>
   <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 21V9m0 0-4 4m4-4 4 4M4 3h16"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></symbol>
 </svg>
 
@@ -407,6 +408,7 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
       <button class="mi" data-page="perf"><svg class="i"><use href="#i-chart"/></svg>광고 성과</button>
       <button class="mi" data-page="settle" id="navSettle" hidden><svg class="i"><use href="#i-won"/></svg>정산<span class="mi-badge alert" id="settleBadge" hidden>!</span></button>
       <button class="mi" data-page="import" id="navImport" hidden><svg class="i"><use href="#i-upload"/></svg>가져오기</button>
+      <button class="mi" data-page="accounts" id="navAccounts" hidden><svg class="i"><use href="#i-user"/></svg>계정 관리</button>
     </nav>
     <div class="sb-foot">
       <div class="me">
@@ -475,6 +477,11 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
     <div id="pg-import" hidden>
       <header class="topbar"><h1>가져오기</h1><span class="count">대표 전용 · 엑셀·노션 데이터를 업체 DB로</span></header>
       <div class="pg stack" id="importBody"></div>
+    </div>
+
+    <div id="pg-accounts" hidden>
+      <header class="topbar"><h1>계정 관리</h1><span class="count">대표 전용 · 팀원 비밀번호 재설정</span></header>
+      <div class="pg stack" id="accountsBody"></div>
     </div>
 
     <div id="pg-perf" hidden>
@@ -575,7 +582,7 @@ async function start() {
     return;
   }
   me = session.user.id;
-  sb.rpc('is_master').then(({ data }) => { $('navImport').hidden = !data; $('navSettle').hidden = !data; if (data) refreshSettleBadge(); });
+  sb.rpc('is_master').then(({ data }) => { $('navImport').hidden = !data; $('navSettle').hidden = !data; $('navAccounts').hidden = !data; if (data) refreshSettleBadge(); });
   $('meEmail').textContent = session.user.email;
   $('login').hidden = true; $('app').hidden = false;
   const hadLead = !!deepLead;
@@ -1155,7 +1162,7 @@ setInterval(() => { if (me && !$('navSettle').hidden && document.visibilityState
 
 // ── 메뉴 ──
 // ── 화면 이동 = 주소(#today · #inbox · #leads · #clients · #co-업체ID). 새로고침·뒤로가기·링크 공유가 그대로 동작 ──
-const PAGES = ['today', 'inbox', 'calendar', 'leads', 'clients', 'perf', 'settle', 'import'];
+const PAGES = ['today', 'inbox', 'calendar', 'leads', 'clients', 'perf', 'settle', 'import', 'accounts'];
 let page = 'today';
 function showPage(p, { push = true } = {}) {
   if (!PAGES.includes(p)) p = 'today';
@@ -1179,6 +1186,7 @@ function showPage(p, { push = true } = {}) {
     const go = () => window.CRM_IMPORT.mount($('importBody'));
     if (window.CRM_IMPORT) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-import.js?v=3'; x.onload = go; x.onerror = () => toast('가져오기 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
+  if (p === 'accounts') loadScript('/assets/crm-accounts.js?v=1').then(() => window.CRM_ACCOUNTS.mount($('accountsBody'))).catch(() => toast('계정 관리 화면을 불러오지 못했습니다'));
 }
 document.querySelectorAll('.mi[data-page]').forEach((b) => b.onclick = () => showPage(b.dataset.page));
 $('homeLink').onclick = (e) => { e.preventDefault(); showPage('today'); };
