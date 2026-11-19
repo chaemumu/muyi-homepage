@@ -228,6 +228,7 @@ UX:
 - 브랜드 이미지 `assets/brand/`: 로고(`muyi-logo-tagline*.png`, 일정 이미지용) · 캐릭터 4종(`muyi-char*.webp`, 빈 화면·오류·완료 안내에만 사용)
 - 계정 관리(`assets/crm-accounts.js`, 사이드바 관리 > 계정 관리, 마스터 전용): 관리자 목록 · [재설정 메일](본인이 새 비밀번호 설정) · [임시 비밀번호](바로 변경, 8자 이상)
   Edge Function `admin-users`(verify_jwt=true, 서버에서 `admins.role='master'` 재확인, 대상은 `admins`에 있는 계정만)
+- 비밀번호 설정 화면(초대·재설정 링크): 이메일 읽기 전용 표시(브라우저 저장 비밀번호 갱신용 — 숨기면 예전 비밀번호가 계속 자동 입력돼 로그인 실패) + 확인 입력 + [보기]. 2026-11-19 유기림 로그인 반복 실패 원인
 - `contact`는 POST만 처리: GET(구글 AdsBot 크롤링 등)=405, 본문 없음/깨짐=400 → 장애 알림 안 보냄 (2026-11-19, 가짜 '문의 처리 서버 오류' 알림 원인)
 - `naver-place`: 네이버 지도 URL → 업체명·주소·전화·업종 (관리자만, 저장 안 함)
 - 기타: `expo-gate`, `expo-copy`, `call-dispatch`(AI 1차 통화, 매분), `retell-webhook`, `capi-purchase`, `notify-assign`(담당 배정 1:1 알림), `daily-digest`(아침 요약 1:1), `meta-spend`

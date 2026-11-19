@@ -60,6 +60,9 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 .login-card img{height:30px;width:auto;justify-self:start}
 .login-card h1{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-top:8px}
 .login-card .sub{margin-top:-8px}
+.pw-box{position:relative;display:block}.pw-box .fi{width:100%;padding-right:52px}
+.pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);height:26px;padding:0 8px;border:0;border-radius:6px;background:var(--muted);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer}
+#email[readonly]{background:var(--muted);color:var(--t2)}
 .linkish{border:0;background:none;color:var(--t3);font-size:12px;justify-self:center;text-decoration:underline;text-underline-offset:3px}
 .linkish:hover{color:var(--t1)}
 #loginMsg{font-size:12px;color:var(--red);text-align:center;min-height:16px;word-break:break-all}
@@ -385,7 +388,8 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
     <h1 id="loginTitle">CRM 로그인</h1>
     <p class="sub" id="loginSub">무이 문의 관리 도구입니다.</p>
     <label id="emailRow"><span class="lbl">이메일</span><input class="fi" id="email" type="email" placeholder="name@muyi.co.kr" autocomplete="username" required></label>
-    <label><span class="lbl" id="pwLabel">비밀번호</span><input class="fi" id="password" type="password" placeholder="비밀번호" autocomplete="current-password" minlength="6" required></label>
+    <label><span class="lbl" id="pwLabel">비밀번호</span><span class="pw-box"><input class="fi" id="password" type="password" placeholder="비밀번호" autocomplete="current-password" minlength="6" required><button class="pw-eye" type="button" data-for="password">보기</button></span></label>
+    <label id="pw2Row" hidden><span class="lbl">새 비밀번호 확인</span><span class="pw-box"><input class="fi" id="password2" type="password" placeholder="한 번 더 입력" autocomplete="new-password" minlength="6"><button class="pw-eye" type="button" data-for="password2">보기</button></span></label>
     <button class="btn primary lg" type="submit" id="loginBtn">로그인</button>
     <button class="linkish" type="button" id="forgot">비밀번호를 잊으셨나요?</button>
     <p id="loginMsg"></p>
@@ -556,13 +560,16 @@ function firstResponse(r) {
 }
 const fmtMin = (m) => m == null ? '-' : m < 60 ? `${m}분` : m < 1440 ? `${Math.round(m / 60 * 10) / 10}시간` : `${Math.round(m / 1440 * 10) / 10}일`;
 
-function showLogin(mode, msg = '', ok = false) {
+function showLogin(mode, msg = '', ok = false, email = '') {
   const set = mode === 'set';
   pwMode = set ? 'set' : null;
   $('login').hidden = false; $('app').hidden = true;
   $('loginTitle').textContent = set ? '비밀번호 설정' : 'CRM 로그인';
   $('loginSub').textContent = set ? '앞으로 로그인할 때 쓸 비밀번호를 정해주세요. (6자 이상)' : '무이 문의 관리 도구입니다.';
-  $('emailRow').hidden = set; $('email').required = !set;
+  // 비밀번호 설정 화면에서도 이메일을 보여준다(읽기 전용): 숨기면 브라우저가 새 비밀번호를 저장하지 못하고 예전 비밀번호를 계속 자동 입력함
+  $('email').readOnly = set; if (set && email) $('email').value = email;
+  $('pw2Row').hidden = !set; $('password2').required = set; $('password2').value = '';
+  $('password').value = ''; document.querySelectorAll('.pw-eye').forEach((b) => { $(b.dataset.for).type = 'password'; b.textContent = '보기'; });
   $('forgot').hidden = set;
   $('pwLabel').textContent = set ? '새 비밀번호' : '비밀번호';
   $('password').autocomplete = set ? 'new-password' : 'current-password';
@@ -573,7 +580,7 @@ function showLogin(mode, msg = '', ok = false) {
 async function start() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { showLogin('login', AUTH_TYPE && pwMode !== 'done' ? '링크가 만료됐거나 이미 사용됐습니다. 초대(또는 비밀번호 재설정)를 다시 요청하세요.' : ''); return; }
-  if (['invite', 'recovery'].includes(AUTH_TYPE) && pwMode !== 'done') { history.replaceState(null, '', location.pathname); showLogin('set'); return; }
+  if (['invite', 'recovery'].includes(AUTH_TYPE) && pwMode !== 'done') { history.replaceState(null, '', location.pathname); showLogin('set', '', false, session.user?.email || ''); return; }
   const { data: ok, error } = await sb.rpc('is_admin');
   if (error || !ok) {
     const justSet = pwMode === 'done';
@@ -1018,14 +1025,16 @@ async function reloadEvents(id) {
 $('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault(); $('loginMsg').textContent = '';
   if (pwMode === 'set') {
+    if ($('password').value !== $('password2').value) { $('loginMsg').textContent = '두 비밀번호가 다릅니다. [보기]를 눌러 확인하세요.'; $('password2').focus(); return; }
     const { error } = await sb.auth.updateUser({ password: $('password').value });
-    if (error) { $('loginMsg').textContent = '저장 실패: ' + error.message; return; }
-    $('password').value = ''; pwMode = 'done'; start(); return;
+    if (error) { $('loginMsg').textContent = '저장 실패: ' + (/different from the old/i.test(error.message) ? '예전과 다른 비밀번호를 입력하세요.' : error.message); return; }
+    $('password').value = ''; $('password2').value = ''; pwMode = 'done'; start(); return;
   }
   const { error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
-  if (error) { $('loginMsg').textContent = '로그인 실패: 이메일 또는 비밀번호를 확인하세요.'; return; }
+  if (error) { $('loginMsg').textContent = '로그인 실패: 이메일 또는 비밀번호를 확인하세요. 브라우저가 예전 비밀번호를 자동 입력했을 수 있으니 [보기]로 확인하고, 한/영 · Caps Lock도 확인하세요.'; return; }
   $('password').value = ''; start();
 });
+document.querySelectorAll('.pw-eye').forEach((b) => b.onclick = () => { const i = $(b.dataset.for); const show = i.type === 'password'; i.type = show ? 'text' : 'password'; b.textContent = show ? '숨기기' : '보기'; });
 $('forgot').onclick = async () => {
   const email = $('email').value.trim();
   if (!email) { $('loginMsg').textContent = '이메일을 먼저 입력하세요.'; $('email').focus(); return; }
