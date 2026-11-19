@@ -426,7 +426,7 @@ footer a{color:var(--text-sub)}
     els.forEach(function(e){io.observe(e);});
   }
 
-  // ponytail: 원본 영상 그대로(개당 5~38MB). 배포 전 ffmpeg로 480p 압축 권장.
+  // 영상: 가로 540px H.264 CRF28 + faststart (ffmpeg). 새 영상도 같은 설정으로 압축해서 넣을 것.
   var rail=document.getElementById('reelsRail');
   var reels=[['kkoyo.mp4','꼬요식당'],['inju-field.mp4','인주 필드점'],['coffeehouse.mp4','커피하우스178'],['lechouchou.mp4','르슈슈'],['bandeut.mp4','반듯한잔'],['inju-hanok.mp4','인주 한옥점'],['tteokbokki.mp4','즉석떡볶이 맛집']];
   var ico='<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8 3.2 4.5 6.7 4.5c2 0 3.6 1 5.3 3 1.7-2 3.3-3 5.3-3 3.5 0 5.7 3.5 4.2 7.2C19.5 16.4 12 21 12 21z"/></svg><svg viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.6-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg><svg viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>';
