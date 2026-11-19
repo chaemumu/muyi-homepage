@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url>
     <loc>https://www.muyi.co.kr/</loc>
     <lastmod>2026-09-23</lastmod>
@@ -20,9 +20,72 @@
   </url>
   <url>
     <loc>https://www.muyi.co.kr/shortform-marketing</loc>
-    <lastmod>2026-10-07</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <video:video>
+      <video:thumbnail_loc>https://www.muyi.co.kr/assets/video/thumb/kkoyo.jpg</video:thumbnail_loc>
+      <video:title>꼬요식당 숏폼 릴스 — 무이 스튜디오 직접 촬영</video:title>
+      <video:description>무이 스튜디오가 꼬요식당 매장에 직접 방문해 촬영·편집한 세로형 숏폼 영상</video:description>
+      <video:content_loc>https://www.muyi.co.kr/assets/video/kkoyo.mp4</video:content_loc>
+      <video:duration>14</video:duration>
+      <video:publication_date>2026-11-19T09:00:00+09:00</video:publication_date>
+      <video:family_friendly>yes</video:family_friendly>
+    </video:video>
+    <video:video>
+      <video:thumbnail_loc>https://www.muyi.co.kr/assets/video/thumb/inju-field.jpg</video:thumbnail_loc>
+      <video:title>인주 필드점 숏폼 릴스 — 무이 스튜디오 직접 촬영</video:title>
+      <video:description>무이 스튜디오가 인주 필드점 매장에 직접 방문해 촬영·편집한 세로형 숏폼 영상</video:description>
+      <video:content_loc>https://www.muyi.co.kr/assets/video/inju-field.mp4</video:content_loc>
+      <video:duration>33</video:duration>
+      <video:publication_date>2026-11-19T09:00:00+09:00</video:publication_date>
+      <video:family_friendly>yes</video:family_friendly>
+    </video:video>
+    <video:video>
+      <video:thumbnail_loc>https://www.muyi.co.kr/assets/video/thumb/coffeehouse.jpg</video:thumbnail_loc>
+      <video:title>커피하우스178 숏폼 릴스 — 무이 스튜디오 직접 촬영</video:title>
+      <video:description>무이 스튜디오가 커피하우스178 매장에 직접 방문해 촬영·편집한 세로형 숏폼 영상</video:description>
+      <video:content_loc>https://www.muyi.co.kr/assets/video/coffeehouse.mp4</video:content_loc>
+      <video:duration>12</video:duration>
+      <video:publication_date>2026-11-19T09:00:00+09:00</video:publication_date>
+      <video:family_friendly>yes</video:family_friendly>
+    </video:video>
+    <video:video>
+      <video:thumbnail_loc>https://www.muyi.co.kr/assets/video/thumb/lechouchou.jpg</video:thumbnail_loc>
+      <video:title>르슈슈 숏폼 릴스 — 무이 스튜디오 직접 촬영</video:title>
+      <video:description>무이 스튜디오가 르슈슈 매장에 직접 방문해 촬영·편집한 세로형 숏폼 영상</video:description>
+      <video:content_loc>https://www.muyi.co.kr/assets/video/lechouchou.mp4</video:content_loc>
+      <video:duration>27</video:duration>
+      <video:publication_date>2026-11-19T09:00:00+09:00</video:publication_date>
+      <video:family_friendly>yes</video:family_friendly>
+    </video:video>
+    <video:video>
+      <video:thumbnail_loc>https://www.muyi.co.kr/assets/video/thumb/bandeut.jpg</video:thumbnail_loc>
+      <video:title>반듯한잔 숏폼 릴스 — 무이 스튜디오 직접 촬영</video:title>
+      <video:description>무이 스튜디오가 반듯한잔 매장에 직접 방문해 촬영·편집한 세로형 숏폼 영상</video:description>
+      <video:content_loc>https://www.muyi.co.kr/assets/video/bandeut.mp4</video:content_loc>
+      <video:duration>22</video:duration>
+      <video:publication_date>2026-11-19T09:00:00+09:00</video:publication_date>
+      <video:family_friendly>yes</video:family_friendly>
+    </video:video>
+    <video:video>
+      <video:thumbnail_loc>https://www.muyi.co.kr/assets/video/thumb/inju-hanok.jpg</video:thumbnail_loc>
+      <video:title>인주 한옥점 숏폼 릴스 — 무이 스튜디오 직접 촬영</video:title>
+      <video:description>무이 스튜디오가 인주 한옥점 매장에 직접 방문해 촬영·편집한 세로형 숏폼 영상</video:description>
+      <video:content_loc>https://www.muyi.co.kr/assets/video/inju-hanok.mp4</video:content_loc>
+      <video:duration>15</video:duration>
+      <video:publication_date>2026-11-19T09:00:00+09:00</video:publication_date>
+      <video:family_friendly>yes</video:family_friendly>
+    </video:video>
+    <video:video>
+      <video:thumbnail_loc>https://www.muyi.co.kr/assets/video/thumb/tteokbokki.jpg</video:thumbnail_loc>
+      <video:title>즉석떡볶이 맛집 숏폼 릴스 — 무이 스튜디오 직접 촬영</video:title>
+      <video:description>무이 스튜디오가 즉석떡볶이 맛집 매장에 직접 방문해 촬영·편집한 세로형 숏폼 영상</video:description>
+      <video:content_loc>https://www.muyi.co.kr/assets/video/tteokbokki.mp4</video:content_loc>
+      <video:duration>14</video:duration>
+      <video:publication_date>2026-11-19T09:00:00+09:00</video:publication_date>
+      <video:family_friendly>yes</video:family_friendly>
+    </video:video>
   </url>
   <url>
     <loc>https://www.muyi.co.kr/b2b-marketing</loc>
