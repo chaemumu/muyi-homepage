@@ -274,7 +274,7 @@ textarea.ca-g.sm{min-height:100px}
     paint(); q.focus();
   }
 
-  async function open({ co, cycle, cfg, announce, deadline, rn }) {
+  async function open({ co, cycle, cfg, announce, deadline, rn, extra }) {
     const p = period(cycle, cfg, { announce, deadline });
     const [rd, rds, gl, gb] = await Promise.all([
       sb.from('rounds').select('*').eq('company_id', co.id).eq('cycle_on', cycle).maybeSingle(),
@@ -294,7 +294,7 @@ textarea.ca-g.sm{min-height:100px}
     const chip = (k, t) => { const s = el('span', {}, [el('i'), t]); s.style.setProperty('--c', STEP_C[k]); return s; };
     const rdBadge = el('span', { className: 'rd', text: `${S.roundNo}회차` });
     const head = el('div', { className: 'ca-head' }, [
-      el('div', { className: 'ca-title' }, [el('h3', { text: co.name }), rdBadge, el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]),
+      el('div', { className: 'ca-title' }, [el('h3', { text: co.name }), rdBadge, (extra || []).length ? el('div', { className: 'ca-extra' }, extra) : '', el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]),
       el('div', { className: 'ca-tl' }, [chip('모집', `모집 ${mdw(p.recruitFrom)} ~ ${mdw(p.recruitTo)}`), chip('발표', `발표 ${mdw(p.announce)}`), chip('체험', `체험+리뷰 ${mdw(p.reviewFrom)} ~ ${mdw(p.reviewTo)}`), chip('마감', `마감 ${mdw(p.deadline)} ♥`)]),
     ]);
 
