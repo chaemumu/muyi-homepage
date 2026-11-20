@@ -227,8 +227,9 @@
 .cc.pend{border-style:dashed}
 .rn-chip,.rn-chip.hot,.rn-chip.cold,.rn-chip.hold,.rn-chip.end{--c:var(--t3)}
 .mk{cursor:cell}
-.mk.mk-on,.cal-day.mk.mk-on:hover{background:color-mix(in srgb,var(--mk) 18%,var(--surface))}
-.mk.mk-on .dn b{color:var(--mk)}
+.mk.mk-on,.cal-day.mk.mk-on:hover{background:color-mix(in srgb,var(--mk) 34%,var(--surface));box-shadow:inset 3px 0 0 var(--mk)}
+.mk.mk-on .dn b{color:color-mix(in srgb,var(--mk) 70%,#000);font-weight:900}
+.cal-day.today.mk-on,.ct-day.today.mk-on{box-shadow:inset 0 0 0 2px var(--accent),inset 5px 0 0 var(--mk)}
 .mk-notes{display:flex;flex-direction:column;gap:2px;margin-top:auto;min-width:0}
 .mk-note{height:20px;padding:0 6px;border:1px dashed var(--line-strong);border-radius:5px;background:var(--surface);font-size:11px;font-weight:600;color:var(--t1);text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;flex:none}
 .mk-note:hover{border-color:var(--accent)}
