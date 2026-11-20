@@ -19,7 +19,7 @@
 .sm-kpi .bad b{color:var(--red)}
 .sm-tpl{display:flex;gap:6px;flex-wrap:wrap}
 .sm-tpl button{height:30px;padding:0 12px;border:1px solid var(--line);border-radius:15px;background:var(--surface);font-size:12px;font-weight:600;color:var(--t2)}
-.sm-tpl button:hover{border-color:#1E10C7;color:#1E10C7}
+.sm-tpl button:hover{border-color:var(--accent);color:var(--accent)}
 .sm-text{min-height:180px;font-family:inherit;line-height:1.55}
 .sm-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--t3)}
 .sm-bar .sp{margin-left:auto}

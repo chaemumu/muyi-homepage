@@ -227,8 +227,9 @@
 .cc.pend{border-style:dashed}
 .rn-chip,.rn-chip.hot,.rn-chip.cold,.rn-chip.hold,.rn-chip.end{--c:var(--t3)}
 .mk{cursor:cell}
-.mk.mk-on,.cal-day.mk.mk-on:hover{background:color-mix(in srgb,var(--mk) 18%,var(--surface))}
-.mk.mk-on .dn b{color:var(--mk)}
+.mk.mk-on,.cal-day.mk.mk-on:hover{background:color-mix(in srgb,var(--mk) 34%,var(--surface));box-shadow:inset 3px 0 0 var(--mk)}
+.mk.mk-on .dn b{color:color-mix(in srgb,var(--mk) 70%,#000);font-weight:900}
+.cal-day.today.mk-on,.ct-day.today.mk-on{box-shadow:inset 0 0 0 2px var(--accent),inset 5px 0 0 var(--mk)}
 .mk-notes{display:flex;flex-direction:column;gap:2px;margin-top:auto;min-width:0}
 .mk-note{height:20px;padding:0 6px;border:1px dashed var(--line-strong);border-radius:5px;background:var(--surface);font-size:11px;font-weight:600;color:var(--t1);text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;flex:none}
 .mk-note:hover{border-color:var(--accent)}
@@ -470,7 +471,7 @@
     const { data: ros } = round ? await sb.from('roster').select('nickname,name,phone,post_url,cancelled').eq('round_id', round.id) : { data: [] };
     const done = (ros || []).filter((r) => r.post_url && !r.cancelled && r.phone);
     if (!done.length) { toast(round ? '글을 이미 올린 블로거가 없어 따로 보낼 안내가 없습니다' : '저장된 명단이 없어 안내 대상을 찾지 못했습니다 (명단 변환에서 명단 저장)'); return; }
-    await loadScript('/assets/crm-sms.js?v=3');
+    await loadScript('/assets/crm-sms.js?v=4');
     window.CRM_SMS.open({ title: `${e.co.name} 연장 안내 · 이미 등록한 블로거 ${done.length}명`, ad: false,
       text: `안녕하세요, 무이(MUYI)입니다.\n${e.co.name} 체험단 리뷰 마감 연장 안내를 받으셨다면, 이미 리뷰를 등록해주셔서 해당되지 않습니다.\n참여해주셔서 감사합니다 :)`,
       load: async () => done.map((r) => ({ company_id: e.co.id, name: r.nickname || r.name, phone: r.phone })) });
@@ -546,7 +547,7 @@
     const items = (S.mine ? (data || []).filter((x) => x.owner === me) : data || []).filter((x) => !S.cch || x.channel === S.cch);
     // 채널 필터 (누르면 그 채널만)
     const inMonth = (data || []).filter((x) => x.starts_on <= `${S.month}-31` && x.ends_on >= `${S.month}-01`);
-    const chSeg = el('div', { className: 'cal-seg cg-seg' }, [['', '#1E10C7'], ...CH].map(([k, c]) => { const b = el('button', { type: 'button', className: (S.cch || '') === k ? 'on' : '', onclick: () => { S.cch = (S.cch || '') === k ? '' : k; draw(); } }, [el('i'), k || '전체', el('span', { className: 'n', text: (k ? inMonth.filter((x) => x.channel === k) : inMonth).length })]); b.style.setProperty('--c', c); return b; }));
+    const chSeg = el('div', { className: 'cal-seg cg-seg' }, [['', 'var(--accent)'], ...CH].map(([k, c]) => { const b = el('button', { type: 'button', className: (S.cch || '') === k ? 'on' : '', onclick: () => { S.cch = (S.cch || '') === k ? '' : k; draw(); } }, [el('i'), k || '전체', el('span', { className: 'n', text: (k ? inMonth.filter((x) => x.channel === k) : inMonth).length })]); b.style.setProperty('--c', c); return b; }));
     // 주 단위 줄: 막대가 여러 날에 걸쳐 이어짐 (겹치면 아래 줄로)
     let sel = null; // 끌어서 고르는 중인 범위 {a, b}
     const weeks = [];
@@ -561,7 +562,7 @@
         const more = segs.filter((g) => g.l >= MAXL && g.a <= i && g.b >= i).length;
         const c = el('div', { className: 'ct-day' + (monthOf(d) !== S.month ? ' out' : '') + (d === today ? ' today' : '') }, [el('div', { className: 'dn' }, el('b', { text: String(+d.slice(8)) })), more ? el('button', { type: 'button', className: 'cal-more', text: `+${more}개`, onclick: (e) => { e.stopPropagation(); dayList(d); } }) : null].filter(Boolean));
         c.style.gridColumn = `${i + 1}`; c.dataset.d = d;
-        markCell(c, { cal: 'content', cat: S.cch || '전체', day: d, color: CH_C[S.cch] || '#1E10C7', marks, onDbl: () => itemModal({ starts_on: d, ends_on: d, channel: S.cch || '' }) });
+        markCell(c, { cal: 'content', cat: S.cch || '전체', day: d, color: CH_C[S.cch] || 'var(--accent)', marks, onDbl: () => itemModal({ starts_on: d, ends_on: d, channel: S.cch || '' }) });
         c.addEventListener('pointerdown', (e) => { if (e.button !== 0 || e.target.closest('.ct-bar, .cal-more, .mk-note, .mk-in')) return; e.preventDefault(); sel = { a: d, b: d }; grid.classList.add('dragging'); paintSel(); });
         c.addEventListener('pointerenter', () => { if (sel) { sel.b = d; paintSel(); } if (mv) { mv.to = d; paintMove(); } });
         row.append(c);
@@ -856,7 +857,7 @@
 
     // 단계 탭: 오늘 업무(모집·발표·마감 3열) · 모집 · 발표 · 마감 · 2차마감(그 단계 달력)
     const inMonth = ev.filter((e) => monthOf(e.due) === S.month);
-    const stepSeg = el('div', { className: 'cal-seg cg-seg' }, [['오늘', '오늘 업무', '#1E10C7'], ...STEPS.map((x) => [x, x, STEP_COLOR[x]])].map(([k, t, c]) => {
+    const stepSeg = el('div', { className: 'cal-seg cg-seg' }, [['오늘', '오늘 업무', 'var(--accent)'], ...STEPS.map((x) => [x, x, STEP_COLOR[x]])].map(([k, t, c]) => {
       const b = el('button', { type: 'button', className: S.cstep === k ? 'on' : '', onclick: () => { S.cstep = k; draw(); } }, [el('i'), t, isToday || k === '오늘' ? null : el('span', { className: 'n', text: inMonth.filter((e) => e.step === k).length })].filter(Boolean));
       b.style.setProperty('--c', c); return b; }));
 
@@ -949,7 +950,7 @@
     const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), expandBtn, setBtn, campBtn]);
     return [tools, el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), list])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=9');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=10');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   const pickCamp = (evs, cfg, rn) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg, rn)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
@@ -1010,7 +1011,7 @@
     return { low, empty, stale, co: co || [] };
   }
   // 계약 그룹: 진행 중 · 재계약 지남 · 홀딩 · 종료(계약종료·환불·양도) · 정보 없음(재계약일·결제일 비어 있음)
-  const CGROUPS = [['all', '전체', '#1E10C7'], ['run', '진행 중', '#16A34A'], ['past', '재계약 지남', '#E11D48'], ['hold', '홀딩', '#D97706'], ['end', '종료', '#71717A'], ['none', '정보 없음', '#7C3AED']];
+  const CGROUPS = [['all', '전체', 'var(--accent)'], ['run', '진행 중', '#16A34A'], ['past', '재계약 지남', '#E11D48'], ['hold', '홀딩', '#D97706'], ['end', '종료', '#71717A'], ['none', '정보 없음', '#7C3AED']];
   const groupOf = (c, today) => {
     const g = ['all'];
     if (c.run_status === '진행 중') g.push(c.next_renew_due && c.next_renew_due < today ? 'past' : 'run');
