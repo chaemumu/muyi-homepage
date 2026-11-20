@@ -48,12 +48,12 @@
     const err = el('div', { className: 'ac-err' });
     const send = el('button', { className: 'btn primary', text: '메일 보내기' });
     const L = modal(`${u.name} · 재설정 메일`, [
-      el('div', { text: `${u.email} 로 비밀번호 재설정 링크를 보냅니다.` }),
-      el('div', { className: 'ac-dim', text: '보내는 곳 noreply@muyi.co.kr (한국어 안내 메일). 받은 사람이 링크를 눌러 새 비밀번호를 정하고, 새 비밀번호로 다시 로그인합니다. 링크를 쓰기 전까지 지금 비밀번호는 그대로입니다. 같은 사람에게는 1분에 한 번만 보낼 수 있습니다.' }), err,
+      el('div', { text: `${[...new Set([u.contact_email, u.email].filter(Boolean))].join(' · ')} 로 비밀번호 재설정 링크를 보냅니다.` }),
+      el('div', { className: 'ac-dim', text: '로그인 이메일과 등록된 연락 메일 둘 다로 보냅니다(보내는 곳 noreply@muyi.co.kr). 안 보이면 스팸함도 확인하게 하세요. 받은 사람이 링크를 눌러 새 비밀번호를 정하고, 새 비밀번호로 다시 로그인합니다. 링크를 쓰기 전까지 지금 비밀번호는 그대로입니다. 같은 사람에게는 1분에 한 번만 보낼 수 있습니다.' }), err,
     ], [el('button', { className: 'btn', text: '취소', onclick: () => L.remove() }), send]);
     send.onclick = async () => {
       send.disabled = true; send.textContent = '보내는 중…'; err.textContent = '';
-      try { await call({ action: 'send_reset', user_id: u.user_id }); L.remove(); toast(`${u.name}님에게 재설정 메일을 보냈습니다`); }
+      try { const r = await call({ action: 'send_reset', user_id: u.user_id }); L.remove(); toast(`${u.name}님 재설정 메일 발송: ${(r.to || []).join(', ')}`); }
       catch (e) { err.textContent = e.message; send.disabled = false; send.textContent = '메일 보내기'; }
     };
   }
