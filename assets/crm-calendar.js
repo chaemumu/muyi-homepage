@@ -41,7 +41,8 @@
 .cal-day.out{background:var(--muted);opacity:.55}
 .cal-day.sel{box-shadow:inset 0 0 0 2px var(--accent)}
 .cal-day .dn{font-size:12px;font-weight:700;color:var(--t2);display:flex;align-items:center;gap:4px}
-.cal-day.today .dn b{background:var(--accent);color:#fff;border-radius:10px;padding:0 6px}
+.cal-day.today{box-shadow:inset 0 0 0 2px var(--accent)}
+.cal-day.today .dn b{color:var(--accent);font-weight:900}
 .cal-day .dn .late{margin-left:auto;font-size:10px;font-weight:700;color:var(--red)}
 .chip-ev{display:flex;align-items:center;gap:4px;width:100%;min-width:0;height:22px;padding:0 6px;border-radius:6px;border:1px solid color-mix(in srgb,var(--c) 30%,var(--line));background:color-mix(in srgb,var(--c) 8%,var(--surface));font-size:11px;color:var(--t1);text-align:left;cursor:pointer}
 .chip-ev .s{flex:none;font-weight:700;color:var(--c)}
@@ -107,7 +108,8 @@
 .ct-day:nth-child(7){border-right:0}
 .ct-day.out{background:var(--surface-2)}
 .ct-day.out .dn b{color:var(--t4)}
-.ct-day.today .dn b{background:var(--accent);color:#fff;border-radius:10px;padding:0 6px}
+.ct-day.today{box-shadow:inset 0 0 0 2px var(--accent)}
+.ct-day.today .dn b{color:var(--accent);font-weight:900}
 .ct-day .dn b{font-size:12px}
 .ct-day.pick{background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
 .ct-day .cal-more{align-self:flex-start}
@@ -248,6 +250,15 @@
 .td-empty{padding:18px;text-align:center;color:var(--t4);font-size:12px}
 .rc-f .sp{flex:1}
 .ca-extra{display:flex;gap:6px}
+.td-d{font-size:10.5px;font-weight:800;color:var(--t2);background:var(--muted);border-radius:5px;padding:1px 6px;margin-right:4px}
+.td-item.off-day{background:color-mix(in srgb,var(--c) 5%,var(--surface))}
+.td-span{font-size:12px;font-weight:700;color:var(--t3)}
+.od-list{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 12px}
+.od-list button{height:26px;padding:0 10px;border:1px solid var(--line);border-radius:13px;background:var(--surface);font-size:12px;cursor:pointer}
+.od-list button:hover{border-color:var(--red);color:var(--red)}
+.od-add{display:flex;gap:6px;align-items:center;padding:12px 14px;flex-wrap:wrap}
+.od-add .fi{width:auto}
+.rc-del{color:var(--red)!important}
 @media (max-width:900px){.td-wrap{grid-template-columns:minmax(0,1fr)}.td-col{min-height:0}.td-body{min-height:90px}}
 @media (max-width:720px){.cal-day{min-height:64px;padding:3px}.chip-ev .n{display:none}.chip-ev{height:16px;padding:0 3px;font-size:9px}.cal-dow{padding:4px;text-align:center}}
 `;
@@ -255,6 +266,19 @@
   }
 
   const S = { box: null, tab: 'camp', month: null, sel: null, mine: false, cfg: null, drag: null };
+  // ── 휴무일: 주말 + 법정공휴일(대체공휴일 포함) + [⚙ 설정]의 특별 휴무(샌드위치 등) − 출근일(공휴일인데 일하는 날) ──
+  //  [오늘 업무] = 오늘 + 다음 근무일 전까지 쉬는 날 (금요일 → 금·토·일). 공휴일 목록은 해마다 추가
+  const KR_HOL = new Set(['2026-01-01', '2026-02-16', '2026-02-17', '2026-02-18', '2026-03-01', '2026-03-02', '2026-05-05', '2026-05-24', '2026-05-25', '2026-06-03', '2026-06-06', '2026-08-15', '2026-08-17', '2026-09-24', '2026-09-25', '2026-09-26', '2026-10-03', '2026-10-05', '2026-10-09', '2026-12-25',
+    '2027-01-01', '2027-02-06', '2027-02-07', '2027-02-08', '2027-02-09', '2027-03-01', '2027-05-05', '2027-05-13', '2027-06-06', '2027-08-15', '2027-08-16', '2027-09-14', '2027-09-15', '2027-09-16', '2027-10-03', '2027-10-04', '2027-10-09', '2027-10-11', '2027-12-25', '2027-12-27']);
+  async function loadOffdays() {
+    if (S.offd) return S.offd;
+    const { data } = await sb.from('crm_settings').select('value').eq('key', 'cal_offdays').maybeSingle();
+    const v = data?.value && typeof data.value === 'object' ? data.value : {};
+    S.offd = { off: Array.isArray(v.off) ? v.off : [], work: Array.isArray(v.work) ? v.work : [] };
+    return S.offd;
+  }
+  const isOff = (d, o) => !o.work.includes(d) && (o.off.includes(d) || KR_HOL.has(d) || [0, 6].includes(parse(d).getDay()));
+  const spanDays = (d, o) => { const out = [d]; for (let x = addDays(d, 1); isOff(x, o) && out.length < 12; x = addDays(x, 1)) out.push(x); return out; };
   // 끌어다 놓기: 칸(cal-day)에 data-d 날짜 → S.drag(옮길 대상)를 그 날짜로. 팝업에서 끌면 팝업이 투명해져 아래 달력에 놓을 수 있다
   const dropZone = (cell, d, onDrop) => {
     cell.dataset.d = d;
@@ -301,6 +325,7 @@
       const [y, mo] = m.split('-').map(Number), dim = new Date(y, mo, 0).getDate();
       for (const c of camp) for (const d of new Set(c.recruit_days.map((x) => Math.min(Number(x) || 1, dim)))) {
         const cycle = `${m}-${pad(d)}`; gen.add(`${c.id}|${cycle}`);
+        if (tasks.get(`${c.id}|${cycle}|모집`)?.skipped) continue; // 이번 회차만 삭제한 모집
         // 모집은 혼자 움직임(모집 기간이 업체마다 다름). 발표는 날짜를 정해야 생김(그 전엔 '발표일 미정').
         // 마감 = 발표 + (마감 간격 − 발표 간격, 기본 14일). 추적 시작일 이전 회차는 예전처럼 간격으로 계산.
         const tM = tasks.get(`${c.id}|${cycle}|모집`), tA = tasks.get(`${c.id}|${cycle}|발표`), tD = tasks.get(`${c.id}|${cycle}|마감`);
@@ -315,7 +340,8 @@
     }
     // 달력에서 두 번 클릭해 직접 추가한 회차 (매월 모집일과 다른 날·모집일 없는 업체): camp_tasks 행만으로 일정
     const adhoc = new Map();
-    (tk.data || []).filter((t) => ['모집', '발표', '마감'].includes(t.step) && byId.has(t.company_id) && !gen.has(`${t.company_id}|${t.cycle_on}`))
+    const skip = new Set((tk.data || []).filter((t) => t.skipped).map((t) => `${t.company_id}|${t.cycle_on}`));
+    (tk.data || []).filter((t) => ['모집', '발표', '마감'].includes(t.step) && byId.has(t.company_id) && !gen.has(`${t.company_id}|${t.cycle_on}`) && !skip.has(`${t.company_id}|${t.cycle_on}`))
       .forEach((t) => { const k = `${t.company_id}|${t.cycle_on}`; if (!adhoc.has(k)) adhoc.set(k, {}); adhoc.get(k)[t.step] = t; });
     adhoc.forEach((g, k) => {
       const c = byId.get(k.split('|')[0]), cycle = k.split('|')[1];
@@ -325,7 +351,7 @@
       push('발표', ann, g.발표); push('마감', dl, g.마감);
     });
     // 2차마감: 마감에서 인원이 모자라면 생긴 행
-    (tk.data || []).filter((t) => t.step === '2차마감' && byId.has(t.company_id) && t.due_on >= from && t.due_on <= to)
+    (tk.data || []).filter((t) => t.step === '2차마감' && byId.has(t.company_id) && t.due_on >= from && t.due_on <= to && !skip.has(`${t.company_id}|${t.cycle_on}`))
       .forEach((t) => ev.push({ co: byId.get(t.company_id), cycle: t.cycle_on, step: '2차마감', due: t.due_on, task: t, done: !!t.done_at }));
     // 2차마감에도 발표·마감 날짜를 붙여둠 (링크 확인·연장 안내용)
     ev.filter((e) => e.step === '2차마감').forEach((e) => { const d = ev.find((x) => x.step === '마감' && x.co.id === e.co.id && x.cycle === e.cycle); if (d) { e.ann = d.ann; e.dl = d.dl; } });
@@ -398,15 +424,15 @@
         `간격은 위 [⚙ 설정]에서 바꾸며, 바꾸면 이 설명도 같이 바뀝니다`,
       ]),
       sec('체험단 쓰는 법', [
-        '[오늘 업무] = 그날 할 일을 모집 · 발표 · 마감(2차마감 포함) 3열로. ‹ › 로 날짜 이동',
+        '[오늘 업무] = 그날 할 일을 모집 · 발표 · 마감(2차마감 포함) 3열로. 다음 근무일 전까지 쉬는 날도 같이 (금요일 = 금·토·일, 연휴 전날 = 연휴 끝까지). 특별 휴무·공휴일 출근은 [⚙ 설정] → 휴무일 설정',
         '[모집·발표·마감·2차마감] = 그 단계만 한 달 달력과 아래 목록으로',
-        '업체명을 누르면 상세: 모집 = 발표일 정하기 · 발표/마감 = 명단·점주 안내·가이드 + 🔍 링크 확인 · +14 연장',
+        '업체명을 누르면 상세: 모집 = 발표일 정하기·삭제(이번 회차만 / 매월 그 날짜 그만) · 발표/마감 = 명단·점주 안내·가이드·명단 체크리스트·재촉 문자 + 🔍 링크 확인 · +14 연장 · 2차마감 = 리뷰 수정 요청(회차·블로거·사유 → 문구·번호 복사)',
         '칸의 빈 곳을 한 번 누르면 그날 그 업무 완료 표시(단계 색 배경, 팀 전체 공유) · 다시 누르면 해제',
-        '칸의 빈 곳을 두 번 누르면 업체명 입력 → 그 단계 일정으로 추가되고 바로 상세가 열림 (모집 = 그날 새 회차 · 발표/마감 = 최근 회차의 날짜를 그날로)',
+        '칸의 빈 곳을 두 번 누르면 업체명 입력 → 그 단계 일정으로 추가 (모집 = 그날 새 회차, 추가만 · 발표/마감 = 최근 회차의 날짜를 그날로 + 바로 상세)',
         '업체명이 아닌 글자를 적으면 메모로 남음 (예전 메모·업체명 자동 완성) · 메모를 누르면 수정·삭제',
         '날짜 바꾸기: 업체명을 끌어 다른 날짜에 놓기',
         '많은 날은 … +n 으로 줄어듭니다. 오른쪽 위 [⤢ 전체 보기]로 모든 칸을 펼칩니다',
-        '리뷰노트 명단: 리뷰노트에서 북마크 [리뷰노트 → MUYI] 한 번 → 최근 캠페인 명단이 업체별로 CRM에 바로 저장 (설치: 명단 변환 → 명단 탭 → 리뷰노트 북마크 설치)',
+        '리뷰노트 명단: 리뷰노트 체험단 진행(캠페인) 화면에서 북마크 [리뷰노트 → MUYI] → 그 캠페인 명단만 CRM에 저장 (설치: 명단 변환 → 명단 탭 → 리뷰노트 북마크 설치)',
         '모집일 미설정 업체 · 단계 간격은 위 [⚙ 설정]',
       ]),
       sec('무이 콘텐츠 달력 (자체 마케팅 제작)', [
@@ -725,6 +751,7 @@
       toast(`${co.name} ${md(d)} 모집 추가`);
     } else if (!(await moveStep({ co, cycle, step, due: cur?.due || null }, d))) return true;
     await draw(); flash([d]);
+    if (step === '모집') return true; // 모집 달력은 추가만 (상세 팝업 없음)
     const { ev: now } = await campEvents(d, d);
     const e = now.find((x) => x.co.id === co.id && x.cycle === cycle && x.step === step) || { co, cycle, step, due: d, ann: step === '발표' ? d : null, dl: null };
     openDetail(e, cfg);
@@ -756,7 +783,37 @@
         onCount: async (n, tg) => { if (await saveClose(chk, n, tg, cfg)) { toast(n >= tg ? `${e.co.name} 마감 완료 (${n}/${tg})` : `${e.co.name} ${tg - n}명 부족 → ${md(addDays(chk.due, cfg.off['2차마감'] || 7))} 2차마감`); draw(); } } })) }),
       close.due && el('button', { className: 'btn sm', type: 'button', text: `+${EXTEND_DAYS} 연장`, title: `마감 연장 → 마감일 +${EXTEND_DAYS}일 2차마감 (해당 없는 블로거 안내 문자)`, onclick: () => extendClose(close) }),
     ].filter(Boolean);
-    openCamp({ co: e.co, cycle: e.cycle, cfg, announce: e.ann || undefined, deadline: close.due || e.dl || undefined, extra });
+    const args = { co: e.co, cycle: e.cycle, cfg, announce: e.ann || undefined, deadline: close.due || e.dl || undefined };
+    // 2차마감 = 리뷰 다시 확인(태그 누락 등) → 수정 요청 화면. 전체 상세는 버튼으로
+    if (e.step === '2차마감') return campLib().then(() => window.CRM_CAMP.fixReq({ co: e.co, cycle: e.cycle, extra: [extra[0], el('button', { className: 'btn sm', type: 'button', text: '발표 상세', onclick: () => openCamp({ ...args, extra: extra.slice(1) }) })].filter(Boolean) })).catch((x) => toast('화면을 불러오지 못했습니다: ' + x.message));
+    openCamp({ ...args, extra });
+  }
+  // 모집 삭제: 이번 회차만(camp_tasks 모집 skipped, 직접 추가한 회차는 행 삭제) 또는 매월 그 날짜 규칙까지
+  async function delRecruit(e, P) {
+    const day = +e.cycle.slice(8), dim = new Date(+e.cycle.slice(0, 4), +e.cycle.slice(5, 7), 0).getDate();
+    const rds = e.co.recruit_days || [];
+    const ruleDay = e.adhoc ? null : rds.find((x) => Math.min(Number(x) || 1, dim) === day);
+    const { data: rd } = await sb.from('rounds').select('id').eq('company_id', e.co.id).eq('cycle_on', e.cycle).maybeSingle();
+    const warn = rd ? '\n(저장된 명단은 지우지 않고 남겨둡니다)' : '';
+    const once = async () => {
+      if (!confirm(`${e.co.name} ${md(e.cycle)} 모집 회차를 삭제할까요?\n발표·마감 일정도 같이 사라집니다.${warn}`)) return;
+      const { error } = e.adhoc
+        ? await sb.from('camp_tasks').delete().eq('company_id', e.co.id).eq('cycle_on', e.cycle)
+        : await sb.from('camp_tasks').upsert({ company_id: e.co.id, cycle_on: e.cycle, step: '모집', due_on: e.task?.due_on || e.cycle, skipped: true }, { onConflict: 'company_id,cycle_on,step' });
+      if (error) { toast('삭제 실패: ' + error.message); return; }
+      D.close(); P.close(); toast(`${e.co.name} ${md(e.cycle)} 모집 삭제`); draw();
+    };
+    const rule = async () => {
+      if (!confirm(`${e.co.name} 매월 ${ruleDay}일 모집을 그만할까요?\n이번 회차부터 매월 ${ruleDay}일 일정이 더 이상 생기지 않습니다.${warn}`)) return;
+      await sb.from('camp_tasks').upsert({ company_id: e.co.id, cycle_on: e.cycle, step: '모집', due_on: e.task?.due_on || e.cycle, skipped: true }, { onConflict: 'company_id,cycle_on,step' });
+      if (await saveDays(e.co, rds.filter((x) => x !== ruleDay).map(Number))) { D.close(); P.close(); }
+    };
+    const D = popup(`${e.co.name} · ${mdw(e.due)} 모집 삭제`, [
+      el('div', { className: 'hint', text: ruleDay ? `매월 ${rds.join(', ')}일 모집 업체입니다. 이번 회차만 지울지, 매월 ${ruleDay}일 모집 자체를 그만할지 고르세요.` : '직접 추가한 회차입니다.' }),
+    ], [el('button', { className: 'btn ghost', type: 'button', text: '취소', onclick: () => D.close() }), el('span', { className: 'sp' }),
+      ruleDay ? el('button', { className: 'btn', type: 'button', text: `매월 ${ruleDay}일 모집 그만하기`, onclick: rule }) : null,
+      el('button', { className: 'btn primary', type: 'button', text: '이번 회차만 삭제', onclick: once })].filter(Boolean));
+    D.layer.querySelector('.pm-f').classList.add('rc-f');
   }
   function recruitPopup(e, cfg) {
     const gap = (cfg.off.마감 || 0) - (cfg.off.발표 || 0);
@@ -768,6 +825,7 @@
       el('label', {}, [el('span', { className: 'lbl', text: '발표일' }), inp]), dlTxt,
     ], [
       el('button', { className: 'btn ghost', type: 'button', text: '⚙ 매월 모집일', onclick: () => { P.close(); editDays(e.co); } }),
+      el('button', { className: 'btn ghost rc-del', type: 'button', text: '삭제', onclick: () => delRecruit(e, P) }),
       el('span', { className: 'sp' }),
       e.ann ? el('button', { className: 'btn', type: 'button', text: '발표 상세 열기', onclick: () => { P.close(); openDetail({ ...e, step: '발표', due: e.ann }, cfg); } }) : null,
       el('button', { className: 'btn primary', type: 'button', text: '발표일 저장', onclick: async () => {
@@ -785,7 +843,9 @@
     if (S.expand === undefined) try { S.expand = localStorage.getItem('crm-cal-expand') === '1'; } catch { S.expand = false; }
     const isToday = S.cstep === '오늘';
     const days = gridDays();
-    const [from, to] = isToday ? [S.day, S.day] : [days[0], days[41]];
+    const offd = await loadOffdays();
+    const span = isToday ? spanDays(S.day, offd) : null; // 오늘 + 이어지는 휴무일 (금요일이면 금·토·일)
+    const [from, to] = isToday ? [S.day, span[span.length - 1]] : [days[0], days[41]];
     const [{ ev: all, noDays, cfg, pending: pendAll }, marks] = await Promise.all([campEvents(from, to), loadMarks('camp', from, to)]);
     const ev = S.mine ? all.filter((e) => isMine(e.co)) : all;
     const pending = S.mine ? pendAll.filter((e) => isMine(e.co)) : pendAll;
@@ -806,7 +866,7 @@
           ...noDays.slice(0, 60).map((c) => { const inp = el('input', { className: 'fi', placeholder: '예: 1, 16', title: '매월 모집일 (쉼표로 여러 날)' });
             const save = el('button', { className: 'btn sm', type: 'button', text: '저장', onclick: async () => { const ds = parseDays(inp.value); if (!ds.length) { toast('1~31 사이 날짜를 넣어주세요'); return; } save.disabled = true; await saveDays(c, ds); save.disabled = false; } });
             return el('div', { className: 'cs-row' }, [el('span'), el('div', { className: 'nm', text: c.name }), el('div', { className: 'acts' }, [inp, save])]); })]) : null,
-        settingsCard(cfg),
+        settingsCard(cfg), offdayCard(),
       ].filter(Boolean));
     } });
     const annEv = [...ev.filter((e) => e.step === '발표' && (isToday || monthOf(e.due) === S.month)), ...pending.map((e) => ({ ...e, due: null }))];
@@ -828,15 +888,17 @@
 
     // ── 오늘 업무: 모집 | 발표 | 마감(2차마감 포함) 3열 ──
     if (isToday) {
+      const prevWork = () => { let x = addDays(S.day, -1); for (let i = 0; i < 12 && isOff(x, offd); i++) x = addDays(x, -1); return x; };
       const nav = el('div', { className: 'td-nav' }, [
-        el('button', { className: 'icon-btn', type: 'button', text: '‹', title: '전날', onclick: () => { S.day = addDays(S.day, -1); draw(); } }),
-        el('b', { text: mdw(S.day) + (S.day === today ? ' · 오늘' : '') }),
-        el('button', { className: 'icon-btn', type: 'button', text: '›', title: '다음날', onclick: () => { S.day = addDays(S.day, 1); draw(); } }),
+        el('button', { className: 'icon-btn', type: 'button', text: '‹', title: '이전 근무일', onclick: () => { S.day = isOff(S.day, offd) ? addDays(S.day, -1) : prevWork(); draw(); } }),
+        el('b', { text: mdw(S.day) + (span.length > 1 ? ` ~ ${mdw(to)}` : '') + (S.day === today ? ' · 오늘' : '') }),
+        el('button', { className: 'icon-btn', type: 'button', text: '›', title: '다음 근무일', onclick: () => { S.day = addDays(to, 1); draw(); } }),
+        span.length > 1 ? el('span', { className: 'td-span', text: `휴무 포함 ${span.length}일치` }) : null,
         S.day !== today ? el('button', { className: 'btn sm', type: 'button', text: '오늘', onclick: () => { S.day = today; draw(); } }) : null,
       ].filter(Boolean));
       const col = (step) => {
-        const list = ev.filter((e) => e.due === S.day && (step === '마감' ? e.step === '마감' || e.step === '2차마감' : e.step === step)).sort((a, b) => (a.step === '2차마감') - (b.step === '2차마감') || byName(a, b));
-        const body = el('div', { className: 'td-body' }, list.map((e) => { const b = el('button', { type: 'button', className: 'td-item', title: '눌러서 상세 열기', onclick: () => openDetail(e, cfg) }, [el('b', { text: e.co.name }), e.step === '2차마감' ? el('span', { className: 'td-tag', text: '2차마감' }) : el('span'), el('small', { text: sub(e) })]); b.style.setProperty('--c', STEP_COLOR[e.step]); return b; }));
+        const list = ev.filter((e) => span.includes(e.due) && (step === '마감' ? e.step === '마감' || e.step === '2차마감' : e.step === step)).sort((a, b) => a.due.localeCompare(b.due) || (a.step === '2차마감') - (b.step === '2차마감') || byName(a, b));
+        const body = el('div', { className: 'td-body' }, list.map((e) => { const b = el('button', { type: 'button', className: 'td-item' + (e.due !== S.day ? ' off-day' : ''), title: '눌러서 상세 열기', onclick: () => openDetail(e, cfg) }, [el('b', {}, [span.length > 1 ? el('span', { className: 'td-d', text: mdw(e.due) }) : null, e.co.name].filter(Boolean)), e.step === '2차마감' ? el('span', { className: 'td-tag', text: '2차마감' }) : el('span'), el('small', { text: sub(e) })]); b.style.setProperty('--c', STEP_COLOR[e.step]); return b; }));
         if (!list.length) body.append(el('div', { className: 'td-empty', text: '없음' }));
         markCell(body, { cal: 'camp', cat: step, day: S.day, color: STEP_COLOR[step], marks, add: (v) => addCamp(step, v, S.day) });
         const card = el('div', { className: 'card td-col' }, [el('div', { className: 'td-h' }, [el('i'), el('h3', { text: step === '마감' ? '마감 · 2차마감' : step }), el('span', { className: 'n', text: list.length })]), body]);
@@ -844,7 +906,7 @@
         return card;
       };
       const tools = el('div', { className: 'cal-tools' }, [stepSeg, nav, el('span', { className: 'sp' }), setBtn, campBtn]);
-      return [tools, el('div', { className: 'hint', text: '업체명을 누르면 상세 · 칸 빈 곳 한 번 = 그날 그 업무 완료 표시(다시 누르면 해제) · 두 번 = 업체명을 적어 일정 추가(바로 상세) · 업체가 아닌 글자는 메모' }), el('div', { className: 'td-wrap' }, ['모집', '발표', '마감'].map(col))];
+      return [tools, el('div', { className: 'hint', text: '업체명을 누르면 상세 · 다음 근무일 전까지 쉬는 날(주말·공휴일·설정한 휴무)도 같이 보임 · 칸 빈 곳 한 번 = 완료 표시 · 두 번 = 업체명을 적어 일정 추가 · 업체가 아닌 글자는 메모' }), el('div', { className: 'td-wrap' }, ['모집', '발표', '마감'].map(col))];
     }
 
     // ── 단계 달력: 그 단계 업체만 · 업체명 누르면 상세 · 끌어서 날짜 변경 ──
@@ -887,7 +949,7 @@
     const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), expandBtn, setBtn, campBtn]);
     return [tools, el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), list])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=8');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=9');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   const pickCamp = (evs, cfg, rn) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg, rn)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
@@ -903,6 +965,25 @@
         if (error) { toast('저장 실패: ' + error.message); return; } S.cfg = null; toast('단계 간격 저장'); draw();
       } })])]);
     return el('div', { className: 'card' }, d);
+  }
+
+  // 휴무일 설정: 특별 휴무(샌드위치 등) 추가 · 공휴일인데 출근하는 날 지정 → [오늘 업무] 며칠치 보일지에 반영 (팀 공유)
+  function offdayCard() {
+    const box = el('div', {});
+    const paint = async () => {
+      const o = await loadOffdays(), today = todayKst();
+      const save = async (v) => { const { error } = await sb.from('crm_settings').upsert({ key: 'cal_offdays', value: v, updated_at: new Date().toISOString() }); if (error) { toast('저장 실패: ' + error.message); return; } S.offd = v; paint(); draw(); };
+      const list = (k, label) => { const arr = o[k].filter((d) => d >= addDays(today, -31)).sort(); return [el('div', { className: 'cs-g', text: `${label} ${arr.length}` }), el('div', { className: 'od-list' }, arr.length ? arr.map((d) => el('button', { type: 'button', text: `${mdw(d)} ✕`, title: '눌러서 빼기', onclick: () => save({ ...o, [k]: o[k].filter((x) => x !== d) }) })) : [el('span', { className: 'hint', text: '없음' })])]; };
+      const inp = el('input', { className: 'fi', type: 'date', value: today });
+      const add = (k) => { const d = inp.value; if (!d) return; const other = k === 'off' ? 'work' : 'off'; save({ ...o, [k]: [...new Set([...o[k], d])], [other]: o[other].filter((x) => x !== d) }); };
+      const next = []; for (let x = today, i = 0; next.length < 8 && i < 120; i++, x = addDays(x, 1)) if (KR_HOL.has(x) && ![0, 6].includes(parse(x).getDay())) next.push(x);
+      box.replaceChildren(
+        el('div', { className: 'od-add' }, [inp, el('button', { className: 'btn sm', type: 'button', text: '휴무일 추가', onclick: () => add('off') }), el('button', { className: 'btn sm ghost', type: 'button', text: '출근일 지정 (공휴일 근무)', onclick: () => add('work') })]),
+        ...list('off', '특별 휴무'), ...list('work', '출근일'),
+        el('div', { className: 'hint od-hint', text: `주말·법정공휴일은 자동. 다가오는 평일 공휴일: ${next.map(mdw).join(', ') || '없음'}` }));
+    };
+    paint();
+    return el('div', { className: 'card' }, el('details', {}, [el('summary', { className: 'cs-h', text: '📅 휴무일 설정 ([오늘 업무] 며칠치 보일지)' }), box]));
   }
 
   // ── 계약: 재계약 달력 + 실행 소진 · 수량 입력 알림 ──
