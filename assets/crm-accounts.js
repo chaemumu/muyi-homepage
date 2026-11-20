@@ -49,7 +49,7 @@
     const send = el('button', { className: 'btn primary', text: '메일 보내기' });
     const L = modal(`${u.name} · 재설정 메일`, [
       el('div', { text: `${u.email} 로 비밀번호 재설정 링크를 보냅니다.` }),
-      el('div', { className: 'ac-dim', text: '받은 사람이 메일 링크를 눌러 새 비밀번호를 직접 정합니다. 지금 비밀번호는 링크를 쓰기 전까지 그대로입니다.' }), err,
+      el('div', { className: 'ac-dim', text: '보내는 곳 noreply@muyi.co.kr (한국어 안내 메일). 받은 사람이 링크를 눌러 새 비밀번호를 정하고, 새 비밀번호로 다시 로그인합니다. 링크를 쓰기 전까지 지금 비밀번호는 그대로입니다. 같은 사람에게는 1분에 한 번만 보낼 수 있습니다.' }), err,
     ], [el('button', { className: 'btn', text: '취소', onclick: () => L.remove() }), send]);
     send.onclick = async () => {
       send.disabled = true; send.textContent = '보내는 중…'; err.textContent = '';
