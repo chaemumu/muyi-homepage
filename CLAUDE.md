@@ -236,6 +236,7 @@ UX:
 - 브랜드 이미지 `assets/brand/`: 로고(`muyi-logo-tagline*.png`, 일정 이미지용) · 캐릭터 4종(`muyi-char*.webp`, 빈 화면·오류·완료 안내에만 사용)
 - 계정 관리(`assets/crm-accounts.js`, 사이드바 관리 > 계정 관리, 마스터 전용): 관리자 목록 · [재설정 메일](본인이 새 비밀번호 설정) · [임시 비밀번호](바로 변경, 8자 이상)
   Edge Function `admin-users`(verify_jwt=true, 서버에서 `admins.role='master'` 재확인, 대상은 `admins`에 있는 계정만)
+  재설정 메일(2026-11-20~): Supabase 기본 메일 안 씀. Edge Function `pw-reset-mail`(verify_jwt=false)이 `generateLink(recovery)`로 링크를 만들고 Resend `noreply@muyi.co.kr`로 한국어 메일 발송. admins에 있는 이메일만, 같은 계정 1분 1통(`admins.reset_mail_at`). 공개 호출(로그인 화면 '비밀번호를 잊으셨나요?')은 항상 {ok:true}(계정 존재 노출 방지), 내부 호출(admin-users, 헤더 x-internal=service role)은 실제 결과
 - 비밀번호 설정 화면(초대·재설정 링크): 이메일 읽기 전용 표시(브라우저 저장 비밀번호 갱신용 — 숨기면 예전 비밀번호가 계속 자동 입력돼 로그인 실패) + 확인 입력 + [보기]. 2026-11-19 유기림 로그인 반복 실패 원인
   재설정·초대 링크로 들어오면 localStorage `muyi-pw-pending`(사용자 id) → 새 비밀번호를 저장하기 전엔 앱에 못 들어감(새로고침·재방문 포함). 저장(updateUser) 후 바로 로그아웃(모든 기기) → 새 비밀번호로 직접 로그인 = Supabase 저장 확인. 설정 화면 [취소하고 로그인 화면으로] = 로그아웃
 - `contact`는 POST만 처리: GET(구글 AdsBot 크롤링 등)=405, 본문 없음/깨짐=400 → 장애 알림 안 보냄 (2026-11-19, 가짜 '문의 처리 서버 오류' 알림 원인)
