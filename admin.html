@@ -1218,7 +1218,7 @@ function showPage(p, { push = true } = {}) {
     if (window.CRM_IMPORT) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-import.js?v=3'; x.onload = go; x.onerror = () => toast('가져오기 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
   if (p === 'ai') loadScript('/assets/crm-ai.js?v=1').then(() => window.CRM_AI.mount($('aiBody'))).catch(() => toast('AI 노출 화면을 불러오지 못했습니다'));
-  if (p === 'accounts') loadScript('/assets/crm-accounts.js?v=2').then(() => window.CRM_ACCOUNTS.mount($('accountsBody'))).catch(() => toast('계정 관리 화면을 불러오지 못했습니다'));
+  if (p === 'accounts') loadScript('/assets/crm-accounts.js?v=3').then(() => window.CRM_ACCOUNTS.mount($('accountsBody'))).catch(() => toast('계정 관리 화면을 불러오지 못했습니다'));
 }
 document.querySelectorAll('.mi[data-page]').forEach((b) => b.onclick = () => showPage(b.dataset.page));
 $('homeLink').onclick = (e) => { e.preventDefault(); showPage('today'); };
