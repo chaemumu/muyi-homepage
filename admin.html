@@ -410,6 +410,7 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
       <button class="mi" data-page="clients"><svg class="i"><use href="#i-check"/></svg>계약 업체</button>
       <div class="nav-sec">관리</div>
       <button class="mi" data-page="perf"><svg class="i"><use href="#i-chart"/></svg>광고 성과</button>
+      <button class="mi" data-page="ai"><svg class="i"><use href="#i-search"/></svg>AI 노출</button>
       <button class="mi" data-page="settle" id="navSettle" hidden><svg class="i"><use href="#i-won"/></svg>정산<span class="mi-badge alert" id="settleBadge" hidden>!</span></button>
       <button class="mi" data-page="import" id="navImport" hidden><svg class="i"><use href="#i-upload"/></svg>가져오기</button>
       <button class="mi" data-page="accounts" id="navAccounts" hidden><svg class="i"><use href="#i-user"/></svg>계정 관리</button>
@@ -481,6 +482,11 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
     <div id="pg-import" hidden>
       <header class="topbar"><h1>가져오기</h1><span class="count">대표 전용 · 엑셀·노션 데이터를 업체 DB로</span></header>
       <div class="pg stack" id="importBody"></div>
+    </div>
+
+    <div id="pg-ai" hidden>
+      <header class="topbar"><h1>AI 노출</h1><span class="count">ChatGPT·Gemini·Claude 답변에 무이가 나오는지 · 매주 월요일</span></header>
+      <div class="pg stack" id="aiBody"></div>
     </div>
 
     <div id="pg-accounts" hidden>
@@ -1171,7 +1177,7 @@ setInterval(() => { if (me && !$('navSettle').hidden && document.visibilityState
 
 // ── 메뉴 ──
 // ── 화면 이동 = 주소(#today · #inbox · #leads · #clients · #co-업체ID). 새로고침·뒤로가기·링크 공유가 그대로 동작 ──
-const PAGES = ['today', 'inbox', 'calendar', 'leads', 'clients', 'perf', 'settle', 'import', 'accounts'];
+const PAGES = ['today', 'inbox', 'calendar', 'leads', 'clients', 'perf', 'ai', 'settle', 'import', 'accounts'];
 let page = 'today';
 function showPage(p, { push = true } = {}) {
   if (!PAGES.includes(p)) p = 'today';
@@ -1195,6 +1201,7 @@ function showPage(p, { push = true } = {}) {
     const go = () => window.CRM_IMPORT.mount($('importBody'));
     if (window.CRM_IMPORT) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-import.js?v=3'; x.onload = go; x.onerror = () => toast('가져오기 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
+  if (p === 'ai') loadScript('/assets/crm-ai.js?v=1').then(() => window.CRM_AI.mount($('aiBody'))).catch(() => toast('AI 노출 화면을 불러오지 못했습니다'));
   if (p === 'accounts') loadScript('/assets/crm-accounts.js?v=1').then(() => window.CRM_ACCOUNTS.mount($('accountsBody'))).catch(() => toast('계정 관리 화면을 불러오지 못했습니다'));
 }
 document.querySelectorAll('.mi[data-page]').forEach((b) => b.onclick = () => showPage(b.dataset.page));
