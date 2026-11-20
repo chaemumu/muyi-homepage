@@ -211,6 +211,11 @@ UX:
 - 발표 도우미(`assets/crm-camp.js`, 캘린더 발표 팝업·[명단 변환]): 리뷰노트 엑셀 → 관리팀 TXT 명단(`rounds.cycle_on` + `roster`) · 점주 멘트 · 일정 이미지(canvas PNG) · 구글 캘린더 링크 · 블로거 가이드(`crm_settings 'guide_brand:<브랜드>'` + 지점 `guidelines` 체험단)
   Edge Function `camp-assist`(관리자만): nick(m.blog.naver.com nickName) · notes(신청메시지 → AI 특이사항, haiku) · posts(블로그 RSS에서 업체명 글 찾기)
   리뷰노트 명단 북마크(`rnGrab` in crm-camp.js, 1개로 전부): 리뷰노트에 로그인된 브라우저에서 클릭 → 캠페인 화면이면 그 캠페인, 그 외 화면이면 `/api/v2/campaigns/advertiserCampaigns` 최근 45일 캠페인 전부 → 각 `/api/campaign/{id}/selectedApplies`(그 브라우저 로그인, 계정 저장 안 함) → Edge Function `rn-import`(verify_jwt=false, 개인 키 `rn_keys` sha256 확인)가 캠페인 제목으로 업체 매칭·최근 모집 회차·발표일 비면 오늘·닉네임·AI 특이사항 → `rounds`(`rn_campaign_id`로 중복 방지)+`roster` 저장. 결과 창에서 [CRM에서 점주 안내 열기](`admin#camp-업체_회차`) · 못 찾은 업체는 버튼으로 선택. 설치 = 명단 탭 [리뷰노트 북마크 설치](개인 키 생성, 새로 만들면 예전 북마크 정지). 붙여넣기(`MUYI-RN:`)는 예비
+  상세 팝업(2026-11-19~): 탭 ① 명단 ② 점주 안내 ③ 일정표·캘린더 ④ 블로거 가이드 ⑤ 재촉 문자
+  회차: 우상단 드롭다운 = 끝난 회차 `companies.camp_round_done`(0~20) · 명단 회차 = 끝난 회차 + 1(저장된 명단이면 그 회차, 1~20). 연 회차의 마감일이 지났으면 끝난 회차를 그 회차 번호까지 자동 증가(`camp_round_cycle`로 한 번만)
+  관리팀 TXT·점주 안내 = 리뷰어마다 닉네임 / 이름 / 전화번호 / 블로그 링크 4줄. 점주 안내 머리 = "N회차 마감일은 [ M월 D일] 입니다."
+  블로거 가이드 = 업체명·주소·예약 번호(업체 정보) + 체험 금액·필수/선택 키워드(`companies.camp_info`) + ~확인 사항(지점 특이사항 → 브랜드 공통). 지점 특이사항은 이름을 붙여 여러 개(`guidelines.fields.title`), 드롭다운으로 골라 씀
+  재촉 문자 = 기간(일주일·6~2일·내일·당일) × 업체 → 문구 복사 + 글 안 올린 블로거 번호 복사 (발송은 알리고 연동 후). 일정표 이미지는 바닥 안내 띠 없음
   블로거 가이드 이전 버전: 브랜드 공통은 `crm_settings` 수정 시 트리거(`archive_guide_brand`)가 `guide_history`에 자동 보관, 지점 특이사항은 `guidelines` 저장 이력. 화면에 수정일·수정자 + [이전 버전]
   마감 확인(`closeCheck`, 캘린더 마감·2차마감 팝업 [🔍 링크 확인]): 블로거 RSS에서 업체명 글 자동 수집 → `roster.post_url` 저장 → 마감 인원 반영(부족하면 2차마감)
   체험단 단계 규칙(2026-11-17~): 모집은 혼자 움직임(발표·마감과 연동 없음). 발표는 날짜를 정해야 달력에 생김(오른쪽 '발표일 미정'에서 끌어 놓기, `camp_tasks` 발표 `due_on`), 추적 시작일(`camp_start`) 이전 회차만 모집일 + 간격.
