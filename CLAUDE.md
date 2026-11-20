@@ -194,6 +194,7 @@ UX:
 - 구글 광고 리드 전환: `AW-11170573795/eEDoCKW5_rkdEOPbxc4p` (전환 액션 '홈페이지 무료진단 문의 (소상공인)') — local-business·shortform 폼 성공 시 발화, `transaction_id` = 폼 event_id
 - 위 페이지 수정 시 `<head>`의 `/assets/muyi-monitor.js?v=N` 태그 유지 (수정하면 `v` 값 올리기 — `/assets`는 1년 캐시, 현재 v=2)
 - `admin.html` = 문의함: 목록·상태·담당자·다음 연락일·상담 기록(채팅)·**사업자등록증**·광고 성과·CSV
+- 문의함 디자인 v2(2026-11-20, admin.html `<style>` 끝 '디자인 v2' 블록): Linear 기본(촘촘·회색·선 최소) + Attio 컬러 배지. 강조색은 차분한 파랑 `--accent`(#4A50D6, 다크 #7F85F0) 하나 — 버튼·선택·링크·포커스. 주황 `--brand`는 로고·경고에만(`.btn.brand`도 파랑). 모듈 JS에서 색을 쓸 땐 `#1E10C7` 대신 `var(--accent)` (예외: 리뷰노트 북마크 창·일정 이미지 캔버스는 브랜드 #1E10C7). 메인(오늘 할 일) 인사 배너에 문어 캐릭터(`muyi-char.webp`, 할 일 없으면 `-idea`)
 
 ### Supabase (`pacyhanuwuizcxwoggen`) — 유일한 백엔드
 - 문의 접수: 폼 → Edge Function `contact` → `contacts` insert + Resend 메일(info@muyi.co.kr) + 메타 CAPI

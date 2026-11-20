@@ -95,27 +95,27 @@
     const st = document.createElement('style'); st.id = 'crm-camp-css';
     st.textContent = `
 .ca-pm{width:min(1040px,100%)!important}
-.ca-rdsel{width:auto!important;height:30px;font-size:12px;font-weight:700;color:#1E10C7;border-color:color-mix(in srgb,#1E10C7 30%,var(--line))}
+.ca-rdsel{width:auto!important;height:30px;font-size:12px;font-weight:700;color:var(--accent);border-color:color-mix(in srgb,var(--accent) 30%,var(--line))}
 .ca-sname{width:auto!important;max-width:200px;height:28px;font-size:12px}
 .ca-info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 @media (max-width:720px){.ca-info{grid-template-columns:1fr}}
 .ca-head{display:grid;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line)}
 .ca-title{display:flex;align-items:center;gap:10px}
 .ca-title h3{font-size:18px;font-weight:800;letter-spacing:-.02em;margin-right:auto}
-.ca-title .rd{font-size:12px;font-weight:700;color:#fff;background:#1E10C7;border-radius:10px;padding:2px 9px}
+.ca-title .rd{font-size:12px;font-weight:700;color:#fff;background:var(--accent);border-radius:10px;padding:2px 9px}
 .ca-tl{display:flex;flex-wrap:wrap;gap:6px}
 .ca-tl span{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:14px;background:color-mix(in srgb,var(--c) 10%,var(--surface));color:color-mix(in srgb,var(--c) 75%,var(--t1));border:1px solid color-mix(in srgb,var(--c) 25%,var(--line))}
 .ca-tl span i{width:7px;height:7px;border-radius:50%;background:var(--c)}
 .ca-steps{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--line);overflow-x:auto}
 .ca-steps button{height:42px;padding:0 14px;border:0;background:none;font-weight:700;font-size:13px;color:var(--t3);border-bottom:2px solid transparent;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
 .ca-steps button .no{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;background:var(--muted);color:var(--t2)}
-.ca-steps button.on{color:var(--t1);border-bottom-color:#1E10C7}
-.ca-steps button.on .no{background:#1E10C7;color:#fff}
+.ca-steps button.on{color:var(--t1);border-bottom-color:var(--accent)}
+.ca-steps button.on .no{background:var(--accent);color:#fff}
 .ca-steps button.ok .no{background:var(--green);color:#fff}
 .ca-body{padding:16px 20px 20px;display:grid;gap:14px;overflow-y:auto;min-height:0;flex:1}
 .ca-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .ca-drop{display:grid;place-items:center;gap:6px;padding:22px;border:2px dashed var(--line-strong);border-radius:12px;background:var(--surface-2);text-align:center;cursor:pointer;color:var(--t2);font-size:13px}
-.ca-drop:hover,.ca-drop.over{border-color:#1E10C7;background:color-mix(in srgb,#1E10C7 5%,var(--surface))}
+.ca-drop:hover,.ca-drop.over{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,var(--surface))}
 .ca-drop b{font-size:15px;color:var(--t1)}
 .ca-tbl{width:100%;border-collapse:collapse;font-size:12px}
 .ca-tbl th{position:sticky;top:0;background:var(--muted);text-align:left;font-weight:600;color:var(--t3);padding:7px 8px;border-bottom:1px solid var(--line-strong)}
@@ -141,7 +141,7 @@
 .ca-link .acts{display:flex;gap:6px}
 .ca-hint{font-size:12px;color:var(--t3)}
 .ca-prog{height:4px;border-radius:2px;background:var(--muted);overflow:hidden}
-.ca-prog i{display:block;height:100%;background:#1E10C7;transition:width .3s}
+.ca-prog i{display:block;height:100%;background:var(--accent);transition:width .3s}
 .ca-pick{display:grid;gap:6px}
 .ca-st{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:10px}
 .ca-st.ok{background:color-mix(in srgb,#10B981 15%,var(--surface));color:#047857}
@@ -153,7 +153,7 @@
 .ca-empty span{font-size:13px;color:var(--t3);max-width:420px}
 .ca-tbl a{color:var(--accent);font-weight:600}
 .ca-pick button{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);text-align:left;cursor:pointer}
-.ca-pick button:hover{border-color:#1E10C7}
+.ca-pick button:hover{border-color:var(--accent)}
 .ca-pick button b{font-size:14px}
 .ca-pick button span{margin-left:auto;font-size:12px;color:var(--t3)}
 .ca-rn{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -164,7 +164,7 @@
 .rn-how li b{display:block;font-size:13.5px}
 .rn-how li small{display:block;color:var(--t3);font-size:12px;line-height:1.5}
 .rn-drag{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:14px;border:1px dashed var(--line-strong);border-radius:12px;background:var(--surface-2)}
-.rn-bm{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:18px;background:#1E10C7;color:#fff!important;font-weight:800;text-decoration:none;cursor:grab}
+.rn-bm{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:18px;background:var(--accent);color:#fff!important;font-weight:800;text-decoration:none;cursor:grab}
 .rn-drag span{font-size:12.5px;color:var(--t2)}
 .rn-how .bar{display:flex;justify-content:flex-end}
 .ca-pm{--ph:min(860px,calc(var(--vh,100vh) - 32px));height:var(--ph)}

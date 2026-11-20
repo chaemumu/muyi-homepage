@@ -2,10 +2,10 @@
 // admin.html의 sb·el·$·admins·me·toast·kst 사용. window.CRM_COMPANIES.mount(box, 'leads' | 'clients')
 (function () {
   const PAGE = 100;
-  const STAGE_COLOR = { 가망: '#71717A', 결정업체: '#1E10C7', 결제: '#16A34A', 뿌러짐: '#A1A1AA' };
+  const STAGE_COLOR = { 가망: '#71717A', 결정업체: 'var(--accent)', 결제: '#16A34A', 뿌러짐: '#A1A1AA' };
   const RUN_COLOR = { '진행 중': '#16A34A', 홀딩: '#D97706', 계약종료: '#A1A1AA', 환불: '#DC2626', 양도: '#71717A' };
   const SVC = ['체험단 패키지', '프로젝트', 'ETC'];
-  const SVC_COLOR = { '체험단 패키지': '#1E10C7', 프로젝트: '#7C3AED', ETC: '#71717A' };
+  const SVC_COLOR = { '체험단 패키지': 'var(--accent)', 프로젝트: '#7C3AED', ETC: '#71717A' };
   const ENDED = ['계약종료', '환불', '양도'];
   const FOUNDER = ['예비창업자', '기창업자', 'B2B 제안'];
   // 가망: 출처 탭 / 계약: 구분(세그먼트) × 상태 탭
@@ -14,7 +14,7 @@
   const MODES = {
     leads: { title: '가망 업체', noun: '가망', base: (q) => q.neq('stage', '결제'),
       segs: [ALL,
-        ['store', '매장 영업', '#1E10C7', (q) => q.or('lead_source.is.null,lead_source.not.in.(expo,homepage,project)')],
+        ['store', '매장 영업', 'var(--accent)', (q) => q.or('lead_source.is.null,lead_source.not.in.(expo,homepage,project)')],
         ['expo', '박람회', '#EE4E00', (q) => q.eq('lead_source', 'expo')],
         ['project', '프로젝트 의뢰', '#7C3AED', (q) => q.eq('lead_source', 'project')],
         ['homepage', '홈페이지 문의', '#16A34A', (q) => q.eq('lead_source', 'homepage')],
@@ -431,7 +431,7 @@ tbody.busy{opacity:.45;transition:opacity .12s;pointer-events:none}
   const addDaysIso = (n) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
 
   // ── 상세 패널 ──
-  const smsOpen = (o) => loadScript('/assets/crm-sms.js?v=3').then(() => window.CRM_SMS.open(o)).catch(() => toast('문자 화면을 불러오지 못했습니다'));
+  const smsOpen = (o) => loadScript('/assets/crm-sms.js?v=4').then(() => window.CRM_SMS.open(o)).catch(() => toast('문자 화면을 불러오지 못했습니다'));
   let drawer = null;
   // 저장 안 한 변경이 있으면 닫기·이동 전에 확인
   function guard() { if (state?.dirty && !confirm('저장하지 않은 변경 내용이 있습니다. 버리고 이동할까요?')) return false; if (state) state.dirty = false; return true; }
@@ -717,7 +717,7 @@ tbody.busy{opacity:.45;transition:opacity .12s;pointer-events:none}
   // ── 체험단 회차 · 명단 ──
   // 명단 붙여넣기: 옥미정 명단.txt 형식(----------7---------- 몇 팀 : 5팀 / 리뷰기간 : 4주 / 리뷰노트 마감일 ~ 8월 22일 + 블로거 블록)을 그대로 받는다
   const ROUND_STATES = ['모집', '진행', '완료'];
-  const ROUND_COLOR = { 모집: '#1E10C7', 진행: '#D97706', 완료: '#16A34A', 추가: '#7C3AED', 취소: '#A1A1AA', 홀딩: '#A1A1AA' };
+  const ROUND_COLOR = { 모집: 'var(--accent)', 진행: '#D97706', 완료: '#16A34A', 추가: '#7C3AED', 취소: '#A1A1AA', 홀딩: '#A1A1AA' };
   function parseRoster(text, baseYear) {
     const rounds = []; let cur = null;
     const lines = String(text).replace(/\r/g, '').split('\n');
@@ -1068,7 +1068,7 @@ tbody.busy{opacity:.45;transition:opacity .12s;pointer-events:none}
   }
   // ── 등록: 가망(매장 영업·박람회·프로젝트 의뢰) / 계약 업체. 같은 칸 구성 ──
   // 매장 영업: 네이버 지도 링크·대표 연락처 필수 · 박람회: 연락처 필수 · 프로젝트: 연락처·의뢰 내용 필수. 영업 담당은 마스터만 고름(그 외 본인 고정)
-  const KINDS = [['store', '매장 영업', '#1E10C7'], ['expo', '박람회', '#EE4E00'], ['project', '프로젝트 의뢰', '#7C3AED']];
+  const KINDS = [['store', '매장 영업', 'var(--accent)'], ['expo', '박람회', '#EE4E00'], ['project', '프로젝트 의뢰', '#7C3AED']];
   async function leadModal(kind = 'store', keep = {}) { return regModal({ client: false, kind, keep }); }
   async function clientModal(svc) { return regModal({ client: true, kind: 'store', keep: { svc } }); }
   async function regModal({ client, kind, keep }) {
