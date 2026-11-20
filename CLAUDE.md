@@ -237,6 +237,7 @@ UX:
 - 계정 관리(`assets/crm-accounts.js`, 사이드바 관리 > 계정 관리, 마스터 전용): 관리자 목록 · [재설정 메일](본인이 새 비밀번호 설정) · [임시 비밀번호](바로 변경, 8자 이상)
   Edge Function `admin-users`(verify_jwt=true, 서버에서 `admins.role='master'` 재확인, 대상은 `admins`에 있는 계정만)
 - 비밀번호 설정 화면(초대·재설정 링크): 이메일 읽기 전용 표시(브라우저 저장 비밀번호 갱신용 — 숨기면 예전 비밀번호가 계속 자동 입력돼 로그인 실패) + 확인 입력 + [보기]. 2026-11-19 유기림 로그인 반복 실패 원인
+  재설정·초대 링크로 들어오면 localStorage `muyi-pw-pending`(사용자 id) → 새 비밀번호를 저장하기 전엔 앱에 못 들어감(새로고침·재방문 포함). 저장(updateUser) 후 바로 로그아웃(모든 기기) → 새 비밀번호로 직접 로그인 = Supabase 저장 확인. 설정 화면 [취소하고 로그인 화면으로] = 로그아웃
 - `contact`는 POST만 처리: GET(구글 AdsBot 크롤링 등)=405, 본문 없음/깨짐=400 → 장애 알림 안 보냄 (2026-11-19, 가짜 '문의 처리 서버 오류' 알림 원인)
 - AI 노출 모니터링(`assets/crm-ai.js`, 사이드바 관리 > AI 노출): Edge Function `ai-visibility`가 질문(`crm_settings 'ai_vis_questions'`)을 웹 검색 켠 ChatGPT·Gemini·Claude에 던져 '무이' 언급 여부·순위·인용 URL을 `ai_visibility`에 저장(RLS 읽기 `is_admin()`, 쓰기는 함수만). 모델·언급 정규식 `crm_settings 'ai_vis_config'`
   pg_cron 매주 월 KST 07:30 openai · 07:40 gemini · 07:50 claude → 08:10 `{report:true}` 마스터에게 카카오워크 1:1. 인증 = 헤더 `x-ai-vis-key`(`ai_vis_secret` 'cron', 서비스 역할만 읽음) 또는 관리자 로그인([지금 실행]). Secret `OPENAI_API_KEY`·`GEMINI_API_KEY` 없으면 그 엔진은 건너뜀
