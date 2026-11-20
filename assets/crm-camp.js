@@ -106,6 +106,10 @@
     const st = document.createElement('style'); st.id = 'crm-camp-css';
     st.textContent = `
 .ca-pm{width:min(1040px,100%)!important}
+.ca-rdsel{width:auto!important;height:30px;font-size:12px;font-weight:700;color:#1E10C7;border-color:color-mix(in srgb,#1E10C7 30%,var(--line))}
+.ca-sname{width:auto!important;max-width:200px;height:28px;font-size:12px}
+.ca-info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+@media (max-width:720px){.ca-info{grid-template-columns:1fr}}
 .ca-head{display:grid;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line)}
 .ca-title{display:flex;align-items:center;gap:10px}
 .ca-title h3{font-size:18px;font-weight:800;letter-spacing:-.02em;margin-right:auto}
@@ -274,49 +278,84 @@ textarea.ca-g.sm{min-height:100px}
     paint(); q.focus();
   }
 
-  async function open({ co, cycle, cfg, announce, deadline, rn }) {
+  async function open({ co, cycle, cfg, announce, deadline, rn, extra }) {
     const p = period(cycle, cfg, { announce, deadline });
     const [rd, rds, gl, gb] = await Promise.all([
       sb.from('rounds').select('*').eq('company_id', co.id).eq('cycle_on', cycle).maybeSingle(),
       sb.from('rounds').select('id', { count: 'exact', head: true }).eq('company_id', co.id),
-      sb.from('guidelines').select('body,created_at,created_by').eq('company_id', co.id).eq('kind', '체험단').order('created_at', { ascending: false }).limit(30),
+      sb.from('guidelines').select('body,fields,created_at,created_by').eq('company_id', co.id).eq('kind', '체험단').order('created_at', { ascending: false }).limit(200),
       sb.from('crm_settings').select('value,updated_at,updated_by').eq('key', 'guide_brand:' + brandOf(co)).maybeSingle(),
     ]);
     let round = rd.data;
-    const ros = round ? (await sb.from('roster').select('*').eq('round_id', round.id).order('created_at')).data || [] : [];
+    const today = todayKst();
+    const [ros, exQ] = await Promise.all([
+      round ? sb.from('roster').select('*').eq('round_id', round.id).order('created_at').then((r) => r.data || []) : Promise.resolve([]),
+      sb.from('companies').select('address,camp_round_done,camp_round_cycle,camp_info').eq('id', co.id).maybeSingle(),
+    ]);
+    const ex = exQ.data || {};
+    // 회차: 우상단 = 끝난 회차(companies.camp_round_done), 명단 회차 = 끝난 회차 + 1 (저장된 명단이면 그 회차)
+    // 이 회차의 마감일이 지나면 끝난 회차를 이 회차 번호까지 자동으로 올림 (같은 회차는 한 번만)
+    let done = ex.camp_round_done;
+    if (done == null) {
+      const { data: prev } = await sb.from('rounds').select('round_no').eq('company_id', co.id).lt('cycle_on', cycle).order('round_no', { ascending: false }).limit(1);
+      done = prev?.[0]?.round_no || Math.max(0, rds.count - (round ? 1 : 0)) || 0;
+    }
+    const roundNo0 = round?.round_no || (ex.camp_round_cycle === cycle ? done : Math.min(20, done + 1)); // 이미 끝내고 올린 회차면 그 번호
+    if (p.deadline < today && (!ex.camp_round_cycle || ex.camp_round_cycle < cycle) && roundNo0 > done) {
+      done = Math.min(20, roundNo0);
+      await sb.from('companies').update({ camp_round_done: done, camp_round_cycle: cycle }).eq('id', co.id);
+    }
+    const info = { price: '', must: '', opt: '', ...(ex.camp_info || {}) };
+    // 지점 특이사항: 이름을 붙여 여러 개 (guidelines.fields.title). 이름별 최신이 현재 내용
+    const notes = new Map(); (gl.data || []).forEach((g) => { const t = g.fields?.title || '기본'; if (!notes.has(t)) notes.set(t, g); });
     const S = {
-      roundNo: round?.round_no || (rds.count || 0) + 1, teams: round?.teams || co.camp_teams || 10, weeks: round?.review_weeks || 4,
+      roundNo: roundNo0, done, teams: round?.teams || co.camp_teams || 10, weeks: round?.review_weeks || 4,
       rows: ros.map((r) => ({ nickname: r.nickname || '', name: r.name || '', phone: r.phone || '', blog: r.blog_url || '', post: r.post_url || '', note: r.note || '', grade: r.grade || '', visits: r.visits, msg: '', off: r.cancelled })),
       tab: ros.length ? 'owner' : 'list', saved: !!ros.length, ownerEdited: false, imgDirty: true,
-      storeGuide: gl.data?.[0]?.body || '', brandGuide: typeof gb.data?.value === 'string' ? gb.data.value : '',
+      storeTitle: (gl.data?.[0]?.fields?.title) || '기본', storeGuide: gl.data?.[0]?.body || '', brandGuide: typeof gb.data?.value === 'string' ? gb.data.value : '',
     };
     const live = () => S.rows.filter((r) => !r.off);
     const chip = (k, t) => { const s = el('span', {}, [el('i'), t]); s.style.setProperty('--c', STEP_C[k]); return s; };
-    const rdBadge = el('span', { className: 'rd', text: `${S.roundNo}회차` });
+    const opts = (from, sel, fmt) => Array.from({ length: 21 - from }, (_, i) => el('option', { value: from + i, text: fmt(from + i), selected: from + i === sel }));
+    const rdBadge = el('select', { className: 'fi ca-rdsel', title: '끝난 회차 (마감일이 지나면 자동으로 올라감) · 명단 회차는 여기 +1' }, opts(0, S.done, (n) => n ? `${n}회차 완료` : '완료 회차 없음'));
+    rdBadge.onchange = async () => {
+      S.done = +rdBadge.value;
+      const { error } = await sb.from('companies').update({ camp_round_done: S.done }).eq('id', co.id);
+      if (error) { toast('저장 실패: ' + error.message); return; }
+      if (!S.saved) { S.roundNo = Math.min(20, S.done + 1); F.no.value = S.roundNo; changed(); }
+      toast(`${co.name} 끝난 회차 ${S.done} → 명단 ${S.roundNo}회차`);
+    };
     const head = el('div', { className: 'ca-head' }, [
-      el('div', { className: 'ca-title' }, [el('h3', { text: co.name }), rdBadge, el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]),
+      el('div', { className: 'ca-title' }, [el('h3', { text: co.name }), rdBadge, (extra || []).length ? el('div', { className: 'ca-extra' }, extra) : '', el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]),
       el('div', { className: 'ca-tl' }, [chip('모집', `모집 ${mdw(p.recruitFrom)} ~ ${mdw(p.recruitTo)}`), chip('발표', `발표 ${mdw(p.announce)}`), chip('체험', `체험+리뷰 ${mdw(p.reviewFrom)} ~ ${mdw(p.reviewTo)}`), chip('마감', `마감 ${mdw(p.deadline)} ♥`)]),
     ]);
 
     // ── 내보낼 글 ──
-    const rosterTxt = () => S.rows.flatMap((r) => [(r.nickname || r.name) + (r.off ? '\t\t\t취소' : ''), r.name, r.phone, r.post || r.blog, '']).join('\n').trimEnd();
+    const person = (r) => [(r.nickname || r.name) + (r.off ? ' (취소)' : ''), r.name, r.phone, r.blog];
+    const rosterTxt = () => S.rows.flatMap((r) => [...person(r), '']).join('\n').trimEnd();
     const ownerMsg = () => [
-      `안녕하세요 사장님, 무이(MUYI)입니다 😊`,
-      `${co.name} ${S.roundNo}회차 체험단 명단이 나와서 연락드립니다!`, '',
-      `📅 일정`, `· 체험+리뷰 기간: ${mdw(p.reviewFrom)} ~ ${mdw(p.reviewTo)}`, `· 리뷰 마감: ${mdw(p.deadline)}`, '',
-      `👥 선정 블로거 ${live().length}명`, '',
-      ...live().flatMap((r) => [r.nickname || r.name, r.name, r.phone, r.blog, '']),
-      ...(live().some((r) => r.note) ? ['📝 특이사항', ...live().filter((r) => r.note).map((r) => `· ${r.nickname || r.name}: ${r.note}`), ''] : []),
-      `블로거분들이 예약 문의 시 "리뷰노트 체험단으로 선정된 OOO입니다"라고 연락드릴 예정이에요.`,
-      `방문 시 '무이 체험단'이라고 말씀드리니 확인 부탁드립니다.`,
-      `일정표 이미지와 캘린더 링크도 함께 보내드릴게요. 궁금하신 점은 언제든 편하게 연락 주세요. 감사합니다! 🙏`,
-    ].join('\n');
-    const guideTxt = () => [
-      `[${co.name}] ${S.roundNo}회차 체험단 가이드`, '',
-      `📅 체험+리뷰 기간: ${mdw(p.reviewFrom)} ~ ${mdw(p.reviewTo)}`, `⏰ 리뷰 마감: ${mdw(p.deadline)} (마감일까지 꼭 등록 부탁드립니다)`, '',
-      (S.brandGuide || '').replace('☆ 지점별 특이사항~', `☆ 지점별 특이사항~${S.storeGuide ? '\n' + S.storeGuide : ''}`),
-      !S.brandGuide && S.storeGuide ? S.storeGuide : '',
-    ].filter((x) => x !== '').join('\n');
+      `안녕하세요 사장님, 무이(MUYI) 선정 명단 공유드립니다😊`,
+      `${S.roundNo}회차 마감일은 [ ${kmd(p.deadline)}] 입니다.`, '',
+      ...live().flatMap((r) => [...person(r), '']),
+    ].join('\n').trimEnd();
+    // 블로거 가이드 (샘플): 업체 정보 + 키워드 + 확인 사항(지점 특이사항 → 브랜드 공통)
+    const guideTxt = () => {
+      const chk = S.brandGuide && S.brandGuide.includes('☆ 지점별 특이사항~')
+        ? S.brandGuide.replace('☆ 지점별 특이사항~', `☆ 지점별 특이사항~${S.storeGuide ? '\n' + S.storeGuide : ''}`)
+        : [S.storeGuide, S.brandGuide].filter(Boolean).join('\n\n');
+      return [
+        `안녕하세요 블로거님, 무이(MUYI) 선정 명단 공유드립니다😊`,
+        `선정 업체 참고사항 발송해 드립니다!`, '',
+        `업체명\t\t: ${co.name}`,
+        `업체 주소\t\t: ${ex.address || ''}`,
+        `예약 번호\t\t: ${co.store_phone || co.phone || ''}`,
+        `체험 금액\t\t: ${info.price || ''}`, '',
+        `필수 키워드 : ${info.must || ''}`,
+        `선택 키워드 : ${info.opt || ''}`, '',
+        `~확인 사항`,
+        chk,
+      ].join('\n').trimEnd();
+    };
     // 구글 캘린더: 체험+리뷰 시작 ~ 마감일까지 한 일정 (설명에 기간·마감 모두)
     const gcalUrl = () => `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`[무이 체험단] ${co.name} 체험·리뷰 (마감 ${md(p.deadline)})`)}&dates=${p.reviewFrom.replace(/-/g, '')}/${addDays(p.deadline, 1).replace(/-/g, '')}&details=${encodeURIComponent([`${co.name} ${S.roundNo}회차 체험단`, `· 체험+리뷰 기간: ${mdw(p.reviewFrom)} ~ ${mdw(p.reviewTo)}`, `· 리뷰 마감: ${mdw(p.deadline)} ♥`, `· 선정 블로거 ${live().length || S.teams}명`, '', '마감일에 무이가 등록 현황을 확인해 드립니다.'].join('\n'))}`;
 
@@ -348,7 +387,7 @@ textarea.ca-g.sm{min-height:100px}
     };
 
     // ── 탭 패널: 한 번만 만들고 보이기/숨기기 (전환 시 화면 이동·재계산 없음) ──
-    const TABS = [['list', '명단'], ['owner', '점주 안내'], ['image', '일정표 · 캘린더'], ['guide', '블로거 가이드']];
+    const TABS = [['list', '명단'], ['owner', '점주 안내'], ['image', '일정표 · 캘린더'], ['guide', '블로거 가이드'], ['remind', '재촉 문자']];
     const stepsEl = el('div', { className: 'ca-steps', role: 'tablist' });
     const body = el('div', { className: 'ca-body' });
     const foot = el('div', { className: 'ca-foot' });
@@ -356,8 +395,8 @@ textarea.ca-g.sm{min-height:100px}
 
     // ① 명단
     const num = (v, min = 1) => Math.max(min, Number(v) || min);
-    const F = { no: el('input', { className: 'fi', type: 'number', min: 1, value: S.roundNo }), teams: el('input', { className: 'fi', type: 'number', min: 1, value: S.teams }), weeks: el('input', { className: 'fi', type: 'number', min: 1, value: S.weeks }) };
-    F.no.oninput = () => { S.roundNo = num(F.no.value); rdBadge.textContent = `${S.roundNo}회차`; changed(); };
+    const F = { no: el('select', { className: 'fi' }, opts(1, S.roundNo, (n) => `${n}회차`)), teams: el('input', { className: 'fi', type: 'number', min: 1, value: S.teams }), weeks: el('input', { className: 'fi', type: 'number', min: 1, value: S.weeks }) };
+    F.no.onchange = () => { S.roundNo = num(F.no.value); changed(); };
     F.teams.oninput = () => { S.teams = num(F.teams.value); changed(); }; F.weeks.oninput = () => { S.weeks = num(F.weeks.value); changed(); };
     const file = el('input', { type: 'file', accept: '.xlsx,.xls,.csv', hidden: true });
     const prog = el('div', { className: 'ca-prog', hidden: true }, el('i'));
@@ -470,6 +509,19 @@ textarea.ca-g.sm{min-height:100px}
     // ④ 블로거 가이드
     const bg = el('textarea', { className: 'fi ca-g', value: S.brandGuide, placeholder: `${brandOf(co)} 공통 가이드 (같은 브랜드 모든 지점에 적용)` });
     const sg = el('textarea', { className: 'fi ca-g sm', value: S.storeGuide, placeholder: '이 지점만의 특이사항 (예: 주차 가능, 월요일 휴무)' });
+    const sName = el('select', { className: 'fi ca-sname', title: '저장해 둔 특이사항 고르기' });
+    const paintNames = () => sName.replaceChildren(...[...notes.keys()].map((t) => el('option', { value: t, text: t, selected: t === S.storeTitle })), el('option', { value: '__new', text: '+ 새 특이사항' }));
+    paintNames();
+    sName.onchange = () => {
+      if (sName.value === '__new') { const t = (prompt('새 특이사항 이름 (예: 주말 예약 불가, 크리스마스 메뉴)') || '').trim(); if (!t) { paintNames(); return; } S.storeTitle = t; notes.set(t, null); S.storeGuide = ''; paintNames(); }
+      else { S.storeTitle = sName.value; S.storeGuide = notes.get(S.storeTitle)?.body || ''; }
+      sg.value = S.storeGuide; guideOut.value = guideTxt(); meta.store = { at: notes.get(S.storeTitle)?.created_at, by: notes.get(S.storeTitle)?.created_by }; paintMeta();
+    };
+    const iF = (k, ph) => { const i = el('input', { className: 'fi', value: info[k] || '', placeholder: ph }); i.oninput = () => { info[k] = i.value; guideOut.value = guideTxt(); infoDirty = true; }; return i; };
+    let infoDirty = false;
+    const infoF = { price: iF('price', '예: 2인 세트 39,000원'), must: iF('must', '예: 가좌역 맛집, 복호두'), opt: iF('opt', '예: 마포 디저트, 호두과자') };
+    const saveInfo = async () => { if (!infoDirty) return; const { error } = await sb.from('companies').update({ camp_info: info }).eq('id', co.id); if (error) { toast('업체 정보 저장 실패: ' + error.message); return; } infoDirty = false; toast('체험 금액 · 키워드 저장'); };
+    Object.values(infoF).forEach((i) => i.addEventListener('change', saveInfo));
     const guideOut = el('textarea', { className: 'fi ca-msg', readOnly: true });
     bg.oninput = () => { S.brandGuide = bg.value; guideOut.value = guideTxt(); }; sg.oninput = () => { S.storeGuide = sg.value; guideOut.value = guideTxt(); };
     // 수정일 + 이전 버전 (브랜드 공통: guide_history 트리거 보관 · 지점: guidelines 저장 이력)
@@ -481,9 +533,9 @@ textarea.ca-g.sm{min-height:100px}
     const history = async (kind) => {
       const rows = kind === 'brand'
         ? ((await sb.from('guide_history').select('body,saved_at,saved_by,archived_at').eq('brand', brandOf(co)).order('archived_at', { ascending: false }).limit(30)).data || []).map((h) => ({ body: h.body, at: h.saved_at || h.archived_at, by: h.saved_by }))
-        : ((await sb.from('guidelines').select('body,created_at,created_by').eq('company_id', co.id).eq('kind', '체험단').order('created_at', { ascending: false }).limit(30)).data || []).slice(1).map((h) => ({ body: h.body, at: h.created_at, by: h.created_by }));
+        : ((await sb.from('guidelines').select('body,fields,created_at,created_by').eq('company_id', co.id).eq('kind', '체험단').order('created_at', { ascending: false }).limit(200)).data || []).filter((h) => (h.fields?.title || '기본') === S.storeTitle).slice(1).map((h) => ({ body: h.body, at: h.created_at, by: h.created_by }));
       const target = kind === 'brand' ? bg : sg;
-      const H = layer([el('div', { className: 'pm-h' }, [el('h3', { text: `${kind === 'brand' ? brandOf(co) + ' 공통' : '지점 특이사항'} · 이전 버전` }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => H.close() })]),
+      const H = layer([el('div', { className: 'pm-h' }, [el('h3', { text: `${kind === 'brand' ? brandOf(co) + ' 공통' : '지점 특이사항 · ' + S.storeTitle} · 이전 버전` }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => H.close() })]),
         el('div', { className: 'ca-body' }, rows.length ? rows.map((h) => el('div', { className: 'ca-hist' }, [el('div', { className: 'ca-sec' }, [el('b', { text: when(h.at, h.by).replace('수정 ', '') }), el('button', { className: 'btn sm', type: 'button', text: '이 버전 불러오기', onclick: () => { target.value = h.body || ''; target.dispatchEvent(new Event('input')); H.close(); toast('불러옴 — [저장]을 눌러야 적용됩니다'); } })]), el('pre', { text: h.body || '(빈 내용)' })]))
           : [empty('ok', '보관된 이전 버전이 없어요', '저장할 때마다 바로 전 내용이 여기에 쌓입니다.')])]);
       H.L.firstChild.classList.add('ca-hpm');
@@ -495,18 +547,52 @@ textarea.ca-g.sm{min-height:100px}
       if (error) { toast('저장 실패: ' + error.message); return; }
       meta.brand = { at, by: me }; paintMeta(); toast(`${brandOf(co)} 공통 가이드 저장 (이전 내용은 보관됨)`);
     } });
+    // 저장할 때 이름을 직접 정함 (같은 이름이면 그 특이사항의 새 버전, 이전 내용은 보관)
     const saveS = el('button', { className: 'btn sm', type: 'button', text: '저장', onclick: async () => {
-      const { data, error } = await sb.from('guidelines').insert({ company_id: co.id, kind: '체험단', body: S.storeGuide, created_by: me }).select('created_at').single();
+      const t = (prompt('이 특이사항의 이름 (같은 이름이면 덮어쓰고 이전 내용은 보관)', S.storeTitle) || '').trim();
+      if (!t) return;
+      const { data, error } = await sb.from('guidelines').insert({ company_id: co.id, kind: '체험단', body: S.storeGuide, fields: { title: t }, created_by: me }).select('body,fields,created_at,created_by').single();
       if (error) { toast('저장 실패: ' + error.message); return; }
-      meta.store = { at: data?.created_at || new Date().toISOString(), by: me }; paintMeta(); toast('지점 특이사항 저장 (이전 내용은 보관됨)');
+      S.storeTitle = t; notes.set(t, data); paintNames();
+      meta.store = { at: data?.created_at || new Date().toISOString(), by: me }; paintMeta(); toast(`지점 특이사항 '${t}' 저장`);
     } });
     panels.guide = el('div', { className: 'ca-panel ca-two' }, [
       el('div', { className: 'ca-col' }, [
-        el('div', { className: 'ca-sec' }, [el('b', { text: `${brandOf(co)} 공통` }), metaB, histBtn('brand'), saveB]), bg,
-        el('div', { className: 'ca-sec' }, [el('b', { text: '지점 특이사항' }), metaS, histBtn('store'), saveS]), sg]),
-      el('div', { className: 'ca-col' }, [el('div', { className: 'ca-sec' }, [el('b', { text: '블로거에게 보낼 가이드' }), el('small', { className: 'ca-when', text: '공통 + 지점 특이사항 자동 조합' })]), guideOut]),
+        el('div', { className: 'ca-sec' }, [el('b', { text: '업체 정보' }), el('small', { className: 'ca-when', text: '업체명·주소·예약 번호는 업체 정보에서 자동' })]),
+        el('div', { className: 'ca-info' }, [el('label', {}, [el('span', { className: 'lbl', text: '체험 금액' }), infoF.price]), el('label', {}, [el('span', { className: 'lbl', text: '필수 키워드' }), infoF.must]), el('label', {}, [el('span', { className: 'lbl', text: '선택 키워드' }), infoF.opt])]),
+        el('div', { className: 'ca-sec' }, [el('b', { text: '지점 특이사항' }), sName, metaS, histBtn('store'), saveS]), sg,
+        el('div', { className: 'ca-sec' }, [el('b', { text: `${brandOf(co)} 공통` }), metaB, histBtn('brand'), saveB]), bg]),
+      el('div', { className: 'ca-col' }, [el('div', { className: 'ca-sec' }, [el('b', { text: '블로거에게 보낼 가이드' }), el('small', { className: 'ca-when', text: '업체 정보 + 지점 특이사항 + 공통 자동 조합' })]), guideOut]),
     ]);
     foots.guide = [el('span', { className: 'sp' }), el('button', { className: 'btn primary', type: 'button', text: '가이드 복사', onclick: () => copy(guideOut.value, '가이드') })];
+
+    // ⑤ 재촉 문자: 기간 · 업체를 고르면 문구 → 복사 (발송은 알리고 연동 후)
+    const REM = [[7, '일주일 전'], [6, '6일 전'], [5, '5일 전'], [4, '4일 전'], [3, '3일 전'], [2, '2일 전'], [1, '내일 (1일 전)'], [0, '당일']];
+    const left = Math.round((parse(p.deadline) - parse(today)) / 864e5);
+    const rPer = el('select', { className: 'fi' }, REM.map(([n, t]) => el('option', { value: n, text: t, selected: n === (left >= 7 ? 7 : Math.max(0, left)) })));
+    const rCo = el('select', { className: 'fi' }, [el('option', { value: co.name, text: co.name })]);
+    sb.from('companies').select('name,recruit_days').eq('stage', '결제').eq('run_status', '진행 중').limit(2000).then(({ data }) => {
+      rCo.append(...(data || []).filter((c) => (c.recruit_days || []).length && c.name !== co.name).sort((a, b) => a.name.localeCompare(b.name)).map((c) => el('option', { value: c.name, text: c.name })));
+    });
+    const remindTxt = () => {
+      const n = +rPer.value, nm = rCo.value;
+      const head = n === 0 ? `오늘은 선정되신 [${nm}]체험단의 마감일입니다.` : n === 1 ? `내일은 선정되신 [${nm}]체험단의 마감일입니다.` : `오늘은 선정되신 [${nm}]체험단의 마감일 ${n === 7 ? '일주일' : n + '일'} 전입니다.`;
+      return `안녕하세요 블로거님! ${head}\n\n기간 내에 체험 및 포스팅 완료해주시고, 이쪽으로 링크까지 한 번 더 보내주시면 감사하겠습니다 :)`;
+    };
+    const rOut = el('textarea', { className: 'fi ca-msg' });
+    const rWho = el('div', { className: 'ca-hint' });
+    const notPosted = () => live().filter((r) => !r.post && r.phone);
+    const paintRem = () => { rOut.value = remindTxt(); const n = notPosted().length; rWho.textContent = rCo.value !== co.name ? '다른 업체를 고르면 문구만 바뀝니다 (번호는 그 업체 상세에서)' : S.rows.length ? `${co.name} 아직 글 링크가 없는 블로거 ${n}명 · 마감 ${mdw(p.deadline)}${left >= 0 ? ` (D-${left})` : ' (지남)'}` : '명단이 없어 보낼 번호가 없습니다 (명단 탭에서 저장)'; };
+    rPer.onchange = paintRem; rCo.onchange = paintRem;
+    panels.remind = el('div', { className: 'ca-panel ca-two' }, [
+      el('div', { className: 'ca-col' }, [el('div', { className: 'ca-sec' }, [el('b', { text: '재촉 문자 만들기' })]),
+        el('label', {}, [el('span', { className: 'lbl', text: '기간 (마감일 기준)' }), rPer]),
+        el('label', {}, [el('span', { className: 'lbl', text: '업체명' }), rCo]), rWho,
+        el('button', { className: 'btn', type: 'button', text: '글 안 올린 블로거 번호 복사', onclick: () => { const l = notPosted(); if (!l.length || rCo.value !== co.name) { toast('복사할 번호가 없습니다'); return; } copy(l.map((r) => r.phone).join(', '), `${l.length}명 번호`); } })]),
+      el('div', { className: 'ca-col' }, [el('div', { className: 'ca-sec' }, [el('b', { text: '보낼 문구' }), el('small', { className: 'ca-when', text: '직접 고쳐도 됩니다' })]), rOut]),
+    ]);
+    foots.remind = [el('span', { className: 'ca-hint', text: '문자 발송은 알리고 연동 후 추가됩니다' }), el('span', { className: 'sp' }), el('button', { className: 'btn primary', type: 'button', text: '문구 복사', onclick: () => copy(rOut.value, '재촉 문자') })];
+    paintRem();
 
     const paintSteps = () => stepsEl.replaceChildren(...TABS.map(([k, t], i) => el('button', { type: 'button', role: 'tab', className: (S.tab === k ? 'on' : '') + (k === 'list' && S.saved ? ' ok' : ''), onclick: () => go(k) }, [el('span', { className: 'no', text: k === 'list' && S.saved ? '✓' : String(i + 1) }), t])));
     function go(k) {
@@ -515,6 +601,7 @@ textarea.ca-g.sm{min-height:100px}
       foot.replaceChildren(...foots[k]);
       body.scrollTop = 0;
       if (k === 'image' || k === 'owner') refreshImg();
+      if (k === 'remind') paintRem();
     }
     body.append(...Object.values(panels));
     const P = layer([head, stepsEl, body, foot]);
@@ -548,12 +635,8 @@ textarea.ca-g.sm{min-height:100px}
       // 달력
       const months = []; let m = p.recruitFrom.slice(0, 7); const last = p.deadline.slice(0, 7);
       while (m <= last && months.length < 2) { months.push(m); const d = parse(m + '-01'); d.setMonth(d.getMonth() + 1); m = iso(d).slice(0, 7); }
-      const top = 440, foot = 120, gap = 22, mh = (H - top - foot - gap * (months.length - 1)) / months.length;
+      const top = 430, foot = 48, gap = 22, mh = (H - top - foot - gap * (months.length - 1)) / months.length;
       months.forEach((mm, i) => month(mm, 64, top + i * (mh + gap), W - 128, mh));
-      // 바닥 띠
-      x.fillStyle = BLUE; x.fillRect(0, H - 96, W, 96);
-      x.fillStyle = '#fff'; x.font = F(800, 26); const t1 = `리뷰는 ${kmd(p.deadline)}까지 꼭 등록해 주세요`; x.fillText(t1, 64, H - 52);
-      x.font = F(600, 18); x.fillStyle = 'rgba(255,255,255,.75)'; x.fillText('마감일에 무이가 등록 현황을 확인해 드립니다', 64, H - 24);
       function month(mm, X, Y, w, h) {
         const [yy, mo] = mm.split('-').map(Number); const lead = new Date(yy, mo - 1, 1).getDay(); const dim = new Date(yy, mo, 0).getDate();
         rr(x, X, Y, w, h, 24, '#F7F7FB');
