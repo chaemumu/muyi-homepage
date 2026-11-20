@@ -535,6 +535,9 @@ const GRADES = ['', '상', '중', '하'];
 let rows = [], filter = { status: '', source: '', q: '', today: false, mine: false, unassigned: false };
 let me = null, admins = {}, events = {}, openId = null, knownIds = null; // admins: user_id -> 이름, events: contact_id -> 타임라인
 let pwMode = null; // 'set': 초대·재설정 링크로 들어와 새 비밀번호를 정하는 중, 'done': 방금 정함
+// 재설정·초대 링크로 들어온 계정은 새 비밀번호를 저장할 때까지 앱에 못 들어간다 (창을 닫았다 다시 와도). 저장하면 로그아웃 → 새 비밀번호로 직접 로그인
+const PW_KEY = 'muyi-pw-pending';
+const pwPending = { get: () => { try { return localStorage.getItem(PW_KEY); } catch { return null; } }, set: (v) => { try { v ? localStorage.setItem(PW_KEY, v) : localStorage.removeItem(PW_KEY); } catch {} } };
 
 const $ = (id) => document.getElementById(id);
 // Builds DOM with textContent only, so lead-submitted text can never inject HTML.
@@ -576,17 +579,18 @@ function showLogin(mode, msg = '', ok = false, email = '') {
   $('email').readOnly = set; if (set && email) $('email').value = email;
   $('pw2Row').hidden = !set; $('password2').required = set; $('password2').value = '';
   $('password').value = ''; document.querySelectorAll('.pw-eye').forEach((b) => { $(b.dataset.for).type = 'password'; b.textContent = '보기'; });
-  $('forgot').hidden = set;
+  $('forgot').hidden = false; $('forgot').textContent = set ? '취소하고 로그인 화면으로' : '비밀번호를 잊으셨나요?';
   $('pwLabel').textContent = set ? '새 비밀번호' : '비밀번호';
   $('password').autocomplete = set ? 'new-password' : 'current-password';
-  $('loginBtn').textContent = set ? '비밀번호 저장하고 시작' : '로그인';
+  $('loginBtn').textContent = set ? '비밀번호 저장' : '로그인';
   $('loginMsg').textContent = msg; $('loginMsg').classList.toggle('ok', ok);
 }
 
 async function start() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { showLogin('login', AUTH_TYPE && pwMode !== 'done' ? '링크가 만료됐거나 이미 사용됐습니다. 초대(또는 비밀번호 재설정)를 다시 요청하세요.' : ''); return; }
-  if (['invite', 'recovery'].includes(AUTH_TYPE) && pwMode !== 'done') { history.replaceState(null, '', location.pathname); showLogin('set', '', false, session.user?.email || ''); return; }
+  if (['invite', 'recovery'].includes(AUTH_TYPE) && pwMode !== 'done') { pwPending.set(session.user.id); history.replaceState(null, '', location.pathname); }
+  if (pwPending.get() === session.user.id) { showLogin('set', '', false, session.user?.email || ''); return; }
   const { data: ok, error } = await sb.rpc('is_admin');
   if (error || !ok) {
     const justSet = pwMode === 'done';
@@ -1032,9 +1036,17 @@ $('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault(); $('loginMsg').textContent = '';
   if (pwMode === 'set') {
     if ($('password').value !== $('password2').value) { $('loginMsg').textContent = '두 비밀번호가 다릅니다. [보기]를 눌러 확인하세요.'; $('password2').focus(); return; }
-    const { error } = await sb.auth.updateUser({ password: $('password').value });
-    if (error) { $('loginMsg').textContent = '저장 실패: ' + (/different from the old/i.test(error.message) ? '예전과 다른 비밀번호를 입력하세요.' : error.message); return; }
-    $('password').value = ''; $('password2').value = ''; pwMode = 'done'; start(); return;
+    const btn = $('loginBtn'); btn.disabled = true; btn.textContent = '저장 중…';
+    const { data: up, error } = await sb.auth.updateUser({ password: $('password').value });
+    btn.disabled = false;
+    if (error) { btn.textContent = '비밀번호 저장'; $('loginMsg').textContent = '저장 실패: ' + (/different from the old/i.test(error.message) ? '예전과 다른 비밀번호를 입력하세요.' : error.message); return; }
+    // 저장 완료 → 링크로 받은 임시 로그인은 끝내고(모든 기기 로그아웃), 새 비밀번호로 직접 로그인해 저장을 확인한다
+    const email = up?.user?.email || $('email').value;
+    pwPending.set(null); pwMode = 'done';
+    await sb.auth.signOut();
+    showLogin('login', '새 비밀번호가 저장됐습니다. 새 비밀번호로 로그인해 주세요.', true);
+    $('email').value = email; $('password').focus();
+    return;
   }
   const { error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
   if (error) { $('loginMsg').textContent = '로그인 실패: 이메일 또는 비밀번호를 확인하세요. 브라우저가 예전 비밀번호를 자동 입력했을 수 있으니 [보기]로 확인하고, 한/영 · Caps Lock도 확인하세요.'; return; }
@@ -1042,6 +1054,7 @@ $('loginForm').addEventListener('submit', async (e) => {
 });
 document.querySelectorAll('.pw-eye').forEach((b) => b.onclick = () => { const i = $(b.dataset.for); const show = i.type === 'password'; i.type = show ? 'text' : 'password'; b.textContent = show ? '숨기기' : '보기'; });
 $('forgot').onclick = async () => {
+  if (pwMode === 'set') { pwPending.set(null); await sb.auth.signOut(); showLogin('login', '비밀번호를 바꾸지 않았습니다. 기존 비밀번호로 로그인하거나 재설정 메일을 다시 요청하세요.'); return; }
   const email = $('email').value.trim();
   if (!email) { $('loginMsg').textContent = '이메일을 먼저 입력하세요.'; $('email').focus(); return; }
   const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + '/admin' });
@@ -1191,7 +1204,7 @@ function showPage(p, { push = true } = {}) {
     if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=10'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
   if (p === 'today') renderToday();
-  if (p === 'calendar') loadScript('/assets/crm-calendar.js?v=13').then(() => window.CRM_CALENDAR.mount($('calBody'))).catch(() => toast('캘린더를 불러오지 못했습니다'));
+  if (p === 'calendar') loadScript('/assets/crm-calendar.js?v=14').then(() => window.CRM_CALENDAR.mount($('calBody'))).catch(() => toast('캘린더를 불러오지 못했습니다'));
   if (p === 'settle') {
     const go = () => window.CRM_SETTLE.mount($('settleBody'));
     if (window.CRM_SETTLE) go(); else { $('settleBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' })); const x = document.createElement('script'); x.src = '/assets/crm-settle.js?v=5'; x.onload = go; x.onerror = () => toast('정산 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
@@ -1268,7 +1281,7 @@ async function loadTodayCompanies() {
     };
     // 체험단 일정(오늘 + 밀린 것)과 실행 소진·수량 입력 알림은 캘린더 모듈이 계산
     try {
-      await loadScript('/assets/crm-calendar.js?v=13');
+      await loadScript('/assets/crm-calendar.js?v=14');
       const [camp, ex] = await Promise.all([window.CRM_CALENDAR.todayCamp(), window.CRM_CALENDAR.execAlerts()]);
       todayCo.recruit = camp.ev.sort((a, b) => a.due.localeCompare(b.due)).map((e) => ({ co: e.co, e, toggle: camp.toggle }));
       todayCo.exec = ex;

@@ -293,13 +293,14 @@
     const camp = (co.data || []).filter((c) => (c.recruit_days || []).length);
     const byId = new Map((co.data || []).map((c) => [c.id, c]));
     const noDays = (co.data || []).filter((c) => !(c.recruit_days || []).length && c.service_type === '체험단 패키지');
-    const ev = [], pending = [];
+    const ev = [], pending = [], gen = new Set();
+    S.coAll = co.data || [];
     let m = addMonth(monthOf(addDays(from, -maxOff)), 0);
     const last = monthOf(to);
     for (; m <= last; m = addMonth(m, 1)) {
       const [y, mo] = m.split('-').map(Number), dim = new Date(y, mo, 0).getDate();
       for (const c of camp) for (const d of new Set(c.recruit_days.map((x) => Math.min(Number(x) || 1, dim)))) {
-        const cycle = `${m}-${pad(d)}`;
+        const cycle = `${m}-${pad(d)}`; gen.add(`${c.id}|${cycle}`);
         // 모집은 혼자 움직임(모집 기간이 업체마다 다름). 발표는 날짜를 정해야 생김(그 전엔 '발표일 미정').
         // 마감 = 발표 + (마감 간격 − 발표 간격, 기본 14일). 추적 시작일 이전 회차는 예전처럼 간격으로 계산.
         const tM = tasks.get(`${c.id}|${cycle}|모집`), tA = tasks.get(`${c.id}|${cycle}|발표`), tD = tasks.get(`${c.id}|${cycle}|마감`);
@@ -312,6 +313,17 @@
         if (!ann && cycle >= cfg.start && cycle <= to) pending.push({ co: c, cycle, step: '발표', due: null, recruit: tM?.due_on || cycle, task: tA, done: false });
       }
     }
+    // 달력에서 두 번 클릭해 직접 추가한 회차 (매월 모집일과 다른 날·모집일 없는 업체): camp_tasks 행만으로 일정
+    const adhoc = new Map();
+    (tk.data || []).filter((t) => ['모집', '발표', '마감'].includes(t.step) && byId.has(t.company_id) && !gen.has(`${t.company_id}|${t.cycle_on}`))
+      .forEach((t) => { const k = `${t.company_id}|${t.cycle_on}`; if (!adhoc.has(k)) adhoc.set(k, {}); adhoc.get(k)[t.step] = t; });
+    adhoc.forEach((g, k) => {
+      const c = byId.get(k.split('|')[0]), cycle = k.split('|')[1];
+      const ann = g.발표?.due_on || null, dl = g.마감?.due_on || (ann ? addDays(ann, (cfg.off.마감 || 0) - (cfg.off.발표 || 0)) : null);
+      const push = (step, due, t) => { if (due && due >= from && due <= to) ev.push({ co: c, cycle, step, due, task: t, done: !!t?.done_at, ann, dl, adhoc: true }); };
+      if (g.모집) push('모집', g.모집.due_on || cycle, g.모집);
+      push('발표', ann, g.발표); push('마감', dl, g.마감);
+    });
     // 2차마감: 마감에서 인원이 모자라면 생긴 행
     (tk.data || []).filter((t) => t.step === '2차마감' && byId.has(t.company_id) && t.due_on >= from && t.due_on <= to)
       .forEach((t) => ev.push({ co: byId.get(t.company_id), cycle: t.cycle_on, step: '2차마감', due: t.due_on, task: t, done: !!t.done_at }));
@@ -390,21 +402,22 @@
         '[모집·발표·마감·2차마감] = 그 단계만 한 달 달력과 아래 목록으로',
         '업체명을 누르면 상세: 모집 = 발표일 정하기 · 발표/마감 = 명단·점주 안내·가이드 + 🔍 링크 확인 · +14 연장',
         '칸의 빈 곳을 한 번 누르면 그날 그 업무 완료 표시(단계 색 배경, 팀 전체 공유) · 다시 누르면 해제',
-        '칸의 빈 곳을 두 번 누르면 메모 이벤트를 직접 적기 (예전 메모·업체명 자동 완성) · 메모를 누르면 수정·삭제',
+        '칸의 빈 곳을 두 번 누르면 업체명 입력 → 그 단계 일정으로 추가되고 바로 상세가 열림 (모집 = 그날 새 회차 · 발표/마감 = 최근 회차의 날짜를 그날로)',
+        '업체명이 아닌 글자를 적으면 메모로 남음 (예전 메모·업체명 자동 완성) · 메모를 누르면 수정·삭제',
         '날짜 바꾸기: 업체명을 끌어 다른 날짜에 놓기',
         '많은 날은 … +n 으로 줄어듭니다. 오른쪽 위 [⤢ 전체 보기]로 모든 칸을 펼칩니다',
         '리뷰노트 명단: 리뷰노트에서 북마크 [리뷰노트 → MUYI] 한 번 → 최근 캠페인 명단이 업체별로 CRM에 바로 저장 (설치: 명단 변환 → 명단 탭 → 리뷰노트 북마크 설치)',
         '모집일 미설정 업체 · 단계 간격은 위 [⚙ 설정]',
       ]),
       sec('무이 콘텐츠 달력 (자체 마케팅 제작)', [
-        '여러 날을 끌어서 고르면 등록 창 (하루짜리는 [+ 콘텐츠 추가]) · 칸 빈 곳 한 번 = 완료 표시 · 두 번 = 메모',
+        '칸 빈 곳 두 번 = 그날 콘텐츠 등록 창 · 여러 날을 끌어서 고르면 기간 등록 · 한 번 = 완료 표시',
         '막대를 끌어 다른 날짜에 놓으면 기간 그대로 옮겨지고, 누르면 수정·삭제',
         `채널: ${CH.map(([k]) => k).join(' · ')} — 위 채널 탭을 누르면 그 채널만`,
         `진행 상태: ${CST.join(' → ')} (업로드 완료는 흐리게·취소선)`,
       ]),
       sec('계약 (재계약) 달력', [
         '칩 앞 글자: D-n(재계약까지 남은 날) · 지남 · 홀딩 · 종료/환불(취소선)',
-        '칸 빈 곳 한 번 = 완료 표시(그룹 색) · 두 번 = 메모',
+        '칸 빈 곳 한 번 = 완료 표시(그룹 색) · 두 번 = 업체명을 적어 그날을 재계약일로(업체 상세 열림), 그 외 글자는 메모',
         '재계약일은 [결제 등록]·[재계약 등록] 시 결제일 + 기간으로 자동 계산, 업체 상세에서 직접 수정 가능',
         '칩을 끌어 다른 날짜에 놓으면 재계약일 변경',
         '그룹: 전체 · 진행 중 · 재계약 지남 · 홀딩 · 종료 · 정보 없음(재계약일·결제일 비어 있음)',
@@ -522,7 +535,7 @@
         const more = segs.filter((g) => g.l >= MAXL && g.a <= i && g.b >= i).length;
         const c = el('div', { className: 'ct-day' + (monthOf(d) !== S.month ? ' out' : '') + (d === today ? ' today' : '') }, [el('div', { className: 'dn' }, el('b', { text: String(+d.slice(8)) })), more ? el('button', { type: 'button', className: 'cal-more', text: `+${more}개`, onclick: (e) => { e.stopPropagation(); dayList(d); } }) : null].filter(Boolean));
         c.style.gridColumn = `${i + 1}`; c.dataset.d = d;
-        markCell(c, { cal: 'content', cat: S.cch || '전체', day: d, color: CH_C[S.cch] || '#1E10C7', marks });
+        markCell(c, { cal: 'content', cat: S.cch || '전체', day: d, color: CH_C[S.cch] || '#1E10C7', marks, onDbl: () => itemModal({ starts_on: d, ends_on: d, channel: S.cch || '' }) });
         c.addEventListener('pointerdown', (e) => { if (e.button !== 0 || e.target.closest('.ct-bar, .cal-more, .mk-note, .mk-in')) return; e.preventDefault(); sel = { a: d, b: d }; grid.classList.add('dragging'); paintSel(); });
         c.addEventListener('pointerenter', () => { if (sel) { sel.b = d; paintSel(); } if (mv) { mv.to = d; paintMove(); } });
         row.append(c);
@@ -576,7 +589,7 @@
         el('div', { className: 'cs-list' }, mine.filter((x) => x.status !== '업로드 완료').sort((a, b) => a.ends_on.localeCompare(b.ends_on)).slice(0, 12).map((x) => el('button', { type: 'button', className: 'cs-line', onclick: () => itemModal(x) }, [el('b', { text: x.title }), el('small', { className: x.ends_on < today ? 'late' : '', text: `${x.channel || '—'} · ${x.status} · ${x.ends_on < today ? '마감 지남 ' : ''}~${md(x.ends_on)}` }), el('span', { className: 'go', text: '›' })])))]),
       el('button', { className: 'btn primary', type: 'button', text: '+ 콘텐츠 추가', onclick: () => itemModal({ starts_on: today, ends_on: today }) }),
     ]);
-    return [el('div', { className: 'cal-tools' }, [chSeg, el('span', { className: 'sp' }), el('span', { className: 'ct-hint', text: '여러 날 끌어서 등록 · 막대 끌어서 옮기기 · 빈 곳 클릭 = 완료 표시 · 두 번 = 메모' })]), el('div', { className: 'cal-wrap' }, [el('div', { className: 'card' }, grid), side])];
+    return [el('div', { className: 'cal-tools' }, [chSeg, el('span', { className: 'sp' }), el('span', { className: 'ct-hint', text: '빈 곳 두 번 = 등록 · 여러 날 끌어서 기간 등록 · 막대 끌어서 옮기기 · 한 번 = 완료 표시' })]), el('div', { className: 'cal-wrap' }, [el('div', { className: 'card' }, grid), side])];
   }
   // 콘텐츠 등록·수정 창
   function itemModal(x) {
@@ -646,34 +659,42 @@
     if (error) { toast('저장 실패: ' + error.message); return undefined; }
     return data;
   }
-  // 자동 완성 후보: 예전에 적은 메모(많이 쓴 순) + 업체명
+  // 자동 완성 후보: 업체명(진행 중 계약 업체) 먼저 + 예전에 적은 메모(많이 쓴 순)
   async function suggestList() {
     if (!S.sugg || Date.now() - S.sugg.at > 120000) {
-      const [n, c] = await Promise.all([sb.from('cal_marks').select('notes').limit(3000), sb.from('companies').select('name').eq('stage', '결제').limit(3000)]);
+      const [n, c] = await Promise.all([sb.from('cal_marks').select('notes').limit(3000), sb.from('companies').select('name,run_status').eq('stage', '결제').limit(3000)]);
       const cnt = new Map(); (n.data || []).forEach((r) => (r.notes || []).forEach((t) => cnt.set(t, (cnt.get(t) || 0) + 1)));
-      S.sugg = { at: Date.now(), list: [...new Set([...[...cnt.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t), ...(c.data || []).map((r) => r.name)])] };
+      const cos = (c.data || []).sort((a, b) => (a.run_status !== '진행 중') - (b.run_status !== '진행 중') || a.name.localeCompare(b.name)).map((r) => r.name);
+      S.sugg = { at: Date.now(), list: [...new Set([...cos, ...[...cnt.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t)])] };
     }
     let dl = document.getElementById('cal-sugg');
     if (!dl) { dl = el('datalist', { id: 'cal-sugg' }); document.body.append(dl); }
     if (dl.childElementCount !== S.sugg.list.length) dl.replaceChildren(...S.sugg.list.slice(0, 3000).map((v) => el('option', { value: v })));
   }
-  function markCell(cell, { cal, cat, day, color, marks }) {
+  // add(text): 업체명이면 그 업체 일정으로 등록 + 상세 열기 → true, 아니면 false(메모로 남김) · onDbl: 두 번 클릭을 직접 처리(콘텐츠 등록 창)
+  function markCell(cell, { cal, cat, day, color, marks, add, onDbl }) {
     const key = `${cat}|${day}`; let cur = marks.get(key);
     cell.classList.add('mk'); cell.style.setProperty('--mk', color);
     const notes = el('div', { className: 'mk-notes' });
     const paint = () => {
       cell.classList.toggle('mk-on', !!cur?.filled);
-      cell.title = cur?.filled ? '완료 표시됨 · 빈 곳 클릭 = 해제 · 두 번 클릭 = 메모' : '빈 곳 클릭 = 완료 표시 · 두 번 클릭 = 메모';
+      const dbl = onDbl ? '두 번 클릭 = 등록' : add ? '두 번 클릭 = 일정 추가(업체명) · 메모' : '두 번 클릭 = 메모';
+      cell.title = cur?.filled ? `완료 표시됨 · 빈 곳 클릭 = 해제 · ${dbl}` : `빈 곳 클릭 = 완료 표시 · ${dbl}`;
       notes.replaceChildren(...(cur?.notes || []).map((t, i) => el('button', { type: 'button', className: 'mk-note', text: t, title: '직접 적은 메모 — 누르면 수정·삭제', onclick: (x) => { x.stopPropagation(); editNote(i); } })));
     };
     const put = async (patch) => { const r = await saveMark(cal, cat, day, cur, patch); if (r === undefined) return; cur = r || null; if (r) marks.set(key, r); else marks.delete(key); paint(); };
     const editNote = (i) => { const v = prompt('메모 수정 (비우면 삭제)', cur.notes[i]); if (v === null) return; const n = [...cur.notes]; if (v.trim()) n[i] = v.trim(); else n.splice(i, 1); put({ notes: n }); };
     const input = () => {
       if (notes.querySelector('.mk-in')) return;
-      const inp = el('input', { className: 'fi mk-in', placeholder: '이벤트 이름', autocomplete: 'off' }); inp.setAttribute('list', 'cal-sugg');
+      const inp = el('input', { className: 'fi mk-in', placeholder: add ? '업체명 (그 외 글자는 메모)' : '메모', autocomplete: 'off' }); inp.setAttribute('list', 'cal-sugg');
       suggestList();
       let fin = false;
-      const done = (ok) => { if (fin) return; fin = true; const v = inp.value.trim(); inp.remove(); if (ok && v) { put({ notes: [...(cur?.notes || []), v] }); if (S.sugg && !S.sugg.list.includes(v)) S.sugg.list.unshift(v); } };
+      const done = async (ok) => {
+        if (fin) return; fin = true; const v = inp.value.trim(); inp.remove();
+        if (!ok || !v) return;
+        if (add && await add(v)) return;
+        put({ notes: [...(cur?.notes || []), v] }); if (S.sugg && !S.sugg.list.includes(v)) S.sugg.list.push(v);
+      };
       inp.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter' && !e.isComposing) done(true); if (e.key === 'Escape') done(false); });
       inp.addEventListener('blur', () => done(true));
       ['click', 'dblclick', 'pointerdown'].forEach((t) => inp.addEventListener(t, (e) => e.stopPropagation()));
@@ -682,8 +703,43 @@
     let t = null;
     const empty = (x) => !x.target.closest('button, a, input, select, .cc');
     cell.addEventListener('click', (x) => { if (!empty(x)) return; clearTimeout(t); t = setTimeout(() => put({ filled: !cur?.filled }), 240); });
-    cell.addEventListener('dblclick', (x) => { if (!empty(x)) return; clearTimeout(t); input(); });
+    cell.addEventListener('dblclick', (x) => { if (!empty(x)) return; clearTimeout(t); if (onDbl) onDbl(); else input(); });
     cell.append(notes); paint();
+  }
+
+  // 두 번 클릭 → 업체명 입력 → 그 단계 일정으로 등록하고 바로 상세
+  //  모집: 그날 새 회차(모집일 = 그날) · 발표/마감/2차마감: 그날 이전 가장 최근 회차의 그 단계 날짜를 그날로 (회차가 없으면 그날로 새 회차)
+  const findCo = (name, list) => { const k = (x) => String(x || '').replace(/\s+/g, '').toLowerCase(); const q = k(name); return (list || []).find((c) => k(c.name) === q) || null; };
+  async function addCamp(step, name, d) {
+    const cfg = await loadCfg();
+    if (!S.coAll) await campEvents(d, d);
+    const co = findCo(name, S.coAll);
+    if (!co) return false; // 업체가 아니면 메모로
+    const { ev } = await campEvents(addDays(d, -90), addDays(d, 60));
+    const cycles = [...new Set(ev.filter((e) => e.co.id === co.id).map((e) => e.cycle))].filter((c) => c <= d).sort();
+    const cycle = step === '모집' ? d : (cycles[cycles.length - 1] || d);
+    const cur = ev.find((e) => e.co.id === co.id && e.cycle === cycle && e.step === step);
+    if (step === '모집') {
+      const { error } = await sb.from('camp_tasks').upsert({ company_id: co.id, cycle_on: d, step: '모집', due_on: d }, { onConflict: 'company_id,cycle_on,step' });
+      if (error) { toast('저장 실패: ' + error.message); return true; }
+      toast(`${co.name} ${md(d)} 모집 추가`);
+    } else if (!(await moveStep({ co, cycle, step, due: cur?.due || null }, d))) return true;
+    await draw(); flash([d]);
+    const { ev: now } = await campEvents(d, d);
+    const e = now.find((x) => x.co.id === co.id && x.cycle === cycle && x.step === step) || { co, cycle, step, due: d, ann: step === '발표' ? d : null, dl: null };
+    openDetail(e, cfg);
+    return true;
+  }
+  // 계약 달력: 업체명 → 그날을 재계약일로 + 업체 상세
+  async function addRenew(name, d, list) {
+    const c = findCo(name, list);
+    if (!c) return false;
+    if (!confirm(`${c.name} 재계약일을 ${md(d)}로 정할까요?${c.next_renew_due ? `\n(지금 ${c.next_renew_due})` : ''}`)) return true;
+    const { error } = await sb.from('companies').update({ next_renew_due: d }).eq('id', c.id);
+    if (error) { toast('저장 실패: ' + error.message); return true; }
+    toast(`${c.name} 재계약일 → ${md(d)}`); S.cc = null; await draw(); flash([d]);
+    openCompanyFromToday(c.id);
+    return true;
   }
 
   // 상세 열기: 모집 = 발표일·모집일 정하기 / 발표·마감·2차마감 = 같은 상세(명단·안내·가이드) + 링크 확인 · +14 연장
@@ -782,13 +838,13 @@
         const list = ev.filter((e) => e.due === S.day && (step === '마감' ? e.step === '마감' || e.step === '2차마감' : e.step === step)).sort((a, b) => (a.step === '2차마감') - (b.step === '2차마감') || byName(a, b));
         const body = el('div', { className: 'td-body' }, list.map((e) => { const b = el('button', { type: 'button', className: 'td-item', title: '눌러서 상세 열기', onclick: () => openDetail(e, cfg) }, [el('b', { text: e.co.name }), e.step === '2차마감' ? el('span', { className: 'td-tag', text: '2차마감' }) : el('span'), el('small', { text: sub(e) })]); b.style.setProperty('--c', STEP_COLOR[e.step]); return b; }));
         if (!list.length) body.append(el('div', { className: 'td-empty', text: '없음' }));
-        markCell(body, { cal: 'camp', cat: step, day: S.day, color: STEP_COLOR[step], marks });
+        markCell(body, { cal: 'camp', cat: step, day: S.day, color: STEP_COLOR[step], marks, add: (v) => addCamp(step, v, S.day) });
         const card = el('div', { className: 'card td-col' }, [el('div', { className: 'td-h' }, [el('i'), el('h3', { text: step === '마감' ? '마감 · 2차마감' : step }), el('span', { className: 'n', text: list.length })]), body]);
         card.style.setProperty('--c', STEP_COLOR[step]);
         return card;
       };
       const tools = el('div', { className: 'cal-tools' }, [stepSeg, nav, el('span', { className: 'sp' }), setBtn, campBtn]);
-      return [tools, el('div', { className: 'hint', text: '업체명을 누르면 상세 · 칸의 빈 곳을 누르면 그날 그 업무 완료 표시(다시 누르면 해제) · 두 번 누르면 메모 직접 입력' }), el('div', { className: 'td-wrap' }, ['모집', '발표', '마감'].map(col))];
+      return [tools, el('div', { className: 'hint', text: '업체명을 누르면 상세 · 칸 빈 곳 한 번 = 그날 그 업무 완료 표시(다시 누르면 해제) · 두 번 = 업체명을 적어 일정 추가(바로 상세) · 업체가 아닌 글자는 메모' }), el('div', { className: 'td-wrap' }, ['모집', '발표', '마감'].map(col))];
     }
 
     // ── 단계 달력: 그 단계 업체만 · 업체명 누르면 상세 · 끌어서 날짜 변경 ──
@@ -809,7 +865,7 @@
         ...list.map(chip),
         list.length > MAXC ? el('button', { type: 'button', className: 'cc-more', text: `… +${list.length - MAXC}`, title: '전체 보기', onclick: (x) => { x.stopPropagation(); setExpand(true); } }) : null,
       ].filter(Boolean));
-      markCell(cell, { cal: 'camp', cat: S.cstep, day: d, color: STEP_COLOR[S.cstep], marks });
+      markCell(cell, { cal: 'camp', cat: S.cstep, day: d, color: STEP_COLOR[S.cstep], marks, add: (v) => addCamp(S.cstep, v, d) });
       dropZone(cell, d, (g) => { if (g.kind !== 'camp') return; g.close?.(); dropCamp(g.e, d); });
       return cell;
     });
@@ -913,7 +969,7 @@
     const pri = (c) => ({ '진행 중': 0, 홀딩: 1 })[c.run_status] ?? 2;
     const cells = days.map((d) => { const list = (byDay[d] || []).sort((a, b) => pri(a) - pri(b) || a.name.localeCompare(b.name));
       const cell = el('div', { className: 'cal-day' + (monthOf(d) !== S.month ? ' out' : '') + (d === today ? ' today' : '') }, [el('div', { className: 'dn' }, el('b', { text: String(+d.slice(8)) })), ...list.slice(0, 4).map(chip), list.length > 4 ? el('button', { type: 'button', className: 'cal-more', text: `+${list.length - 4}곳 더`, onclick: (e) => { e.stopPropagation(); popup(`${+d.slice(5, 7)}월 ${+d.slice(8)}일 재계약 ${list.length}곳`, list.map(chip)); } }) : null].filter(Boolean));
-      markCell(cell, { cal: 'contract', cat: S.cgroup, day: d, color: (CGROUPS.find(([k]) => k === S.cgroup) || CGROUPS[0])[2], marks });
+      markCell(cell, { cal: 'contract', cat: S.cgroup, day: d, color: (CGROUPS.find(([k]) => k === S.cgroup) || CGROUPS[0])[2], marks, add: (v) => addRenew(v, d, all.data || []) });
       dropZone(cell, d, (g) => g.kind === 'renew' && dropRenew(g.c, d));
       return cell; });
     const grid = el('div', { className: 'cal-grid' }, [...DOW.map((w) => el('div', { className: 'cal-dow', text: w })), ...cells]);
