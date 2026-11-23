@@ -285,10 +285,12 @@ textarea.ca-g.sm{min-height:100px}
     ]);
     let round = rd.data;
     const today = todayKst();
-    const [ros, exQ] = await Promise.all([
+    const [ros, exQ, lbQ] = await Promise.all([
       round ? sb.from('roster').select('*').eq('round_id', round.id).order('created_at').then((r) => r.data || []) : Promise.resolve([]),
       sb.from('companies').select('address,camp_round_done,camp_round_cycle,camp_info').eq('id', co.id).maybeSingle(),
+      sb.from('camp_tasks').select('label').eq('company_id', co.id).eq('cycle_on', cycle).eq('step', '모집').maybeSingle(),
     ]);
+    const lbNo = /^\d+$/.test(lbQ.data?.label || '') ? +lbQ.data.label : null; // 모집 달력에서 고른 회차
     const ex = exQ.data || {};
     // 회차: 우상단 = 끝난 회차(companies.camp_round_done), 명단 회차 = 끝난 회차 + 1 (저장된 명단이면 그 회차)
     // 이 회차의 마감일이 지나면 끝난 회차를 이 회차 번호까지 자동으로 올림 (같은 회차는 한 번만)
@@ -297,7 +299,7 @@ textarea.ca-g.sm{min-height:100px}
       const { data: prev } = await sb.from('rounds').select('round_no').eq('company_id', co.id).lt('cycle_on', cycle).order('round_no', { ascending: false }).limit(1);
       done = prev?.[0]?.round_no || Math.max(0, rds.count - (round ? 1 : 0)) || 0;
     }
-    const roundNo0 = round?.round_no || (ex.camp_round_cycle === cycle ? done : Math.min(20, done + 1)); // 이미 끝내고 올린 회차면 그 번호
+    const roundNo0 = round?.round_no || lbNo || (ex.camp_round_cycle === cycle ? done : Math.min(20, done + 1)); // 이미 끝내고 올린 회차면 그 번호
     if (p.deadline < today && (!ex.camp_round_cycle || ex.camp_round_cycle < cycle) && roundNo0 > done) {
       done = Math.min(20, roundNo0);
       await sb.from('companies').update({ camp_round_done: done, camp_round_cycle: cycle }).eq('id', co.id);
@@ -370,6 +372,12 @@ textarea.ca-g.sm{min-height:100px}
         if (e2) throw e2; (ins || []).forEach((d, i) => { if (S.rows[i]) S.rows[i].id = d.id; });
       }
       S.saved = true;
+      // 모집 달력 칩에도 이 회차 번호 (모·완으로 정해둔 상태는 그대로)
+      if (!lbQ.data?.label || /^\d+$/.test(lbQ.data.label)) {
+        const lb = String(S.roundNo), { data: t } = await sb.from('camp_tasks').select('id').eq('company_id', co.id).eq('cycle_on', cycle).eq('step', '모집').maybeSingle();
+        await (t ? sb.from('camp_tasks').update({ label: lb }).eq('id', t.id) : sb.from('camp_tasks').insert({ company_id: co.id, cycle_on: cycle, step: '모집', due_on: cycle, label: lb })).then(() => {}, () => {});
+        lbQ.data = { label: lb };
+      }
     }
 
     // ── 이미지: 캔버스 → <img>(길게 눌러/우클릭 복사 가능) + 클립보드 복사 ──
