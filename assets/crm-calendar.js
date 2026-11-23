@@ -167,6 +167,10 @@
 @media (hover:hover){.cc-x{display:none}.cc:hover .cc-x{display:block}.cc:hover .cc-n{padding-right:2px}}
 .cc.done{--c:var(--green);background:color-mix(in srgb,var(--green) 22%,var(--surface))}
 .cc.done .cc-n::before{content:'✓ ';font-weight:800}
+.cc-lb{flex:none;margin-left:4px;padding:0 5px;height:15px;line-height:15px;border-radius:4px;font-size:10px;font-weight:800;background:var(--surface);color:var(--t1);box-shadow:0 0 0 1px var(--line)}
+.cc-lb.mo{background:var(--accent);color:#fff;box-shadow:none}
+.cc-lb.wan{background:var(--green);color:#fff;box-shadow:none}
+.rc-lb{display:flex;gap:8px;align-items:center}.rc-lb .fi{width:auto;min-width:150px}
 .cc.late .cc-n{text-decoration:underline wavy color-mix(in srgb,var(--red) 60%,transparent);text-underline-offset:3px}
 .cc-more{border:0;background:none;padding:0 4px;text-align:left;font-size:11px;font-weight:700;color:var(--t3);cursor:pointer}
 .cc-more:hover{color:var(--accent)}
@@ -822,7 +826,19 @@
     const dlTxt = el('div', { className: 'hint' });
     const paintDl = () => { dlTxt.textContent = inp.value ? `마감은 자동으로 ${mdw(addDays(inp.value, gap))} (발표 +${gap}일)` : '발표일이 아직 정해지지 않았습니다. 정해지면 날짜를 고르세요.'; };
     inp.oninput = paintDl; paintDl();
+    // 모집 상태: 1~20회차 · 모(모집 중) · 완(모집 완료). 바로 저장(camp_tasks 모집 label). 회차를 고르면 이 회차 명단(rounds.round_no)도 같은 번호로
+    const LB = [['', '상태 없음'], ...Array.from({ length: 20 }, (_, i) => [String(i + 1), `${i + 1}회차`]), ['모', '모 (모집 중)'], ['완', '완 (모집 완료)']];
+    const lbSel = el('select', { className: 'fi' }, LB.map(([v, t]) => el('option', { value: v, text: t, selected: (e.task?.label || '') === v })));
+    lbSel.onchange = async () => {
+      const v = lbSel.value || null;
+      const { data, error } = await sb.from('camp_tasks').upsert({ company_id: e.co.id, cycle_on: e.cycle, step: '모집', due_on: e.task?.due_on || e.due || e.cycle, label: v }, { onConflict: 'company_id,cycle_on,step' }).select().single();
+      if (error) { toast('저장 실패: ' + error.message); return; }
+      e.task = data; P.mark();
+      if (v && /^\d+$/.test(v)) await sb.from('rounds').update({ round_no: +v, round_label: v }).eq('company_id', e.co.id).eq('cycle_on', e.cycle);
+      toast(`${e.co.name} ${md(e.cycle)} 모집 → ${v ? (/^\d+$/.test(v) ? v + '회차' : v === '모' ? '모집 중' : '모집 완료') : '상태 없음'}`);
+    };
     const P = popup(`${e.co.name} · ${mdw(e.due)} 모집`, [
+      el('label', {}, [el('span', { className: 'lbl', text: '상태 (달력 칩 앞에 표시)' }), el('div', { className: 'rc-lb' }, [lbSel, el('span', { className: 'hint', text: '회차를 고르면 이 회차 명단 회차도 같은 번호' })])]),
       el('label', {}, [el('span', { className: 'lbl', text: '발표일' }), inp]), dlTxt,
     ], [
       el('button', { className: 'btn ghost', type: 'button', text: '⚙ 매월 모집일', onclick: () => { P.close(); editDays(e.co); } }),
@@ -915,6 +931,8 @@
     const byDay = {}; shown.forEach((e) => { (byDay[e.due] = byDay[e.due] || []).push(e); });
     const chip = (e) => {
       const b = el('div', { className: 'cc' + (e.step === '모집' && !e.ann ? ' pend' : ''), draggable: true });
+      const lb = e.step === '모집' && e.task?.label; // 모집 상태: 1~20(회차) · 모(모집 중) · 완(모집 완료)
+      if (lb) b.append(el('span', { className: 'cc-lb' + (lb === '모' ? ' mo' : lb === '완' ? ' wan' : ''), text: lb, title: /^\d+$/.test(lb) ? `${lb}회차` : lb === '모' ? '모집 중' : '모집 완료' }));
       b.append(el('button', { type: 'button', className: 'cc-n', text: e.co.name, title: `${e.step} · ${e.co.name}\n${sub(e)}\n누르면 상세 · 끌어서 날짜 변경`, onclick: (x) => { x.stopPropagation(); openDetail(e, cfg); } }));
       b.addEventListener('dragstart', (x) => { x.stopPropagation(); startDrag(x, { kind: 'camp', e, label: e.co.name }, b.closest('.pm-layer')); b.classList.add('dragging'); });
       b.addEventListener('dragend', () => { b.classList.remove('dragging'); endDrag(b.closest('.pm-layer')); });
@@ -950,7 +968,7 @@
     const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), expandBtn, setBtn, campBtn]);
     return [tools, el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), list])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=10');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=11');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   const pickCamp = (evs, cfg, rn) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg, rn)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
