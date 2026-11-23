@@ -371,7 +371,7 @@
         const legacy = cycle < cfg.start || (tA && !tA.due_on);
         const aOff = !!tA?.skipped; // 발표 달력에서 삭제한 회차: 발표·마감 없음 (모집은 그대로)
         const ann = aOff ? null : tA?.due_on || (legacy ? addDays(cycle, cfg.off.발표 || 0) : null);
-        const dl = aOff ? null : tD?.due_on || (ann ? addDays(ann, (cfg.off.마감 || 0) - (cfg.off.발표 || 0)) : null);
+        const dl = aOff || tD?.skipped ? null : tD?.due_on || (ann ? addDays(ann, (cfg.off.마감 || 0) - (cfg.off.발표 || 0)) : null); // 마감만 삭제한 회차도 마감 없음
         const push = (step, due, t) => { if (due && due >= from && due <= to) ev.push({ co: c, cycle, step, due, task: t, done: !!t?.done_at, ann, dl }); };
         push('모집', tM?.due_on || cycle, tM);
         push('발표', ann, tA); push('마감', dl, tD);
@@ -385,7 +385,7 @@
       .forEach((t) => { const k = `${t.company_id}|${t.cycle_on}`; if (!adhoc.has(k)) adhoc.set(k, {}); adhoc.get(k)[t.step] = t; });
     adhoc.forEach((g, k) => {
       const c = byId.get(k.split('|')[0]), cycle = k.split('|')[1];
-      const aOff = !!g.발표?.skipped, ann = aOff ? null : g.발표?.due_on || null, dl = aOff ? null : g.마감?.due_on || (ann ? addDays(ann, (cfg.off.마감 || 0) - (cfg.off.발표 || 0)) : null);
+      const aOff = !!g.발표?.skipped, ann = aOff ? null : g.발표?.due_on || null, dl = aOff || g.마감?.skipped ? null : g.마감?.due_on || (ann ? addDays(ann, (cfg.off.마감 || 0) - (cfg.off.발표 || 0)) : null);
       const push = (step, due, t) => { if (due && due >= from && due <= to) ev.push({ co: c, cycle, step, due, task: t, done: !!t?.done_at, ann, dl, adhoc: true }); };
       if (g.모집) push('모집', g.모집.due_on || cycle, g.모집);
       push('발표', ann, g.발표); push('마감', dl, g.마감);
@@ -823,13 +823,13 @@
         onCount: async (n, tg) => { if (await saveClose(chk, n, tg, cfg)) { toast(n >= tg ? `${e.co.name} 마감 완료 (${n}/${tg})` : `${e.co.name} ${tg - n}명 부족 → ${md(addDays(chk.due, cfg.off['2차마감'] || 7))} 2차마감`); draw(); } } })) }),
       close.due && el('button', { className: 'btn sm', type: 'button', text: `+${EXTEND_DAYS} 연장`, title: `마감 연장 → 마감일 +${EXTEND_DAYS}일 2차마감 (해당 없는 블로거 안내 문자)`, onclick: () => extendClose(close) }),
     ].filter(Boolean);
-    // 발표 삭제: 이 회차 발표(와 마감)를 달력에서 뺌 — camp_tasks 발표 skipped. 모집·저장된 명단은 그대로. 다시 넣으려면 발표 달력에서 두 번 클릭
-    if (e.step === '발표') extra.push(el('button', { className: 'btn sm rc-del', type: 'button', text: '삭제', title: '이 회차 발표 일정 삭제', onclick: async () => {
-      if (!confirm(`${e.co.name} ${md(e.due)} 발표를 삭제할까요?\n이 회차 마감 일정도 같이 사라집니다. (모집·명단은 그대로)`)) return;
-      const { error } = await sb.from('camp_tasks').upsert({ company_id: e.co.id, cycle_on: e.cycle, step: '발표', due_on: e.due, skipped: true }, { onConflict: 'company_id,cycle_on,step' });
+    // 발표·마감 삭제: 그 단계를 달력에서 뺌 — camp_tasks 그 단계 skipped (발표를 지우면 마감도 같이). 모집·저장된 명단은 그대로. 다시 넣으려면 그 달력에서 두 번 클릭
+    if (e.step === '발표' || e.step === '마감') extra.push(el('button', { className: 'btn sm rc-del', type: 'button', text: '삭제', title: `이 회차 ${e.step} 일정 삭제`, onclick: async () => {
+      if (!confirm(`${e.co.name} ${md(e.due)} ${e.step === '발표' ? '발표를' : '마감을'} 삭제할까요?\n${e.step === '발표' ? '이 회차 마감 일정도 같이 사라집니다. ' : ''}(모집·명단은 그대로)`)) return;
+      const { error } = await sb.from('camp_tasks').upsert({ company_id: e.co.id, cycle_on: e.cycle, step: e.step, due_on: e.due, skipped: true }, { onConflict: 'company_id,cycle_on,step' });
       if (error) { toast('삭제 실패: ' + error.message); return; }
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); // 상세 창 닫기
-      toast(`${e.co.name} ${md(e.due)} 발표 삭제`); draw({ quiet: true });
+      toast(`${e.co.name} ${md(e.due)} ${e.step} 삭제`); draw({ quiet: true });
     } }));
     const args = { co: e.co, cycle: e.cycle, cfg, announce: e.ann || undefined, deadline: close.due || e.dl || undefined };
     // 2차마감 = 리뷰 다시 확인(태그 누락 등) → 수정 요청 화면. 전체 상세는 버튼으로
