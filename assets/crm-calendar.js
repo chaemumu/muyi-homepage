@@ -171,6 +171,23 @@
 .cc-lb.mo{background:var(--accent);color:#fff;box-shadow:none}
 .cc-lb.wan{background:var(--green);color:#fff;box-shadow:none}
 .rc-lb{display:flex;gap:8px;align-items:center}.rc-lb .fi{width:auto;min-width:150px}
+.hb-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.hb{display:flex;flex-direction:column;min-width:0}
+.hb-h{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.hb-h i{width:9px;height:9px;border-radius:3px;background:var(--c)}
+.hb-h h3{font-size:14px;font-weight:700;margin-right:auto}
+.hb-h .n{font-size:12px;font-weight:700;color:var(--t3)}
+.hb-list{display:grid;gap:4px;padding:8px 10px;max-height:220px;overflow-y:auto;align-content:start;min-height:52px}
+.hb-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;align-items:center;padding:6px 8px;border-radius:7px;cursor:pointer}
+.hb-row:hover{background:var(--surface-2)}
+.hb-row b{font-size:13px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hb-row small{grid-column:1;font-size:12px;color:var(--t3);white-space:pre-wrap}
+.hb-row .x{grid-row:1/span 2;grid-column:2;border:0;background:none;color:var(--t4);font-size:13px;cursor:pointer;padding:2px 4px;visibility:hidden}
+.hb-row:hover .x{visibility:visible}.hb-row .x:hover{color:var(--red)}
+.hb-empty{padding:10px 8px;font-size:12px;color:var(--t4)}
+.hb-add{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--line-2)}
+.hb-add .fi{height:30px;font-size:12.5px}.hb-add .nm{flex:0 0 42%}
+@media (max-width:900px){.hb-wrap{grid-template-columns:1fr}}
 .cc.late .cc-n{text-decoration:underline wavy color-mix(in srgb,var(--red) 60%,transparent);text-underline-offset:3px}
 .cc-more{border:0;background:none;padding:0 4px;text-align:left;font-size:11px;font-weight:700;color:var(--t3);cursor:pointer}
 .cc-more:hover{color:var(--accent)}
@@ -853,6 +870,60 @@
     P.layer.querySelector('.pm-f').classList.add('rc-f');
   }
 
+  // ── 모집 보류 지점: 재계약 · 홀딩 두 칸 (camp_holds, 팀 공유). 업체명 + 메모(예: 3완/3회차 · 10월에 재개) ──
+  const HB = [['renew', '재계약', '#16A34A', '재계약 대기 · 회차 다 쓴 지점'], ['hold', '홀딩 · 모집 보류', '#D97706', '잠시 멈춘 지점 · 재개 시점 메모']];
+  function holdBoard() {
+    const wrap = el('div', { className: 'hb-wrap' });
+    const load = async () => {
+      const { data, error } = await sb.from('camp_holds').select('*').order('sort').order('created_at').limit(500);
+      if (error) { wrap.replaceChildren(el('div', { className: 'hint', text: '모집 보류 지점을 불러오지 못했습니다: ' + error.message })); return; }
+      suggestList();
+      wrap.replaceChildren(...HB.map(([k, title, c, ph]) => {
+        const list = (data || []).filter((x) => x.kind === k);
+        const nm = el('input', { className: 'fi nm', placeholder: '업체명', autocomplete: 'off' }); nm.setAttribute('list', 'cal-sugg');
+        const nt = el('input', { className: 'fi', placeholder: '메모 (예: 3완/3회차 · 10월에 재개)' });
+        const add = async () => {
+          const name = nm.value.trim(); if (!name) { nm.focus(); return; }
+          const co = findCo(name, S.coAll || []);
+          const { error: e } = await sb.from('camp_holds').insert({ kind: k, name: co?.name || name, company_id: co?.id || null, note: nt.value.trim() || null, sort: list.length, created_by: me });
+          if (e) { toast('저장 실패: ' + e.message); return; } load();
+        };
+        [nm, nt].forEach((i) => i.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) add(); }));
+        const card = el('div', { className: 'card hb' }, [
+          el('div', { className: 'hb-h' }, [el('i'), el('h3', { text: title }), el('span', { className: 'n', text: list.length })]),
+          el('div', { className: 'hb-list' }, list.length ? list.map((x) => el('div', { className: 'hb-row', title: '눌러서 수정', onclick: () => editHold(x, load) }, [
+            el('b', { text: x.name }), el('button', { className: 'x', type: 'button', text: '✕', title: '빼기', onclick: async (e) => { e.stopPropagation(); if (!confirm(`${x.name}을(를) ${title}에서 뺄까요?`)) return; const { error: er } = await sb.from('camp_holds').delete().eq('id', x.id); if (er) { toast('삭제 실패: ' + er.message); return; } load(); } }),
+            x.note ? el('small', { text: x.note }) : null].filter(Boolean))) : [el('div', { className: 'hb-empty', text: ph })]),
+          el('div', { className: 'hb-add' }, [nm, nt, el('button', { className: 'btn sm', type: 'button', text: '추가', onclick: add })]),
+        ]);
+        card.style.setProperty('--c', c);
+        return card;
+      }));
+    };
+    load();
+    return wrap;
+  }
+  function editHold(x, done) {
+    const nm = el('input', { className: 'fi', value: x.name }); nm.setAttribute('list', 'cal-sugg');
+    const nt = el('textarea', { className: 'fi', value: x.note || '', rows: 3, placeholder: '예: 3완/3회차 · 10월에 재개' });
+    const kd = el('select', { className: 'fi' }, HB.map(([k, t]) => el('option', { value: k, text: t, selected: k === x.kind })));
+    const P = popup(`${x.name} · 모집 보류 지점`, [
+      el('label', {}, [el('span', { className: 'lbl', text: '업체명' }), nm]),
+      el('label', {}, [el('span', { className: 'lbl', text: '메모' }), nt]),
+      el('label', {}, [el('span', { className: 'lbl', text: '칸' }), kd]),
+    ], [
+      x.company_id ? el('button', { className: 'btn ghost', type: 'button', text: '업체 상세', onclick: () => { P.close(); openCompanyFromToday(x.company_id); } }) : null,
+      el('span', { className: 'sp' }),
+      el('button', { className: 'btn primary', type: 'button', text: '저장', onclick: async () => {
+        const name = nm.value.trim(); if (!name) return;
+        const f = findCo(name, S.coAll || []);
+        const { error } = await sb.from('camp_holds').update({ name: f?.name || name, company_id: f?.id || (name === x.name ? x.company_id : null), note: nt.value.trim() || null, kind: kd.value, updated_at: new Date().toISOString() }).eq('id', x.id);
+        if (error) { toast('저장 실패: ' + error.message); return; } P.close(); done();
+      } }),
+    ].filter(Boolean));
+    P.layer.querySelector('.pm-f').classList.add('rc-f');
+  }
+
   async function campView() {
     const today = todayKst();
     if (!['오늘', ...STEPS].includes(S.cstep)) S.cstep = '오늘';
@@ -923,7 +994,7 @@
         return card;
       };
       const tools = el('div', { className: 'cal-tools' }, [stepSeg, nav, el('span', { className: 'sp' }), setBtn, campBtn]);
-      return [tools, el('div', { className: 'hint', text: '업체명을 누르면 상세 · 다음 근무일 전까지 쉬는 날(주말·공휴일·설정한 휴무)도 같이 보임 · 칸 빈 곳 한 번 = 완료 표시 · 두 번 = 업체명을 적어 일정 추가 · 업체가 아닌 글자는 메모' }), el('div', { className: 'td-wrap' }, ['모집', '발표', '마감'].map(col))];
+      return [tools, holdBoard(), el('div', { className: 'hint', text: '업체명을 누르면 상세 · 다음 근무일 전까지 쉬는 날(주말·공휴일·설정한 휴무)도 같이 보임 · 칸 빈 곳 한 번 = 완료 표시 · 두 번 = 업체명을 적어 일정 추가 · 업체가 아닌 글자는 메모' }), el('div', { className: 'td-wrap' }, ['모집', '발표', '마감'].map(col))];
     }
 
     // ── 단계 달력: 그 단계 업체만 · 업체명 누르면 상세 · 끌어서 날짜 변경 ──
@@ -966,7 +1037,7 @@
       ])) : el('div', { className: 'cs-empty cs-char' }, [el('img', { src: '/assets/brand/muyi-char-idea.webp', alt: '' }), '이 달에 해당하는 일정이 없습니다.']),
     ]);
     const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), expandBtn, setBtn, campBtn]);
-    return [tools, el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), list])];
+    return [tools, holdBoard(), el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), list])];
   }
   const campLib = () => loadScript('/assets/crm-camp.js?v=11');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
