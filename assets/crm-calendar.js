@@ -537,7 +537,7 @@
     openCamp({ co, cycle, cfg, announce: e?.ann || undefined, deadline: e?.dl || undefined });
   }
 
-  async function draw() {
+  async function draw(opt = {}) {
     const seg = el('div', { className: 'cal-seg' }, [['camp', '체험단'], ['contract', '계약'], ['content', '무이 콘텐츠']].map(([k, t]) => el('button', { type: 'button', className: S.tab === k ? 'on' : '', text: t, onclick: () => { S.tab = k; try { localStorage.setItem('crm-cal-tab', k); } catch {} draw(); } })));
     const mine = el('button', { className: 'chip' + (S.mine ? ' on' : ''), type: 'button', text: '내 담당만', onclick: () => { S.mine = !S.mine; try { localStorage.setItem('crm-cal-mine', S.mine ? '1' : '0'); } catch {} draw(); } });
     const nav = el('div', { className: 'cal-month' }, [
@@ -552,7 +552,7 @@
     const first = !S.box.querySelector('.cal-top');
     if (first) S.box.replaceChildren(top, el('div', { className: 'stack' }, el('div', { className: 'hint', text: '불러오는 중…' })));
     const tok = (S.drawTok = (S.drawTok || 0) + 1);
-    S.box.classList.add('cal-busy');
+    if (!opt.quiet) S.box.classList.add('cal-busy'); // 팝업 닫고 다시 그릴 땐 흐리게 하지 않음
     let kids;
     try { kids = S.tab === 'camp' ? await campView() : S.tab === 'contract' ? await contractView() : await contentView(); }
     catch (e) { kids = [el('div', { className: 'err', text: '불러오기 실패: ' + e.message })]; }
@@ -693,7 +693,7 @@
     ].filter(Boolean)));
     let changed = false;
     const onKey = (e) => { if (e.key === 'Escape' && document.body.lastElementChild === layer) close(); };
-    const close = () => { document.removeEventListener('keydown', onKey); layer.remove(); if (changed) draw(); };
+    const close = () => { document.removeEventListener('keydown', onKey); layer.remove(); if (changed) draw({ quiet: true }); };
     document.addEventListener('keydown', onKey);
     document.body.append(layer);
     return { layer, close, mark: () => { changed = true; } };
@@ -898,7 +898,8 @@
 
   // ── 모집 보류 지점: 재계약 · 홀딩 두 칸 (camp_holds, 팀 공유). 업체명 + 메모(예: 3완/3회차 · 10월에 재개) ──
   const HB = [['renew', '재계약', '#16A34A', '재계약 대기 · 회차 다 쓴 지점'], ['hold', '홀딩 · 모집 보류', '#D97706', '잠시 멈춘 지점 · 재개 시점 메모']];
-  function holdBoard() {
+  // 데이터를 먼저 받아 그린 뒤 돌려준다 (늦게 채워지며 달력이 아래로 밀리는 현상 방지)
+  async function holdBoard() {
     const wrap = el('div', { className: 'hb-wrap' });
     const load = async () => {
       const { data, error } = await sb.from('camp_holds').select('*').order('sort').order('created_at').limit(500);
@@ -926,7 +927,7 @@
         return card;
       }));
     };
-    load();
+    await load();
     return wrap;
   }
   function editHold(x, done) {
@@ -961,6 +962,7 @@
     const span = isToday ? spanDays(S.day, offd) : null; // 오늘 + 이어지는 휴무일 (금요일이면 금·토·일)
     const [from, to] = isToday ? [S.day, span[span.length - 1]] : [days[0], days[41]];
     const [{ ev: all, noDays, cfg, pending: pendAll }, marks] = await Promise.all([campEvents(from, to), loadMarks('camp', from, to)]);
+    const board = holdBoard(); // 일정과 같이 불러옴
     await fillRounds(all);
     const ev = S.mine ? all.filter((e) => isMine(e.co)) : all;
     const pending = S.mine ? pendAll.filter((e) => isMine(e.co)) : pendAll;
@@ -1021,7 +1023,7 @@
         return card;
       };
       const tools = el('div', { className: 'cal-tools' }, [stepSeg, nav, el('span', { className: 'sp' }), setBtn, campBtn]);
-      return [tools, holdBoard(), el('div', { className: 'hint', text: '업체명을 누르면 상세 · 다음 근무일 전까지 쉬는 날(주말·공휴일·설정한 휴무)도 같이 보임 · 칸 빈 곳 한 번 = 완료 표시 · 두 번 = 업체명을 적어 일정 추가 · 업체가 아닌 글자는 메모' }), el('div', { className: 'td-wrap' }, ['모집', '발표', '마감'].map(col))];
+      return [tools, await board, el('div', { className: 'hint', text: '업체명을 누르면 상세 · 다음 근무일 전까지 쉬는 날(주말·공휴일·설정한 휴무)도 같이 보임 · 칸 빈 곳 한 번 = 완료 표시 · 두 번 = 업체명을 적어 일정 추가 · 업체가 아닌 글자는 메모' }), el('div', { className: 'td-wrap' }, ['모집', '발표', '마감'].map(col))];
     }
 
     // ── 단계 달력: 그 단계 업체만 · 업체명 누르면 상세 · 끌어서 날짜 변경 ──
@@ -1064,7 +1066,7 @@
       ])) : el('div', { className: 'cs-empty cs-char' }, [el('img', { src: '/assets/brand/muyi-char-idea.webp', alt: '' }), '이 달에 해당하는 일정이 없습니다.']),
     ]);
     const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), expandBtn, setBtn, campBtn]);
-    return [tools, holdBoard(), el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), list])];
+    return [tools, await board, el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), list])];
   }
   const campLib = () => loadScript('/assets/crm-camp.js?v=11');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
