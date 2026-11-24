@@ -45,14 +45,17 @@
         const dmap = (o, pre = '', out = {}, d = 0) => { if (o && typeof o === 'object' && d < 3) for (const [k, v] of Object.entries(o)) { if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v)) out[pre + k] = kd(v); else if (v && typeof v === 'object' && !Array.isArray(v)) dmap(v, pre + k + '.', out, d + 1); } return out; };
         say('캠페인 찾는 중…');
         const all = [], errs = [];
-        for (let page = 0; page < 15; page++) {
+        // ① 주소 숫자 = 캠페인 번호인 화면(/users/campaigns/completed/1081407 등, 리뷰노트 자체가 /api/campaign?id=N · /api/campaign/N/selectedApplies 호출) → 바로 사용
+        let hit = null, det0 = null;
+        for (const n0 of nums) { try { const j = await get('/api/campaign?id=' + n0); const d = j && (j.data || j.campaign || j); if (d && typeof d === 'object' && (titleOf(d) || d.id)) { hit = { id: n0, title: titleOf(d), raw: {} }; det0 = d; break; } } catch (e) { if (/로그인/.test(e.message)) throw e; errs.push(n0 + ' ' + e.message); } }
+        if (!hit) for (let page = 0; page < 15; page++) {
           let objs = [];
           try { objs = arr(await get('/api/v2/campaigns/advertiserCampaigns?page=' + page)); } catch (e) { if (/로그인/.test(e.message)) throw e; errs.push('목록 ' + e.message); break; }
           if (!objs.length) break;
           objs.forEach((c) => { const id = c.id || c.campaignId || (c.campaign && c.campaign.id); if (id) all.push({ id: String(id), title: titleOf(c), raw: c }); });
           if (all.some((c) => nums.includes(c.id))) break;
         }
-        let hit = all.find((c) => nums.includes(c.id));
+        if (!hit) hit = all.find((c) => nums.includes(c.id));
         if (!hit) { const pg = nm((document.title || '') + ' ' + (document.body.innerText || '').slice(0, 4000)); hit = all.filter((c) => nm(c.title).length >= 4 && pg.includes(nm(c.title))).sort((a, b) => nm(b.title).length - nm(a.title).length)[0]; }
         if (!hit && nums.length) for (const n0 of nums) { try { const rs = arr(await get('/api/campaign/' + n0 + '/selectedApplies')); if (rs.length) { hit = { id: n0, title: document.title, raw: {} }; break; } } catch (e) { if (/로그인/.test(e.message)) throw e; errs.push(n0 + ' ' + e.message); } }
         if (!hit) {
@@ -62,8 +65,8 @@
           hit = await new Promise((ok) => box.querySelectorAll('[data-p]').forEach((b) => b.onclick = () => ok(recent[+b.dataset.p])));
         }
         say('선정 명단 가져오는 중…');
-        const c0 = await get('/api/campaign?id=' + hit.id).catch(() => null);
-        const det = c0 && (c0.data || c0);
+        const c0 = det0 ? null : await get('/api/campaign?id=' + hit.id).catch(() => null);
+        const det = det0 || (c0 && (c0.data || c0.campaign || c0));
         const list = [{ id: hit.id, title: hit.title || titleOf(det) || document.title, dates: { ...dmap(hit.raw), ...dmap(det || {}) } }];
         let n = 0; const camps = [];
         for (const c of list) {
