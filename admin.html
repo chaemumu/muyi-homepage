@@ -302,9 +302,11 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 
 @media (max-width:900px){
   #app{flex-direction:column}
-  .sidebar{width:auto;height:auto;position:static;flex-direction:row;align-items:center;border-right:0;border-bottom:1px solid var(--line)}
+  .sidebar{width:auto;height:auto;position:static;flex-direction:row;flex-wrap:wrap;align-items:center;border-right:0;border-bottom:1px solid var(--line)}
+  .sb-search{flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden}
+  .sb-search kbd{display:none}
   .sb-logo{padding:10px 12px}
-  .sb-nav{display:flex;padding:0 6px;gap:2px;min-width:0;overflow-x:auto;scrollbar-width:none}
+  .sb-nav{display:flex;padding:0 6px 6px;gap:2px;min-width:0;overflow-x:auto;scrollbar-width:none;order:1;flex:0 0 100%}
   .mi{white-space:nowrap;flex:none}
   .sb-logo span{display:none}
   .nav-sec,.me-txt{display:none}
