@@ -27,6 +27,10 @@
 .cal-seg button{height:32px;padding:0 14px;border:0;border-radius:8px;background:none;font-weight:600;font-size:13px;color:var(--t2)}
 .cal-seg button.on{background:var(--surface);color:var(--t1);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .cal-month{display:inline-flex;align-items:center;gap:4px;margin-left:auto}
+.cal-mbar{position:sticky;top:56px;z-index:4;display:flex;align-items:center;justify-content:center;gap:6px;height:44px;background:var(--surface);border-bottom:1px solid var(--line);border-radius:var(--r-lg) var(--r-lg) 0 0}
+.cal-mbar b{min-width:100px;text-align:center;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+.cal-mbar .icon-btn{width:32px;height:32px;font-size:18px}
+.cal-mbar .btn{position:absolute;right:10px}
 .cal-month b{min-width:96px;text-align:center;font-size:15px;font-variant-numeric:tabular-nums}
 .cal-month .icon-btn{width:30px;height:30px}
 .cal-legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--t3);align-items:center}
@@ -292,6 +296,7 @@
 .td-d{font-size:10.5px;font-weight:800;color:var(--t2);background:var(--muted);border-radius:5px;padding:1px 6px;margin-right:4px}
 .td-item.off-day{background:color-mix(in srgb,var(--c) 5%,var(--surface))}
 .td-span{font-size:12px;font-weight:700;color:var(--t3)}
+.td-mine{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:10px;border-radius:10px;background:var(--accent-50);color:var(--accent);font-weight:700;font-size:13px}
 .od-list{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 12px}
 .od-list button{height:26px;padding:0 10px;border:1px solid var(--line);border-radius:13px;background:var(--surface);font-size:12px;cursor:pointer}
 .od-list button:hover{border-color:var(--red);color:var(--red)}
@@ -391,7 +396,7 @@
       push('발표', ann, g.발표); push('마감', dl, g.마감);
     });
     // 2차마감: 마감에서 인원이 모자라면 생긴 행
-    (tk.data || []).filter((t) => t.step === '2차마감' && byId.has(t.company_id) && t.due_on >= from && t.due_on <= to && !skip.has(`${t.company_id}|${t.cycle_on}`))
+    (tk.data || []).filter((t) => t.step === '2차마감' && !t.skipped && byId.has(t.company_id) && t.due_on >= from && t.due_on <= to && !skip.has(`${t.company_id}|${t.cycle_on}`))
       .forEach((t) => ev.push({ co: byId.get(t.company_id), cycle: t.cycle_on, step: '2차마감', due: t.due_on, task: t, done: !!t.done_at }));
     // 2차마감에도 발표·마감 날짜를 붙여둠 (링크 확인·연장 안내용)
     ev.filter((e) => e.step === '2차마감').forEach((e) => { const d = ev.find((x) => x.step === '마감' && x.co.id === e.co.id && x.cycle === e.cycle); if (d) { e.ann = d.ann; e.dl = d.dl; } });
@@ -459,7 +464,7 @@
         dot(STEP_COLOR.모집, `모집 — 매월 모집일 (업체마다 설정). 모집은 혼자 움직이고 발표·마감에 영향 없음`),
         dot(STEP_COLOR.발표, `발표 — 모집 달력에서 업체명을 눌러 발표일을 정하면 생김 · 선정·가이드라인·일정 안내`),
         dot(STEP_COLOR.마감, `마감 — 발표 +${(o.마감 || 0) - (o.발표 || 0)}일 ♥ (발표를 옮기면 같이 옮겨짐) · 링크 취합`),
-        dot(STEP_COLOR['2차마감'], `2차마감 — 인원 부족이면 마감 +${o['2차마감'] || 0}일 자동 · 연장(+14)은 발표·마감 상세 안의 [+14 연장] 버튼`),
+        dot(STEP_COLOR['2차마감'], `2차마감 — 인원 부족이면 마감 +${o['2차마감'] || 0}일 자동 · 리뷰 재확인(수정 요청)용 · 연장 [+14]는 마감 자체를 +14일로 옮김`),
         `체험+리뷰 기간 = 발표 다음날 ~ 마감 전날`,
         `간격은 위 [⚙ 설정]에서 바꾸며, 바꾸면 이 설명도 같이 바뀝니다`,
       ]),
@@ -496,16 +501,15 @@
     if (await moveStep(e, d)) { await draw(); flash([d]); }
   }
 
-  // 마감 연장 → 마감일 +14일 2차마감 (표기는 2차마감). 리뷰노트가 참여자 전원에게 연장 연락을 보내므로,
+  // 마감 연장 → 마감일을 +14일로 옮김 (2026-11-24~, 예전엔 2차마감을 따로 만들었음). 리뷰노트가 참여자 전원에게 연장 연락을 보내므로,
   // 이미 글을 올린(해당 없는) 블로거에게 보낼 안내 문자를 바로 연다 (문자는 알리고 연동 후 발송)
   const EXTEND_DAYS = 14;
   async function extendClose(e) {
     const due = addDays(e.due, EXTEND_DAYS);
-    if (!confirm(`${e.co.name} 마감 연장\n${md(e.due)} → ${md(due)} 2차마감을 만들까요?`)) return;
-    const t = e.task;
-    const { error } = await sb.from('camp_tasks').upsert({ company_id: e.co.id, cycle_on: e.cycle, step: '2차마감', due_on: due, target: t?.target ? Math.max(0, t.target - (t.closed || 0)) || null : null }, { onConflict: 'company_id,cycle_on,step' });
-    if (error) { toast('연장 실패: ' + error.message); return; }
-    toast(`${e.co.name} 연장 → ${md(due)} 2차마감`); await draw(); flash([due]);
+    if (!confirm(`${e.co.name} 마감 연장\n${md(e.due)} → ${md(due)} 로 마감을 옮길까요?`)) return;
+    if (!(await moveStep({ ...e, step: '마감' }, due))) return; // 마감 일정 자체를 +14일로 이동 (2차마감 따로 안 만듦)
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    await draw({ quiet: true }); flash([due]);
     const { data: round } = await sb.from('rounds').select('id').eq('company_id', e.co.id).eq('cycle_on', e.cycle).maybeSingle();
     const { data: ros } = round ? await sb.from('roster').select('nickname,name,phone,post_url,cancelled').eq('round_id', round.id) : { data: [] };
     const done = (ros || []).filter((r) => r.post_url && !r.cancelled && r.phone);
@@ -549,18 +553,19 @@
     openCamp({ co, cycle, cfg, announce: e?.ann || undefined, deadline: e?.dl || undefined });
   }
 
+  // 월 이동: 달력 바로 위 줄 (스크롤해도 화면 위에 붙어 있음)
+  const monthBar = () => el('div', { className: 'cal-mbar' }, [
+    el('button', { className: 'icon-btn', type: 'button', text: '‹', title: '이전 달', onclick: () => { S.month = addMonth(S.month, -1); draw({ quiet: true }); } }),
+    el('b', { text: S.month.replace('-', '. ') }),
+    el('button', { className: 'icon-btn', type: 'button', text: '›', title: '다음 달', onclick: () => { S.month = addMonth(S.month, 1); draw({ quiet: true }); } }),
+    S.month !== monthOf(todayKst()) ? el('button', { className: 'btn sm', type: 'button', text: '오늘', onclick: () => { S.month = monthOf(todayKst()); S.sel = todayKst(); draw({ quiet: true }); } }) : null,
+  ].filter(Boolean));
   async function draw(opt = {}) {
     const seg = el('div', { className: 'cal-seg' }, [['camp', '체험단'], ['contract', '계약'], ['content', '무이 콘텐츠']].map(([k, t]) => el('button', { type: 'button', className: S.tab === k ? 'on' : '', text: t, onclick: () => { S.tab = k; try { localStorage.setItem('crm-cal-tab', k); } catch {} draw(); } })));
     const mine = el('button', { className: 'chip' + (S.mine ? ' on' : ''), type: 'button', text: '내 담당만', onclick: () => { S.mine = !S.mine; try { localStorage.setItem('crm-cal-mine', S.mine ? '1' : '0'); } catch {} draw(); } });
-    const nav = el('div', { className: 'cal-month' }, [
-      el('button', { className: 'btn sm', type: 'button', text: '오늘', onclick: () => { S.month = monthOf(todayKst()); S.sel = todayKst(); draw(); } }),
-      el('button', { className: 'icon-btn', type: 'button', text: '‹', title: '이전 달', onclick: () => { S.month = addMonth(S.month, -1); draw(); } }),
-      el('b', { text: S.month.replace('-', '. ') }),
-      el('button', { className: 'icon-btn', type: 'button', text: '›', title: '다음 달', onclick: () => { S.month = addMonth(S.month, 1); draw(); } }),
-    ]);
     // 다시 그릴 때 화면을 비우지 않는다: 새 내용이 준비되면 한 번에 교체 (깜빡임·스크롤 튐 방지)
     const info = el('button', { className: 'icon-btn cal-info', type: 'button', text: 'i', title: '캘린더 사용법 · 기준', onclick: () => showInfo() });
-    const top = el('div', { className: 'cal-top' }, [seg, mine, info, nav]);
+    const top = el('div', { className: 'cal-top' }, [seg, mine, info]); // 월 이동은 달력 바로 위(monthBar)
     const first = !S.box.querySelector('.cal-top');
     if (first) S.box.replaceChildren(top, el('div', { className: 'stack' }, el('div', { className: 'hint', text: '불러오는 중…' })));
     const tok = (S.drawTok = (S.drawTok || 0) + 1);
@@ -655,7 +660,7 @@
         el('div', { className: 'cs-list' }, mine.filter((x) => x.status !== '업로드 완료').sort((a, b) => a.ends_on.localeCompare(b.ends_on)).slice(0, 12).map((x) => el('button', { type: 'button', className: 'cs-line', onclick: () => itemModal(x) }, [el('b', { text: x.title }), el('small', { className: x.ends_on < today ? 'late' : '', text: `${x.channel || '—'} · ${x.status} · ${x.ends_on < today ? '마감 지남 ' : ''}~${md(x.ends_on)}` }), el('span', { className: 'go', text: '›' })])))]),
       el('button', { className: 'btn primary', type: 'button', text: '+ 콘텐츠 추가', onclick: () => itemModal({ starts_on: today, ends_on: today }) }),
     ]);
-    return [el('div', { className: 'cal-tools' }, [chSeg, el('span', { className: 'sp' }), el('span', { className: 'ct-hint', text: '빈 곳 두 번 = 등록 · 여러 날 끌어서 기간 등록 · 막대 끌어서 옮기기 · 한 번 = 완료 표시' })]), el('div', { className: 'cal-wrap' }, [el('div', { className: 'card' }, grid), side])];
+    return [el('div', { className: 'cal-tools' }, [chSeg, el('span', { className: 'sp' }), el('span', { className: 'ct-hint', text: '빈 곳 두 번 = 등록 · 여러 날 끌어서 기간 등록 · 막대 끌어서 옮기기 · 한 번 = 완료 표시' })]), el('div', { className: 'cal-wrap' }, [el('div', { className: 'card cal-card' }, [monthBar(), grid]), side])];
   }
   // 콘텐츠 등록·수정 창
   function itemModal(x) {
@@ -790,12 +795,8 @@
       if (error) { toast('저장 실패: ' + error.message); return true; }
       toast(`${co.name} ${md(d)} 모집 추가`);
     } else if (!(await moveStep({ co, cycle, step, due: cur?.due || null }, d))) return true;
-    await draw(); flash([d]);
-    if (step === '모집') return true; // 모집 달력은 추가만 (상세 팝업 없음)
-    const { ev: now } = await campEvents(d, d);
-    const e = now.find((x) => x.co.id === co.id && x.cycle === cycle && x.step === step) || { co, cycle, step, due: d, ann: step === '발표' ? d : null, dl: null };
-    openDetail(e, cfg);
-    return true;
+    await draw({ quiet: true }); flash([d]);
+    return true; // 추가만 (상세 팝업 없음 — 필요하면 칩을 눌러 열기)
   }
   // 계약 달력: 업체명 → 그날을 재계약일로 + 업체 상세
   async function addRenew(name, d, list) {
@@ -821,7 +822,7 @@
     const extra = [
       chk.due && el('button', { className: 'btn sm', type: 'button', text: `🔍 ${chk.step} 링크 확인`, title: '블로그 글 링크 자동 확인 → 마감 인원 반영 (부족하면 2차마감)', onclick: () => campLib().then(() => window.CRM_CAMP.closeCheck({ co: e.co, cycle: e.cycle, cfg, step: chk.step, announce: e.ann, deadline: chk.due,
         onCount: async (n, tg) => { if (await saveClose(chk, n, tg, cfg)) { toast(n >= tg ? `${e.co.name} 마감 완료 (${n}/${tg})` : `${e.co.name} ${tg - n}명 부족 → ${md(addDays(chk.due, cfg.off['2차마감'] || 7))} 2차마감`); draw(); } } })) }),
-      close.due && el('button', { className: 'btn sm', type: 'button', text: `+${EXTEND_DAYS} 연장`, title: `마감 연장 → 마감일 +${EXTEND_DAYS}일 2차마감 (해당 없는 블로거 안내 문자)`, onclick: () => extendClose(close) }),
+      close.due && el('button', { className: 'btn sm', type: 'button', text: `+${EXTEND_DAYS} 연장`, title: `마감 연장 → 마감일을 +${EXTEND_DAYS}일로 옮김 (이미 등록한 블로거 안내 문자)`, onclick: () => extendClose(close) }),
     ].filter(Boolean);
     // 발표·마감 삭제: 그 단계를 달력에서 뺌 — camp_tasks 그 단계 skipped (발표를 지우면 마감도 같이). 모집·저장된 명단은 그대로. 다시 넣으려면 그 달력에서 두 번 클릭
     if (e.step === '발표' || e.step === '마감') extra.push(el('button', { className: 'btn sm rc-del', type: 'button', text: '삭제', title: `이 회차 ${e.step} 일정 삭제`, onclick: async () => {
@@ -833,7 +834,10 @@
     } }));
     const args = { co: e.co, cycle: e.cycle, cfg, announce: e.ann || undefined, deadline: close.due || e.dl || undefined };
     // 2차마감 = 리뷰 다시 확인(태그 누락 등) → 수정 요청 화면. 전체 상세는 버튼으로
-    if (e.step === '2차마감') return campLib().then(() => window.CRM_CAMP.fixReq({ co: e.co, cycle: e.cycle, extra: [extra[0], el('button', { className: 'btn sm', type: 'button', text: '발표 상세', onclick: () => openCamp({ ...args, extra: extra.slice(1) }) })].filter(Boolean) })).catch((x) => toast('화면을 불러오지 못했습니다: ' + x.message));
+    if (e.step === '2차마감') return campLib().then(() => window.CRM_CAMP.fixReq({ co: e.co, cycle: e.cycle, task: e.task, onDelete: async () => {
+      const { error } = await sb.from('camp_tasks').update({ skipped: true }).eq('company_id', e.co.id).eq('cycle_on', e.cycle).eq('step', '2차마감');
+      if (error) { toast('삭제 실패: ' + error.message); return false; } toast(`${e.co.name} ${md(e.due)} 2차마감 삭제`); draw({ quiet: true }); return true;
+    }, extra: [extra[0], el('button', { className: 'btn sm', type: 'button', text: '발표 상세', onclick: () => openCamp({ ...args, extra: extra.slice(1) }) })].filter(Boolean) })).catch((x) => toast('화면을 불러오지 못했습니다: ' + x.message));
     openCamp({ ...args, extra });
   }
   // 모집 삭제: 이번 회차만(camp_tasks 모집 skipped, 직접 추가한 회차는 행 삭제) 또는 매월 그 날짜 규칙까지
@@ -1056,7 +1060,9 @@
         return card;
       };
       const tools = el('div', { className: 'cal-tools' }, [stepSeg, nav, el('span', { className: 'sp' }), setBtn, campBtn]);
-      return [tools, await board, el('div', { className: 'hint', text: '업체명을 누르면 상세 · 다음 근무일 전까지 쉬는 날(주말·공휴일·설정한 휴무)도 같이 보임 · 칸 빈 곳 한 번 = 완료 표시 · 두 번 = 업체명을 적어 일정 추가 · 업체가 아닌 글자는 메모' }), el('div', { className: 'td-wrap' }, ['모집', '발표', '마감'].map(col))];
+      const allN = all.filter((e) => span.includes(e.due)).length, myN = ev.filter((e) => span.includes(e.due)).length;
+      const mineNote = S.mine && allN > myN ? el('div', { className: 'td-mine' }, [`'내 담당만' 보는 중 — 이 기간 전체 ${allN}건 중 ${myN}건`, el('button', { className: 'btn sm', type: 'button', text: '전체 보기', onclick: () => { S.mine = false; try { localStorage.setItem('crm-cal-mine', '0'); } catch {} draw({ quiet: true }); } })]) : null;
+      return [tools, await board, mineNote, el('div', { className: 'hint', text: '업체명을 누르면 상세 · 다음 근무일 전까지 쉬는 날(주말·공휴일·설정한 휴무)도 같이 보임 · 칸 빈 곳 한 번 = 완료 표시 · 두 번 = 업체명을 적어 일정 추가 · 업체가 아닌 글자는 메모' }), el('div', { className: 'td-wrap' }, ['모집', '발표', '마감'].map(col))].filter(Boolean);
     }
 
     // ── 단계 달력: 그 단계 업체만 · 업체명 누르면 상세 · 끌어서 날짜 변경 ──
@@ -1099,9 +1105,9 @@
       ])) : el('div', { className: 'cs-empty cs-char' }, [el('img', { src: '/assets/brand/muyi-char-idea.webp', alt: '' }), '이 달에 해당하는 일정이 없습니다.']),
     ]);
     const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), expandBtn, setBtn, campBtn]);
-    return [tools, await board, el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), list])];
+    return [tools, await board, el('div', { className: 'stack' }, [el('div', { className: 'card cal-card' }, [monthBar(), grid]), list])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=11');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=12');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   const pickCamp = (evs, cfg, rn) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg, rn)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
@@ -1241,7 +1247,7 @@
       sec('stale', '실행 수량 입력 필요 (14일)', stale.map((x) => [x.co, `마지막 수정 ${kstDay(x.t)}`]), '모든 업체 수량이 최신입니다.'),
     );
     paintSide();
-    return [el('div', { className: 'cal-tools' }, [seg]), el('div', { className: 'cal-wrap' }, [el('div', { className: 'stack' }, [el('div', { className: 'card' }, grid), tbl]), side])];
+    return [el('div', { className: 'cal-tools' }, [seg]), el('div', { className: 'cal-wrap' }, [el('div', { className: 'stack' }, [el('div', { className: 'card cal-card' }, [monthBar(), grid]), tbl]), side])];
   }
 
   // 오늘 할 일용: 오늘 + 지난 미완료 체험단 일정
