@@ -37,11 +37,34 @@
         const arr = (x) => Array.isArray(x) ? x : x && typeof x === 'object' ? (['objects', 'data', 'items', 'list', 'applies', 'selectedApplies', 'results', 'rows', 'campaigns'].map((k) => x[k]).find(Array.isArray) || Object.values(x).map(arr).find((a) => a && a.length) || []) : [];
         const titleOf = (c) => c && (c.title || c.name || c.campaignName || (c.campaign && (c.campaign.title || c.campaign.name))) || '';
         const dates = (o, out = [], d = 0) => { if (o && typeof o === 'object' && d < 3) Object.values(o).forEach((v) => { if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v)) out.push(v.slice(0, 10)); else dates(v, out, d + 1); }); return out; };
-        const m = location.pathname.match(/campaigns?\/(?:[a-z]+\/)?(\d{4,})/) || location.pathname.match(/(\d{5,})/);
-        if (!m) { say('체험단 진행(캠페인) 화면에서 눌러주세요.<br><small style="opacity:.8">그 캠페인의 선정 명단만 가져옵니다. 내 캠페인 목록 → 캠페인을 연 뒤 다시 누르세요.</small>'); return; }
+        // 캠페인 찾기 (2026-11-24~): 주소의 숫자가 API 캠페인 번호와 다를 수 있어서, 내 캠페인 목록(advertiserCampaigns)에서
+        //  ① 주소 숫자와 같은 id ② 화면 글자에 제목이 들어 있는 캠페인 순으로 찾고, 그 캠페인 id로 선정 명단을 가져온다
+        const nums = [...new Set((location.pathname + location.search + location.hash).match(/\d{4,}/g) || [])];
+        const nm = (t) => String(t || '').replace(/[^0-9A-Za-z가-힣]/g, '').toLowerCase();
+        const kd = (v) => { if (/T\d{2}:\d{2}/.test(v)) { const d = new Date(v); if (!isNaN(d)) return new Date(d.getTime() + 9 * 3600e3).toISOString().slice(0, 10); } return v.slice(0, 10); };
+        const dmap = (o, pre = '', out = {}, d = 0) => { if (o && typeof o === 'object' && d < 3) for (const [k, v] of Object.entries(o)) { if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v)) out[pre + k] = kd(v); else if (v && typeof v === 'object' && !Array.isArray(v)) dmap(v, pre + k + '.', out, d + 1); } return out; };
+        say('캠페인 찾는 중…');
+        const all = [], errs = [];
+        for (let page = 0; page < 15; page++) {
+          let objs = [];
+          try { objs = arr(await get('/api/v2/campaigns/advertiserCampaigns?page=' + page)); } catch (e) { if (/로그인/.test(e.message)) throw e; errs.push('목록 ' + e.message); break; }
+          if (!objs.length) break;
+          objs.forEach((c) => { const id = c.id || c.campaignId || (c.campaign && c.campaign.id); if (id) all.push({ id: String(id), title: titleOf(c), raw: c }); });
+          if (all.some((c) => nums.includes(c.id))) break;
+        }
+        let hit = all.find((c) => nums.includes(c.id));
+        if (!hit) { const pg = nm((document.title || '') + ' ' + (document.body.innerText || '').slice(0, 4000)); hit = all.filter((c) => nm(c.title).length >= 4 && pg.includes(nm(c.title))).sort((a, b) => nm(b.title).length - nm(a.title).length)[0]; }
+        if (!hit && nums.length) for (const n0 of nums) { try { const rs = arr(await get('/api/campaign/' + n0 + '/selectedApplies')); if (rs.length) { hit = { id: n0, title: document.title, raw: {} }; break; } } catch (e) { if (/로그인/.test(e.message)) throw e; errs.push(n0 + ' ' + e.message); } }
+        if (!hit) {
+          // 못 찾으면 최근 캠페인에서 고르기
+          const recent = all.slice(0, 12);
+          say('이 화면의 캠페인을 찾지 못했습니다. 아래에서 골라주세요.' + (errs.length ? `<br><small style="opacity:.7">${esc(errs.slice(0, 3).join(' · '))}</small>` : '') + '<div style="display:flex;flex-direction:column;gap:4px;margin-top:8px">' + recent.map((c, i) => `<button data-p="${i}" style="text-align:left;border:0;border-radius:6px;padding:6px 8px;cursor:pointer">${esc(c.title || '캠페인 ' + c.id)}</button>`).join('') + '</div>');
+          hit = await new Promise((ok) => box.querySelectorAll('[data-p]').forEach((b) => b.onclick = () => ok(recent[+b.dataset.p])));
+        }
         say('선정 명단 가져오는 중…');
-        const c0 = await get('/api/campaign?id=' + m[1]).catch(() => null);
-        const list = [{ id: m[1], title: titleOf(c0 && (c0.data || c0)) || document.title }];
+        const c0 = await get('/api/campaign?id=' + hit.id).catch(() => null);
+        const det = c0 && (c0.data || c0);
+        const list = [{ id: hit.id, title: hit.title || titleOf(det) || document.title, dates: { ...dmap(hit.raw), ...dmap(det || {}) } }];
         let n = 0; const camps = [];
         for (const c of list) {
           say(`선정 명단 가져오는 중… ${++n}/${list.length}<br><small>${esc(c.title)}</small>`);
@@ -54,9 +77,9 @@
               try { arr(await get('/api/campaign/' + c.id + '/' + u)).filter((r) => /취소|cancel/i.test(JSON.stringify(r))).forEach((r) => { const k = keyOf(r); if (!seen.has(k)) { seen.add(k); rows.push({ ...r, __cancel: true }); } }); } catch (e) { if (/로그인/.test(e.message)) throw e; }
             }
             if (rows.length) camps.push({ ...c, rows });
-          } catch (e) { if (/로그인/.test(e.message)) throw e; }
+          } catch (e) { if (/로그인/.test(e.message)) throw e; errs.push('명단 ' + e.message); }
         }
-        if (!camps.length) { say('이 캠페인에 선정된 블로거가 없습니다.'); return; }
+        if (!camps.length) { say('이 캠페인에 선정된 블로거가 없습니다.' + (errs.length ? `<br><small style="opacity:.7">${esc(errs.slice(0, 3).join(' · '))}</small>` : '')); return; }
         const send = async (cs) => { const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: KEY, campaigns: cs }) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'CRM 응답 ' + r.status); return j.results || []; };
         say(`CRM에 저장 중… (${camps.length}개 캠페인 · 닉네임·특이사항 정리)`);
         let res = await send(camps);
@@ -64,7 +87,7 @@
         const paint = () => {
           const ok = res.filter((r) => r.status === 'saved' || r.status === 'updated').length;
           say(`<div style="margin:6px 0 10px">${ok}개 저장 · 전체 ${res.length}개</div>` + res.map((r, i) => { const [t, c] = LBL[r.status] || [r.status, '#fff'];
-            return `<div style="padding:8px 0;border-top:1px solid rgba(255,255,255,.18)"><div><b style="color:${c}">${t}</b> ${esc(r.company || r.title)} <small style="opacity:.7">${r.count}명${r.cancelled ? ' · 취소 ' + r.cancelled : ''}</small></div>`
+            return `<div style="padding:8px 0;border-top:1px solid rgba(255,255,255,.18)"><div><b style="color:${c}">${t}</b> ${esc(r.company || r.title)} <small style="opacity:.7">${r.count}명${r.cancelled ? ' · 취소 ' + r.cancelled : ''}${r.round_no ? ' · ' + r.round_no + '회차' : ''}</small></div>` + (r.applied ? `<div style="font-size:12px;opacity:.9">달력 반영: ${esc(r.applied)}</div>` : '')
               + (r.link ? `<a href="${esc(r.link)}" target="_blank" style="color:#fff;font-weight:700">CRM에서 점주 안내 열기 ›</a>` : `<small style="opacity:.8">${esc(r.msg || '')}</small>`)
               + (r.status === 'pick' && r.candidates && r.candidates.length ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">' + r.candidates.map((cd) => `<button data-i="${i}" data-co="${esc(cd.id)}" style="border:0;border-radius:6px;padding:3px 8px;cursor:pointer">${esc(cd.name)}</button>`).join('') + '</div>' : '') + '</div>'; }).join(''));
           box.querySelectorAll('[data-co]').forEach((b) => b.onclick = async () => { const i = +b.dataset.i, cp = camps.find((c) => c.id === res[i].id); b.textContent = '저장 중…'; try { const [r] = await send([{ ...cp, company_id: b.dataset.co }]); res[i] = r; } catch (e) { res[i] = { ...res[i], status: 'error', msg: e.message }; } paint(); });
@@ -227,6 +250,24 @@ textarea.ca-g.sm{min-height:100px}
 .ca-kw .btn{margin-left:auto}
 .fx-memo{min-height:60px!important}
 .fx-pm{--ph:auto;height:auto!important;max-height:calc(var(--vh,100vh) - 32px)}
+.pm-layer.has-memo{display:flex;align-items:center;justify-content:center;gap:12px}
+.pm-layer.has-memo>.pm{flex:0 1 auto;min-width:0}
+.memo-side{flex:none;width:260px;align-self:center;max-height:min(520px,calc(var(--vh,100vh) - 32px));display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:14px;background:var(--surface);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.memo-side .ca-sec{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.memo-side .ca-sec b{font-size:13px}
+.memo-ta{flex:1;height:auto;min-height:220px;resize:vertical;font-size:13px;line-height:1.55}
+@media (max-width:900px){.pm-layer.has-memo{flex-direction:column;align-items:stretch;gap:0}.pm-layer.has-memo>.pm{width:100%!important;max-width:100%;height:auto!important;flex:1 1 auto;min-height:0;max-height:none}.memo-side{width:auto;border-radius:0;box-shadow:none;border-top:1px solid var(--line);max-height:180px}.memo-ta{min-height:70px}}
+.ca-dup{display:inline-block;margin-left:4px;padding:0 5px;border-radius:4px;background:color-mix(in srgb,#D9572B 14%,var(--surface));color:#C2410C;font-size:10.5px;font-weight:800;white-space:nowrap;cursor:help;vertical-align:middle}
+.ca-tbl td.nick{white-space:nowrap}.ca-tbl td.nick .fi{display:inline-block;width:calc(100% - 52px);min-width:80px}
+.ra-pm{width:min(860px,100%)!important}
+.ra-list{display:flex;flex-direction:column;gap:14px}
+.ra-g{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.ra-g.cur{border-color:var(--accent)}
+.ra-h{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface-2);font-size:13px}.ra-h span{color:var(--t3);font-size:12px}.ra-h .btn{margin-left:auto}
+.ra-g .ca-tbl{margin:0}.ra-g .ca-tbl td{padding:6px 12px}
+.rc-guide .gv{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.gv .ca-sec{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.gv .ca-sec .fi{width:auto;min-width:0;max-width:100%;height:32px}.gv-out{width:100%;box-sizing:border-box}.gv .sp{flex:1}
+.gv-out{height:280px;font-size:12.5px;background:var(--surface-2)}
 .fx-rsn{display:flex;flex-wrap:wrap;gap:6px}
 .fx-chip{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
 .fx-hist{display:grid;gap:8px;max-height:280px;overflow:auto}
@@ -295,65 +336,168 @@ textarea.ca-g.sm{min-height:100px}
     paint(); q.focus();
   }
 
-  async function open({ co, cycle, cfg, announce, deadline, rn, extra }) {
+  // 블로거 가이드 글: 업체 정보 + 키워드 + 확인 사항(지점 특이사항 → 브랜드 공통) — 상세 ④ 탭과 모집 팝업 보기 공통
+  function composeGuide({ co, address, info, storeGuide, brandGuide }) {
+    const chk = brandGuide && brandGuide.includes('☆ 지점별 특이사항~')
+      ? brandGuide.replace('☆ 지점별 특이사항~', `☆ 지점별 특이사항~${storeGuide ? '\n' + storeGuide : ''}`)
+      : [storeGuide, brandGuide].filter(Boolean).join('\n\n');
+    return [
+      `안녕하세요 블로거님, 무이(MUYI) 선정 명단 공유드립니다😊`,
+      `선정 업체 참고사항 발송해 드립니다!`, '',
+      `업체명\t\t: ${co.name}`,
+      `업체 주소\t\t: ${address || ''}`,
+      `예약 번호\t\t: ${co.store_phone || co.phone || ''}`,
+      `체험 금액\t\t: ${info.price || ''}`, '',
+      `필수 키워드 : ${info.must || ''}`,
+      `선택 키워드 : ${info.opt || ''}`, '',
+      `~확인 사항`,
+      chk,
+    ].join('\n').trimEnd();
+  }
+  // 모집 팝업용 가이드 보기 (읽기 전용): 저장된 버전을 고르면 그 버전 가이드 전체. 수정·저장은 발표 상세 ④ 블로거 가이드에서
+  async function guideView(co) {
+    const [gl, gb, ex] = await Promise.all([
+      sb.from('guidelines').select('body,fields,created_at').eq('company_id', co.id).eq('kind', '체험단').order('created_at', { ascending: false }).limit(200),
+      sb.from('crm_settings').select('value').eq('key', 'guide_brand:' + brandOf(co)).maybeSingle(),
+      sb.from('companies').select('address,camp_info,phone,store_phone').eq('id', co.id).maybeSingle(),
+    ]);
+    const vers = new Map(); (gl.data || []).forEach((g) => { const t = g.fields?.title || '기본'; if (!vers.has(t)) vers.set(t, g); });
+    const c = { ...co, ...(ex.data || {}) }, base = { price: '', must: '', opt: '', ...(ex.data?.camp_info || {}) }, brand0 = typeof gb.data?.value === 'string' ? gb.data.value : '';
+    const out = el('textarea', { className: 'fi ca-msg gv-out', readOnly: true });
+    const sel = el('select', { className: 'fi', title: '저장된 가이드 버전' }, vers.size ? [...vers.keys()].map((t) => el('option', { value: t, text: t })) : [el('option', { value: '', text: '저장된 버전 없음 (현재 정보)' })]);
+    const paint = () => { const g = vers.get(sel.value), f = g?.fields || {}; out.value = composeGuide({ co: c, address: c.address, info: { price: f.price ?? base.price, must: f.must ?? base.must, opt: f.opt ?? base.opt }, storeGuide: g?.body || '', brandGuide: f.brand ?? brand0 }); };
+    sel.onchange = paint; paint();
+    return el('div', { className: 'gv' }, [el('div', { className: 'ca-sec' }, [el('b', { text: '블로거 가이드' }), sel, el('span', { className: 'sp' }), el('button', { className: 'btn sm', type: 'button', text: '가이드 복사', onclick: () => copy(out.value, '가이드') })]), out]);
+  }
+  // 업체 메모 (업체 전체 1개, companies.camp_memo): 캘린더의 모든 팝업 옆에 같은 메모 — 입력하면 자동 저장
+  async function memoSide(layerEl, co) {
+    if (!layerEl?.isConnected || layerEl.querySelector('.memo-side')) return;
+    const { data } = await sb.from('companies').select('camp_memo,camp_memo_at,camp_memo_by').eq('id', co.id).maybeSingle();
+    if (!layerEl.isConnected) return;
+    const ta = el('textarea', { className: 'fi memo-ta', value: data?.camp_memo || '', placeholder: '이 업체 메모 (모든 회차·팝업 공통)\n예: 사장님 오전 통화 X, 주차 2대' });
+    const st = el('small', { className: 'ca-when' });
+    const when = (at, by) => { st.textContent = at ? `수정 ${kstShort(at)}${by && admins[by] ? ' · ' + admins[by] : ''}` : '아직 메모 없음'; };
+    when(data?.camp_memo_at, data?.camp_memo_by);
+    let t = null, last = ta.value;
+    const save = async () => { clearTimeout(t); const v = ta.value.trim(); if (v === last.trim()) return; const at = new Date().toISOString();
+      const { error } = await sb.from('companies').update({ camp_memo: v || null, camp_memo_at: at, camp_memo_by: me }).eq('id', co.id);
+      if (error) { st.textContent = '저장 실패: ' + error.message; return; } last = ta.value; when(at, me); };
+    ta.oninput = () => { st.textContent = '입력 중…'; clearTimeout(t); t = setTimeout(save, 900); };
+    ta.onblur = save;
+    layerEl.classList.add('has-memo');
+    layerEl.append(el('aside', { className: 'memo-side', onclick: (e) => e.stopPropagation() }, [el('div', { className: 'ca-sec' }, [el('b', { text: '업체 메모' }), el('small', { className: 'ca-when', text: co.name })]), ta, st]));
+  }
+  // 전체 회차 명단: 이 업체 모든 회차(rounds) 명단 + 검색(닉네임·이름·전화·블로그)
+  async function rosterAll(co, { cycle } = {}) {
+    const { data: rds } = await sb.from('rounds').select('id,cycle_on,round_no,rn_campaign_id').eq('company_id', co.id).order('cycle_on', { ascending: false, nullsFirst: false }).limit(100);
+    const ids = (rds || []).map((r) => r.id);
+    const ros = ids.length ? ((await sb.from('roster').select('round_id,nickname,name,phone,blog_url,post_url,cancelled,done').in('round_id', ids).order('created_at').limit(3000)).data || []) : [];
+    const groups = (rds || []).map((r) => ({ r, rows: ros.filter((x) => x.round_id === r.id) })).filter((g) => g.rows.length);
+    const q = el('input', { className: 'fi', type: 'search', placeholder: '이름 · 닉네임 · 전화 · 블로그 검색' });
+    const cnt = el('b', { className: 'ca-cnt' });
+    const box = el('div', { className: 'ra-list' });
+    const nrm = (v) => String(v || '').toLowerCase().replace(/[\s-]/g, '');
+    const paint = () => {
+      const k = nrm(q.value); let n = 0;
+      box.replaceChildren(...groups.map((g) => {
+        const rows = g.rows.filter((x) => !k || [x.nickname, x.name, x.phone, x.blog_url].some((v) => nrm(v).includes(k)));
+        n += rows.length; if (!rows.length) return null;
+        return el('div', { className: 'ra-g' + (g.r.cycle_on === cycle ? ' cur' : '') }, [
+          el('div', { className: 'ra-h' }, [el('b', { text: g.r.round_no ? `${g.r.round_no}회차` : '회차 없음' }), el('span', { text: `${g.r.cycle_on ? '모집 ' + md(g.r.cycle_on) : '모집일 없음'} · ${g.rows.filter((x) => !x.cancelled).length}명${g.r.cycle_on === cycle ? ' · 지금 연 회차' : ''}` }),
+            el('button', { className: 'btn sm ghost', type: 'button', text: '번호 복사', onclick: () => copy(rows.filter((x) => !x.cancelled && x.phone).map((x) => x.phone).join(', '), `${g.r.round_no || ''}회차 번호`) })]),
+          el('table', { className: 'ca-tbl' }, el('tbody', {}, rows.map((x) => el('tr', { className: x.cancelled ? 'off' : '' }, [el('td', { className: 'nick', text: x.nickname || '' }), el('td', { text: x.name || '' }), el('td', { className: 'cphone', text: x.phone || '' }),
+            el('td', {}, x.blog_url ? el('a', { href: x.blog_url, target: '_blank', rel: 'noopener', text: blogId(x.blog_url) || '블로그' }) : ''), el('td', {}, x.post_url ? el('a', { href: x.post_url, target: '_blank', rel: 'noopener', text: '글 보기' }) : x.cancelled ? '취소' : (x.done ? '완료' : ''))])))),
+        ]);
+      }).filter(Boolean));
+      if (!box.childElementCount) box.append(empty('idea', groups.length ? '검색 결과가 없어요' : '저장된 명단이 없어요', groups.length ? '' : '발표 상세 ① 명단에서 저장하면 회차별로 쌓입니다.'));
+      cnt.textContent = `${groups.length}개 회차 · ${k ? '검색 ' + n + '명' : '전체 ' + ros.length + '명'}`;
+    };
+    q.oninput = paint;
+    const L = layer([el('div', { className: 'pm-h' }, [el('h3', { text: `${co.name} · 전체 회차 명단` }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => L.close() })]), el('div', { className: 'ca-body' }, [el('div', { className: 'ca-sec' }, [q, cnt]), box])]);
+    L.L.firstChild.classList.add('ra-pm');
+    paint(); q.focus();
+  }
+  // 같은 브랜드 전체 지점 명단에서 같은 블로그(블로그 아이디) 찾기 → Map(blogId → [{ name, round_no, cycle_on }])
+  async function brandDups(co, exceptRound) {
+    const br = brandOf(co); if (!br) return new Map();
+    const { data: cos } = await sb.from('companies').select('id,name,brand').eq('stage', '결제').limit(3000);
+    const mine = (cos || []).filter((c) => brandOf(c) === br);
+    const cIds = mine.map((c) => c.id); if (!cIds.length) return new Map();
+    const rds = []; for (let i = 0; i < cIds.length; i += 150) rds.push(...(((await sb.from('rounds').select('id,company_id,round_no,cycle_on').in('company_id', cIds.slice(i, i + 150))).data) || []));
+    const rIds = rds.filter((r) => r.id !== exceptRound).map((r) => r.id); if (!rIds.length) return new Map();
+    const ros = []; for (let i = 0; i < rIds.length; i += 150) ros.push(...(((await sb.from('roster').select('round_id,blog_url').in('round_id', rIds.slice(i, i + 150)).limit(5000)).data) || []));
+    const rBy = new Map(rds.map((r) => [r.id, r])), cBy = new Map(mine.map((c) => [c.id, c])), out = new Map();
+    ros.forEach((x) => { const id = blogId(x.blog_url); if (!id) return; const r = rBy.get(x.round_id); if (!out.has(id)) out.set(id, []); out.get(id).push({ name: cBy.get(r.company_id)?.name || '', round_no: r.round_no, cycle_on: r.cycle_on }); });
+    return out;
+  }
+  async function open({ co, cycle, cfg, announce, deadline, rn, extra, rno, rnoNone }) {
     const p = period(cycle, cfg, { announce, deadline });
-    const [rd, rds, gl, gb] = await Promise.all([
+    const [rd, gl, gb] = await Promise.all([
       sb.from('rounds').select('*').eq('company_id', co.id).eq('cycle_on', cycle).maybeSingle(),
-      sb.from('rounds').select('id', { count: 'exact', head: true }).eq('company_id', co.id),
       sb.from('guidelines').select('body,fields,created_at,created_by').eq('company_id', co.id).eq('kind', '체험단').order('created_at', { ascending: false }).limit(200),
       sb.from('crm_settings').select('value,updated_at,updated_by').eq('key', 'guide_brand:' + brandOf(co)).maybeSingle(),
     ]);
+    // 이 회차(모집일)에 저장된 명단만 보여준다. 북마크 명단이 다른 모집일에 붙어 있으면 [북마크 명단 불러오기]로 직접 고름 (자동으로 가까운 것 불러오던 기능 삭제 — 다른 회차 명단이 뜨던 원인)
     let round = rd.data, moved = null;
-    // 북마크(리뷰노트)로 가져온 명단이 다른 모집일 회차에 붙어 있으면(가져온 날 기준으로 회차를 고르기 때문) 가까운 것(±35일)을 이 회차로 불러옴
-    if (!round) {
-      const { data: near } = await sb.from('rounds').select('*').eq('company_id', co.id).gte('cycle_on', addDays(cycle, -35)).lte('cycle_on', addDays(cycle, 35)).limit(20);
-      const cand = (near || []).filter((r) => r.rn_campaign_id && r.cycle_on).sort((a, b) => Math.abs(parse(a.cycle_on) - parse(cycle)) - Math.abs(parse(b.cycle_on) - parse(cycle)))[0];
-      if (cand) { const { count } = await sb.from('rounds').select('id', { count: 'exact', head: true }).eq('company_id', co.id).eq('cycle_on', cycle); if (!count) { round = cand; moved = cand.cycle_on; } }
-    }
     const today = todayKst();
     const [ros, exQ, lbQ] = await Promise.all([
       round ? sb.from('roster').select('*').eq('round_id', round.id).order('created_at').then((r) => r.data || []) : Promise.resolve([]),
       sb.from('companies').select('address,camp_round_done,camp_round_cycle,camp_info').eq('id', co.id).maybeSingle(),
       sb.from('camp_tasks').select('label').eq('company_id', co.id).eq('cycle_on', cycle).eq('step', '모집').maybeSingle(),
     ]);
-    const lbNo = /^\d+$/.test(lbQ.data?.label || '') ? +lbQ.data.label : null; // 모집 달력에서 고른 회차
+    const lbNo = /^\d+$/.test(lbQ.data?.label || '') ? +lbQ.data.label : null;
     const ex = exQ.data || {};
-    // 회차: 우상단 = 끝난 회차(companies.camp_round_done), 명단 회차 = 끝난 회차 + 1 (저장된 명단이면 그 회차)
-    // 이 회차의 마감일이 지나면 끝난 회차를 이 회차 번호까지 자동으로 올림 (같은 회차는 한 번만)
-    let done = ex.camp_round_done;
-    if (done == null) {
-      const { data: prev } = await sb.from('rounds').select('round_no').eq('company_id', co.id).lt('cycle_on', cycle).order('round_no', { ascending: false }).limit(1);
-      done = prev?.[0]?.round_no || Math.max(0, rds.count - (round ? 1 : 0)) || 0;
-    }
-    const roundNo0 = round?.round_no || lbNo || (ex.camp_round_cycle === cycle ? done : Math.min(20, done + 1)); // 이미 끝내고 올린 회차면 그 번호
-    if (p.deadline < today && (!ex.camp_round_cycle || ex.camp_round_cycle < cycle) && roundNo0 > done) {
-      done = Math.min(20, roundNo0);
-      await sb.from('companies').update({ camp_round_done: done, camp_round_cycle: cycle }).eq('id', co.id);
-    }
+    // 회차 = 모집 달력과 같은 번호 (달력에서 넘겨받음). 메시지(점주 안내·완료 보고·일정표·캘린더)에는 +1
+    const roundNo0 = lbNo || (rnoNone ? null : rno) || round?.round_no || (ex.camp_round_cycle === cycle ? ex.camp_round_done : null) || null;
     const info = { price: '', must: '', opt: '', ...(ex.camp_info || {}) };
     // 지점 특이사항: 이름을 붙여 여러 개 (guidelines.fields.title). 이름별 최신이 현재 내용
     const notes = new Map(); (gl.data || []).forEach((g) => { const t = g.fields?.title || '기본'; if (!notes.has(t)) notes.set(t, g); });
     const S = {
-      roundNo: roundNo0, done, teams: round?.teams || co.camp_teams || 10, weeks: round?.review_weeks || 4,
+      roundNo: roundNo0, teams: round?.teams || co.camp_teams || 10, weeks: round?.review_weeks || 4,
       rows: ros.map((r) => ({ id: r.id, nickname: r.nickname || '', name: r.name || '', phone: r.phone || '', blog: r.blog_url || '', post: r.post_url || '', note: r.note || '', grade: r.grade || '', visits: r.visits, msg: '', off: r.cancelled, done: !!r.done })),
-      tab: ros.length ? 'owner' : 'list', saved: !!ros.length, ownerEdited: false, imgDirty: true,
+      tab: ros.length ? 'owner' : 'list', saved: !!ros.length, ownerEdited: false, imgDirty: true, dup: new Map(),
       storeTitle: (gl.data?.[0]?.fields?.title) || '기본', storeGuide: gl.data?.[0]?.body || '', brandGuide: typeof gb.data?.value === 'string' ? gb.data.value : '',
     };
+    const mno = () => (S.roundNo || 0) + 1; // 메시지 회차
     const live = () => S.rows.filter((r) => !r.off);
+    // 같은 브랜드 다른 지점·회차에도 있는 블로거 (블로그 아이디 기준)
+    const dupB = (r) => { const l = S.dup.get(blogId(r.blog)); return l?.length ? el('span', { className: 'ca-dup', text: `중복 ${l.length}`, title: '같은 브랜드에서 이미 선정된 블로거\n' + l.map((x) => `· ${x.name} ${x.round_no ? x.round_no + '회차' : ''}${x.cycle_on ? ' (모집 ' + md(x.cycle_on) + ')' : ''}`).join('\n') }) : null; };
     const complete = (r) => !!(r.done || r.post); // 완료 = 체크했거나 글 링크가 있음
     const phonesOf = (list) => list.map((r) => r.phone).filter(Boolean).join(', ');
     const chip = (k, t) => { const s = el('span', {}, [el('i'), t]); s.style.setProperty('--c', STEP_C[k]); return s; };
-    const opts = (from, sel, fmt) => Array.from({ length: 21 - from }, (_, i) => el('option', { value: from + i, text: fmt(from + i), selected: from + i === sel }));
-    const rdBadge = el('select', { className: 'fi ca-rdsel', title: '끝난 회차 (마감일이 지나면 자동으로 올라감) · 명단 회차는 여기 +1' }, opts(0, S.done, (n) => n ? `${n}회차 완료` : '완료 회차 없음'));
-    rdBadge.onchange = async () => {
-      S.done = +rdBadge.value;
-      const { error } = await sb.from('companies').update({ camp_round_done: S.done }).eq('id', co.id);
-      if (error) { toast('저장 실패: ' + error.message); return; }
-      if (!S.saved) { S.roundNo = Math.min(20, S.done + 1); F.no.value = S.roundNo; changed(); }
-      toast(`${co.name} 끝난 회차 ${S.done} → 명단 ${S.roundNo}회차`);
-    };
+    const opts = (from, sel, fmt) => Array.from({ length: Math.max(21, (sel || 0) + 1) - from }, (_, i) => el('option', { value: from + i, text: fmt(from + i), selected: from + i === sel }));
+    const rnoOpts = () => [el('option', { value: '', text: '회차 없음', selected: !S.roundNo }), ...opts(1, S.roundNo, (n) => `${n}회차`)];
+    // 회차 바꾸기 (우상단·명단 탭 공통): 그 회차 명단이 다른 모집일에 저장돼 있으면 그 회차 상세로 이동, 아니면 이 회차 번호를 바꿔 저장 + 메시지 바로 반영
+    async function setRound(v) {
+      const n = v ? +v : null;
+      if (n && n !== S.roundNo) {
+        const { data: other } = await sb.from('rounds').select('id,cycle_on').eq('company_id', co.id).eq('round_no', n).neq('cycle_on', cycle).not('cycle_on', 'is', null).order('cycle_on', { ascending: false }).limit(1);
+        const o = other?.[0];
+        if (o && confirm(`${n}회차 명단은 모집 ${md(o.cycle_on)} 회차에 저장돼 있습니다.\n그 회차 명단으로 바꿀까요?\n(취소 = 이 회차 번호만 ${n}회차로 바꿈)`)) {
+          const { data: ts } = await sb.from('camp_tasks').select('step,due_on').eq('company_id', co.id).eq('cycle_on', o.cycle_on).in('step', ['발표', '마감']);
+          const due = (st) => (ts || []).find((t) => t.step === st)?.due_on || undefined;
+          P.close(); open({ co, cycle: o.cycle_on, cfg, announce: due('발표'), deadline: due('마감'), rno: n, extra });
+          return;
+        }
+      }
+      S.roundNo = n; rdBadge.replaceChildren(...rnoOpts()); F.no.replaceChildren(...rnoOpts());
+      if (S.ownerEdited) ownerT.value = ownerT.value.replace(/\d+회차 마감일은/, `${mno()}회차 마감일은`);
+      changed(); try { paintCheck(); } catch { /* 아직 탭 준비 전 */ }
+      const lb = n ? String(n) : '-';
+      const { data: t } = await sb.from('camp_tasks').select('id').eq('company_id', co.id).eq('cycle_on', cycle).eq('step', '모집').maybeSingle();
+      const r1 = await (t ? sb.from('camp_tasks').update({ label: lb }).eq('id', t.id) : sb.from('camp_tasks').insert({ company_id: co.id, cycle_on: cycle, step: '모집', due_on: cycle, label: lb }));
+      if (r1.error) { toast('회차 저장 실패: ' + r1.error.message); return; }
+      lbQ.data = { label: lb };
+      if (n && round?.id) await sb.from('rounds').update({ round_no: n, round_label: lb }).eq('id', round.id);
+      if (n && (!ex.camp_round_cycle || ex.camp_round_cycle <= cycle)) { await sb.from('companies').update({ camp_round_done: n, camp_round_cycle: cycle }).eq('id', co.id); ex.camp_round_done = n; ex.camp_round_cycle = cycle; } // 다음 회차 자동 번호의 기준점
+      window.CRM_CALENDAR?.refresh?.();
+      toast(n ? `${n}회차로 저장 · 메시지는 ${mno()}회차` : '회차 없음');
+    }
+    const rdBadge = el('select', { className: 'fi ca-rdsel', title: '회차 (모집 달력과 같은 번호) · 점주 안내 등 메시지에는 +1' }, rnoOpts());
+    rdBadge.onchange = () => setRound(rdBadge.value);
+    const allBtn = el('button', { className: 'btn sm', type: 'button', text: '전체 회차 명단', title: '이 업체의 모든 회차 명단 (이름·전화·블로그 검색)', onclick: () => rosterAll(co, { cycle }) });
     const head = el('div', { className: 'ca-head' }, [
-      el('div', { className: 'ca-title' }, [el('h3', { text: co.name }), rdBadge, (extra || []).length ? el('div', { className: 'ca-extra' }, extra) : '', el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]),
+      el('div', { className: 'ca-title' }, [el('h3', { text: co.name }), rdBadge, el('div', { className: 'ca-extra' }, [allBtn, ...(extra || [])]), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]),
       el('div', { className: 'ca-tl' }, [chip('모집', `모집 ${mdw(p.recruitFrom)} ~ ${mdw(p.recruitTo)}`), chip('발표', `발표 ${mdw(p.announce)}`), chip('체험', `체험+리뷰 ${mdw(p.reviewFrom)} ~ ${mdw(p.reviewTo)}`), chip('마감', `마감 ${mdw(p.deadline)} ♥`)]),
     ]);
 
@@ -362,33 +506,18 @@ textarea.ca-g.sm{min-height:100px}
     const rosterTxt = () => S.rows.flatMap((r) => [...person(r), '']).join('\n').trimEnd();
     const ownerMsg = () => [
       `안녕하세요 사장님, 무이(MUYI) 선정 명단 공유드립니다😊`,
-      `${S.roundNo}회차 마감일은 [ ${kmd(p.deadline)}] 입니다.`, '',
+      `${mno()}회차 마감일은 [ ${kmd(p.deadline)}] 입니다.`, '',
       ...live().flatMap((r) => [...person(r), '']),
     ].join('\n').trimEnd();
     // 블로거 가이드 (샘플): 업체 정보 + 키워드 + 확인 사항(지점 특이사항 → 브랜드 공통)
-    const guideTxt = () => {
-      const chk = S.brandGuide && S.brandGuide.includes('☆ 지점별 특이사항~')
-        ? S.brandGuide.replace('☆ 지점별 특이사항~', `☆ 지점별 특이사항~${S.storeGuide ? '\n' + S.storeGuide : ''}`)
-        : [S.storeGuide, S.brandGuide].filter(Boolean).join('\n\n');
-      return [
-        `안녕하세요 블로거님, 무이(MUYI) 선정 명단 공유드립니다😊`,
-        `선정 업체 참고사항 발송해 드립니다!`, '',
-        `업체명\t\t: ${co.name}`,
-        `업체 주소\t\t: ${ex.address || ''}`,
-        `예약 번호\t\t: ${co.store_phone || co.phone || ''}`,
-        `체험 금액\t\t: ${info.price || ''}`, '',
-        `필수 키워드 : ${info.must || ''}`,
-        `선택 키워드 : ${info.opt || ''}`, '',
-        `~확인 사항`,
-        chk,
-      ].join('\n').trimEnd();
-    };
+    const guideTxt = () => composeGuide({ co, address: ex.address, info, storeGuide: S.storeGuide, brandGuide: S.brandGuide });
     // 구글 캘린더: 체험+리뷰 시작 ~ 마감일까지 한 일정 (설명에 기간·마감 모두)
-    const gcalUrl = () => `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`[무이 체험단] ${co.name} 체험·리뷰 (마감 ${md(p.deadline)})`)}&dates=${p.reviewFrom.replace(/-/g, '')}/${addDays(p.deadline, 1).replace(/-/g, '')}&details=${encodeURIComponent([`${co.name} ${S.roundNo}회차 체험단`, `· 체험+리뷰 기간: ${mdw(p.reviewFrom)} ~ ${mdw(p.reviewTo)}`, `· 리뷰 마감: ${mdw(p.deadline)} ♥`, `· 선정 블로거 ${live().length || S.teams}명`, '', '마감일에 무이가 등록 현황을 확인해 드립니다.'].join('\n'))}`;
+    const gcalUrl = () => `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`[무이 체험단] ${co.name} 체험·리뷰 (마감 ${md(p.deadline)})`)}&dates=${p.reviewFrom.replace(/-/g, '')}/${addDays(p.deadline, 1).replace(/-/g, '')}&details=${encodeURIComponent([`${co.name} ${mno()}회차 체험단`, `· 체험+리뷰 기간: ${mdw(p.reviewFrom)} ~ ${mdw(p.reviewTo)}`, `· 리뷰 마감: ${mdw(p.deadline)} ♥`, `· 선정 블로거 ${live().length || S.teams}명`, '', '마감일에 무이가 등록 현황을 확인해 드립니다.'].join('\n'))}`;
 
     async function saveRoster() {
-      const row = { company_id: co.id, cycle_on: cycle, round_no: S.roundNo, round_label: String(S.roundNo), teams: S.teams, review_weeks: S.weeks, recruit_on: cycle, deadline: p.deadline, state: '진행' };
+      const row = { company_id: co.id, cycle_on: cycle, round_no: S.roundNo || null, round_label: S.roundNo ? String(S.roundNo) : null, teams: S.teams, review_weeks: S.weeks, recruit_on: cycle, deadline: p.deadline, state: '진행' };
       let r = round;
+      if (moved && rd.data && rd.data.id !== r?.id) await sb.from('rounds').delete().eq('id', rd.data.id); // 이 회차의 빈 회차 행 → 불러온 북마크 명단으로 대체
       if (r) { const { data, error } = await sb.from('rounds').update(row).eq('id', r.id).select().single(); if (error) throw error; r = data; moved = null; } // cycle_on도 이 회차로 (북마크 명단 연결)
       else { const { data, error } = await sb.from('rounds').insert(row).select().single(); if (error) throw error; r = data; }
       round = r;
@@ -398,8 +527,8 @@ textarea.ca-g.sm{min-height:100px}
         if (e2) throw e2; (ins || []).forEach((d, i) => { if (S.rows[i]) S.rows[i].id = d.id; });
       }
       S.saved = true;
-      // 모집 달력 칩에도 이 회차 번호 (모·완으로 정해둔 상태는 그대로)
-      if (!lbQ.data?.label || /^\d+$/.test(lbQ.data.label)) {
+      // 모집 달력 칩에도 이 회차 번호 (회차 없음 '-'으로 정해둔 건 그대로)
+      if (S.roundNo && lbQ.data?.label !== String(S.roundNo)) {
         const lb = String(S.roundNo), { data: t } = await sb.from('camp_tasks').select('id').eq('company_id', co.id).eq('cycle_on', cycle).eq('step', '모집').maybeSingle();
         await (t ? sb.from('camp_tasks').update({ label: lb }).eq('id', t.id) : sb.from('camp_tasks').insert({ company_id: co.id, cycle_on: cycle, step: '모집', due_on: cycle, label: lb })).then(() => {}, () => {});
         lbQ.data = { label: lb };
@@ -431,20 +560,8 @@ textarea.ca-g.sm{min-height:100px}
 
     // ① 명단
     const num = (v, min = 1) => Math.max(min, Number(v) || min);
-    const F = { no: el('select', { className: 'fi' }, opts(1, S.roundNo, (n) => `${n}회차`)), teams: el('input', { className: 'fi', type: 'number', min: 1, value: S.teams }), weeks: el('input', { className: 'fi', type: 'number', min: 1, value: S.weeks }) };
-    // 회차를 바꾸면 메시지(점주 안내·완료 보고·이미지)에 바로 반영, 저장된 명단이면 회차도 바로 저장
-    F.no.onchange = async () => {
-      S.roundNo = num(F.no.value);
-      if (S.ownerEdited) ownerT.value = ownerT.value.replace(/\d+회차 마감일은/, `${S.roundNo}회차 마감일은`);
-      changed(); try { paintCheck(); } catch { /* 아직 탭 준비 전 */ }
-      if (round?.id) {
-        const { error } = await sb.from('rounds').update({ round_no: S.roundNo, round_label: String(S.roundNo) }).eq('id', round.id);
-        if (error) { toast('회차 저장 실패: ' + error.message); return; }
-        const { data: t } = await sb.from('camp_tasks').select('id').eq('company_id', co.id).eq('cycle_on', cycle).eq('step', '모집').maybeSingle();
-        if (t) await sb.from('camp_tasks').update({ label: String(S.roundNo) }).eq('id', t.id);
-        toast(`${S.roundNo}회차로 저장 · 메시지에 반영`);
-      }
-    };
+    const F = { no: el('select', { className: 'fi', title: '모집 달력과 같은 회차 · 메시지에는 +1' }, rnoOpts()), teams: el('input', { className: 'fi', type: 'number', min: 1, value: S.teams }), weeks: el('input', { className: 'fi', type: 'number', min: 1, value: S.weeks }) };
+    F.no.onchange = () => setRound(F.no.value);
     F.teams.oninput = () => { S.teams = num(F.teams.value); changed(); }; F.weeks.oninput = () => { S.weeks = num(F.weeks.value); changed(); };
     const file = el('input', { type: 'file', accept: '.xlsx,.xls,.csv', hidden: true });
     const prog = el('div', { className: 'ca-prog', hidden: true }, el('i'));
@@ -464,7 +581,7 @@ textarea.ca-g.sm{min-height:100px}
         const nk = el('input', { className: 'fi', value: r.nickname, placeholder: '닉네임' }); nk.oninput = () => { r.nickname = nk.value; changed(); };
         const nt = el('input', { className: 'fi', value: r.note, placeholder: '특이사항' }); nt.oninput = () => { r.note = nt.value; changed(); };
         const on = el('input', { type: 'checkbox', checked: !r.off, title: '선정 (끄면 취소)' }); on.onchange = () => { r.off = !on.checked; on.closest('tr').classList.toggle('off', r.off); changed(); };
-        return el('tr', { className: r.off ? 'off' : '' }, [el('td', {}, on), el('td', { className: 'num', text: i + 1 }), el('td', { className: 'nick' }, nk), el('td', { text: r.name }), el('td', { className: 'cphone', text: r.phone }), el('td', { className: 'num', text: r.visits ?? '' }), el('td', { className: 'note' }, nt), el('td', { className: 'cmsg', text: r.msg, title: r.msg })]);
+        return el('tr', { className: r.off ? 'off' : '' }, [el('td', {}, on), el('td', { className: 'num', text: i + 1 }), el('td', { className: 'nick' }, [nk, dupB(r)].filter(Boolean)), el('td', { text: r.name }), el('td', { className: 'cphone', text: r.phone }), el('td', { className: 'num', text: r.visits ?? '' }), el('td', { className: 'note' }, nt), el('td', { className: 'cmsg', text: r.msg, title: r.msg })]);
       }));
       const has = !!S.rows.length;
       tableWrap.hidden = !has; txtWrap.hidden = !has; listEmpty.hidden = has; drop.classList.toggle('mini', has);
@@ -514,14 +631,32 @@ textarea.ca-g.sm{min-height:100px}
     const onDocPaste = (e) => { if (!P.L.isConnected) { document.removeEventListener('paste', onDocPaste); return; } if (S.tab !== 'list' || e.target === pasteIn) return; if (takePaste(e.clipboardData?.getData('text'))) e.preventDefault(); };
     document.addEventListener('paste', onDocPaste);
     const rnHow = el('button', { className: 'btn sm ghost', type: 'button', text: '리뷰노트 북마크 설치', onclick: () => rnInstall() });
+    // 북마크로 가져온 명단이 다른 모집일 회차에 저장돼 있을 때: 직접 골라 이 회차로 불러오기 (저장하면 이 회차로 옮겨짐)
+    const rnPick = el('button', { className: 'btn sm', type: 'button', hidden: true });
+    async function rnNear() {
+      const { data } = await sb.from('rounds').select('id,cycle_on,round_no,rn_campaign_id,teams').eq('company_id', co.id).not('rn_campaign_id', 'is', null).gte('cycle_on', addDays(cycle, -60)).lte('cycle_on', addDays(cycle, 60)).neq('cycle_on', cycle).order('cycle_on', { ascending: false }).limit(10);
+      const list = data || []; if (!list.length || !P.L.isConnected) return;
+      rnPick.hidden = false; rnPick.textContent = `북마크 명단 불러오기 (${list.length})`;
+      rnPick.onclick = () => {
+        const M = layer([el('div', { className: 'pm-h' }, [el('h3', { text: '다른 모집일에 저장된 북마크 명단' }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => M.close() })]),
+          el('div', { className: 'ca-body' }, [el('div', { className: 'ca-hint', text: `고른 명단을 이 회차(모집 ${md(cycle)})로 불러옵니다. [저장]하면 그 명단이 이 회차로 옮겨집니다.` }),
+            el('div', { className: 'ca-pick' }, list.map((r) => el('button', { type: 'button', onclick: async () => {
+              const { data: ro } = await sb.from('roster').select('*').eq('round_id', r.id).order('created_at');
+              round = r; moved = r.cycle_on; S.teams = r.teams || S.teams; F.teams.value = S.teams;
+              S.rows = (ro || []).map((x) => ({ id: x.id, nickname: x.nickname || '', name: x.name || '', phone: x.phone || '', blog: x.blog_url || '', post: x.post_url || '', note: x.note || '', grade: x.grade || '', visits: x.visits, msg: '', off: x.cancelled, done: !!x.done }));
+              S.saved = false; S.ownerEdited = false; M.close(); paintRows(); paintSteps(); rnPick.hidden = true;
+              toast(`모집 ${md(r.cycle_on)} 회차 북마크 명단 ${S.rows.length}명 불러옴 — 저장하면 이 회차로 옮겨집니다`);
+            } }, [el('b', { text: `모집 ${mdw(r.cycle_on)}` }), el('span', { text: `${r.round_no ? r.round_no + '회차 · ' : ''}리뷰노트 캠페인 ${r.rn_campaign_id}` })])))])]);
+      };
+    }
     panels.list = el('div', { className: 'ca-panel' }, [
       el('div', { className: 'ca-row' }, [lab('회차', F.no), lab('모집 팀', F.teams), lab('리뷰 기간(주)', F.weeks), el('div', { className: 'ca-f grow' }, [drop])]),
-      el('div', { className: 'ca-rn' }, [el('span', { className: 'ca-rn-t', text: '또는 리뷰노트에서 바로' }), pasteIn, rnHow]),
+      el('div', { className: 'ca-rn' }, [el('span', { className: 'ca-rn-t', text: '또는 리뷰노트에서 바로' }), pasteIn, rnPick, rnHow]),
       prog, status, listEmpty, tableWrap, txtWrap,
     ]);
     const saveBtn = el('button', { className: 'btn brand', type: 'button', text: '저장하고 점주 안내 ›', onclick: async () => {
       if (!S.rows.length) { toast('명단이 비어 있습니다'); return; }
-      saveBtn.disabled = true; try { await saveRoster(); toast(`${co.name} ${S.roundNo}회차 명단 저장`); go('owner'); } catch (e) { toast('저장 실패: ' + e.message); } saveBtn.disabled = false;
+      saveBtn.disabled = true; try { await saveRoster(); toast(`${co.name} ${S.roundNo ? S.roundNo + '회차 ' : ''}명단 저장`); go('owner'); } catch (e) { toast('저장 실패: ' + e.message); } saveBtn.disabled = false;
     } });
     foots.list = [cnt, el('span', { className: 'sp' }), el('button', { className: 'btn', type: 'button', text: 'TXT 복사', onclick: () => S.rows.length ? copy(rosterTxt(), '명단') : toast('명단이 비어 있습니다') }), saveBtn];
 
@@ -532,7 +667,7 @@ textarea.ca-g.sm{min-height:100px}
     const phone = co.phone || co.store_phone;
     const thumb = imgEl('ca-thumb'); thumb.title = '누르면 복사'; thumb.onclick = copyImg;
     panels.owner = el('div', { className: 'ca-panel ca-two' }, [
-      el('div', { className: 'ca-col' }, [el('div', { className: 'ca-sec' }, [el('b', { text: '점주님께 보낼 멘트' }), el('button', { className: 'btn sm ghost', type: 'button', text: '명단 기준으로 다시 만들기', onclick: () => { S.ownerEdited = false; ownerT.value = ownerMsg(); } })]), ownerHint, ownerT]),
+      el('div', { className: 'ca-col' }, [el('div', { className: 'ca-sec' }, [el('b', { text: '점주님께 보낼 멘트' }), el('button', { className: 'btn sm ghost', type: 'button', text: '전체 회차 명단 보기', title: '이 업체 모든 회차 명단 · 이름 검색', onclick: () => rosterAll(co, { cycle }) })]), ownerHint, ownerT]),
       el('div', { className: 'ca-col' }, [
         el('div', { className: 'ca-sec' }, [el('b', { text: '함께 보낼 것' })]),
         el('div', { className: 'ca-send' }, [thumb, el('div', {}, [el('b', { text: '일정표 이미지' }), el('small', { text: '복사 → 카톡에 붙여넣기' }), el('button', { className: 'btn sm primary', type: 'button', text: '이미지 복사', onclick: copyImg })])]),
@@ -626,7 +761,7 @@ textarea.ca-g.sm{min-height:100px}
     const reportTxt = () => {
       // 블로거마다: 닉네임(이름) / 전화번호 / 리뷰 링크 — 맨 아래 '감사합니다:)'
       const ok = live().filter(complete);
-      return [`안녕하세요 사장님, 무이(MUYI)입니다😊`, `${co.name} ${S.roundNo}회차 체험단 리뷰 현황 공유드립니다.`, '',
+      return [`안녕하세요 사장님, 무이(MUYI)입니다😊`, `${co.name} ${mno()}회차 체험단 리뷰 현황 공유드립니다.`, '',
         ...ok.flatMap((r) => [`${r.nickname || r.name}${r.nickname && r.name ? `(${r.name})` : ''}`, r.phone || '', r.post || r.blog || '', '']),
         '감사합니다:)'].join('\n');
     };
@@ -648,7 +783,7 @@ textarea.ca-g.sm{min-height:100px}
         const lk = el('input', { className: 'fi', value: r.post || '', placeholder: '글 링크 붙여넣기 (넣으면 완료)', disabled: r.off || !r.id });
         lk.onchange = async () => { const v = lk.value.trim(); if (await putRow(r, { post_url: v || null, done: v ? true : r.done })) { r.post = v; if (v) r.done = true; } paintCheck(); paintRem(); };
         const st = r.off ? ['취소', 'off'] : complete(r) ? ['완료', 'ok'] : ['미완료', 'no'];
-        return el('tr', { className: r.off ? 'off' : '' }, [el('td', {}, cb), el('td', { className: 'num', text: i + 1 }), el('td', {}, el('span', { className: 'ca-st ' + st[1], text: st[0] })), el('td', { text: r.nickname || '' }), el('td', { text: r.name }), el('td', { className: 'cphone', text: r.phone }),
+        return el('tr', { className: r.off ? 'off' : '' }, [el('td', {}, cb), el('td', { className: 'num', text: i + 1 }), el('td', {}, el('span', { className: 'ca-st ' + st[1], text: st[0] })), el('td', {}, [r.nickname || '', dupB(r)].filter(Boolean)), el('td', { text: r.name }), el('td', { className: 'cphone', text: r.phone }),
           el('td', { className: 'note' }, lk), el('td', {}, r.post ? el('a', { href: r.post, target: '_blank', rel: 'noopener', text: '글 보기' }) : r.blog ? el('a', { href: r.blog, target: '_blank', rel: 'noopener', text: '블로그' }) : '')]);
       }));
       reportT.value = reportTxt(); paintKw();
@@ -710,7 +845,9 @@ textarea.ca-g.sm{min-height:100px}
     body.append(...Object.values(panels));
     const P = layer([head, stepsEl, body, foot]);
     paintRows(); go(rn ? 'list' : S.tab);
-    if (moved) toast(`리뷰노트에서 가져온 명단(모집 ${md(moved)} 회차로 저장돼 있던 것)을 불러왔습니다 — 저장하면 이 회차로 옮겨집니다`);
+    memoSide(P.L, co);
+    brandDups(co, round?.id).then((m) => { S.dup = m; if (!P.L.isConnected || !m.size) return; paintRows(); try { paintCheck(); } catch {} }).catch(() => {});
+    if (!S.saved) rnNear();
     if (rn) ingest({ rn });
 
     function draw(cv) {
@@ -722,7 +859,7 @@ textarea.ca-g.sm{min-height:100px}
       // 머리: 로고 + 업체명
       if (logoImg) { const lh = 66, lw = logoImg.width * (lh / logoImg.height); x.drawImage(logoImg, 64, 56, lw, lh); }
       else { x.fillStyle = BLUE; x.font = F(900, 48); x.fillText('muy!', 64, 108); }
-      const badge = `체험단 ${S.roundNo}회차 일정`; x.font = F(800, 22); const bw = x.measureText(badge).width + 40;
+      const badge = `체험단 ${mno()}회차 일정`; x.font = F(800, 22); const bw = x.measureText(badge).width + 40;
       rr(x, W - 64 - bw, 66, bw, 46, 23, tint('#1E10C7', 0.08)); x.fillStyle = BLUE; x.fillText(badge, W - 64 - bw + 20, 97);
       x.fillStyle = INK; fit(x, co.name, 64, 200, W - 128, 60, F, 900);
       x.fillStyle = SUB; x.font = F(600, 22); x.fillText(`선정 블로거 ${live().length || S.teams}명 · 리뷰 기간 ${S.weeks}주`, 64, 240);
@@ -892,9 +1029,10 @@ textarea.ca-g.sm{min-height:100px}
     if (onDelete) head.querySelector('.ca-title').insertBefore(el('button', { className: 'btn sm rc-del', type: 'button', text: '삭제', onclick: async () => { if (!confirm(`${co.name} 2차마감을 삭제할까요?\n(수정 요청 기록·명단은 그대로)`)) return; if (await onDelete()) P.close(); } }), head.querySelector('.ca-title .icon-btn'));
     const P = layer([head, body, foot]);
     P.L.firstChild.classList.add('fx-pm');
+    memoSide(P.L, co);
     paintMsg(); loadRound();
   }
 
   const parseRN = (txt) => { if (!/^MUYI-RN:/.test(txt || '')) return null; try { return JSON.parse(txt.slice(8)); } catch { return null; } };
-  window.CRM_CAMP = { open, pick, period, closeCheck, parseRN, fixReq };
+  window.CRM_CAMP = { open, pick, period, closeCheck, parseRN, fixReq, guideView, memoSide, rosterAll };
 })();
