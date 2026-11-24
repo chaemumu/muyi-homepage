@@ -27,6 +27,7 @@
   --sh:0 1px 2px rgba(0,0,0,.3);--sh-pop:0 8px 24px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.3);
 }
 .logo-d{display:none!important}
+.handoff{display:grid;place-items:center;min-height:100vh;font-size:16px;font-weight:700;color:var(--t2)}
 :root[data-theme="dark"] .logo-l{display:none!important}
 :root[data-theme="dark"] .logo-d{display:block!important}
 *{box-sizing:border-box;margin:0}
@@ -632,8 +633,28 @@ function showLogin(mode, msg = '', ok = false, email = '') {
   $('loginMsg').textContent = msg; $('loginMsg').classList.toggle('ok', ok);
 }
 
+// 로그인은 탭마다(sessionStorage). 북마크 결과 링크(#camp-…)처럼 새 탭으로 열렸는데 로그인 안 된 경우:
+// 이미 로그인된 CRM 탭이 있으면 그 탭이 대신 연다 (토큰은 공유하지 않음 — 탭 간 갱신 충돌로 로그아웃되는 것 방지)
+const authCh = 'BroadcastChannel' in window ? new BroadcastChannel('muyi-crm') : null;
+if (authCh) authCh.onmessage = async (ev) => {
+  const m = ev.data || {};
+  if (m.type !== 'open' || !m.hash) return;
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session || !me) return;
+  authCh.postMessage({ type: 'opened', id: m.id });
+  history.pushState(null, '', '#' + m.hash); routeFromHash(); toast('리뷰노트에서 연 명단을 이 탭에서 열었습니다');
+};
+const handOff = (hash) => !authCh || !hash ? Promise.resolve(false) : new Promise((ok) => {
+  const id = Math.random().toString(36).slice(2), t = setTimeout(() => ok(false), 700);
+  const on = (ev) => { if (ev.data?.type === 'opened' && ev.data.id === id) { clearTimeout(t); authCh.removeEventListener('message', on); ok(true); } };
+  authCh.addEventListener('message', on); authCh.postMessage({ type: 'open', hash, id });
+});
 async function start() {
   const { data: { session } } = await sb.auth.getSession();
+  if (!session && location.hash.length > 1 && !AUTH_TYPE && await handOff(location.hash.slice(1))) {
+    document.body.replaceChildren(Object.assign(document.createElement('div'), { className: 'handoff', textContent: '이미 열려 있는 CRM 탭에서 열었습니다. 이 탭은 닫아도 됩니다.' }));
+    return;
+  }
   if (!session) { showLogin('login', AUTH_TYPE && pwMode !== 'done' ? '링크가 만료됐거나 이미 사용됐습니다. 초대(또는 비밀번호 재설정)를 다시 요청하세요.' : ''); return; }
   if (['invite', 'recovery'].includes(AUTH_TYPE) && pwMode !== 'done') { pwPending.set(session.user.id); history.replaceState(null, '', location.pathname); }
   if (pwPending.get() === session.user.id) { showLogin('set', '', false, session.user?.email || ''); return; }
@@ -1253,7 +1274,7 @@ function showPage(p, { push = true } = {}) {
     if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=11'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
   if (p === 'today') renderToday();
-  if (p === 'calendar') loadScript('/assets/crm-calendar.js?v=24').then(() => window.CRM_CALENDAR.mount($('calBody'))).catch(() => toast('캘린더를 불러오지 못했습니다'));
+  if (p === 'calendar') loadScript('/assets/crm-calendar.js?v=25').then(() => window.CRM_CALENDAR.mount($('calBody'))).catch(() => toast('캘린더를 불러오지 못했습니다'));
   if (p === 'settle') {
     const go = () => window.CRM_SETTLE.mount($('settleBody'));
     if (window.CRM_SETTLE) go(); else { $('settleBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' })); const x = document.createElement('script'); x.src = '/assets/crm-settle.js?v=5'; x.onload = go; x.onerror = () => toast('정산 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
@@ -1330,7 +1351,7 @@ async function loadTodayCompanies() {
     };
     // 체험단 일정(오늘 + 밀린 것)과 실행 소진·수량 입력 알림은 캘린더 모듈이 계산
     try {
-      await loadScript('/assets/crm-calendar.js?v=24');
+      await loadScript('/assets/crm-calendar.js?v=25');
       const [camp, ex] = await Promise.all([window.CRM_CALENDAR.todayCamp(), window.CRM_CALENDAR.execAlerts()]);
       todayCo.recruit = camp.ev.sort((a, b) => a.due.localeCompare(b.due)).map((e) => ({ co: e.co, e, toggle: camp.toggle }));
       todayCo.exec = ex;
