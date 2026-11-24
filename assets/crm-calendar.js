@@ -45,8 +45,9 @@
 .cal-day.out{background:var(--muted);opacity:.55}
 .cal-day.sel{box-shadow:inset 0 0 0 2px var(--accent)}
 .cal-day .dn{font-size:12px;font-weight:700;color:var(--t2);display:flex;align-items:center;gap:4px}
-.cal-day.today{box-shadow:inset 0 0 0 2px var(--accent)}
-.cal-day.today .dn b{color:var(--accent);font-weight:900}
+.cal-day.today .dn,.ct-day.today .dn{margin:-6px -6px 2px;padding:4px 6px;background:var(--accent);color:#fff}
+.cal-day.today .dn b,.ct-day.today .dn b{color:#fff!important;font-weight:900}
+.cal-day.today .dn::after,.ct-day.today .dn::after{content:'오늘';font-size:10.5px;font-weight:700;opacity:.9}
 .cal-day .dn .late{margin-left:auto;font-size:10px;font-weight:700;color:var(--red)}
 .chip-ev{display:flex;align-items:center;gap:4px;width:100%;min-width:0;height:22px;padding:0 6px;border-radius:6px;border:1px solid color-mix(in srgb,var(--c) 30%,var(--line));background:color-mix(in srgb,var(--c) 8%,var(--surface));font-size:11px;color:var(--t1);text-align:left;cursor:pointer}
 .chip-ev .s{flex:none;font-weight:700;color:var(--c)}
@@ -112,12 +113,10 @@
 .ct-day:nth-child(7){border-right:0}
 .ct-day.out{background:var(--surface-2)}
 .ct-day.out .dn b{color:var(--t4)}
-.ct-day.today{box-shadow:inset 0 0 0 2px var(--accent)}
-.ct-day.today .dn b{color:var(--accent);font-weight:900}
 .ct-day .dn b{font-size:12px}
 .ct-day.pick{background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
 .ct-day .cal-more{align-self:flex-start}
-.ct-bar{position:relative;z-index:1;margin:1px 3px;height:21px;display:flex;align-items:center;gap:4px;min-width:0;padding:0 7px;border:0;border-radius:5px;background:color-mix(in srgb,var(--c) 16%,var(--surface));color:color-mix(in srgb,var(--c) 80%,var(--t1));font-size:11.5px;font-weight:600;text-align:left;cursor:grab;box-shadow:inset 3px 0 0 var(--c)}
+.ct-bar{position:relative;z-index:1;margin:1px 3px;height:21px;display:flex;align-items:center;gap:4px;min-width:0;padding:0 7px;border:0;border-radius:5px;background:color-mix(in srgb,var(--c) 16%,var(--surface));color:color-mix(in srgb,var(--c) 80%,var(--t1));font-size:11.5px;font-weight:600;text-align:left;cursor:grab}
 .ct-bar:hover{background:color-mix(in srgb,var(--c) 26%,var(--surface))}
 .ct-bar.cont-l{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:0;box-shadow:none}
 .ct-bar.cont-r{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:0}
@@ -163,7 +162,7 @@
 .cnt.done .ck{background:var(--green);border-color:var(--green)}
 .cnt.late{box-shadow:inset 3px 0 0 var(--red);border-color:var(--red)}
 .cal-grid.camp .cal-day{cursor:default;gap:2px}
-.cc{display:flex;align-items:center;min-width:0;height:21px;border-radius:5px;background:color-mix(in srgb,var(--c) 13%,var(--surface));box-shadow:inset 3px 0 0 var(--c);cursor:grab;flex:none}
+.cc{display:flex;align-items:center;min-width:0;height:21px;border-radius:5px;background:color-mix(in srgb,var(--c) 13%,var(--surface));cursor:grab;flex:none}
 .cc.dragging{opacity:.4}
 .cc-n{flex:1;min-width:0;height:100%;padding:0 4px 0 7px;border:0;background:none;text-align:left;font-size:11.5px;font-weight:600;color:color-mix(in srgb,var(--c) 75%,var(--t1));overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
 .cc-x{flex:none;height:17px;min-width:17px;margin-right:2px;padding:0 3px;border:0;border-radius:4px;background:color-mix(in srgb,var(--c) 18%,var(--surface));font-size:10px;font-weight:800;color:color-mix(in srgb,var(--c) 80%,var(--t1));cursor:pointer;line-height:17px}
@@ -269,9 +268,8 @@
 .cc.pend{border-style:dashed}
 .rn-chip,.rn-chip.hot,.rn-chip.cold,.rn-chip.hold,.rn-chip.end{--c:var(--t3)}
 .mk{cursor:cell}
-.mk.mk-on,.cal-day.mk.mk-on:hover{background:color-mix(in srgb,var(--mk) 34%,var(--surface));box-shadow:inset 3px 0 0 var(--mk)}
+.mk.mk-on,.cal-day.mk.mk-on:hover{background:color-mix(in srgb,var(--mk) 34%,var(--surface))}
 .mk.mk-on .dn b{color:color-mix(in srgb,var(--mk) 70%,#000);font-weight:900}
-.cal-day.today.mk-on,.ct-day.today.mk-on{box-shadow:inset 0 0 0 2px var(--accent),inset 5px 0 0 var(--mk)}
 .mk-notes{display:flex;flex-direction:column;gap:2px;margin-top:auto;min-width:0}
 .mk-note{height:20px;padding:0 6px;border:1px dashed var(--line-strong);border-radius:5px;background:var(--surface);font-size:11px;font-weight:600;color:var(--t1);text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;flex:none}
 .mk-note:hover{border-color:var(--accent)}
@@ -304,7 +302,7 @@
 .od-add .fi{width:auto}
 .rc-del{color:var(--red)!important}
 @media (max-width:900px){.td-wrap{grid-template-columns:minmax(0,1fr)}.td-col{min-height:0}.td-body{min-height:90px}}
-@media (max-width:720px){.cal-day{min-height:64px;padding:3px}.chip-ev .n{display:none}.chip-ev{height:16px;padding:0 3px;font-size:9px}.cal-dow{padding:4px;text-align:center}}
+@media (max-width:720px){.cal-day.today .dn,.ct-day.today .dn{margin:-3px -3px 2px;padding:2px 4px}.cal-day.today .dn::after,.ct-day.today .dn::after{display:none}.cal-day{min-height:64px;padding:3px}.chip-ev .n{display:none}.chip-ev{height:16px;padding:0 3px;font-size:9px}.cal-dow{padding:4px;text-align:center}}
 `;
     document.head.appendChild(st);
   }
@@ -354,7 +352,7 @@
     const cfg = await loadCfg();
     const maxOff = Math.max(cfg.off.발표 || 0, (cfg.off.마감 || 0) + (cfg.off['2차마감'] || 0), 0);
     const [co, tk] = await Promise.all([
-      sb.from('companies').select('id,name,brand,recruit_days,camp_teams,camp_round_done,camp_round_total,phone,store_phone,rep_name,sales_owner,manager_owner,sales_owner_name,manager_owner_name,service_type').eq('stage', '결제').eq('run_status', '진행 중').limit(2000),
+      sb.from('companies').select('id,name,brand,recruit_days,camp_teams,camp_round_done,camp_round_cycle,camp_round_total,phone,store_phone,rep_name,sales_owner,manager_owner,sales_owner_name,manager_owner_name,service_type').eq('stage', '결제').eq('run_status', '진행 중').limit(2000),
       sb.from('camp_tasks').select('*').gte('cycle_on', addDays(from, -maxOff - 31)).lte('cycle_on', to).limit(5000),
     ]);
     const tasks = new Map((tk.data || []).map((t) => [`${t.company_id}|${t.cycle_on}|${t.step}`, t]));
@@ -376,8 +374,8 @@
         const legacy = cycle < cfg.start || (tA && !tA.due_on);
         const aOff = !!tA?.skipped; // 발표 달력에서 삭제한 회차: 발표·마감 없음 (모집은 그대로)
         const ann = aOff ? null : tA?.due_on || (legacy ? addDays(cycle, cfg.off.발표 || 0) : null);
-        const dl = aOff || tD?.skipped ? null : tD?.due_on || (ann ? addDays(ann, (cfg.off.마감 || 0) - (cfg.off.발표 || 0)) : null); // 마감만 삭제한 회차도 마감 없음
-        const push = (step, due, t) => { if (due && due >= from && due <= to) ev.push({ co: c, cycle, step, due, task: t, done: !!t?.done_at, ann, dl }); };
+        const dl = tD?.skipped ? null : tD?.due_on || (ann ? addDays(ann, (cfg.off.마감 || 0) - (cfg.off.발표 || 0)) : null); // 마감 삭제(발표 삭제 때도 같이 skipped)면 없음 · 직접 넣은 마감은 발표가 없어도 표시
+        const push = (step, due, t) => { if (due && due >= from && due <= to) ev.push({ co: c, cycle, step, due, task: t, rec: tM, done: !!t?.done_at, ann, dl }); };
         push('모집', tM?.due_on || cycle, tM);
         push('발표', ann, tA); push('마감', dl, tD);
         if (!ann && !aOff && cycle >= cfg.start && cycle <= to) pending.push({ co: c, cycle, step: '발표', due: null, recruit: tM?.due_on || cycle, task: tA, done: false });
@@ -390,14 +388,14 @@
       .forEach((t) => { const k = `${t.company_id}|${t.cycle_on}`; if (!adhoc.has(k)) adhoc.set(k, {}); adhoc.get(k)[t.step] = t; });
     adhoc.forEach((g, k) => {
       const c = byId.get(k.split('|')[0]), cycle = k.split('|')[1];
-      const aOff = !!g.발표?.skipped, ann = aOff ? null : g.발표?.due_on || null, dl = aOff || g.마감?.skipped ? null : g.마감?.due_on || (ann ? addDays(ann, (cfg.off.마감 || 0) - (cfg.off.발표 || 0)) : null);
-      const push = (step, due, t) => { if (due && due >= from && due <= to) ev.push({ co: c, cycle, step, due, task: t, done: !!t?.done_at, ann, dl, adhoc: true }); };
+      const aOff = !!g.발표?.skipped, ann = aOff ? null : g.발표?.due_on || null, dl = g.마감?.skipped ? null : g.마감?.due_on || (ann ? addDays(ann, (cfg.off.마감 || 0) - (cfg.off.발표 || 0)) : null);
+      const push = (step, due, t) => { if (due && due >= from && due <= to) ev.push({ co: c, cycle, step, due, task: t, rec: g.모집, done: !!t?.done_at, ann, dl, adhoc: true }); };
       if (g.모집) push('모집', g.모집.due_on || cycle, g.모집);
       push('발표', ann, g.발표); push('마감', dl, g.마감);
     });
     // 2차마감: 마감에서 인원이 모자라면 생긴 행
     (tk.data || []).filter((t) => t.step === '2차마감' && !t.skipped && byId.has(t.company_id) && t.due_on >= from && t.due_on <= to && !skip.has(`${t.company_id}|${t.cycle_on}`))
-      .forEach((t) => ev.push({ co: byId.get(t.company_id), cycle: t.cycle_on, step: '2차마감', due: t.due_on, task: t, done: !!t.done_at }));
+      .forEach((t) => ev.push({ co: byId.get(t.company_id), cycle: t.cycle_on, step: '2차마감', due: t.due_on, task: t, rec: tasks.get(`${t.company_id}|${t.cycle_on}|모집`), done: !!t.done_at }));
     // 2차마감에도 발표·마감 날짜를 붙여둠 (링크 확인·연장 안내용)
     ev.filter((e) => e.step === '2차마감').forEach((e) => { const d = ev.find((x) => x.step === '마감' && x.co.id === e.co.id && x.cycle === e.cycle); if (d) { e.ann = d.ann; e.dl = d.dl; } });
     return { ev, noDays, cfg, pending };
@@ -430,7 +428,8 @@
     let dlTxt = '';
     if (e.step === '발표') {
       const d = await get('마감');
-      if (d?.due_on && from) { const nd = addDays(d.due_on, dayDiff(to, from)); if (!(await put('마감', d, { due_on: nd }))) return false; dlTxt = ` · 마감 ${md(nd)}`; }
+      if (d?.skipped) { if (!(await put('마감', d, { due_on: null }))) return false; const cfg = await loadCfg(); dlTxt = ` · 마감 ${md(addDays(to, (cfg.off.마감 || 0) - (cfg.off.발표 || 0)))}`; } // 발표를 지웠다 다시 넣으면 마감도 다시
+      else if (d?.due_on && from) { const nd = addDays(d.due_on, dayDiff(to, from)); if (!(await put('마감', d, { due_on: nd }))) return false; dlTxt = ` · 마감 ${md(nd)}`; }
       else { const cfg = await loadCfg(); dlTxt = ` · 마감 ${md(addDays(to, (cfg.off.마감 || 0) - (cfg.off.발표 || 0)))}`; }
     }
     toast(`${e.co.name} ${e.step} → ${md(to)}${dlTxt}`);
@@ -550,7 +549,8 @@
     if (!co) { toast('업체를 찾을 수 없습니다'); return; }
     const { ev } = await campEvents(cycle, addDays(cycle, 90));
     const e = ev.find((x) => x.co.id === id && x.cycle === cycle);
-    openCamp({ co, cycle, cfg, announce: e?.ann || undefined, deadline: e?.dl || undefined });
+    if (e) await fillRounds([e]);
+    openCamp({ co, cycle, cfg, announce: e?.ann || undefined, deadline: e?.dl || undefined, rno: e?.rno, rnoNone: e?.rnoNone });
   }
 
   // 월 이동: 달력 바로 위 줄 (스크롤해도 화면 위에 붙어 있음)
@@ -785,7 +785,7 @@
     const cfg = await loadCfg();
     if (!S.coAll) await campEvents(d, d);
     const co = findCo(name, S.coAll);
-    if (!co) return false; // 업체가 아니면 메모로
+    if (!co) { toast(`'${name}' — 진행 중인 체험단 업체에서 찾지 못해 메모로 남겼습니다 (업체명 확인)`); return false; } // 업체가 아니면 메모로
     const { ev } = await campEvents(addDays(d, -90), addDays(d, 60));
     const cycles = [...new Set(ev.filter((e) => e.co.id === co.id).map((e) => e.cycle))].filter((c) => c <= d).sort();
     const cycle = step === '모집' ? d : (cycles[cycles.length - 1] || d);
@@ -805,8 +805,7 @@
     if (!confirm(`${c.name} 재계약일을 ${md(d)}로 정할까요?${c.next_renew_due ? `\n(지금 ${c.next_renew_due})` : ''}`)) return true;
     const { error } = await sb.from('companies').update({ next_renew_due: d }).eq('id', c.id);
     if (error) { toast('저장 실패: ' + error.message); return true; }
-    toast(`${c.name} 재계약일 → ${md(d)}`); S.cc = null; await draw(); flash([d]);
-    openCompanyFromToday(c.id);
+    toast(`${c.name} 재계약일 → ${md(d)}`); S.cc = null; await draw({ quiet: true }); flash([d]); // 추가만 (상세는 칩을 눌러서)
     return true;
   }
 
@@ -829,10 +828,11 @@
       if (!confirm(`${e.co.name} ${md(e.due)} ${e.step === '발표' ? '발표를' : '마감을'} 삭제할까요?\n${e.step === '발표' ? '이 회차 마감 일정도 같이 사라집니다. ' : ''}(모집·명단은 그대로)`)) return;
       const { error } = await sb.from('camp_tasks').upsert({ company_id: e.co.id, cycle_on: e.cycle, step: e.step, due_on: e.due, skipped: true }, { onConflict: 'company_id,cycle_on,step' });
       if (error) { toast('삭제 실패: ' + error.message); return; }
+      if (e.step === '발표') { const { data: d } = await sb.from('camp_tasks').select('due_on').eq('company_id', e.co.id).eq('cycle_on', e.cycle).eq('step', '마감').maybeSingle(); await sb.from('camp_tasks').upsert({ company_id: e.co.id, cycle_on: e.cycle, step: '마감', due_on: d?.due_on || null, skipped: true }, { onConflict: 'company_id,cycle_on,step' }); }
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); // 상세 창 닫기
       toast(`${e.co.name} ${md(e.due)} ${e.step} 삭제`); draw({ quiet: true });
     } }));
-    const args = { co: e.co, cycle: e.cycle, cfg, announce: e.ann || undefined, deadline: close.due || e.dl || undefined };
+    const args = { co: e.co, cycle: e.cycle, cfg, announce: e.ann || undefined, deadline: close.due || e.dl || undefined, rno: e.rno, rnoNone: e.rnoNone };
     // 2차마감 = 리뷰 다시 확인(태그 누락 등) → 수정 요청 화면. 전체 상세는 버튼으로
     if (e.step === '2차마감') return campLib().then(() => window.CRM_CAMP.fixReq({ co: e.co, cycle: e.cycle, task: e.task, onDelete: async () => {
       const { error } = await sb.from('camp_tasks').update({ skipped: true }).eq('company_id', e.co.id).eq('cycle_on', e.cycle).eq('step', '2차마감');
@@ -877,11 +877,13 @@
       e.task = data; P.mark(); toast(`${e.co.name} ${md(e.cycle)} → ${msg}`); return true;
     };
     const opts = (n, sel, auto, unit, none) => [el('option', { value: '', text: none }), ...Array.from({ length: n }, (_, i) => el('option', { value: String(i + 1), text: `${i + 1}${unit}${auto && sel === i + 1 ? ' ·자동' : ''}`, selected: sel === i + 1 }))];
-    const rSel = el('select', { className: 'fi rc-sel', title: '이번 회차' }, opts(Math.max(20, e.rno || 0, e.total || 0), e.rno, e.rnoAuto, '회차', '회차 —'));
+    const rSel = el('select', { className: 'fi rc-sel', title: '이번 회차 (모든 달력·상세에 같은 번호)' }, opts(Math.max(20, e.rno || 0, e.total || 0), e.rno, e.rnoAuto, '회차', '회차 자동'));
+    rSel.insertBefore(el('option', { value: '-', text: '회차 없음', selected: e.task?.label === '-' }), rSel.options[1]);
     rSel.onchange = async () => {
-      const v = rSel.value || null;
-      if (await save({ label: v }, v ? v + '회차' : '회차 없음') && v) await sb.from('rounds').update({ round_no: +v, round_label: v }).eq('company_id', e.co.id).eq('cycle_on', e.cycle);
-      e.rno = v ? +v : null; e.rnoAuto = false; [...rSel.options].forEach((o) => { o.text = o.text.replace(' ·자동', ''); });
+      const v = rSel.value || null, n = /^\d+$/.test(v || '') ? +v : null; // '' = 자동 · '-' = 회차 없음
+      if (!(await save({ label: v }, n ? n + '회차' : v === '-' ? '회차 없음' : '회차 자동'))) return;
+      if (n) await sb.from('rounds').update({ round_no: n, round_label: v }).eq('company_id', e.co.id).eq('cycle_on', e.cycle);
+      e.rno = n; e.rnoAuto = false; [...rSel.options].forEach((o) => { o.text = o.text.replace(' ·자동', ''); });
     };
     const tSel = el('select', { className: 'fi rc-sel', title: '계약 회차 (업체 공통 · 비우면 계약 기간으로 자동)' }, opts(Math.max(36, e.total || 0), e.total, e.totalAuto, '회 계약', '계약 —'));
     tSel.onchange = async () => {
@@ -893,8 +895,9 @@
     const ph = el('div', { className: 'rc-seg', role: 'group' });
     const paintPh = () => ph.replaceChildren(...[['모', '모집 중'], ['완', '모집 완료']].map(([k, t]) => el('button', { type: 'button', className: (k === '모' ? 'mo' : 'wan') + (e.task?.phase === k ? ' on' : ''), title: t + ' · 다시 누르면 해제', onclick: async () => { const v = e.task?.phase === k ? null : k; if (await save({ phase: v }, v ? t : '진행 해제')) { e.rnoAuto = false; [...rSel.options].forEach((o) => { o.text = o.text.replace(' ·자동', ''); }); paintPh(); } } }, [k, el('span', { text: t })])));
     paintPh();
+    const gBox = el('div', { className: 'rc-guide' });
     const P = popup(`${e.co.name} · ${mdw(e.due)} 모집`, [
-      el('div', { className: 'rc-row' }, [rSel, el('span', { className: 'rc-slash', text: '/' }), tSel, ph]),
+      el('div', { className: 'rc-row' }, [rSel, el('span', { className: 'rc-slash', text: '/' }), tSel, ph]), gBox,
     ], [
       el('button', { className: 'btn sm ghost', type: 'button', text: '⚙ 매월 모집일', onclick: () => { P.close(); editDays(e.co); } }),
       el('button', { className: 'btn sm ghost rc-del', type: 'button', text: '삭제', onclick: () => delRecruit(e, P) }),
@@ -903,15 +906,25 @@
     ].filter(Boolean));
     P.layer.querySelector('.pm').classList.add('rc-pm');
     P.layer.querySelector('.pm-f').classList.add('rc-f');
+    // 블로거 가이드 보기(읽기 전용, 버전 선택) + 업체 메모
+    campLib().then(async () => { gBox.append(await window.CRM_CAMP.guideView(e.co)); window.CRM_CAMP.memoSide(P.layer, e.co); }).catch(() => {});
   }
-  // 모집 회차 자동: 저장된 회차(label) > 이 회차 명단(rounds) > 지난 명단 회차 + 그 뒤 모집 수 > 끝난 회차(camp_round_done) + 그 뒤 모집 수
+  // 회차 (모든 단계 통일 — 모집·발표·마감·2차마감 칩이 같은 번호, 상세 우상단도 같은 번호, 메시지는 +1)
+  //  저장된 회차(모집 label, '-' = 회차 없음) > 이 회차 명단(rounds) > 지난 기준점 + 그 뒤 모집 수 > 끝난 회차(camp_round_done @ camp_round_cycle) + 그 뒤 모집 수
+  const recLabel = (e) => String((e.step === '모집' ? e.task : e.rec)?.label || '');
+  function cyclesIn(co, a, b) { // co의 매월 모집일 회차 중 (a, b]
+    const out = new Set(), days = (co.recruit_days || []).map(Number).filter(Boolean); if (!days.length || !a) return out;
+    for (let m = monthOf(a); m <= monthOf(b); m = addMonth(m, 1)) { const dim = new Date(+m.slice(0, 4), +m.slice(5), 0).getDate(); days.forEach((d) => { const c = `${m}-${pad(Math.min(d, dim))}`; if (c > a && c <= b) out.add(c); }); }
+    return out;
+  }
   async function fillRounds(evs) {
-    const rec = evs.filter((e) => e.step === '모집'); if (!rec.length) return;
-    const ids = [...new Set(rec.map((e) => e.co.id))];
-    const rows = []; for (let i = 0; i < ids.length; i += 150) { const { data } = await sb.from('rounds').select('company_id,cycle_on,round_no').in('company_id', ids.slice(i, i + 150)); rows.push(...(data || []).filter((r) => r.round_no != null)); }
-    rec.forEach((e) => { if (/^\d+$/.test(e.task?.label || '')) rows.push({ company_id: e.co.id, cycle_on: e.cycle, round_no: +e.task.label }); }); // 직접 정한 회차도 기준점
+    if (!evs.length) return;
+    const rec = evs.filter((e) => e.step === '모집');
+    const ids = [...new Set(evs.map((e) => e.co.id))];
+    const rows = []; for (let i = 0; i < ids.length; i += 150) { const { data } = await sb.from('rounds').select('company_id,cycle_on,round_no').in('company_id', ids.slice(i, i + 150)); rows.push(...(data || []).filter((r) => r.round_no != null && r.cycle_on)); }
+    evs.forEach((e) => { if (/^\d+$/.test(recLabel(e))) rows.push({ company_id: e.co.id, cycle_on: e.cycle, round_no: +recLabel(e), lb: true }); }); // 직접 정한 회차도 기준점 (명단보다 우선)
     const by = new Map(); rows.forEach((r) => { if (!by.has(r.company_id)) by.set(r.company_id, []); by.get(r.company_id).push(r); });
-    const cyc = new Map(); rec.forEach((e) => { if (!cyc.has(e.co.id)) cyc.set(e.co.id, new Set()); cyc.get(e.co.id).add(e.cycle); });
+    const cyc = new Map(); evs.forEach((e) => { if (!cyc.has(e.co.id)) cyc.set(e.co.id, new Set()); cyc.get(e.co.id).add(e.cycle); });
     // 계약 회차: 업체에 직접 정한 값 > 최근 계약 기간(개월 + 연장) × 매월 모집 횟수
     const cts = []; for (let i = 0; i < ids.length; i += 150) { const { data } = await sb.from('contracts').select('company_id,paid_at,period_months,extension_text').in('company_id', ids.slice(i, i + 150)); cts.push(...(data || [])); }
     const lastCt = new Map(); cts.filter((c) => Number(c.period_months) > 0).forEach((c) => { const l = lastCt.get(c.company_id); if (!l || String(c.paid_at || '') > String(l.paid_at || '')) lastCt.set(c.company_id, c); });
@@ -920,14 +933,17 @@
       const c = lastCt.get(e.co.id), ext = Number(String(c?.extension_text || '').match(/\d+/)?.[0] || 0);
       e.total = c ? Math.round((Number(c.period_months) + ext) * Math.max(1, (e.co.recruit_days || []).length)) : null; e.totalAuto = !!e.total;
     });
-    rec.forEach((e) => {
-      if (/^\d+$/.test(e.task?.label || '')) { e.rno = +e.task.label; e.rnoAuto = false; return; }
+    evs.forEach((e) => {
+      const lb = recLabel(e);
+      if (lb === '-') { e.rno = null; e.rnoAuto = false; e.rnoNone = true; return; }
+      if (/^\d+$/.test(lb)) { e.rno = +lb; e.rnoAuto = false; return; }
       const rs = by.get(e.co.id) || [], ex = rs.find((r) => r.cycle_on === e.cycle);
       if (ex) { e.rno = ex.round_no; e.rnoAuto = false; return; }
+      const after = (c0) => new Set([...cyclesIn(e.co, c0, e.cycle), ...[...(cyc.get(e.co.id) || [])].filter((c) => c > c0 && c <= e.cycle)]).size;
       const prev = rs.filter((r) => r.cycle_on < e.cycle).sort((a, b) => b.cycle_on.localeCompare(a.cycle_on))[0];
-      const after = (c0) => [...(cyc.get(e.co.id) || [])].filter((c) => c > c0 && c <= e.cycle).length;
       if (prev) e.rno = prev.round_no + Math.max(1, after(prev.cycle_on));
-      else if (e.co.camp_round_done != null) e.rno = e.co.camp_round_done + Math.max(1, after('0000'));
+      else if (e.co.camp_round_done != null && e.co.camp_round_cycle && e.co.camp_round_cycle <= e.cycle) e.rno = e.co.camp_round_done + after(e.co.camp_round_cycle);
+      else if (e.co.camp_round_done != null) e.rno = e.co.camp_round_done + Math.max(1, [...(cyc.get(e.co.id) || [])].filter((c) => c <= e.cycle).length);
       else e.rno = null;
       e.rnoAuto = !!e.rno;
     });
@@ -1071,6 +1087,7 @@
     const chip = (e) => {
       const b = el('div', { className: 'cc' + (e.step === '모집' && !e.ann ? ' pend' : ''), draggable: true });
       const phs = e.step === '모집' && e.task?.phase; // 모집 칩 앞: 회차 + 진행 상태 (예: 3모 · 12완)
+      if (e.step !== '모집' && e.rno) b.append(el('span', { className: 'cc-lb' + (e.rnoAuto ? ' auto' : ''), text: String(e.rno), title: `${e.rno}회차${e.rnoAuto ? ' (자동)' : ''} — 모집 달력 회차와 같음` }));
       if (e.step === '모집' && (e.rno || phs || e.total)) b.append(el('span', { className: 'cc-lb' + (phs === '모' ? ' mo' : phs === '완' ? ' wan' : '') + (e.rnoAuto && !phs ? ' auto' : ''), text: `${e.rno || (e.total ? '–' : '')}${phs || ''}${e.total ? '/' + e.total : ''}`, title: `${e.rno ? e.rno + '회차' + (e.rnoAuto ? ' (자동)' : '') : ''}${phs ? ' · ' + (phs === '모' ? '모집 중' : '모집 완료') : ''}${e.total ? ` · 계약 ${e.total}회차` : ''}` }));
       b.append(el('button', { type: 'button', className: 'cc-n', text: e.co.name, title: `${e.step} · ${e.co.name}\n${sub(e)}\n누르면 상세 · 끌어서 날짜 변경`, onclick: (x) => { x.stopPropagation(); openDetail(e, cfg); } }));
       b.addEventListener('dragstart', (x) => { x.stopPropagation(); startDrag(x, { kind: 'camp', e, label: e.co.name }, b.closest('.pm-layer')); b.classList.add('dragging'); });
@@ -1107,7 +1124,7 @@
     const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), expandBtn, setBtn, campBtn]);
     return [tools, await board, el('div', { className: 'stack' }, [el('div', { className: 'card cal-card' }, [monthBar(), grid]), list])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=12');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=13');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   const pickCamp = (evs, cfg, rn) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg, rn)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
@@ -1257,5 +1274,5 @@
     return { ev: ev.filter((e) => !e.done), toggle };
   }
 
-  window.CRM_CALENDAR = { mount, todayCamp, execAlerts };
+  window.CRM_CALENDAR = { mount, todayCamp, execAlerts, refresh: () => { if (S.box?.isConnected && S.tab === 'camp') draw({ quiet: true }); } };
 })();
