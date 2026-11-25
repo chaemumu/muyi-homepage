@@ -97,7 +97,41 @@
         say('선정 명단 가져오는 중…');
         const c0 = det0 ? null : await get('/api/campaign?id=' + hit.id).catch(() => null);
         const det = det0 || (c0 && (c0.data || c0.campaign || c0));
-        const list = [{ id: hit.id, title: hit.title || titleOf(det) || document.title, dates: { ...dmap(hit.raw), ...dmap(det || {}) } }];
+        // 마감일 = 리뷰노트 화면 [일정 확인] 창에 적힌 날짜 그대로 (2026-11-25~ — 계산값·캠페인 기본값이 실제와 달라 틀리던 문제)
+        //  창을 열어 글자를 읽고 닫음: 모집(시작~끝) · 발표 · '마감'이 붙은 줄 = 리뷰 마감. 창에서 읽으면 그 날짜만 보냄(다른 날짜 칸과 섞이지 않게)
+        say('일정 확인 중…');
+        const sched = await (async () => {
+          const tx = (e) => (e ? e.innerText || e.textContent || '' : '');
+          const btn = [...document.querySelectorAll('button,a,[role=button]')].find((b) => /일정\s*확인/.test(tx(b)) && !box.contains(b)); if (!btn) return null;
+          // 창 찾기: 누른 뒤 새로 보이거나 글자가 바뀐 '떠 있는' 칸(fixed/absolute·dialog·modal) 중 '마감'과 날짜가 있는 가장 큰 것
+          const D1 = /\d{1,2}\s*[.\-/월]\s*\d{1,2}/;
+          const floats = () => [...document.querySelectorAll('body *')].filter((e) => { if (box.contains(e)) return false; const r = e.getClientRects(); if (!r.length) return false; const cs = getComputedStyle(e); return cs.position === 'fixed' || cs.position === 'absolute' || e.getAttribute('role') === 'dialog' || /modal|popup|dialog|sheet/i.test(e.className && e.className.baseVal === undefined ? e.className : ''); });
+          const before = new Map(floats().map((e) => [e, tx(e)]));
+          btn.click();
+          let dlg = null;
+          for (let k = 0; k < 25 && !dlg; k++) { await new Promise((ok) => setTimeout(ok, 120)); const ch = floats().filter((e) => before.get(e) !== tx(e) && /마감/.test(tx(e)) && D1.test(tx(e))); const nd = (e) => (tx(e).match(/\d{1,2}\s*[.\-/월]\s*\d{1,2}/g) || []).length;
+            dlg = ch.filter((e) => nd(e) >= 2).sort((a, b) => tx(a).length - tx(b).length)[0] || ch.sort((a, b) => tx(a).length - tx(b).length)[0] || null; } // 날짜 2개 이상 든 가장 작은 칸 = 일정 창 본문 (페이지 전체를 감싼 칸은 제외되도록)
+          if (!dlg) return null;
+          const text = tx(dlg);
+          const close = [...dlg.querySelectorAll('button,[role=button],[aria-label]')].find((b) => /닫기|확인|close|×|✕|^x$/i.test((tx(b) || b.getAttribute('aria-label') || '').trim()));
+          if (close) close.click(); else document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+          const yNow = new Date().getFullYear(), iso = (y, m, d) => `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          const dts = (l) => [...l.matchAll(/(?:(20\d{2})\s*[.\-/년]\s*)?(\d{1,2})\s*[.\-/월]\s*(\d{1,2})\s*일?/g)].map((m) => ({ y: m[1] ? +m[1] : null, m: +m[2], d: +m[3] })).filter((v) => v.m >= 1 && v.m <= 12 && v.d >= 1 && v.d <= 31);
+          const out = {}; let carry = '', lastY = null;
+          const put = (k, v) => { if (!out[k] && v) out[k] = iso(v.y || lastY || yNow, v.m, v.d); };
+          for (const raw of text.split(/\n+/).map((l) => l.trim()).filter(Boolean)) {
+            const ds = dts(raw); const lab = (carry + ' ' + raw.replace(/[\d.\-/~()년월일:\s(월화수목금토일)]+/g, ' ')).trim();
+            if (!ds.length) { carry = raw; continue; }
+            ds.forEach((v) => { if (v.y) lastY = v.y; });
+            if (/마감/.test(lab) && !/모집|신청/.test(lab)) put('reviewEndAt', ds[ds.length - 1]);
+            else if (/모집|신청/.test(lab)) { put('applyStartAt', ds[0]); put('applyEndAt', ds[ds.length - 1]); }
+            else if (/발표|선정/.test(lab)) put('announceAt', ds[0]);
+            else if (/체험|리뷰|등록/.test(lab) && ds.length > 1) put('reviewEndAt', ds[ds.length - 1]); // '체험&리뷰 기간 a ~ b' = b가 마감 (마감 줄이 따로 없을 때)
+            carry = '';
+          }
+          return Object.keys(out).length ? out : null;
+        })().catch(() => null);
+        const list = [{ id: hit.id, title: hit.title || titleOf(det) || document.title, dates: sched || { ...dmap(hit.raw), ...dmap(det || {}) }, sched: !!sched }];
         let n = 0; const camps = [];
         for (const c of list) {
           say(`선정 명단 가져오는 중… ${++n}/${list.length}<br><small>${esc(c.title)}</small>`);
@@ -122,7 +156,7 @@
         const paint = () => {
           const ok = res.filter((r) => r.status === 'saved' || r.status === 'updated').length, wait = res.filter((r) => r.status === 'confirm').length;
           say(`<div style="margin:6px 0 10px">${wait ? `회차를 확인하고 [저장]을 눌러주세요 · ` : ''}${ok}개 저장 · 전체 ${res.length}개</div>` + res.map((r, i) => { const [t, c] = LBL[r.status] || [r.status, '#fff'];
-            return `<div style="padding:8px 0;border-top:1px solid rgba(255,255,255,.18)"><div><b style="color:${c}">${t}</b> ${esc(r.company || r.title)} <small style="opacity:.7">${r.count}명${r.cancelled ? ' · 취소 ' + r.cancelled : ''}${r.round_no ? ' · ' + r.round_no + '회차' : ''}</small></div>` + (r.applied ? `<div style="font-size:12px;opacity:.9">달력 반영: ${esc(r.applied)}</div>` : '')
+            return `<div style="padding:8px 0;border-top:1px solid rgba(255,255,255,.18)"><div><b style="color:${c}">${t}</b> ${esc(r.company || r.title)} <small style="opacity:.7">${r.count}명${r.cancelled ? ' · 취소 ' + r.cancelled : ''}${r.round_no ? ' · ' + r.round_no + '회차' : ''}</small></div>` + (r.applied ? `<div style="font-size:12px;opacity:.9">달력 반영: ${esc(r.applied)}</div>` : '') + (r.status === 'confirm' && camps[0]?.dates?.reviewEndAt ? `<div style="font-size:12px;opacity:.9">마감일 ${esc(camps[0].dates.reviewEndAt)}${camps[0].sched ? ' (일정 확인 창)' : ' (캠페인 정보)'}</div>` : '')
               + (r.status === 'confirm' ? `<div style="font-size:12px;opacity:.9;margin:2px 0 6px">${esc(r.msg || '')}${r.have && r.have.length ? `<br>명단 있는 회차: ${esc(r.have.join(', '))}` : ''}</div><div style="display:flex;gap:6px;align-items:center"><input data-n="${i}" type="number" min="1" value="${r.next || ''}" placeholder="회차" style="width:72px;height:30px;border:0;border-radius:6px;padding:0 8px;font:inherit;color:#111"> <span>회차로</span> <button data-s="${i}" style="border:0;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;background:#fff;color:#1E10C7">저장</button> <button data-c="${i}" style="border:1px solid rgba(255,255,255,.6);background:none;color:#fff;border-radius:6px;padding:5px 10px;cursor:pointer">업체 바꾸기</button></div>`
                 : r.link ? `<a href="${esc(r.link)}" target="_blank" style="color:#fff;font-weight:700">CRM에서 점주 안내 열기 ›</a>` : `<small style="opacity:.8">${esc(r.msg || '')}</small>`)
               + (r.status === 'pick' && r.candidates && r.candidates.length ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">' + r.candidates.map((cd) => `<button data-i="${i}" data-co="${esc(cd.id)}" style="border:0;border-radius:6px;padding:3px 8px;cursor:pointer">${esc(cd.name)}</button>`).join('') + '</div>' : '') + '</div>'; }).join(''));
