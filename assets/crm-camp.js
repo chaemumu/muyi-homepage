@@ -83,17 +83,27 @@
           } catch (e) { if (/로그인/.test(e.message)) throw e; errs.push('명단 ' + e.message); }
         }
         if (!camps.length) { say('이 캠페인에 선정된 블로거가 없습니다.' + (errs.length ? `<br><small style="opacity:.7">${esc(errs.slice(0, 3).join(' · '))}</small>` : '')); return; }
-        const send = async (cs) => { const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: KEY, campaigns: cs }) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'CRM 응답 ' + r.status); return j.results || []; };
-        say(`CRM에 저장 중… (${camps.length}개 캠페인 · 닉네임·특이사항 정리)`);
-        let res = await send(camps);
-        const LBL = { saved: ['저장', '#7CF2B0'], updated: ['갱신', '#7CF2B0'], same: ['이미 저장', '#cfd2ff'], pick: ['업체 선택', '#FFD27A'], no_cycle: ['모집일 없음', '#FFB4B4'], conflict: ['확인 필요', '#FFB4B4'], empty: ['명단 없음', '#cfd2ff'], error: ['실패', '#FFB4B4'] };
+        const send = async (cs, preview) => { const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: KEY, campaigns: cs, preview: !!preview }) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'CRM 응답 ' + r.status); return j.results || []; };
+        // 2026-11-25~: 먼저 업체와 '명단 없는 다음 회차'만 확인(preview) → 회차를 입력·확인해야 저장 (잘못 누름 방지)
+        say(`CRM에서 업체·회차 확인 중… (${camps.length}개 캠페인)`);
+        let res = await send(camps, true);
+        const LBL = { saved: ['저장', '#7CF2B0'], updated: ['갱신', '#7CF2B0'], same: ['이미 저장', '#cfd2ff'], pick: ['업체 선택', '#FFD27A'], confirm: ['회차 확인', '#FFD27A'], no_cycle: ['모집일 없음', '#FFB4B4'], conflict: ['확인 필요', '#FFB4B4'], empty: ['명단 없음', '#cfd2ff'], error: ['실패', '#FFB4B4'] };
         const paint = () => {
-          const ok = res.filter((r) => r.status === 'saved' || r.status === 'updated').length;
-          say(`<div style="margin:6px 0 10px">${ok}개 저장 · 전체 ${res.length}개</div>` + res.map((r, i) => { const [t, c] = LBL[r.status] || [r.status, '#fff'];
+          const ok = res.filter((r) => r.status === 'saved' || r.status === 'updated').length, wait = res.filter((r) => r.status === 'confirm').length;
+          say(`<div style="margin:6px 0 10px">${wait ? `회차를 확인하고 [저장]을 눌러주세요 · ` : ''}${ok}개 저장 · 전체 ${res.length}개</div>` + res.map((r, i) => { const [t, c] = LBL[r.status] || [r.status, '#fff'];
             return `<div style="padding:8px 0;border-top:1px solid rgba(255,255,255,.18)"><div><b style="color:${c}">${t}</b> ${esc(r.company || r.title)} <small style="opacity:.7">${r.count}명${r.cancelled ? ' · 취소 ' + r.cancelled : ''}${r.round_no ? ' · ' + r.round_no + '회차' : ''}</small></div>` + (r.applied ? `<div style="font-size:12px;opacity:.9">달력 반영: ${esc(r.applied)}</div>` : '')
-              + (r.link ? `<a href="${esc(r.link)}" target="_blank" style="color:#fff;font-weight:700">CRM에서 점주 안내 열기 ›</a>` : `<small style="opacity:.8">${esc(r.msg || '')}</small>`)
+              + (r.status === 'confirm' ? `<div style="font-size:12px;opacity:.9;margin:2px 0 6px">${esc(r.msg || '')}${r.have && r.have.length ? `<br>명단 있는 회차: ${esc(r.have.join(', '))}` : ''}</div><div style="display:flex;gap:6px;align-items:center"><input data-n="${i}" type="number" min="1" value="${r.next || ''}" placeholder="회차" style="width:72px;height:30px;border:0;border-radius:6px;padding:0 8px;font:inherit;color:#111"> <span>회차로</span> <button data-s="${i}" style="border:0;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;background:#fff;color:#1E10C7">저장</button></div>`
+                : r.link ? `<a href="${esc(r.link)}" target="_blank" style="color:#fff;font-weight:700">CRM에서 점주 안내 열기 ›</a>` : `<small style="opacity:.8">${esc(r.msg || '')}</small>`)
               + (r.status === 'pick' && r.candidates && r.candidates.length ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">' + r.candidates.map((cd) => `<button data-i="${i}" data-co="${esc(cd.id)}" style="border:0;border-radius:6px;padding:3px 8px;cursor:pointer">${esc(cd.name)}</button>`).join('') + '</div>' : '') + '</div>'; }).join(''));
-          box.querySelectorAll('[data-co]').forEach((b) => b.onclick = async () => { const i = +b.dataset.i, cp = camps.find((c) => c.id === res[i].id); b.textContent = '저장 중…'; try { const [r] = await send([{ ...cp, company_id: b.dataset.co }]); res[i] = r; } catch (e) { res[i] = { ...res[i], status: 'error', msg: e.message }; } paint(); });
+          box.querySelectorAll('[data-co]').forEach((b) => b.onclick = async () => { const i = +b.dataset.i, cp = camps.find((c) => c.id === res[i].id); b.textContent = '확인 중…'; try { const [r] = await send([{ ...cp, company_id: b.dataset.co }], true); res[i] = r; } catch (e) { res[i] = { ...res[i], status: 'error', msg: e.message }; } paint(); });
+          // 회차 확인 → 입력한 회차로 저장 (명단이 이미 있는 회차면 한 번 더 물어봄)
+          box.querySelectorAll('[data-s]').forEach((b) => b.onclick = async () => {
+            const i = +b.dataset.s, r0 = res[i], n = Math.floor(Number(box.querySelector(`[data-n="${i}"]`).value));
+            if (!(n > 0)) { alert('저장할 회차 번호를 넣어주세요'); return; }
+            if (!confirm(`${r0.company} ${n}회차로 저장할까요?${(r0.have || []).includes(n) ? `\n※ ${n}회차에는 이미 명단이 있습니다` : ''}`)) return;
+            const cp = camps.find((c) => c.id === r0.id); b.textContent = '저장 중…'; b.disabled = true;
+            try { const [r] = await send([{ ...cp, company_id: r0.company_id, round_no: n }]); res[i] = r; } catch (e) { res[i] = { ...r0, status: 'error', msg: e.message }; } paint();
+          });
         };
         paint();
       } catch (e) { say('<div style="margin-top:6px">' + esc(e.message) + '</div><small style="opacity:.8">리뷰노트에 로그인된 상태인지 확인해주세요.</small>'); }
