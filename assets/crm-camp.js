@@ -255,6 +255,7 @@ textarea.ca-g.sm{min-height:100px}
 .fx-man{min-height:110px!important}
 .rt-pm{width:min(1100px,100%)!important}
 .rt-pm2{width:min(640px,100%)!important}
+.gv-pm{width:min(1000px,100%)!important}
 .rt-in{min-height:420px!important;font:12px/1.5 ui-monospace,monospace}
 .rt-pv{display:flex;flex-direction:column;gap:6px;max-height:460px;overflow:auto}
 .rt-r{border:1px solid var(--line);border-radius:8px;padding:6px 10px}
@@ -365,20 +366,58 @@ textarea.ca-g.sm{min-height:100px}
       chk,
     ].join('\n').trimEnd();
   }
-  // 모집 팝업용 가이드 보기 (읽기 전용): 저장된 버전을 고르면 그 버전 가이드 전체. 수정·저장은 발표 상세 ④ 블로거 가이드에서
+  // 모집 팝업용 가이드 보기: 저장된 버전을 고르면 그 버전 가이드 전체 + 드롭다운 '＋ 가이드 추가' (2026-11-25~)
+  //  추가 = 발표 상세 ④ [버전 저장]과 같은 형식(guidelines 체험단 행: body=지점 특이사항, fields={title, price, must, opt, brand}) → 발표 상세 ④ 버전 목록에 그대로 나옴
   async function guideView(co) {
-    const [gl, gb, ex] = await Promise.all([
-      sb.from('guidelines').select('body,fields,created_at').eq('company_id', co.id).eq('kind', '체험단').order('created_at', { ascending: false }).limit(200),
-      sb.from('crm_settings').select('value').eq('key', 'guide_brand:' + brandOf(co)).maybeSingle(),
-      sb.from('companies').select('address,camp_info,phone,store_phone').eq('id', co.id).maybeSingle(),
-    ]);
-    const vers = new Map(); (gl.data || []).forEach((g) => { const t = g.fields?.title || '기본'; if (!vers.has(t)) vers.set(t, g); });
-    const c = { ...co, ...(ex.data || {}) }, base = { price: '', must: '', opt: '', ...(ex.data?.camp_info || {}) }, brand0 = typeof gb.data?.value === 'string' ? gb.data.value : '';
-    const out = el('textarea', { className: 'fi ca-msg gv-out', readOnly: true });
-    const sel = el('select', { className: 'fi', title: '저장된 가이드 버전' }, vers.size ? [...vers.keys()].map((t) => el('option', { value: t, text: t })) : [el('option', { value: '', text: '저장된 버전 없음 (현재 정보)' })]);
-    const paint = () => { const g = vers.get(sel.value), f = g?.fields || {}; out.value = composeGuide({ co: c, address: c.address, info: { price: f.price ?? base.price, must: f.must ?? base.must, opt: f.opt ?? base.opt }, storeGuide: g?.body || '', brandGuide: f.brand ?? brand0 }); };
-    sel.onchange = paint; paint();
-    return el('div', { className: 'gv' }, [el('div', { className: 'ca-sec' }, [el('b', { text: '블로거 가이드' }), sel, el('span', { className: 'sp' }), el('button', { className: 'btn sm', type: 'button', text: '가이드 복사', onclick: () => copy(out.value, '가이드') })]), out]);
+    const box = el('div', { className: 'gv' });
+    const load = async (pick) => {
+      const [gl, gb, ex] = await Promise.all([
+        sb.from('guidelines').select('body,fields,created_at').eq('company_id', co.id).eq('kind', '체험단').order('created_at', { ascending: false }).limit(200),
+        sb.from('crm_settings').select('value').eq('key', 'guide_brand:' + brandOf(co)).maybeSingle(),
+        sb.from('companies').select('address,camp_info,phone,store_phone').eq('id', co.id).maybeSingle(),
+      ]);
+      const vers = new Map(); (gl.data || []).forEach((g) => { const t = g.fields?.title || '기본'; if (!vers.has(t)) vers.set(t, g); });
+      const c = { ...co, ...(ex.data || {}) }, base = { price: '', must: '', opt: '', ...(ex.data?.camp_info || {}) }, brand0 = typeof gb.data?.value === 'string' ? gb.data.value : '';
+      const cur = (t) => { const g = vers.get(t), f = g?.fields || {}; return { title: g ? t : '', price: f.price ?? base.price, must: f.must ?? base.must, opt: f.opt ?? base.opt, store: g?.body || '', brand: f.brand ?? brand0 }; };
+      const out = el('textarea', { className: 'fi ca-msg gv-out', readOnly: true });
+      const sel = el('select', { className: 'fi', title: '저장된 가이드 버전 · 맨 아래 ＋ 가이드 추가' }, [
+        ...(vers.size ? [...vers.keys()].map((t) => el('option', { value: t, text: t, selected: t === pick })) : [el('option', { value: '', text: '저장된 버전 없음 (현재 정보)' })]),
+        el('option', { value: '__add', text: '＋ 가이드 추가' })]);
+      let last = sel.value;
+      const paint = () => { const v = cur(sel.value); out.value = composeGuide({ co: c, address: c.address, info: v, storeGuide: v.store, brandGuide: v.brand }); };
+      sel.onchange = () => { if (sel.value === '__add') { sel.value = last; edit(cur(last)); return; } last = sel.value; paint(); };
+      // 가이드 추가 창: 지금 고른 버전 내용을 채워서 시작 → 이름 + 금액·키워드·특이사항·브랜드 공통 → 미리보기 → 저장
+      const edit = (v0) => {
+        const f = { title: el('input', { className: 'fi', placeholder: '버전 이름 (예: 기본, 주말 예약 불가, 크리스마스)' }), price: el('input', { className: 'fi', value: v0.price || '', placeholder: '체험 금액 (예: 5만원 상당)' }),
+          must: el('input', { className: 'fi', value: v0.must || '', placeholder: '필수 키워드' }), opt: el('input', { className: 'fi', value: v0.opt || '', placeholder: '선택 키워드' }),
+          store: el('textarea', { className: 'fi ca-g sm', value: v0.store || '', placeholder: '지점 특이사항 (이 지점만)' }), brand: el('textarea', { className: 'fi ca-g sm', value: v0.brand || '', placeholder: `${brandOf(co)} 브랜드 공통 확인 사항` }) };
+        const pv = el('textarea', { className: 'fi ca-msg gv-out', readOnly: true });
+        const val = () => ({ price: f.price.value.trim(), must: f.must.value.trim(), opt: f.opt.value.trim(), store: f.store.value.trim(), brand: f.brand.value.trim() });
+        const re = () => { const v = val(); pv.value = composeGuide({ co: c, address: c.address, info: v, storeGuide: v.store, brandGuide: v.brand }); };
+        Object.values(f).forEach((x) => { x.oninput = re; }); re();
+        const lab = (t, x) => el('label', { className: 'ca-f' }, [el('span', { className: 'lbl', text: t }), x]);
+        const save = el('button', { className: 'btn primary', type: 'button', text: '가이드 저장', onclick: async () => {
+          const t = f.title.value.trim(); if (!t) { toast('버전 이름을 넣어주세요'); f.title.focus(); return; }
+          if (vers.has(t) && !confirm(`'${t}' 버전이 이미 있습니다. 새 내용으로 저장할까요? (이전 내용은 보관)`)) return;
+          const v = val(); save.disabled = true;
+          const { error } = await sb.from('guidelines').insert({ company_id: co.id, kind: '체험단', body: v.store, fields: { title: t, price: v.price, must: v.must, opt: v.opt, brand: v.brand }, created_by: me });
+          if (error) { toast('저장 실패: ' + error.message); save.disabled = false; return; }
+          // 발표 상세 ④와 같게: 업체 금액·키워드 현재본 + 브랜드 공통 현재본도 갱신
+          await sb.from('companies').update({ camp_info: { ...(ex.data?.camp_info || {}), price: v.price, must: v.must, opt: v.opt } }).eq('id', co.id);
+          if (v.brand !== brand0) await sb.from('crm_settings').upsert({ key: 'guide_brand:' + brandOf(co), value: v.brand, updated_at: new Date().toISOString(), updated_by: me });
+          toast(`가이드 '${t}' 저장 — 발표 상세 ④ 블로거 가이드에서도 바로 씀`); E.close(); load(t);
+        } });
+        const E = layer([el('div', { className: 'pm-h' }, [el('h3', { text: `${co.name} · 블로거 가이드 추가` }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => E.close() })]),
+          el('div', { className: 'ca-body ca-two' }, [el('div', { className: 'ca-col' }, [lab('버전 이름', f.title), lab('체험 금액', f.price), lab('필수 키워드', f.must), lab('선택 키워드', f.opt), lab('지점 특이사항', f.store), lab('브랜드 공통', f.brand)]),
+            el('div', { className: 'ca-col' }, [el('b', { text: '미리보기' }), pv])]),
+          el('div', { className: 'ca-foot' }, [el('span', { className: 'ca-hint', text: `'${v0.title || '현재 정보'}' 내용으로 채워 시작 · 저장하면 발표 상세 ④에도 같은 버전` }), el('span', { className: 'sp' }), save])]);
+        E.L.firstChild.classList.add('gv-pm'); f.title.focus();
+      };
+      paint();
+      box.replaceChildren(el('div', { className: 'ca-sec' }, [el('b', { text: '블로거 가이드' }), sel, el('span', { className: 'sp' }), el('button', { className: 'btn sm', type: 'button', text: '가이드 복사', onclick: () => copy(out.value, '가이드') })]), out);
+    };
+    await load();
+    return box;
   }
   // 업체 메모 (업체 전체 1개, companies.camp_memo): 캘린더의 모든 팝업 옆에 같은 메모 — 입력하면 자동 저장
   async function memoSide(layerEl, co) {
