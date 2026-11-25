@@ -252,6 +252,7 @@ textarea.ca-g.sm{min-height:100px}
 .ca-kw span{display:inline-flex;gap:6px;align-items:baseline}.ca-kw b{font-size:11px;font-weight:800;color:var(--accent);background:var(--accent-50);border-radius:5px;padding:1px 6px}
 .ca-kw .btn{margin-left:auto}
 .fx-memo{min-height:60px!important}
+.fx-man{min-height:110px!important}
 .fx-pm{--ph:auto;height:auto!important;max-height:calc(var(--vh,100vh) - 32px)}
 .pm-layer.has-memo{display:flex;align-items:center;justify-content:center;gap:12px}
 .pm-layer.has-memo>.pm{flex:0 1 auto;min-width:0}
@@ -984,40 +985,48 @@ textarea.ca-g.sm{min-height:100px}
     const etc = el('input', { className: 'fi', placeholder: '기타 사유 (직접 입력)' }); etc.oninput = () => { S.etc = etc.value.trim(); paintMsg(); };
     const memo = el('textarea', { className: 'fi ca-g sm', placeholder: '메모 (예: 본문 3번째 사진 AI 이미지)' }); memo.oninput = () => { S.memo = memo.value; };
     const msg = el('textarea', { className: 'fi ca-g' }); msg.oninput = () => { S.msgEdited = true; };
-    const who = () => S.rows.find((r) => r.id === S.who);
+    // 명단이 없거나 명단에 없는 블로거 = 직접 입력 (2026-11-25~): 닉네임 / 이름 / 전화 / 블로그·글 링크를 한 칸에 붙여넣으면 줄마다 알아서 나눔
+    const man = el('textarea', { className: 'fi ca-g sm fx-man', placeholder: '블로거 정보 붙여넣기 (줄마다)\n닉네임\n이름\n010-0000-0000\nhttps://blog.naver.com/아이디\n글 링크' });
+    const manRow = () => { const ls = man.value.split(/\n+/).map((x) => x.trim()).filter(Boolean); const ph = ls.find((x) => /^0\d{1,2}[-\s.]?\d{3,4}[-\s.]?\d{4}$/.test(x)); const urls = ls.filter((x) => /^https?:/.test(x)); const tx = ls.filter((x) => x !== ph && !/^https?:/.test(x));
+      const post = urls.find((u) => /blog\.naver\.com\/[^/?#]+\/\d+|logNo=\d+/.test(u)) || ''; return { id: 'manual', nickname: tx[0] || '', name: tx[1] || '', phone: ph || '', blog_url: urls.find((u) => u !== post) || '', post_url: post }; };
+    man.oninput = () => { if (S.who === 'manual') paintWho(); };
+    const who = () => S.who === 'manual' ? (manRow().nickname || manRow().phone ? manRow() : null) : S.rows.find((r) => r.id === S.who);
     const reasons = () => [...S.reasons, ...(S.etc ? [S.etc] : [])];
     const msgTxt = () => { const r = who(), rs = reasons(), t = rs.join(', ') || '(사유)'; return `안녕하세요 ${r ? r.nickname || r.name : '~'}님! [${co.name}] 의 리뷰 담당자입니다.\n\n작성해주신 리뷰의 내용 중 ${t}${rs.length ? josa(t) : '이'} 확인 되어 수정 요청드립니다:)`; };
     const paintMsg = () => { if (!S.msgEdited) msg.value = msgTxt(); };
     const info = el('div', { className: 'ca-hint' });
     const hist = el('div', { className: 'fx-hist' });
-    const paintWho = () => { const r = who(); info.replaceChildren(...(r ? [`${r.name || ''} · ${r.phone || '번호 없음'}`, r.post_url ? el('a', { href: r.post_url, target: '_blank', rel: 'noopener', text: ' · 글 보기 ›' }) : ' · 글 링크 없음'] : ['블로거를 고르세요'])); paintMsg(); };
+    const paintWho = () => { const r = who(); info.replaceChildren(...(r ? [`${r.name || ''} · ${r.phone || '번호 없음'}`, r.post_url ? el('a', { href: r.post_url, target: '_blank', rel: 'noopener', text: ' · 글 보기 ›' }) : ' · 글 링크 없음'] : [S.who === 'manual' ? '닉네임이나 전화번호를 넣어주세요' : '블로거를 고르세요'])); paintMsg(); };
     const paintHist = () => hist.replaceChildren(...(S.hist.length ? S.hist.map((h) => {
       const ok = el('button', { className: 'btn sm' + (h.fixed_at ? '' : ' primary'), type: 'button', text: h.fixed_at ? '✓ 수정 완료' : '수정 완료', onclick: async () => { const v = h.fixed_at ? null : new Date().toISOString(); const { error } = await sb.from('review_fixes').update({ fixed_at: v }).eq('id', h.id); if (error) { toast('저장 실패: ' + error.message); return; } h.fixed_at = v; paintHist(); } });
       const del = el('button', { className: 'btn sm ghost', type: 'button', text: '삭제', onclick: async () => { if (!confirm('이 수정 요청 기록을 지울까요?')) return; const { error } = await sb.from('review_fixes').delete().eq('id', h.id); if (error) { toast('삭제 실패: ' + error.message); return; } S.hist = S.hist.filter((x) => x !== h); paintHist(); } });
       return el('div', { className: 'fx-item' + (h.fixed_at ? ' done' : '') }, [el('div', {}, [el('b', { text: h.blogger || '-' }), el('small', { text: ` ${kstShort(h.created_at)}${h.created_by && admins[h.created_by] ? ' · ' + admins[h.created_by] : ''}` })]), el('div', { text: (h.reasons || []).join(', ') }), h.memo ? el('small', { text: h.memo }) : null, el('div', { className: 'acts' }, [ok, del])].filter(Boolean));
     }) : [el('div', { className: 'ca-hint', text: '이 회차에 저장된 수정 요청이 없습니다.' })]));
     const loadRound = async () => {
-      const [ro, hs] = S.rid ? await Promise.all([sb.from('roster').select('*').eq('round_id', S.rid).order('created_at'), sb.from('review_fixes').select('*').eq('round_id', S.rid).order('created_at', { ascending: false })]) : [{ data: [] }, { data: [] }];
+      const [ro, hs] = S.rid ? await Promise.all([sb.from('roster').select('*').eq('round_id', S.rid).order('created_at'), sb.from('review_fixes').select('*').eq('round_id', S.rid).order('created_at', { ascending: false })])
+        : [{ data: [] }, await sb.from('review_fixes').select('*').eq('company_id', co.id).is('round_id', null).order('created_at', { ascending: false }).limit(30)]; // 명단 없는 회차 = 직접 입력한 요청
       S.rows = (ro.data || []).filter((r) => !r.cancelled); S.hist = hs.data || [];
-      S.who = S.rows.some((r) => r.id === S.who) ? S.who : '';
-      bSel.replaceChildren(el('option', { value: '', text: S.rows.length ? `블로거 선택 (${S.rows.length}명)` : '명단 없음' }), ...S.rows.map((r) => el('option', { value: r.id, text: `${r.nickname || r.name}${r.nickname && r.name ? ' · ' + r.name : ''}${S.hist.some((h) => h.roster_id === r.id && !h.fixed_at) ? ' (요청 중)' : ''}`, selected: r.id === S.who })));
+      S.who = S.rows.some((r) => r.id === S.who) || (S.who === 'manual') ? S.who : (S.rows.length ? '' : 'manual');
+      bSel.replaceChildren(el('option', { value: '', text: S.rows.length ? `블로거 선택 (${S.rows.length}명)` : '명단 없음' }), ...S.rows.map((r) => el('option', { value: r.id, text: `${r.nickname || r.name}${r.nickname && r.name ? ' · ' + r.name : ''}${S.hist.some((h) => h.roster_id === r.id && !h.fixed_at) ? ' (요청 중)' : ''}`, selected: r.id === S.who })),
+        el('option', { value: 'manual', text: '✎ 직접 입력 (명단에 없음)', selected: S.who === 'manual' }));
+      man.hidden = S.who !== 'manual';
       paintWho(); paintHist();
     };
     rSel.onchange = () => { S.rid = rSel.value; loadRound(); };
-    bSel.onchange = () => { S.who = bSel.value; S.msgEdited = false; paintWho(); };
+    bSel.onchange = () => { S.who = bSel.value; S.msgEdited = false; man.hidden = S.who !== 'manual'; if (S.who === 'manual') man.focus(); paintWho(); };
     const save = async () => {
-      const r = who(); if (!r) { toast('블로거를 고르세요'); return; }
+      const r = who(); if (!r) { toast(S.who === 'manual' ? '블로거 닉네임이나 전화번호를 넣어주세요' : '블로거를 고르세요'); return; }
       if (!reasons().length) { toast('수정 사유를 고르세요'); return; }
-      const { data, error } = await sb.from('review_fixes').insert({ company_id: co.id, round_id: S.rid, roster_id: r.id, blogger: r.nickname || r.name, phone: r.phone, reasons: reasons(), memo: S.memo.trim() || null, created_by: me }).select().single();
+      const { data, error } = await sb.from('review_fixes').insert({ company_id: co.id, round_id: S.rid || null, roster_id: r.id === 'manual' ? null : r.id, blogger: r.nickname || r.name || r.phone, phone: r.phone || null, reasons: reasons(), memo: [S.memo.trim(), r.id === 'manual' ? [r.name, r.blog_url, r.post_url].filter(Boolean).join(' · ') : ''].filter(Boolean).join('\n') || null, created_by: me }).select().single();
       if (error) { toast('저장 실패: ' + error.message); return; }
       S.hist.unshift(data); paintHist(); toast(`${data.blogger} 수정 요청 저장`);
     };
     const rd = rounds.find((r) => r.id === S.rid);
     const head = el('div', { className: 'ca-head' }, [el('div', { className: 'ca-title' }, [el('h3', { text: `${co.name} · 2차마감 리뷰 확인` }), (extra || []).length ? el('div', { className: 'ca-extra' }, extra) : '', el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]),
-      el('div', { className: 'ca-hint', text: '태그 누락·생성형 이미지·타 지점 언급 등 리뷰를 다시 확인해 수정 요청을 보냅니다' + (rd ? '' : ' · 저장된 명단이 없으면 발표 상세에서 먼저 명단을 저장하세요') })]);
+      el('div', { className: 'ca-hint', text: '태그 누락·생성형 이미지·타 지점 언급 등 리뷰를 다시 확인해 수정 요청을 보냅니다' + (rd ? '' : ' · 저장된 명단이 없으면 블로거를 직접 입력해 저장할 수 있습니다') })]);
     const lab = (t, x) => el('label', { className: 'ca-f' }, [el('span', { className: 'lbl', text: t }), x]);
     const body = el('div', { className: 'ca-body' }, el('div', { className: 'ca-panel ca-two' }, [
-      el('div', { className: 'ca-col' }, [lab('체험단 회차', rSel), lab('블로거', bSel), info, el('span', { className: 'lbl', text: '수정 사유 (여러 개 선택)' }), rsn, etc, lab('메모', memo)]),
+      el('div', { className: 'ca-col' }, [lab('체험단 회차', rSel), lab('블로거', bSel), man, info, el('span', { className: 'lbl', text: '수정 사유 (여러 개 선택)' }), rsn, etc, lab('메모', memo)]),
       el('div', { className: 'ca-col' }, [el('div', { className: 'ca-sec' }, [el('b', { text: '보낼 문구' }), el('button', { className: 'btn sm ghost', type: 'button', text: '다시 만들기', onclick: () => { S.msgEdited = false; paintMsg(); } })]), msg,
         el('div', { className: 'ca-sec' }, [el('b', { text: '이 회차 수정 요청 기록' })]), hist]),
     ]));
