@@ -480,28 +480,46 @@ textarea.ca-g.sm{min-height:100px}
   const isPhone = (x) => /^0\d{1,2}[-\s.]?\d{3,4}[-\s.]?\d{4}$/.test(x);
   // 회차 머리: '------1-----'(하이픈 사이 번호) 또는 'N회차' 줄 · 머리 바로 아래 날짜 줄 = 그 회차 마감일
   //  '재계약' 줄(또는 번호가 다시 작아짐) = 새 계약 → 1회차부터 다시. 이름: 지난 계약 회차 = 'N-계약차수'(1-1, 2-1 …) · 마지막 계약 = 'N회차' (2026-11-25~)
-  const hdrOf = (y) => { const m = y.match(/^-{2,}\s*(\d{1,3})\s*(?:회차|회)?\s*-{2,}$/); if (m) return { no: +m[1], renew: false };
-    const n = !isUrl(y) && !isPhone(y) && y.length <= 40 && y.match(/(\d+)\s*회차/); return n ? { no: +n[1], renew: /재계약/.test(y) } : null; };
-  const dateOf = (y) => {
-    if (isUrl(y) || isPhone(y) || y.length > 30) return null;
-    const m = y.match(/(?:(20\d{2})\s*[.\-/년]\s*)?(\d{1,2})\s*[.\-/월]\s*(\d{1,2})\s*일?/); if (!m || !(/마감|^\D{0,6}\d/.test(y))) return null;
-    const mo = +m[2], d = +m[3]; if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
-    let yr = m[1] ? +m[1] : +todayKst().slice(0, 4); const iso = (Y) => `${Y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    if (!m[1] && iso(yr) > addDays(todayKst(), 60)) yr--; // 연도 없으면: 60일보다 먼 미래면 작년
-    return iso(yr);
+  // 줄 정리: 보이지 않는 문자 제거 + 하이픈 비슷한 문자(－ – — ― ─ ━ ㅡ = ~ _) 허용 + '-----' / '1' / '-----' 처럼 세 줄로 된 머리도 한 줄로 (2026-11-25~)
+  const DASH = '[-－‐‑‒–—―─━ㅡ=~_]';
+  const reHdr = new RegExp(`^${DASH}{2,}\\s*(\\d{1,3})\\s*(?:회차|회|차)?\\s*(.*?)\\s*${DASH}{2,}\\s*(.*)$`), reDashOnly = new RegExp(`^${DASH}{3,}$`), reHdr2 = new RegExp(`^${DASH}{2,}\\s*(\\d{1,3})\\s*(?:회차|회|차)?\\s*(.*)$|^(\\d{1,3})\\s*(?:회차|회|차)?\\s*(.*?)\\s*${DASH}{2,}$`);
+  const linesOf = (txt) => {
+    const L = String(txt || '').replace(/[\u200b-\u200d\ufeff]/g, '').replace(/\u00a0/g, ' ').split(/\r?\n/).flatMap((l) => { if (!l.includes('\t')) return [l]; const c = l.split('\t').map((x) => x.trim()).filter(Boolean); return c.some((x) => isPhone(x) || isUrl(x)) ? c : c.slice(0, 1); }).map((l) => l.trim()); // 엑셀 칸(탭): 전화·링크가 있으면 칸마다 줄로, 아니면 첫 칸만(뒤 '미제출' 등 상태 버림)
+    const out = [];
+    for (let i = 0; i < L.length; i++) {
+      const nx = (j) => { while (j < L.length && !L[j]) j++; return j; };
+      if (reDashOnly.test(L[i])) { const j = nx(i + 1), m = (L[j] || '').match(/^(\d{1,3})\s*(?:회차|회|차)?$/); if (m) { const k = nx(j + 1); out.push(`--${m[1]}--`); i = reDashOnly.test(L[k] || '') ? k : j; continue; } }
+      out.push(L[i]);
+    }
+    return out;
   };
+  const hdrOf = (y) => { const m = y.match(reHdr); if (m) { const rest = `${m[2] || ''} ${m[3] || ''}`.trim(); return { no: +m[1], renew: /재계약/.test(rest), date: rest ? mdOf(rest) : null }; }
+    const h2 = !isUrl(y) && y.length <= 40 && y.match(reHdr2); if (h2) { const no = +(h2[1] || h2[3]), rest = h2[2] || h2[4] || ''; if (!/\d{3,}/.test(rest)) return { no, renew: /재계약/.test(rest), date: rest ? mdOf(rest) : null }; } // 한쪽에만 하이픈 ('------1', '1회차-----')
+    const n = !isUrl(y) && !isPhone(y) && y.length <= 40 && y.match(/(\d+)\s*회차/); return n ? { no: +n[1], renew: /재계약/.test(y) } : null; };
+  // 날짜 {Y?, mo, d} — 연도 없는 날짜는 회차 순서로 연도를 정함(마지막 회차부터 거꾸로, 뒤 회차보다 늦지 않게 · 맨 끝은 오늘+60일 이내)
+  const mdOf = (y) => {
+    if (isUrl(y) || isPhone(y) || y.length > 40) return null;
+    const m = y.match(/(?:(20\d{2})\s*[.\-/년]\s*)?(\d{1,2})\s*[.\-/월]\s*(\d{1,2})\s*일?/); if (!m) return null;
+    const mo = +m[2], d = +m[3]; if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+    return { Y: m[1] ? +m[1] : null, mo, d };
+  };
+  const dateOf = (y) => (/마감|^\D{0,6}\d/.test(y) ? mdOf(y) : null);
+  const isoOf = (Y, v) => `${Y}-${String(v.mo).padStart(2, '0')}-${String(v.d).padStart(2, '0')}`;
+  const META = /^(몇\s*팀|팀\s*수|모집\s*(인원|팀)|리뷰\s*기간|체험\s*기간|인원)\s*[:：]/; // 회차 정보 줄 (명단 아님)
   function parseRosterText(txt) {
     const out = [], warn = []; let contract = 1, last = 0, R0 = null, cur = null;
     const flush = () => { if (cur && (cur.nickname || cur.phone || cur.blog_url)) R0.rows.push(cur); cur = null; };
-    for (const raw of String(txt || '').split(/\r?\n/)) {
+    for (const raw of linesOf(txt)) {
       const y = raw.trim(); if (!y) continue;
       const h = hdrOf(y);
       if (h) { if (R0) flush(); if (h.renew && R0) { contract++; last = 0; } else if (h.renew && !R0) contract = 2; else if (R0 && h.no <= last) contract++;
-        last = h.no; R0 = { contract, no: h.no, rows: [], deadline: null }; out.push(R0); continue; }
+        last = h.no; R0 = { contract, no: h.no, rows: [], deadline: h.date || null }; out.push(R0); continue; }
       const x = y.replace(/^[-*•·]\s*/, '');
       if (/재계약/.test(x) && x.length <= 20) { if (R0) { flush(); contract++; last = 0; } else contract = 2; continue; } // '재계약' 구분 줄 → 다음부터 1회차
       if (!R0) { warn.push(x); continue; }
-      if (!R0.rows.length && !cur && !R0.deadline) { const d = dateOf(x); if (d) { R0.deadline = d; continue; } } // 회차 머리 바로 아래 = 마감일
+      if (META.test(x)) continue;
+      if (/마감/.test(x) && mdOf(x)) { if (!R0.deadline) R0.deadline = mdOf(x); continue; } // '리뷰노트 마감일 ~ 12월 26일' = 그 회차 마감일
+      if (!R0.rows.length && !cur && !R0.deadline) { const d = dateOf(x); if (d) { R0.deadline = d; continue; } } // 회차 머리 바로 아래 날짜 = 마감일
       if (isUrl(x)) {
         const prev = R0.rows[R0.rows.length - 1];
         if (isPostUrl(x) && !cur && prev && !prev.post_url) { prev.post_url = x; continue; }
@@ -512,11 +530,13 @@ textarea.ca-g.sm{min-height:100px}
       if (!cur.nickname) cur.nickname = x; else cur.name = x;
     }
     if (R0) flush();
+    let cap = addDays(todayKst(), 60);
+    for (let i = out.length - 1; i >= 0; i--) { const v = out[i].deadline; if (!v) continue; let Y = v.Y || +cap.slice(0, 4); if (!v.Y) while (isoOf(Y, v) > cap) Y--; out[i].deadline = isoOf(Y, v); if (out[i].deadline < cap) cap = out[i].deadline; }
     const maxC = Math.max(1, ...out.map((r) => r.contract));
     out.forEach((r) => { r.last = r.contract === maxC; r.label = r.last ? `${r.no}회차` : `${r.no}-${r.contract}`; r.key = `txt:${String(r.contract).padStart(2, '0')}:${String(r.no).padStart(3, '0')}`; });
     return { rounds: out.filter((r) => r.rows.length), empty: out.filter((r) => !r.rows.length), warn, contracts: maxC };
   }
-  const hasHdr = (t) => String(t || '').split(/\r?\n/).some((l) => hdrOf(l.trim()));
+  const hasHdr = (t) => linesOf(t).some((l) => hdrOf(l));
   // 텍스트 회차 저장(공통): rounds(모집일 없음, round_label·deadline, import_key txt:업체id:계약:회차) + roster. 이미 있는 회차(같은 import_key)는 건너뜀
   //  replace: true = 이 업체의 텍스트 회차(모집일 없음)를 모두 지우고 새로 넣음(덮어쓰기, 2026-11-25~ 발표 상세 [텍스트로 넣기])
   async function saveTxtRounds(co, rounds, { replace = false } = {}) {
