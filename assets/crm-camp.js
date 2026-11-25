@@ -253,6 +253,12 @@ textarea.ca-g.sm{min-height:100px}
 .ca-kw .btn{margin-left:auto}
 .fx-memo{min-height:60px!important}
 .fx-man{min-height:110px!important}
+.rt-pm{width:min(1100px,100%)!important}
+.rt-in{min-height:420px!important;font:12px/1.5 ui-monospace,monospace}
+.rt-pv{display:flex;flex-direction:column;gap:6px;max-height:460px;overflow:auto}
+.rt-r{border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.rt-r summary{cursor:pointer}
+.rt-r.off{opacity:.55}
 .fx-pm{--ph:auto;height:auto!important;max-height:calc(var(--vh,100vh) - 32px)}
 .pm-layer.has-memo{display:flex;align-items:center;justify-content:center;gap:12px}
 .pm-layer.has-memo>.pm{flex:0 1 auto;min-width:0}
@@ -336,7 +342,7 @@ textarea.ca-g.sm{min-height:100px}
     const box = el('div', { className: 'ca-pick' });
     const paint = () => { const s = q.value.trim(); box.replaceChildren(...(list.filter((e) => !s || e.co.name.includes(s)).slice(0, 60).map((e) => el('button', { type: 'button', onclick: () => { P.close(); open({ co: e.co, cycle: e.cycle, cfg, announce: e.due, deadline: e.dl, rn }); } }, [el('b', { text: e.co.name }), el('span', { text: `${e.due ? '발표 ' + mdw(e.due) : '발표일 미정'}${e.done ? ' · 완료' : ''}` })]))) || []); if (!box.childElementCount) box.append(el('div', { className: 'ca-hint', text: '이 달에 발표할 업체가 없습니다.' })); };
     q.oninput = paint;
-    const P = layer([el('div', { className: 'pm-h' }, [el('h3', { text: rn ? `어느 업체 명단인가요? · ${rn.title || '캠페인 ' + rn.id}` : '명단 변환 · 업체 선택' }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]), el('div', { className: 'ca-body' }, [rn ? el('div', { className: 'ca-hint', text: `리뷰노트 명단 ${rn.rows.length}명 — 업체를 고르면 바로 채워집니다 (제목이 비슷한 업체가 위에)` }) : null, q, box].filter(Boolean))]);
+    const P = layer([el('div', { className: 'pm-h' }, [el('h3', { text: rn ? `어느 업체 명단인가요? · ${rn.title || '캠페인 ' + rn.id}` : '명단 변환 · 업체 선택' }), rn ? null : el('button', { className: 'btn sm', type: 'button', text: '예전 명단 텍스트 넣기', title: '모든 계약 업체(종료 포함)에서 골라 예전 명단 텍스트를 회차별로 저장', onclick: () => { P.close(); txtPick(); } }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })].filter(Boolean)), el('div', { className: 'ca-body' }, [rn ? el('div', { className: 'ca-hint', text: `리뷰노트 명단 ${rn.rows.length}명 — 업체를 고르면 바로 채워집니다 (제목이 비슷한 업체가 위에)` }) : null, q, box].filter(Boolean))]);
     paint(); q.focus();
   }
 
@@ -393,10 +399,12 @@ textarea.ca-g.sm{min-height:100px}
   }
   // 전체 회차 명단: 이 업체 모든 회차(rounds) 명단 + 검색(닉네임·이름·전화·블로그)
   async function rosterAll(co, { cycle } = {}) {
-    const { data: rds } = await sb.from('rounds').select('id,cycle_on,round_no,rn_campaign_id').eq('company_id', co.id).order('cycle_on', { ascending: false, nullsFirst: false }).limit(100);
-    const ids = (rds || []).map((r) => r.id);
+    const { data: rds0 } = await sb.from('rounds').select('id,cycle_on,round_no,round_label,import_key,rn_campaign_id').eq('company_id', co.id).order('cycle_on', { ascending: false, nullsFirst: false }).limit(200);
+    // 모집일 있는 회차(최근 순) 다음에, 텍스트로 넣은 옛 회차(나중 계약·회차 순)
+    const rds = (rds0 || []).slice().sort((a, b) => (a.cycle_on || b.cycle_on) ? String(b.cycle_on || '').localeCompare(String(a.cycle_on || '')) : String(b.import_key || '').localeCompare(String(a.import_key || '')));
+    const ids = rds.map((r) => r.id);
     const ros = ids.length ? ((await sb.from('roster').select('round_id,nickname,name,phone,blog_url,post_url,cancelled,done').in('round_id', ids).order('created_at').limit(3000)).data || []) : [];
-    const groups = (rds || []).map((r) => ({ r, rows: ros.filter((x) => x.round_id === r.id) })).filter((g) => g.rows.length);
+    const groups = rds.map((r) => ({ r, rows: ros.filter((x) => x.round_id === r.id) })).filter((g) => g.rows.length);
     const q = el('input', { className: 'fi', type: 'search', placeholder: '이름 · 닉네임 · 전화 · 블로그 검색' });
     const cnt = el('b', { className: 'ca-cnt' });
     const box = el('div', { className: 'ra-list' });
@@ -407,7 +415,7 @@ textarea.ca-g.sm{min-height:100px}
         const rows = g.rows.filter((x) => !k || [x.nickname, x.name, x.phone, x.blog_url].some((v) => nrm(v).includes(k)));
         n += rows.length; if (!rows.length) return null;
         return el('div', { className: 'ra-g' + (g.r.cycle_on === cycle ? ' cur' : '') }, [
-          el('div', { className: 'ra-h' }, [el('b', { text: g.r.round_no ? `${g.r.round_no}회차` : '회차 없음' }), el('span', { text: `${g.r.cycle_on ? '모집 ' + md(g.r.cycle_on) : '모집일 없음'} · ${g.rows.filter((x) => !x.cancelled).length}명${g.r.cycle_on === cycle ? ' · 지금 연 회차' : ''}` }),
+          el('div', { className: 'ra-h' }, [el('b', { text: g.r.round_label && /재계약|회차/.test(g.r.round_label) ? g.r.round_label : g.r.round_no ? `${g.r.round_no}회차` : '회차 없음' }), el('span', { text: `${g.r.cycle_on ? '모집 ' + md(g.r.cycle_on) : '모집일 없음'} · ${g.rows.filter((x) => !x.cancelled).length}명${g.r.cycle_on === cycle ? ' · 지금 연 회차' : ''}` }),
             el('button', { className: 'btn sm ghost', type: 'button', text: '번호 복사', onclick: () => copy(rows.filter((x) => !x.cancelled && x.phone).map((x) => x.phone).join(', '), `${g.r.round_no || ''}회차 번호`) })]),
           el('table', { className: 'ca-tbl' }, el('tbody', {}, rows.map((x) => el('tr', { className: x.cancelled ? 'off' : '' }, [el('td', { className: 'nick', text: x.nickname || '' }), el('td', { text: x.name || '' }), el('td', { className: 'cphone', text: x.phone || '' }),
             el('td', {}, x.blog_url ? el('a', { href: x.blog_url, target: '_blank', rel: 'noopener', text: blogId(x.blog_url) || '블로그' }) : ''), el('td', {}, x.post_url ? el('a', { href: x.post_url, target: '_blank', rel: 'noopener', text: '글 보기' }) : x.cancelled ? '취소' : (x.done ? '완료' : ''))])))),
@@ -417,9 +425,87 @@ textarea.ca-g.sm{min-height:100px}
       cnt.textContent = `${groups.length}개 회차 · ${k ? '검색 ' + n + '명' : '전체 ' + ros.length + '명'}`;
     };
     q.oninput = paint;
-    const L = layer([el('div', { className: 'pm-h' }, [el('h3', { text: `${co.name} · 전체 회차 명단` }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => L.close() })]), el('div', { className: 'ca-body' }, [el('div', { className: 'ca-sec' }, [q, cnt]), box])]);
+    const txtBtn = el('button', { className: 'btn sm', type: 'button', text: '명단 텍스트 넣기', title: '예전 명단 텍스트(회차별)를 붙여넣어 한 번에 저장', onclick: () => { L.close(); rosterText(co, { cycle }); } });
+    const L = layer([el('div', { className: 'pm-h' }, [el('h3', { text: `${co.name} · 전체 회차 명단` }), txtBtn, el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => L.close() })]), el('div', { className: 'ca-body' }, [el('div', { className: 'ca-sec' }, [q, cnt]), box])]);
     L.L.firstChild.classList.add('ra-pm');
     paint(); q.focus();
+  }
+  // ── 예전 명단 텍스트 → 회차별 명단 (2026-11-25~). 업체 하나의 텍스트 파일 = 모든 회차:
+  //  'N회차' 줄 = 회차 시작 · 회차 번호가 다시 작아지면(재계약 후 1회차) 새 계약 · 블로거 = 닉네임 / 이름 / 전화 / 블로그 링크(+ 글 링크) 줄
+  //  저장 = rounds(cycle_on 없음, round_label '3회차'·'재계약 1회차', import_key 'txt:계약:회차') + roster. 이미 넣은 회차(import_key 같음)는 건너뜀
+  const isUrl = (x) => /^https?:\/\//.test(x);
+  const isPostUrl = (x) => /blog\.naver\.com\/[^/?#]+\/\d{6,}|logNo=\d+/.test(x);
+  const isPhone = (x) => /^0\d{1,2}[-\s.]?\d{3,4}[-\s.]?\d{4}$/.test(x);
+  function parseRosterText(txt) {
+    const out = [], warn = []; let contract = 1, last = 0, R0 = null, cur = null;
+    const flush = () => { if (cur && (cur.nickname || cur.phone || cur.blog_url)) R0.rows.push(cur); cur = null; };
+    for (const raw of String(txt || '').split(/\r?\n/)) {
+      const x = raw.trim().replace(/^[-*•·]\s*/, ''); if (!x) continue;
+      const h = !isUrl(x) && !isPhone(x) && x.length <= 40 && x.match(/(\d+)\s*회차/);
+      if (h) { if (R0) flush(); const no = +h[1]; if (R0 && no <= last) contract++; else if (!R0 && /재계약/.test(x)) contract = 2; last = no;
+        R0 = { contract, no, label: (contract > 1 ? `재계약${contract > 2 ? contract - 1 : ''} ` : '') + `${no}회차`, key: `txt:${String(contract).padStart(2, '0')}:${String(no).padStart(3, '0')}`, rows: [] }; out.push(R0); continue; }
+      if (/^재계약/.test(x) && x.length <= 20) continue; // '재계약' 구분 줄
+      if (!R0) { warn.push(x); continue; }
+      if (isUrl(x)) {
+        const prev = R0.rows[R0.rows.length - 1];
+        if (isPostUrl(x) && !cur && prev && !prev.post_url) { prev.post_url = x; continue; }
+        cur = cur || {}; if (isPostUrl(x) && cur.blog_url) cur.post_url = x; else cur.blog_url = x; flush(); continue;
+      }
+      if (isPhone(x)) { cur = cur || {}; if (cur.phone) { flush(); cur = {}; } cur.phone = x.replace(/[\s.]/g, '-'); continue; }
+      cur = cur || {}; if (cur.phone || (cur.nickname && cur.name)) { flush(); cur = {}; }
+      if (!cur.nickname) cur.nickname = x; else cur.name = x;
+    }
+    if (R0) flush();
+    return { rounds: out.filter((r) => r.rows.length), empty: out.filter((r) => !r.rows.length), warn };
+  }
+  // 예전 명단 텍스트 넣기 — 업체 고르기 (계약 업체 전체, 종료 포함): 넣은 회차 수 표시
+  async function txtPick() {
+    const [{ data: cos }, { data: rk }] = await Promise.all([sb.from('companies').select('id,name,brand,run_status').eq('stage', '결제').order('name').limit(3000), sb.from('rounds').select('company_id').like('import_key', 'txt:%').limit(5000)]);
+    const done = new Map(); (rk || []).forEach((r) => done.set(r.company_id, (done.get(r.company_id) || 0) + 1));
+    const q = el('input', { className: 'fi', type: 'search', placeholder: '업체명 검색' }), box = el('div', { className: 'ca-pick' });
+    const paint = () => { const k = q.value.trim(); box.replaceChildren(...(cos || []).filter((c) => !k || c.name.includes(k)).slice(0, 80).map((c) => el('button', { type: 'button', onclick: () => { P.close(); rosterText(c); } }, [el('b', { text: c.name }), el('span', { text: ` ${c.run_status || ''}${done.get(c.id) ? ' · 텍스트 ' + done.get(c.id) + '개 회차 넣음' : ''}` })]))); };
+    q.oninput = paint;
+    const P = layer([el('div', { className: 'pm-h' }, [el('h3', { text: '예전 명단 텍스트 넣기 · 업체 선택' }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]), el('div', { className: 'ca-body' }, [q, box])]);
+    paint(); q.focus();
+  }
+  async function rosterText(co, { cycle } = {}) {
+    const { data: have } = await sb.from('rounds').select('import_key').eq('company_id', co.id).like('import_key', `txt:${co.id}:%`); // import_key는 전체에서 유일 → 업체 id 포함
+    const had = new Set((have || []).map((r) => r.import_key));
+    const ta = el('textarea', { className: 'fi ca-g rt-in', placeholder: '명단 텍스트 파일 내용을 그대로 붙여넣으세요\n\n1회차\n닉네임\n이름\n010-0000-0000\nhttps://blog.naver.com/아이디\n…\n\n재계약\n1회차\n…' });
+    const pv = el('div', { className: 'rt-pv' }), sum = el('b', { className: 'ca-cnt' });
+    let P0 = { rounds: [] };
+    const paint = () => {
+      P0 = parseRosterText(ta.value); P0.rounds.forEach((r) => { r.key = `txt:${co.id}:${r.key.slice(4)}`; });
+      const nNew = P0.rounds.filter((r) => !had.has(r.key));
+      sum.textContent = P0.rounds.length ? `${P0.rounds.length}개 회차 · ${P0.rounds.reduce((a, r) => a + r.rows.length, 0)}명 (새로 ${nNew.length}개 회차)` : '';
+      pv.replaceChildren(...(P0.rounds.length ? P0.rounds.map((r) => el('details', { className: 'rt-r' + (had.has(r.key) ? ' off' : '') }, [
+        el('summary', {}, [el('b', { text: r.label }), el('span', { text: ` ${r.rows.length}명` + (had.has(r.key) ? ' · 이미 넣음(건너뜀)' : '') + (r.rows.some((x) => !x.phone) ? ` · 전화 없는 ${r.rows.filter((x) => !x.phone).length}명` : '') })]),
+        el('table', { className: 'ca-tbl' }, el('tbody', {}, r.rows.map((x) => el('tr', {}, [el('td', { className: 'nick', text: x.nickname || '' }), el('td', { text: x.name || '' }), el('td', { className: 'cphone', text: x.phone || '—' }), el('td', { text: x.blog_url ? blogId(x.blog_url) || x.blog_url : '' }), el('td', { text: x.post_url ? '글 ✓' : '' })])))),
+      ])) : [el('div', { className: 'ca-hint', text: ta.value.trim() ? "'N회차' 줄을 찾지 못했습니다. 회차마다 '1회차'처럼 적힌 줄이 있어야 합니다." : '붙여넣으면 여기서 회차별로 나눠 보여줍니다.' })]),
+        ...(P0.empty.length ? [el('div', { className: 'ca-hint', text: `명단이 없는 회차: ${P0.empty.map((r) => r.label).join(', ')}` })] : []),
+        ...(P0.warn.length ? [el('div', { className: 'ca-hint', text: `첫 회차 위 내용 ${P0.warn.length}줄은 건너뜀` })] : []));
+    };
+    ta.oninput = paint;
+    const save = async (b) => {
+      const todo = P0.rounds.filter((r) => !had.has(r.key)); if (!todo.length) { toast('새로 넣을 회차가 없습니다'); return; }
+      b.disabled = true; let n = 0, m = 0;
+      try {
+        for (const r of todo) {
+          const { data: rd, error } = await sb.from('rounds').insert({ company_id: co.id, round_no: r.no, round_label: r.label, state: '완료', teams: r.rows.length, import_key: r.key, memo: '명단 텍스트로 넣음' }).select('id').single();
+          if (error) throw error;
+          const { error: e2 } = await sb.from('roster').insert(r.rows.map((x) => ({ round_id: rd.id, nickname: x.nickname || null, name: x.name || null, phone: x.phone || null, blog_url: x.blog_url || null, post_url: x.post_url || null, done: !!x.post_url })));
+          if (e2) throw e2; had.add(r.key); n++; m += r.rows.length;
+        }
+        toast(`${co.name} ${n}개 회차 · ${m}명 저장`); P.close(); rosterAll(co, { cycle });
+      } catch (e) { toast(`저장 실패 (${n}개 회차까지 저장됨): ` + e.message); paint(); b.disabled = false; }
+    };
+    const sv = el('button', { className: 'btn primary', type: 'button', text: '회차별로 저장' }); sv.onclick = () => save(sv);
+    const P = layer([el('div', { className: 'pm-h' }, [el('h3', { text: `${co.name} · 명단 텍스트 넣기` }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]),
+      el('div', { className: 'ca-body ca-two' }, [el('div', { className: 'ca-col' }, [el('div', { className: 'ca-hint', text: "텍스트 파일 내용을 그대로 붙여넣기 → 오른쪽에서 회차별로 확인 → 저장. 회차 번호가 다시 1부터 시작하면 재계약으로 봅니다. 이미 넣은 회차는 건너뜀" }), ta]),
+        el('div', { className: 'ca-col' }, [el('div', { className: 'ca-sec' }, [el('b', { text: '미리보기' }), sum]), pv])]),
+      el('div', { className: 'ca-foot' }, [el('span', { className: 'sp' }), sv])]);
+    P.L.firstChild.classList.add('rt-pm');
+    paint(); ta.focus();
   }
   // 같은 브랜드 전체 지점 명단에서 같은 블로그(블로그 아이디) 찾기 → Map(blogId → [{ name, round_no, cycle_on }])
   async function brandDups(co, exceptRound) {
