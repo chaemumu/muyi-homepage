@@ -350,9 +350,11 @@ textarea.ca-g.sm{min-height:100px}
 
   // 블로거 가이드 글: 업체 정보 + 키워드 + 확인 사항(지점 특이사항 → 브랜드 공통) — 상세 ④ 탭과 모집 팝업 보기 공통
   function composeGuide({ co, address, info, storeGuide, brandGuide }) {
+    const st = String(storeGuide || '').trim();
+    // 지점 특이사항이 없으면 '~확인 사항' 머리와 '☆ 지점별 특이사항~' 자리 표시를 빼고 브랜드 공통만 (2026-11-25~)
     const chk = brandGuide && brandGuide.includes('☆ 지점별 특이사항~')
-      ? brandGuide.replace('☆ 지점별 특이사항~', `☆ 지점별 특이사항~${storeGuide ? '\n' + storeGuide : ''}`)
-      : [storeGuide, brandGuide].filter(Boolean).join('\n\n');
+      ? (st ? brandGuide.replace('☆ 지점별 특이사항~', `☆ 지점별 특이사항~\n${st}`) : brandGuide.replace(/[ \t]*☆ 지점별 특이사항~[ \t]*\n?/, ''))
+      : [st, brandGuide].filter(Boolean).join('\n\n');
     return [
       `안녕하세요 블로거님, 무이(MUYI) 선정 명단 공유드립니다😊`,
       `선정 업체 참고사항 발송해 드립니다!`, '',
@@ -362,7 +364,7 @@ textarea.ca-g.sm{min-height:100px}
       `체험 금액\t\t: ${info.price || ''}`, '',
       `필수 키워드 : ${info.must || ''}`,
       `선택 키워드 : ${info.opt || ''}`, '',
-      `~확인 사항`,
+      ...(st ? ['~확인 사항'] : []),
       chk,
     ].join('\n').trimEnd();
   }
