@@ -570,15 +570,6 @@ textarea.ca-g.sm{min-height:100px}
           P.close(); open({ co, cycle: o.cycle_on, cfg, announce: due('발표'), deadline: due('마감'), rno: n, extra });
           return;
         }
-        // 예전 명단 텍스트로 넣은 같은 번호 회차(모집일 없음) → 이 회차 명단으로 불러오기. 재계약이 있으면 가장 최근 계약 것 (2026-11-25~)
-        if (!o) {
-          const { data: tx } = await sb.from('rounds').select('id,round_no,round_label,import_key,teams,cycle_on').eq('company_id', co.id).eq('round_no', n).is('cycle_on', null).like('import_key', `txt:${co.id}:%`).order('import_key', { ascending: false }).limit(1);
-          const t0 = tx?.[0];
-          if (t0 && t0.id !== round?.id) {
-            const { data: ro } = await sb.from('roster').select('*').eq('round_id', t0.id).order('created_at');
-            if ((ro || []).length && confirm(`${t0.round_label || n + '회차'} 명단(예전 텍스트, ${ro.length}명)이 있습니다.\n이 회차(모집 ${md(cycle)}) 명단으로 불러올까요?${S.rows.length ? `\n(지금 명단 ${S.rows.length}명은 이 명단으로 바뀝니다)` : ''}\n([저장]하면 이 회차에 연결됩니다 · 취소 = 회차 번호만 바꿈)`)) loadRound(t0, ro, 'txt');
-          }
-        }
       }
       S.roundNo = n; rdBadge.replaceChildren(...rnoOpts()); F.no.replaceChildren(...rlOpts());
       if (S.ownerEdited) ownerT.value = ownerT.value.replace(/\d+회차 마감일은/, `${mno()}회차 마감일은`);
@@ -588,10 +579,11 @@ textarea.ca-g.sm{min-height:100px}
       const r1 = await (t ? sb.from('camp_tasks').update({ label: lb }).eq('id', t.id) : sb.from('camp_tasks').insert({ company_id: co.id, cycle_on: cycle, step: '모집', due_on: cycle, label: lb }));
       if (r1.error) { toast('회차 저장 실패: ' + r1.error.message); return; }
       lbQ.data = { label: lb };
-      if (n && round?.id && !moved) await sb.from('rounds').update({ round_no: n, round_label: lb }).eq('id', round.id); // 불러온 행은 [저장] 때 이 회차로 옮김
+      if (n && round?.id && !moved && !S.view) await sb.from('rounds').update({ round_no: n, round_label: lb }).eq('id', round.id); // 불러온 행은 [저장] 때 이 회차로 옮김
       if (n && (!ex.camp_round_cycle || ex.camp_round_cycle <= cycle)) { await sb.from('companies').update({ camp_round_done: n, camp_round_cycle: cycle }).eq('id', co.id); ex.camp_round_done = n; ex.camp_round_cycle = cycle; } // 다음 회차 자동 번호의 기준점
       window.CRM_CALENDAR?.refresh?.();
       toast(n ? `${n}회차로 저장 · 메시지는 ${mno()}회차` : '회차 없음');
+      if (S.view) openCycle(cycle, n); // 다른 회차 보기 중이었으면 이 회차로 돌아감
     }
     const rdBadge = el('select', { className: 'fi ca-rdsel', title: '회차 (모집 달력과 같은 번호) · 점주 안내 등 메시지에는 +1' }, rnoOpts());
     rdBadge.onchange = () => setRound(rdBadge.value);
@@ -615,6 +607,14 @@ textarea.ca-g.sm{min-height:100px}
     const gcalUrl = () => `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`[무이 체험단] ${co.name} 체험·리뷰 (마감 ${md(p.deadline)})`)}&dates=${p.reviewFrom.replace(/-/g, '')}/${addDays(p.deadline, 1).replace(/-/g, '')}&details=${encodeURIComponent([`${co.name} ${mno()}회차 체험단`, `· 체험+리뷰 기간: ${mdw(p.reviewFrom)} ~ ${mdw(p.reviewTo)}`, `· 리뷰 마감: ${mdw(p.deadline)} ♥`, `· 선정 블로거 ${live().length || S.teams}명`, '', '마감일에 무이가 등록 현황을 확인해 드립니다.'].join('\n'))}`;
 
     async function saveRoster() {
+      // 회차 명단에서 고른 다른 회차(모집일 없는 예전 회차) 보기 중 → 그 회차 행에 저장 (이 모집일 회차·달력은 안 건드림)
+      if (S.view) {
+        let r = S.view.row;
+        if (!r) { const { data, error } = await sb.from('rounds').insert({ company_id: co.id, round_no: S.view.no, round_label: `${S.view.no}회차`, state: '완료', teams: S.rows.length || null, import_key: `txt:${co.id}:01:${String(S.view.no).padStart(3, '0')}`, memo: '명단 탭에서 넣음' }).select().single(); if (error) throw error; r = data; S.view.row = r; }
+        const { error: e1 } = await sb.from('roster').delete().eq('round_id', r.id); if (e1) throw e1;
+        if (S.rows.length) { const { data: ins, error: e2 } = await sb.from('roster').insert(S.rows.map((x) => ({ round_id: r.id, nickname: x.nickname || null, name: x.name || null, phone: x.phone || null, blog_url: x.blog || null, post_url: x.post || null, note: x.note || null, grade: x.grade || null, visits: x.visits ?? null, cancelled: !!x.off, done: !!x.done }))).select('id'); if (e2) throw e2; (ins || []).forEach((d, i) => { if (S.rows[i]) S.rows[i].id = d.id; }); }
+        S.saved = true; loadRL(); return;
+      }
       const row = { company_id: co.id, cycle_on: cycle, round_no: S.roundNo || null, round_label: /재계약/.test(round?.round_label || '') && round?.round_no === S.roundNo ? round.round_label : S.roundNo ? String(S.roundNo) : null, teams: S.teams, review_weeks: S.weeks, recruit_on: cycle, deadline: p.deadline, state: '진행' };
       let r = round;
       if (moved && rd.data && rd.data.id !== r?.id) await sb.from('rounds').delete().eq('id', rd.data.id); // 이 회차의 빈 회차 행 → 불러온 북마크 명단으로 대체
@@ -660,31 +660,62 @@ textarea.ca-g.sm{min-height:100px}
 
     // ① 명단
     const num = (v, min = 1) => Math.max(min, Number(v) || min);
-    // 명단 탭 '회차 명단' = 이 업체에 저장된 회차 명단 목록 (2026-11-25~): 고르면 그 회차 명단으로 이동
-    //  모집일 있는 회차 → 그 회차 상세 · 텍스트로 넣은 예전 회차(모집일 없음) → 이 회차로 불러오기([저장]하면 이 모집일에 연결). 회차 번호 지정은 우상단 회차
-    const RL = { list: [] };
+    // 명단 탭 '회차 명단' (2026-11-25~): 전체 회차(1~N)를 드롭다운 — 고르면 그 회차로 이동
+    //  모집일 회차가 있으면 그 회차 상세 · 예전 텍스트 회차면 그 명단 보기 · 명단이 없는 회차는 이동만(빈 명단, 여기서 넣으면 그 회차로 저장)
+    //  보기 중 [저장] = 그 회차 행(모집일 없음)에만 저장, 이 모집일 회차·달력은 그대로. '이 회차' = 돌아가기. 회차 번호 지정은 우상단
+    const RL = { rs: [], cnt: new Map(), cyc: new Map() };
     const rlName = (r) => r.round_label && /재계약/.test(r.round_label) ? r.round_label : r.round_no ? `${r.round_no}회차` : '회차 없음';
-    const rlOpts = () => [el('option', { value: '', text: `이 회차${S.roundNo ? ' · ' + S.roundNo + '회차' : ''} (모집 ${md(cycle)}) · ${S.rows.length}명` }),
-      ...RL.list.filter((r) => r.id !== round?.id).map((r) => el('option', { value: r.id, text: `${rlName(r)} · ${r.cycle_on ? '모집 ' + md(r.cycle_on) : '예전 텍스트'} · ${r.n}명` }))];
-    const loadRL = async () => {
-      const { data: rs } = await sb.from('rounds').select('id,round_no,round_label,cycle_on,import_key,teams').eq('company_id', co.id).limit(300);
-      const ids = (rs || []).map((r) => r.id), cnt = new Map();
-      for (let i = 0; i < ids.length; i += 150) (((await sb.from('roster').select('round_id').in('round_id', ids.slice(i, i + 150)).limit(5000)).data) || []).forEach((x) => cnt.set(x.round_id, (cnt.get(x.round_id) || 0) + 1));
-      RL.list = (rs || []).filter((r) => cnt.get(r.id)).map((r) => ({ ...r, n: cnt.get(r.id) }))
-        .sort((a, b) => (a.cycle_on || b.cycle_on) ? String(b.cycle_on || '').localeCompare(String(a.cycle_on || '')) : String(b.import_key || '').localeCompare(String(a.import_key || '')));
-      F.no.replaceChildren(...rlOpts());
-    };
-    const F = { no: el('select', { className: 'fi', title: '이 업체에 저장된 회차 명단 — 고르면 그 회차 명단으로 이동 (회차 번호는 우상단에서)' }), teams: el('input', { className: 'fi', type: 'number', min: 1, value: S.teams }), weeks: el('input', { className: 'fi', type: 'number', min: 1, value: S.weeks }) };
-    F.no.onchange = async () => {
-      const r = RL.list.find((x) => x.id === F.no.value); if (!r) return;
-      if (r.cycle_on) { // 그 회차 상세로
-        const { data: ts } = await sb.from('camp_tasks').select('step,due_on').eq('company_id', co.id).eq('cycle_on', r.cycle_on).in('step', ['발표', '마감']);
-        const due = (st) => (ts || []).find((t) => t.step === st)?.due_on || undefined;
-        P.close(); open({ co, cycle: r.cycle_on, cfg, announce: due('발표'), deadline: due('마감'), rno: r.round_no || undefined, extra }); return;
+    const ctr = (r) => +((String(r.import_key || '').match(/:(\d{2}):\d{3}$/) || [])[1] || 0);
+    const lastC = () => Math.max(1, ...RL.rs.filter((r) => !r.cycle_on).map(ctr));
+    const txtOf = (n) => RL.rs.filter((r) => !r.cycle_on && r.round_no === n && ctr(r) === lastC())[0];
+    const datedOf = (n) => RL.rs.filter((r) => r.cycle_on && r.cycle_on !== cycle && r.round_no === n).sort((a, b) => String(b.cycle_on).localeCompare(String(a.cycle_on)))[0];
+    const rlOpts = () => {
+      const nums = RL.rs.map((r) => r.round_no || 0).concat([...RL.cyc.keys()]);
+      const max = Math.max(20, S.roundNo || 0, ...nums);
+      const cur = el('option', { value: 'cur', text: `이 회차${S.roundNo ? ' · ' + S.roundNo + '회차' : ''} (모집 ${md(cycle)}) · ${S.view ? '' : S.rows.length + '명'}`.replace(/ · $/, ''), selected: !S.view });
+      const out = [cur];
+      for (let n = 1; n <= max; n++) {
+        if (n === S.roundNo && !S.view) continue;
+        const d = datedOf(n), t = txtOf(n), c = RL.cyc.get(n);
+        const k = d && RL.cnt.get(d.id) ? ` · 모집 ${md(d.cycle_on)} · ${RL.cnt.get(d.id)}명` : t && RL.cnt.get(t.id) ? ` · 예전 텍스트 · ${RL.cnt.get(t.id)}명` : (d || c) ? ` · 모집 ${md((d || {}).cycle_on || c)} · 명단 없음` : ' · 명단 없음';
+        out.push(el('option', { value: 'n:' + n, text: `${n}회차${k}`, selected: S.view?.no === n && !S.view.id }));
       }
-      const { data: ro } = await sb.from('roster').select('*').eq('round_id', r.id).order('created_at');
-      if (S.rows.length && !confirm(`${rlName(r)} 명단(예전 텍스트, ${(ro || []).length}명)을 이 회차(모집 ${md(cycle)})로 불러올까요?\n지금 명단 ${S.rows.length}명은 이 명단으로 바뀝니다. [저장]해야 연결됩니다.`)) { F.no.value = ''; return; }
-      loadRound(r, ro, 'txt'); F.no.replaceChildren(...rlOpts());
+      RL.rs.filter((r) => !r.cycle_on && ctr(r) && ctr(r) !== lastC() && RL.cnt.get(r.id)).sort((a, b) => String(b.import_key).localeCompare(String(a.import_key)))
+        .forEach((r) => out.push(el('option', { value: 'id:' + r.id, text: `${ctr(r) === 1 ? '첫 계약 ' + rlName(r) : rlName(r)} · 예전 텍스트 · ${RL.cnt.get(r.id)}명`, selected: S.view?.id === r.id })));
+      return out;
+    };
+    async function loadRL() {
+      const [{ data: rs }, { data: tk }] = await Promise.all([sb.from('rounds').select('id,round_no,round_label,cycle_on,import_key,teams').eq('company_id', co.id).limit(400), sb.from('camp_tasks').select('cycle_on,label').eq('company_id', co.id).eq('step', '모집').not('label', 'is', null).limit(400)]);
+      RL.rs = rs || []; RL.cnt = new Map(); RL.cyc = new Map();
+      (tk || []).forEach((t) => { if (/^\d+$/.test(t.label) && t.cycle_on !== cycle) { const n = +t.label; if (!RL.cyc.has(n) || t.cycle_on > RL.cyc.get(n)) RL.cyc.set(n, t.cycle_on); } });
+      const ids = RL.rs.map((r) => r.id);
+      for (let i = 0; i < ids.length; i += 150) (((await sb.from('roster').select('round_id').in('round_id', ids.slice(i, i + 150)).limit(5000)).data) || []).forEach((x) => RL.cnt.set(x.round_id, (RL.cnt.get(x.round_id) || 0) + 1));
+      F.no.replaceChildren(...rlOpts());
+    }
+    const F = { no: el('select', { className: 'fi', title: '회차를 고르면 그 회차 명단으로 이동 (회차 번호 지정은 우상단)' }), teams: el('input', { className: 'fi', type: 'number', min: 1, value: S.teams }), weeks: el('input', { className: 'fi', type: 'number', min: 1, value: S.weeks }) };
+    const openCycle = async (cy, n) => {
+      const { data: ts } = await sb.from('camp_tasks').select('step,due_on').eq('company_id', co.id).eq('cycle_on', cy).in('step', ['발표', '마감']);
+      const due = (st) => (ts || []).find((t) => t.step === st)?.due_on || undefined;
+      P.close(); open({ co, cycle: cy, cfg, announce: due('발표'), deadline: due('마감'), rno: n || undefined, extra });
+    };
+    // 다른 회차 보기: 그 회차 명단만 (없으면 빈 명단)
+    const viewRound = async (row, n) => {
+      if (S.rows.length && !S.saved && !S.view && !confirm('저장하지 않은 명단이 있습니다. 다른 회차로 이동할까요?')) { F.no.replaceChildren(...rlOpts()); return; }
+      const ro = row ? ((await sb.from('roster').select('*').eq('round_id', row.id).order('created_at')).data || []) : [];
+      S.view = { no: row?.round_no || n, id: row && ctr(row) !== lastC() ? row.id : null, row: row || null };
+      S.rows = ro.map((x) => ({ id: x.id, nickname: x.nickname || '', name: x.name || '', phone: x.phone || '', blog: x.blog_url || '', post: x.post_url || '', note: x.note || '', grade: x.grade || '', visits: x.visits, msg: '', off: x.cancelled, done: !!x.done }));
+      S.saved = true; S.ownerEdited = false; paintRows(); paintSteps(); go('list'); F.no.replaceChildren(...rlOpts());
+      status.textContent = `${row ? rlName(row) : n + '회차'} 명단 보기 — ${S.rows.length ? S.rows.length + '명' : '명단 없음 · [텍스트로 넣기]나 엑셀로 넣고 [저장]하면 이 회차 명단으로 저장'} · '이 회차'를 고르면 돌아감`;
+    };
+    F.no.onchange = async () => {
+      const v = F.no.value;
+      if (v === 'cur') { if (S.view) openCycle(cycle, S.roundNo); return; }
+      if (v.startsWith('id:')) { const r = RL.rs.find((x) => x.id === v.slice(3)); if (r) viewRound(r); return; }
+      const n = +v.slice(2), d = datedOf(n), t = txtOf(n), c = RL.cyc.get(n);
+      if (d && RL.cnt.get(d.id)) return openCycle(d.cycle_on, n); // 그 모집일 회차 상세
+      if (t && RL.cnt.get(t.id)) return viewRound(t);             // 예전 텍스트 명단
+      if (d || c) return openCycle((d || {}).cycle_on || c, n);   // 명단 없는 모집일 회차 → 이동만
+      viewRound(t || null, n);                                     // 모집일도 명단도 없는 회차 → 빈 명단
     };
     loadRL();
     F.teams.oninput = () => { S.teams = num(F.teams.value); changed(); }; F.weeks.oninput = () => { S.weeks = num(F.weeks.value); changed(); };
