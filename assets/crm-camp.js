@@ -457,7 +457,7 @@ textarea.ca-g.sm{min-height:100px}
         const rows = g.rows.filter((x) => !k || [x.nickname, x.name, x.phone, x.blog_url].some((v) => nrm(v).includes(k)));
         n += rows.length; if (!rows.length) return null;
         return el('div', { className: 'ra-g' + (g.r.cycle_on === cycle ? ' cur' : '') }, [
-          el('div', { className: 'ra-h' }, [el('b', { text: g.r.round_label && /재계약|회차/.test(g.r.round_label) ? g.r.round_label : g.r.round_no ? `${g.r.round_no}회차` : '회차 없음' }), el('span', { text: `${g.r.cycle_on ? '모집 ' + md(g.r.cycle_on) : '모집일 없음'} · ${g.rows.filter((x) => !x.cancelled).length}명${g.r.cycle_on === cycle ? ' · 지금 연 회차' : ''}` }),
+          el('div', { className: 'ra-h' }, [el('b', { text: g.r.round_label && /재계약|회차|^\d+-\d+$/.test(g.r.round_label) ? g.r.round_label : g.r.round_no ? `${g.r.round_no}회차` : '회차 없음' }), el('span', { text: `${g.r.cycle_on ? '모집 ' + md(g.r.cycle_on) : '모집일 없음'} · ${g.rows.filter((x) => !x.cancelled).length}명${g.r.cycle_on === cycle ? ' · 지금 연 회차' : ''}` }),
             el('button', { className: 'btn sm ghost', type: 'button', text: '번호 복사', onclick: () => copy(rows.filter((x) => !x.cancelled && x.phone).map((x) => x.phone).join(', '), `${g.r.round_no || ''}회차 번호`) })]),
           el('table', { className: 'ca-tbl' }, el('tbody', {}, rows.map((x) => el('tr', { className: x.cancelled ? 'off' : '' }, [el('td', { className: 'nick', text: x.nickname || '' }), el('td', { text: x.name || '' }), el('td', { className: 'cphone', text: x.phone || '' }),
             el('td', {}, x.blog_url ? el('a', { href: x.blog_url, target: '_blank', rel: 'noopener', text: blogId(x.blog_url) || '블로그' }) : ''), el('td', {}, x.post_url ? el('a', { href: x.post_url, target: '_blank', rel: 'noopener', text: '글 보기' }) : x.cancelled ? '취소' : (x.done ? '완료' : ''))])))),
@@ -478,16 +478,30 @@ textarea.ca-g.sm{min-height:100px}
   const isUrl = (x) => /^https?:\/\//.test(x);
   const isPostUrl = (x) => /blog\.naver\.com\/[^/?#]+\/\d{6,}|logNo=\d+/.test(x);
   const isPhone = (x) => /^0\d{1,2}[-\s.]?\d{3,4}[-\s.]?\d{4}$/.test(x);
+  // 회차 머리: '------1-----'(하이픈 사이 번호) 또는 'N회차' 줄 · 머리 바로 아래 날짜 줄 = 그 회차 마감일
+  //  '재계약' 줄(또는 번호가 다시 작아짐) = 새 계약 → 1회차부터 다시. 이름: 지난 계약 회차 = 'N-계약차수'(1-1, 2-1 …) · 마지막 계약 = 'N회차' (2026-11-25~)
+  const hdrOf = (y) => { const m = y.match(/^-{2,}\s*(\d{1,3})\s*(?:회차|회)?\s*-{2,}$/); if (m) return { no: +m[1], renew: false };
+    const n = !isUrl(y) && !isPhone(y) && y.length <= 40 && y.match(/(\d+)\s*회차/); return n ? { no: +n[1], renew: /재계약/.test(y) } : null; };
+  const dateOf = (y) => {
+    if (isUrl(y) || isPhone(y) || y.length > 30) return null;
+    const m = y.match(/(?:(20\d{2})\s*[.\-/년]\s*)?(\d{1,2})\s*[.\-/월]\s*(\d{1,2})\s*일?/); if (!m || !(/마감|^\D{0,6}\d/.test(y))) return null;
+    const mo = +m[2], d = +m[3]; if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+    let yr = m[1] ? +m[1] : +todayKst().slice(0, 4); const iso = (Y) => `${Y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    if (!m[1] && iso(yr) > addDays(todayKst(), 60)) yr--; // 연도 없으면: 60일보다 먼 미래면 작년
+    return iso(yr);
+  };
   function parseRosterText(txt) {
     const out = [], warn = []; let contract = 1, last = 0, R0 = null, cur = null;
     const flush = () => { if (cur && (cur.nickname || cur.phone || cur.blog_url)) R0.rows.push(cur); cur = null; };
     for (const raw of String(txt || '').split(/\r?\n/)) {
-      const x = raw.trim().replace(/^[-*•·]\s*/, ''); if (!x) continue;
-      const h = !isUrl(x) && !isPhone(x) && x.length <= 40 && x.match(/(\d+)\s*회차/);
-      if (h) { if (R0) flush(); const no = +h[1]; if (R0 && no <= last) contract++; else if (!R0 && /재계약/.test(x)) contract = 2; last = no;
-        R0 = { contract, no, label: (contract > 1 ? `재계약${contract > 2 ? contract - 1 : ''} ` : '') + `${no}회차`, key: `txt:${String(contract).padStart(2, '0')}:${String(no).padStart(3, '0')}`, rows: [] }; out.push(R0); continue; }
-      if (/^재계약/.test(x) && x.length <= 20) continue; // '재계약' 구분 줄
+      const y = raw.trim(); if (!y) continue;
+      const h = hdrOf(y);
+      if (h) { if (R0) flush(); if (h.renew && R0) { contract++; last = 0; } else if (h.renew && !R0) contract = 2; else if (R0 && h.no <= last) contract++;
+        last = h.no; R0 = { contract, no: h.no, rows: [], deadline: null }; out.push(R0); continue; }
+      const x = y.replace(/^[-*•·]\s*/, '');
+      if (/재계약/.test(x) && x.length <= 20) { if (R0) { flush(); contract++; last = 0; } else contract = 2; continue; } // '재계약' 구분 줄 → 다음부터 1회차
       if (!R0) { warn.push(x); continue; }
+      if (!R0.rows.length && !cur && !R0.deadline) { const d = dateOf(x); if (d) { R0.deadline = d; continue; } } // 회차 머리 바로 아래 = 마감일
       if (isUrl(x)) {
         const prev = R0.rows[R0.rows.length - 1];
         if (isPostUrl(x) && !cur && prev && !prev.post_url) { prev.post_url = x; continue; }
@@ -498,7 +512,23 @@ textarea.ca-g.sm{min-height:100px}
       if (!cur.nickname) cur.nickname = x; else cur.name = x;
     }
     if (R0) flush();
-    return { rounds: out.filter((r) => r.rows.length), empty: out.filter((r) => !r.rows.length), warn };
+    const maxC = Math.max(1, ...out.map((r) => r.contract));
+    out.forEach((r) => { r.last = r.contract === maxC; r.label = r.last ? `${r.no}회차` : `${r.no}-${r.contract}`; r.key = `txt:${String(r.contract).padStart(2, '0')}:${String(r.no).padStart(3, '0')}`; });
+    return { rounds: out.filter((r) => r.rows.length), empty: out.filter((r) => !r.rows.length), warn, contracts: maxC };
+  }
+  const hasHdr = (t) => String(t || '').split(/\r?\n/).some((l) => hdrOf(l.trim()));
+  // 텍스트 회차 저장(공통): rounds(모집일 없음, round_label·deadline, import_key txt:업체id:계약:회차) + roster. 이미 있는 회차(같은 import_key)는 건너뜀
+  async function saveTxtRounds(co, rounds) {
+    const { data: have } = await sb.from('rounds').select('import_key').eq('company_id', co.id).like('import_key', `txt:${co.id}:%`);
+    const had = new Set((have || []).map((r) => r.import_key)); let n = 0, m = 0, skip = 0;
+    for (const r of rounds) {
+      const key = `txt:${co.id}:${r.key.slice(4)}`; if (had.has(key)) { skip++; continue; }
+      const { data: rd, error } = await sb.from('rounds').insert({ company_id: co.id, round_no: r.no, round_label: r.label, state: '완료', teams: r.rows.length, deadline: r.deadline || null, import_key: key, memo: '명단 텍스트로 넣음' }).select('id').single();
+      if (error) throw new Error(`${r.label}: ${error.message} (${n}개 회차까지 저장됨)`);
+      const { error: e2 } = await sb.from('roster').insert(r.rows.map((x) => ({ round_id: rd.id, nickname: x.nickname || null, name: x.name || null, phone: x.phone || null, blog_url: x.blog_url || null, post_url: x.post_url || null, done: !!x.post_url })));
+      if (e2) throw new Error(`${r.label} 명단: ${e2.message}`); had.add(key); n++; m += r.rows.length;
+    }
+    return { n, m, skip };
   }
   // 예전 명단 텍스트 넣기 — 업체 고르기 (계약 업체 전체, 종료 포함): 넣은 회차 수 표시
   async function txtPick() {
@@ -521,7 +551,7 @@ textarea.ca-g.sm{min-height:100px}
       const nNew = P0.rounds.filter((r) => !had.has(r.key));
       sum.textContent = P0.rounds.length ? `${P0.rounds.length}개 회차 · ${P0.rounds.reduce((a, r) => a + r.rows.length, 0)}명 (새로 ${nNew.length}개 회차)` : '';
       pv.replaceChildren(...(P0.rounds.length ? P0.rounds.map((r) => el('details', { className: 'rt-r' + (had.has(r.key) ? ' off' : '') }, [
-        el('summary', {}, [el('b', { text: r.label }), el('span', { text: ` ${r.rows.length}명` + (had.has(r.key) ? ' · 이미 넣음(건너뜀)' : '') + (r.rows.some((x) => !x.phone) ? ` · 전화 없는 ${r.rows.filter((x) => !x.phone).length}명` : '') })]),
+        el('summary', {}, [el('b', { text: r.label }), el('span', { text: ` ${r.rows.length}명` + (r.deadline ? ` · 마감 ${md(r.deadline)}` : '') + (had.has(r.key) ? ' · 이미 넣음(건너뜀)' : '') + (r.rows.some((x) => !x.phone) ? ` · 전화 없는 ${r.rows.filter((x) => !x.phone).length}명` : '') })]),
         el('table', { className: 'ca-tbl' }, el('tbody', {}, r.rows.map((x) => el('tr', {}, [el('td', { className: 'nick', text: x.nickname || '' }), el('td', { text: x.name || '' }), el('td', { className: 'cphone', text: x.phone || '—' }), el('td', { text: x.blog_url ? blogId(x.blog_url) || x.blog_url : '' }), el('td', { text: x.post_url ? '글 ✓' : '' })])))),
       ])) : [el('div', { className: 'ca-hint', text: ta.value.trim() ? "'N회차' 줄을 찾지 못했습니다. 회차마다 '1회차'처럼 적힌 줄이 있어야 합니다." : '붙여넣으면 여기서 회차별로 나눠 보여줍니다.' })]),
         ...(P0.empty.length ? [el('div', { className: 'ca-hint', text: `명단이 없는 회차: ${P0.empty.map((r) => r.label).join(', ')}` })] : []),
@@ -529,21 +559,14 @@ textarea.ca-g.sm{min-height:100px}
     };
     ta.oninput = paint;
     const save = async (b) => {
-      const todo = P0.rounds.filter((r) => !had.has(r.key)); if (!todo.length) { toast('새로 넣을 회차가 없습니다'); return; }
-      b.disabled = true; let n = 0, m = 0;
-      try {
-        for (const r of todo) {
-          const { data: rd, error } = await sb.from('rounds').insert({ company_id: co.id, round_no: r.no, round_label: r.label, state: '완료', teams: r.rows.length, import_key: r.key, memo: '명단 텍스트로 넣음' }).select('id').single();
-          if (error) throw error;
-          const { error: e2 } = await sb.from('roster').insert(r.rows.map((x) => ({ round_id: rd.id, nickname: x.nickname || null, name: x.name || null, phone: x.phone || null, blog_url: x.blog_url || null, post_url: x.post_url || null, done: !!x.post_url })));
-          if (e2) throw e2; had.add(r.key); n++; m += r.rows.length;
-        }
-        toast(`${co.name} ${n}개 회차 · ${m}명 저장`); P.close(); rosterAll(co, { cycle });
-      } catch (e) { toast(`저장 실패 (${n}개 회차까지 저장됨): ` + e.message); paint(); b.disabled = false; }
+      if (!P0.rounds.some((r) => !had.has(r.key))) { toast('새로 넣을 회차가 없습니다'); return; }
+      b.disabled = true;
+      try { const { n, m } = await saveTxtRounds(co, P0.rounds); toast(`${co.name} ${n}개 회차 · ${m}명 저장`); P.close(); rosterAll(co, { cycle }); }
+      catch (e) { toast('저장 실패: ' + e.message); paint(); b.disabled = false; }
     };
     const sv = el('button', { className: 'btn primary', type: 'button', text: '회차별로 저장' }); sv.onclick = () => save(sv);
     const P = layer([el('div', { className: 'pm-h' }, [el('h3', { text: `${co.name} · 명단 텍스트 넣기` }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => P.close() })]),
-      el('div', { className: 'ca-body ca-two' }, [el('div', { className: 'ca-col' }, [el('div', { className: 'ca-hint', text: "텍스트 파일 내용을 그대로 붙여넣기 → 오른쪽에서 회차별로 확인 → 저장. 회차 번호가 다시 1부터 시작하면 재계약으로 봅니다. 이미 넣은 회차는 건너뜀" }), ta]),
+      el('div', { className: 'ca-body ca-two' }, [el('div', { className: 'ca-col' }, [el('div', { className: 'ca-hint', text: "텍스트 파일 내용을 그대로 붙여넣기 → 오른쪽에서 회차별로 확인 → 저장. '------1-----' 또는 'N회차' 줄 = 회차, 바로 아래 날짜 = 마감일. '재계약' 줄부터 다시 1회차(지난 계약 회차는 1-1, 2-1 …). 이미 넣은 회차는 건너뜀" }), ta]),
         el('div', { className: 'ca-col' }, [el('div', { className: 'ca-sec' }, [el('b', { text: '미리보기' }), sum]), pv])]),
       el('div', { className: 'ca-foot' }, [el('span', { className: 'sp' }), sv])]);
     P.L.firstChild.classList.add('rt-pm');
@@ -694,7 +717,7 @@ textarea.ca-g.sm{min-height:100px}
     //  모집일 회차가 있으면 그 회차 상세 · 예전 텍스트 회차면 그 명단 보기 · 명단이 없는 회차는 이동만(빈 명단, 여기서 넣으면 그 회차로 저장)
     //  보기 중 [저장] = 그 회차 행(모집일 없음)에만 저장, 이 모집일 회차·달력은 그대로. '이 회차' = 돌아가기. 회차 번호 지정은 우상단
     const RL = { rs: [], cnt: new Map(), cyc: new Map() };
-    const rlName = (r) => r.round_label && /재계약/.test(r.round_label) ? r.round_label : r.round_no ? `${r.round_no}회차` : '회차 없음';
+    const rlName = (r) => r.round_label && /재계약|^\d+-\d+$/.test(r.round_label) ? r.round_label : r.round_no ? `${r.round_no}회차` : '회차 없음';
     const ctr = (r) => +((String(r.import_key || '').match(/:(\d{2}):\d{3}$/) || [])[1] || 0);
     const lastC = () => Math.max(1, ...RL.rs.filter((r) => !r.cycle_on).map(ctr));
     const txtOf = (n) => RL.rs.filter((r) => !r.cycle_on && r.round_no === n && ctr(r) === lastC())[0];
@@ -711,7 +734,7 @@ textarea.ca-g.sm{min-height:100px}
         out.push(el('option', { value: 'n:' + n, text: `${n}회차${k}`, selected: S.view?.no === n && !S.view.id }));
       }
       RL.rs.filter((r) => !r.cycle_on && ctr(r) && ctr(r) !== lastC() && RL.cnt.get(r.id)).sort((a, b) => String(b.import_key).localeCompare(String(a.import_key)))
-        .forEach((r) => out.push(el('option', { value: 'id:' + r.id, text: `${ctr(r) === 1 ? '첫 계약 ' + rlName(r) : rlName(r)} · 예전 텍스트 · ${RL.cnt.get(r.id)}명`, selected: S.view?.id === r.id })));
+        .forEach((r) => out.push(el('option', { value: 'id:' + r.id, text: `${rlName(r)} · 지난 계약 · ${RL.cnt.get(r.id)}명`, selected: S.view?.id === r.id })));
       return out;
     };
     async function loadRL() {
@@ -826,24 +849,46 @@ textarea.ca-g.sm{min-height:100px}
       if (from === 'txt') toast(`${r.round_label || r.round_no + '회차'} 명단 ${S.rows.length}명 불러옴 — [저장]하면 이 회차에 연결됩니다`);
     }
     // 명단 텍스트로 넣기 (2026-11-25~): 닉네임/이름/전화/블로그 줄. 업체 텍스트 파일 전체를 붙여넣으면 회차를 골라서
+    // 명단 텍스트로 넣기: 회차 머리('------1-----'·'N회차')가 있으면 회차별로 나눠 각 회차에 저장, 없으면 이 화면 명단으로 (2026-11-25~)
+    //  지금 회차(마지막 계약 · 우상단 번호와 같은 회차)는 이 모집일 회차에 저장, 나머지는 텍스트 회차(모집일 없음)로. 이미 있는 회차는 건너뜀
     function txtIn() {
-      const ta = el('textarea', { className: 'fi ca-g rt-in', placeholder: '명단 텍스트 붙여넣기\n\n닉네임\n이름\n010-0000-0000\nhttps://blog.naver.com/아이디\n…\n\n(업체 파일 전체를 붙여넣으면 회차를 고를 수 있어요)' });
-      const sel = el('select', { className: 'fi', hidden: true }), info = el('div', { className: 'ca-hint' });
-      let R1 = [];
-      const parse = () => { const t = ta.value; const h = /(\d+)\s*회차/.test(t.split(/\n/).find((l) => l.trim()) || '') || t.split(/\n/).some((l) => /^\s*(재계약\s*)?\d+\s*회차\s*$/.test(l)); R1 = parseRosterText(h ? t : '1회차\n' + t).rounds;
-        sel.hidden = !h || R1.length < 2; const pre = sel.value;
-        sel.replaceChildren(...R1.map((r, i) => el('option', { value: i, text: `${r.label} · ${r.rows.length}명`, selected: pre ? String(i) === pre : r.no === S.roundNo && r === R1.filter((x) => x.no === S.roundNo).pop() })));
-        const r = R1[+sel.value || 0]; info.textContent = r ? `${r.rows.length}명 · ${r.rows.slice(0, 4).map((x) => x.nickname || x.name).join(', ')}${r.rows.length > 4 ? ' …' : ''}${r.rows.some((x) => !x.phone) ? ` · 전화 없는 ${r.rows.filter((x) => !x.phone).length}명` : ''}` : '닉네임 / 이름 / 전화 / 블로그 줄을 찾지 못했습니다'; };
-      ta.oninput = parse; sel.onchange = parse;
-      const ok = el('button', { className: 'btn primary', type: 'button', text: '이 명단으로 넣기', onclick: () => {
-        const r = R1[+sel.value || 0]; if (!r?.rows.length) { toast('명단을 찾지 못했습니다'); return; }
-        if (S.rows.length && !confirm(`지금 명단 ${S.rows.length}명을 텍스트 명단 ${r.rows.length}명으로 바꿀까요?`)) return;
-        S.rows = r.rows.map((x) => ({ nickname: x.nickname || '', name: x.name || '', phone: x.phone || '', blog: x.blog_url || '', post: x.post_url || '', note: '', grade: '', visits: null, msg: '', off: false, done: !!x.post_url }));
-        S.saved = false; S.ownerEdited = false; M.close(); paintRows(); paintSteps(); toast(`${S.rows.length}명 넣음 — [저장]을 눌러야 저장됩니다`);
+      const ta = el('textarea', { className: 'fi ca-g rt-in', placeholder: '명단 텍스트 붙여넣기\n\n------1-----\n마감 3/5\n닉네임\n이름\n010-0000-0000\nhttps://blog.naver.com/아이디\n…\n\n재계약\n------1-----\n…\n\n(회차 머리가 없으면 이 화면 명단으로 넣음)' });
+      const pv = el('div', { className: 'rt-pv' }), info = el('div', { className: 'ca-hint' });
+      let P1 = { rounds: [] }, multi = false;
+      const isCur = (r) => r.last && S.roundNo && r.no === S.roundNo && !S.view;
+      const parse = () => {
+        const t = ta.value; multi = hasHdr(t); P1 = parseRosterText(multi ? t : '------1-----\n' + t);
+        ok.textContent = multi ? '회차별로 저장' : '이 명단으로 넣기';
+        if (!multi) { const r = P1.rounds[0]; pv.replaceChildren(); info.textContent = r ? `${r.rows.length}명 · ${r.rows.slice(0, 4).map((x) => x.nickname || x.name).join(', ')}${r.rows.length > 4 ? ' …' : ''}${r.rows.some((x) => !x.phone) ? ` · 전화 없는 ${r.rows.filter((x) => !x.phone).length}명` : ''}` : '닉네임 / 이름 / 전화 / 블로그 줄을 찾지 못했습니다'; return; }
+        info.textContent = `${P1.rounds.length}개 회차 · ${P1.rounds.reduce((a, r) => a + r.rows.length, 0)}명${P1.contracts > 1 ? ` · 계약 ${P1.contracts}번(재계약 ${P1.contracts - 1})` : ''}${P1.empty.length ? ` · 명단 없는 회차 ${P1.empty.map((r) => r.label).join(', ')}` : ''}`;
+        pv.replaceChildren(...P1.rounds.map((r) => el('details', { className: 'rt-r' }, [
+          el('summary', {}, [el('b', { text: r.label }), el('span', { text: ` ${r.rows.length}명${r.deadline ? ' · 마감 ' + md(r.deadline) : ''}${isCur(r) ? ' · 이 회차(모집 ' + md(cycle) + ')에 저장' : ''}` })]),
+          el('table', { className: 'ca-tbl' }, el('tbody', {}, r.rows.map((x) => el('tr', {}, [el('td', { className: 'nick', text: x.nickname || '' }), el('td', { text: x.name || '' }), el('td', { className: 'cphone', text: x.phone || '—' }), el('td', { text: x.blog_url ? blogId(x.blog_url) || x.blog_url : '' }), el('td', { text: x.post_url ? '글 ✓' : '' })])))),
+        ])));
+      };
+      const toRows = (r) => r.rows.map((x) => ({ nickname: x.nickname || '', name: x.name || '', phone: x.phone || '', blog: x.blog_url || '', post: x.post_url || '', note: '', grade: '', visits: null, msg: '', off: false, done: !!x.post_url }));
+      const ok = el('button', { className: 'btn primary', type: 'button', text: '이 명단으로 넣기', onclick: async () => {
+        if (!multi) {
+          const r = P1.rounds[0]; if (!r?.rows.length) { toast('명단을 찾지 못했습니다'); return; }
+          if (S.rows.length && !confirm(`지금 명단 ${S.rows.length}명을 텍스트 명단 ${r.rows.length}명으로 바꿀까요?`)) return;
+          S.rows = toRows(r); S.saved = false; S.ownerEdited = false; M.close(); paintRows(); paintSteps(); toast(`${S.rows.length}명 넣음 — [저장]을 눌러야 저장됩니다`); return;
+        }
+        if (!P1.rounds.length) { toast('회차별 명단을 찾지 못했습니다'); return; }
+        const cur0 = P1.rounds.find(isCur), rest = P1.rounds.filter((r) => r !== cur0);
+        let mine = cur0;
+        if (mine && S.rows.length && !confirm(`이 회차(${mine.label}) 명단 ${S.rows.length}명을 텍스트 명단 ${mine.rows.length}명으로 바꿀까요?\n(취소 = 이 회차는 그대로 두고 나머지 회차만 저장)`)) mine = null;
+        ok.disabled = true;
+        try {
+          if (mine) { S.rows = toRows(mine); S.ownerEdited = false; await saveRoster(); }
+          const { n, m, skip } = await saveTxtRounds(co, rest);
+          M.close(); paintRows(); paintSteps(); loadRL();
+          toast(`${n}개 회차 · ${m}명 저장${mine ? ` · 이 회차 ${mine.rows.length}명` : ''}${skip ? ` · 이미 있던 ${skip}개 회차는 건너뜀` : ''}`);
+        } catch (e) { toast('저장 실패: ' + e.message); ok.disabled = false; }
       } });
+      ta.oninput = parse;
       const M = layer([el('div', { className: 'pm-h' }, [el('h3', { text: `${co.name} · 명단 텍스트로 넣기` }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => M.close() })]),
-        el('div', { className: 'ca-body' }, [ta, sel, info]), el('div', { className: 'ca-foot' }, [el('span', { className: 'sp' }), ok])]);
-      M.L.firstChild.classList.add('rt-pm2'); ta.focus();
+        el('div', { className: 'ca-body ca-two' }, [el('div', { className: 'ca-col' }, [ta]), el('div', { className: 'ca-col' }, [info, pv])]), el('div', { className: 'ca-foot' }, [el('span', { className: 'ca-hint', text: "'------1-----' = 회차 · 바로 아래 날짜 = 마감일 · '재계약' 아래부터 다시 1회차(지난 계약은 1-1, 2-1 …)" }), el('span', { className: 'sp' }), ok])]);
+      M.L.firstChild.classList.add('rt-pm'); parse(); ta.focus();
     }
     const txtBtn = el('button', { className: 'btn sm', type: 'button', text: '텍스트로 넣기', title: '닉네임/이름/전화/블로그 줄로 된 명단 텍스트 붙여넣기', onclick: txtIn });
     // 북마크로 가져온 명단이 다른 모집일 회차에 저장돼 있을 때: 직접 골라 이 회차로 불러오기 (저장하면 이 회차로 옮겨짐)
