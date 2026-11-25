@@ -1124,7 +1124,7 @@
     const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), expandBtn, setBtn, campBtn]);
     return [tools, await board, el('div', { className: 'stack' }, [el('div', { className: 'card cal-card' }, [monthBar(), grid]), list])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=20');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=21');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   const pickCamp = (evs, cfg, rn) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg, rn)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
