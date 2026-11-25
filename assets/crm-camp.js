@@ -518,8 +518,10 @@ textarea.ca-g.sm{min-height:100px}
   }
   const hasHdr = (t) => String(t || '').split(/\r?\n/).some((l) => hdrOf(l.trim()));
   // 텍스트 회차 저장(공통): rounds(모집일 없음, round_label·deadline, import_key txt:업체id:계약:회차) + roster. 이미 있는 회차(같은 import_key)는 건너뜀
-  async function saveTxtRounds(co, rounds) {
-    const { data: have } = await sb.from('rounds').select('import_key').eq('company_id', co.id).like('import_key', `txt:${co.id}:%`);
+  //  replace: true = 이 업체의 텍스트 회차(모집일 없음)를 모두 지우고 새로 넣음(덮어쓰기, 2026-11-25~ 발표 상세 [텍스트로 넣기])
+  async function saveTxtRounds(co, rounds, { replace = false } = {}) {
+    if (replace) { const { error } = await sb.from('rounds').delete().eq('company_id', co.id).is('cycle_on', null).like('import_key', `txt:${co.id}:%`); if (error) throw new Error('기존 회차 지우기 실패: ' + error.message); }
+    const { data: have } = replace ? { data: [] } : await sb.from('rounds').select('import_key').eq('company_id', co.id).like('import_key', `txt:${co.id}:%`);
     const had = new Set((have || []).map((r) => r.import_key)); let n = 0, m = 0, skip = 0;
     for (const r of rounds) {
       const key = `txt:${co.id}:${r.key.slice(4)}`; if (had.has(key)) { skip++; continue; }
@@ -850,7 +852,7 @@ textarea.ca-g.sm{min-height:100px}
     }
     // 명단 텍스트로 넣기 (2026-11-25~): 닉네임/이름/전화/블로그 줄. 업체 텍스트 파일 전체를 붙여넣으면 회차를 골라서
     // 명단 텍스트로 넣기: 회차 머리('------1-----'·'N회차')가 있으면 회차별로 나눠 각 회차에 저장, 없으면 이 화면 명단으로 (2026-11-25~)
-    //  지금 회차(마지막 계약 · 우상단 번호와 같은 회차)는 이 모집일 회차에 저장, 나머지는 텍스트 회차(모집일 없음)로. 이미 있는 회차는 건너뜀
+    //  지금 회차(마지막 계약 · 우상단 번호와 같은 회차)는 이 모집일 회차에 저장, 나머지는 텍스트 회차(모집일 없음)로. 전에 있던 텍스트 회차·이 회차 명단은 지우고 덮어씀(2026-11-25~)
     function txtIn() {
       const ta = el('textarea', { className: 'fi ca-g rt-in', placeholder: '명단 텍스트 붙여넣기\n\n------1-----\n마감 3/5\n닉네임\n이름\n010-0000-0000\nhttps://blog.naver.com/아이디\n…\n\n재계약\n------1-----\n…\n\n(회차 머리가 없으면 이 화면 명단으로 넣음)' });
       const pv = el('div', { className: 'rt-pv' }), info = el('div', { className: 'ca-hint' });
@@ -874,20 +876,20 @@ textarea.ca-g.sm{min-height:100px}
           S.rows = toRows(r); S.saved = false; S.ownerEdited = false; M.close(); paintRows(); paintSteps(); toast(`${S.rows.length}명 넣음 — [저장]을 눌러야 저장됩니다`); return;
         }
         if (!P1.rounds.length) { toast('회차별 명단을 찾지 못했습니다'); return; }
-        const cur0 = P1.rounds.find(isCur), rest = P1.rounds.filter((r) => r !== cur0);
-        let mine = cur0;
-        if (mine && S.rows.length && !confirm(`이 회차(${mine.label}) 명단 ${S.rows.length}명을 텍스트 명단 ${mine.rows.length}명으로 바꿀까요?\n(취소 = 이 회차는 그대로 두고 나머지 회차만 저장)`)) mine = null;
+        const mine = P1.rounds.find(isCur), rest = P1.rounds.filter((r) => r !== mine);
+        const old = RL.rs.filter((r) => !r.cycle_on && String(r.import_key || '').startsWith(`txt:${co.id}:`)).length;
+        if ((old || (mine && S.rows.length)) && !confirm(`전에 있던 명단을 지우고 이 텍스트로 덮어씁니다.\n· 예전 텍스트 회차 ${old}개 → 새 ${rest.length}개 회차${mine ? `\n· 이 회차(${mine.label}) 명단 ${S.rows.length}명 → ${mine.rows.length}명` : ''}\n계속할까요?`)) return;
         ok.disabled = true;
         try {
           if (mine) { S.rows = toRows(mine); S.ownerEdited = false; await saveRoster(); }
-          const { n, m, skip } = await saveTxtRounds(co, rest);
+          const { n, m, skip } = await saveTxtRounds(co, rest, { replace: true });
           M.close(); paintRows(); paintSteps(); loadRL();
           toast(`${n}개 회차 · ${m}명 저장${mine ? ` · 이 회차 ${mine.rows.length}명` : ''}${skip ? ` · 이미 있던 ${skip}개 회차는 건너뜀` : ''}`);
         } catch (e) { toast('저장 실패: ' + e.message); ok.disabled = false; }
       } });
       ta.oninput = parse;
       const M = layer([el('div', { className: 'pm-h' }, [el('h3', { text: `${co.name} · 명단 텍스트로 넣기` }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => M.close() })]),
-        el('div', { className: 'ca-body ca-two' }, [el('div', { className: 'ca-col' }, [ta]), el('div', { className: 'ca-col' }, [info, pv])]), el('div', { className: 'ca-foot' }, [el('span', { className: 'ca-hint', text: "'------1-----' = 회차 · 바로 아래 날짜 = 마감일 · '재계약' 아래부터 다시 1회차(지난 계약은 1-1, 2-1 …)" }), el('span', { className: 'sp' }), ok])]);
+        el('div', { className: 'ca-body ca-two' }, [el('div', { className: 'ca-col' }, [ta]), el('div', { className: 'ca-col' }, [info, pv])]), el('div', { className: 'ca-foot' }, [el('span', { className: 'ca-hint', text: "'------1-----' = 회차 · 바로 아래 날짜 = 마감일 · '재계약' 아래부터 다시 1회차(지난 계약은 1-1, 2-1 …) · 저장하면 전에 있던 명단은 지우고 덮어씀" }), el('span', { className: 'sp' }), ok])]);
       M.L.firstChild.classList.add('rt-pm'); parse(); ta.focus();
     }
     const txtBtn = el('button', { className: 'btn sm', type: 'button', text: '텍스트로 넣기', title: '닉네임/이름/전화/블로그 줄로 된 명단 텍스트 붙여넣기', onclick: txtIn });
