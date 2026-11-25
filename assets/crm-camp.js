@@ -1274,9 +1274,9 @@ textarea.ca-g.sm{min-height:100px}
         x.fillStyle = INK; x.font = F(900, 32); x.fillText(`${mo}월`, X + 28, Y + 52);
         const mw = x.measureText(`${mo}월`).width; x.fillStyle = SUB; x.font = F(600, 18); x.fillText(String(yy), X + 36 + mw, Y + 52);
         // 범례
-        let lx = X + w - 28; [['마감', PAL.마감.fill], ['체험+리뷰', PAL.체험.fill], ['발표', PAL.발표.fill], ['모집', PAL.모집.fill]].forEach(([t, c]) => { x.font = F(700, 16); const tw = x.measureText(t).width; lx -= tw; x.fillStyle = SUB; x.fillText(t, lx, Y + 50); lx -= 22; rr(x, lx, Y + 36, 14, 14, 4, c); lx -= 18; });
+        let lx = X + w - 28; [['마감', PAL.마감.fill], ['체험+리뷰', PAL.체험.fill], ['발표', PAL.발표.fill], ['모집', PAL.모집.fill]].forEach(([t, c]) => { x.font = F(700, 19); const tw = x.measureText(t).width; lx -= tw; x.fillStyle = SUB; x.fillText(t, lx, Y + 51); lx -= 26; rr(x, lx, Y + 35, 18, 18, 5, c); lx -= 20; });
         const gx = X + 18, gy = Y + 92, cwid = (w - 36) / 7, rows = Math.ceil((lead + dim) / 7), ch = (h - 110) / Math.max(rows, 5);
-        x.font = F(700, 16); ['일', '월', '화', '수', '목', '금', '토'].forEach((d, k) => { x.fillStyle = k === 0 ? '#E11D48' : k === 6 ? PAL.체험.ink : SUB; const tw = x.measureText(d).width; x.fillText(d, gx + k * cwid + (cwid - tw) / 2, gy); });
+        x.font = F(800, 21); ['일', '월', '화', '수', '목', '금', '토'].forEach((d, k) => { x.fillStyle = k === 0 ? '#E11D48' : k === 6 ? PAL.체험.ink : SUB; const tw = x.measureText(d).width; x.fillText(d, gx + k * cwid + (cwid - tw) / 2, gy); });
         for (let d = 1; d <= dim; d++) {
           const idx = lead + d - 1, r = Math.floor(idx / 7), c = idx % 7, s = `${mm}-${pad(d)}`;
           const cx = gx + c * cwid, cy = gy + 14 + r * ch;
@@ -1287,8 +1287,8 @@ textarea.ca-g.sm{min-height:100px}
           if (s === p.announce) { fill = PAL.발표.fill; fg = PAL.발표.ink; strong = true; tag = '발표'; tagC = PAL.발표.ink; }
           if (s === p.deadline) { fill = PAL.마감.fill; fg = '#fff'; strong = true; tag = '마감'; tagC = '#fff'; }
           rr(x, cx + 3, cy + 3, cwid - 6, ch - 6, 12, fill);
-          x.fillStyle = fg; x.font = F(strong ? 900 : 700, 24); x.fillText(String(d), cx + 14, cy + 32);
-          if (tag) { x.font = F(800, 13); const isEnd = s === p.deadline, hw = isEnd ? x.measureText(' ♥').width : 0, tw = x.measureText(tag).width; x.fillStyle = tagC; x.fillText(tag, cx + cwid - tw - hw - 13, cy + ch - 13); if (isEnd) { x.fillStyle = HEART; x.fillText(' ♥', cx + cwid - hw - 13, cy + ch - 13); } }
+          x.fillStyle = fg; x.font = F(strong ? 900 : 800, 31); x.fillText(String(d), cx + 14, cy + 38);
+          if (tag) { x.font = F(800, 18); const isEnd = s === p.deadline, hw = isEnd ? x.measureText(' ♥').width : 0, tw = x.measureText(tag).width; x.fillStyle = tagC; x.fillText(tag, cx + cwid - tw - hw - 13, cy + ch - 13); if (isEnd) { x.fillStyle = HEART; x.fillText(' ♥', cx + cwid - hw - 13, cy + ch - 13); } }
         }
       }
     }
