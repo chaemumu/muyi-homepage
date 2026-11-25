@@ -558,19 +558,9 @@ textarea.ca-g.sm{min-height:100px}
     const chip = (k, t) => { const s = el('span', {}, [el('i'), t]); s.style.setProperty('--c', STEP_C[k]); return s; };
     const opts = (from, sel, fmt) => Array.from({ length: Math.max(21, (sel || 0) + 1) - from }, (_, i) => el('option', { value: from + i, text: fmt(from + i), selected: from + i === sel }));
     const rnoOpts = () => [el('option', { value: '', text: '회차 없음', selected: !S.roundNo }), ...opts(1, S.roundNo, (n) => `${n}회차`)];
-    // 회차 바꾸기 (우상단·명단 탭 공통): 그 회차 명단이 다른 모집일에 저장돼 있으면 그 회차 상세로 이동, 아니면 이 회차 번호를 바꿔 저장 + 메시지 바로 반영
+    // 우상단 회차 = 지금 진행 중인 이 회차의 번호 설정 (② 점주 안내 등 메시지용, +1). 이동은 하지 않음 — 다른 회차로 이동은 명단 탭 '회차 명단' (2026-11-25~ 분리)
     async function setRound(v) {
       const n = v ? +v : null;
-      if (n && n !== S.roundNo) {
-        const { data: other } = await sb.from('rounds').select('id,cycle_on').eq('company_id', co.id).eq('round_no', n).neq('cycle_on', cycle).not('cycle_on', 'is', null).order('cycle_on', { ascending: false }).limit(1);
-        const o = other?.[0];
-        if (o && confirm(`${n}회차 명단은 모집 ${md(o.cycle_on)} 회차에 저장돼 있습니다.\n그 회차 명단으로 바꿀까요?\n(취소 = 이 회차 번호만 ${n}회차로 바꿈)`)) {
-          const { data: ts } = await sb.from('camp_tasks').select('step,due_on').eq('company_id', co.id).eq('cycle_on', o.cycle_on).in('step', ['발표', '마감']);
-          const due = (st) => (ts || []).find((t) => t.step === st)?.due_on || undefined;
-          P.close(); open({ co, cycle: o.cycle_on, cfg, announce: due('발표'), deadline: due('마감'), rno: n, extra });
-          return;
-        }
-      }
       S.roundNo = n; rdBadge.replaceChildren(...rnoOpts()); F.no.replaceChildren(...rlOpts());
       if (S.ownerEdited) ownerT.value = ownerT.value.replace(/\d+회차 마감일은/, `${mno()}회차 마감일은`);
       changed(); try { paintCheck(); } catch { /* 아직 탭 준비 전 */ }
@@ -583,9 +573,8 @@ textarea.ca-g.sm{min-height:100px}
       if (n && (!ex.camp_round_cycle || ex.camp_round_cycle <= cycle)) { await sb.from('companies').update({ camp_round_done: n, camp_round_cycle: cycle }).eq('id', co.id); ex.camp_round_done = n; ex.camp_round_cycle = cycle; } // 다음 회차 자동 번호의 기준점
       window.CRM_CALENDAR?.refresh?.();
       toast(n ? `${n}회차로 저장 · 메시지는 ${mno()}회차` : '회차 없음');
-      if (S.view) openCycle(cycle, n); // 다른 회차 보기 중이었으면 이 회차로 돌아감
     }
-    const rdBadge = el('select', { className: 'fi ca-rdsel', title: '회차 (모집 달력과 같은 번호) · 점주 안내 등 메시지에는 +1' }, rnoOpts());
+    const rdBadge = el('select', { className: 'fi ca-rdsel', title: '진행 중인 회차 설정 (모집 달력과 같은 번호) · 점주 안내 등 메시지에는 +1 · 다른 회차로 이동은 명단 탭 \'회차 명단\'' }, rnoOpts());
     rdBadge.onchange = () => setRound(rdBadge.value);
     const allBtn = el('button', { className: 'btn sm', type: 'button', text: '전체 회차 명단', title: '이 업체의 모든 회차 명단 (이름·전화·블로그 검색)', onclick: () => rosterAll(co, { cycle }) });
     const head = el('div', { className: 'ca-head' }, [
