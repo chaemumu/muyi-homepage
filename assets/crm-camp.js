@@ -198,6 +198,7 @@
 .ca-rn{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .ca-rn-t{font-size:12px;color:var(--t3);white-space:nowrap}
 .ca-rn .ca-paste{flex:1;min-width:240px;height:34px;border-style:dashed}
+.ca-row .ca-rn{flex-wrap:nowrap}.ca-row .ca-rn .ca-paste{min-width:0;height:38px}.ca-row .ca-rn .btn{height:38px;white-space:nowrap}
 .rn-pm{width:min(640px,100%)!important;height:auto!important}
 .rn-how ol{margin:0;padding-left:20px;display:grid;gap:10px}
 .rn-how li b{display:block;font-size:13.5px}
@@ -213,7 +214,7 @@
 .ca-foot{display:flex;align-items:center;gap:8px;padding:12px 20px;border-top:1px solid var(--line);background:var(--surface);border-radius:0 0 14px 14px;min-height:60px}
 .ca-foot .sp{flex:1}
 .ca-cnt{font-size:13px;white-space:nowrap}
-.ca-row{grid-template-columns:84px 84px 104px minmax(0,1fr);align-items:end}
+.ca-row{grid-template-columns:minmax(150px,210px) 84px 104px minmax(0,1fr);align-items:end}
 .ca-f{display:grid;gap:4px;min-width:0}
 .ca-drop.mini{padding:0 14px;height:38px;border-width:1px;border-style:dashed;grid-auto-flow:column;justify-content:start;font-size:12px}
 .ca-drop.mini b{font-size:13px;font-weight:600;color:var(--t2)}
@@ -797,16 +798,13 @@ textarea.ca-g.sm{min-height:100px}
     const file = el('input', { type: 'file', accept: '.xlsx,.xls,.csv', hidden: true });
     const prog = el('div', { className: 'ca-prog', hidden: true }, el('i'));
     const status = el('div', { className: 'ca-hint' });
-    const drop = el('label', { className: 'ca-drop' }, [file, el('b', { text: '리뷰노트 신청자 엑셀을 끌어다 놓거나 눌러서 선택' }), el('span', { text: '.xlsx · .csv — 닉네임은 블로그에서, 특이사항은 AI가 신청메시지를 읽고 채웁니다' })]);
-    ['dragover', 'dragenter'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('over'); }));
-    ['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, () => drop.classList.remove('over')));
-    drop.addEventListener('drop', (e) => { e.preventDefault(); if (e.dataTransfer.files[0]) ingest(e.dataTransfer.files[0]); });
+    // 엑셀 끌어다 놓기 칸은 없앰(2026-11-25~) — 명단은 리뷰노트 북마크 붙여넣기 · [텍스트로 넣기]로
     file.onchange = () => { if (file.files[0]) ingest(file.files[0]); file.value = ''; };
     const tbody = el('tbody');
     const txt = el('textarea', { className: 'fi ca-txt', readOnly: true });
     const cnt = el('b', { className: 'ca-cnt' });
     const tableWrap = el('div', { className: 'ca-scroll' }, el('table', { className: 'ca-tbl' }, [el('thead', {}, el('tr', {}, ['', '#', '닉네임', '이름', '연락처', '일 방문', '특이사항', '신청메시지'].map((h) => el('th', { text: h })))), tbody]));
-    const listEmpty = empty('idea', '리뷰노트 엑셀을 넣으면 명단이 바로 만들어져요', '만든 명단은 점주 안내 멘트에 자동으로 들어갑니다.');
+    const listEmpty = empty('idea', '명단을 붙여넣거나 [텍스트로 넣기]로 넣으면 명단이 바로 만들어져요', '만든 명단은 점주 안내 멘트에 자동으로 들어갑니다.');
     const paintRows = () => {
       tbody.replaceChildren(...S.rows.map((r, i) => {
         const nk = el('input', { className: 'fi', value: r.nickname, placeholder: '닉네임' }); nk.oninput = () => { r.nickname = nk.value; changed(); };
@@ -815,8 +813,7 @@ textarea.ca-g.sm{min-height:100px}
         return el('tr', { className: r.off ? 'off' : '' }, [el('td', {}, on), el('td', { className: 'num', text: i + 1 }), el('td', { className: 'nick' }, [nk, dupB(r)].filter(Boolean)), el('td', { text: r.name }), el('td', { className: 'cphone', text: r.phone }), el('td', { className: 'num', text: r.visits ?? '' }), el('td', { className: 'note' }, nt), el('td', { className: 'cmsg', text: r.msg, title: r.msg })]);
       }));
       const has = !!S.rows.length;
-      tableWrap.hidden = !has; txtWrap.hidden = !has; listEmpty.hidden = has; drop.classList.toggle('mini', has);
-      drop.querySelector('b').textContent = has ? '다른 엑셀로 다시 만들기' : '리뷰노트 신청자 엑셀을 끌어다 놓거나 눌러서 선택';
+      tableWrap.hidden = !has; txtWrap.hidden = !has; listEmpty.hidden = has;
       changed();
     };
     // 명단이 바뀌면 TXT·점주 멘트·이미지·캘린더가 같이 따라간다 (점주 멘트를 직접 고쳤으면 유지)
@@ -857,7 +854,7 @@ textarea.ca-g.sm{min-height:100px}
     const txtWrap = el('details', { className: 'ca-det' }, [el('summary', { text: '관리팀 TXT 미리보기' }), txt]);
     // 리뷰노트 북마크로 복사한 명단 붙여넣기 (이 창이 열려 있으면 어디서든 Ctrl+V)
     const takePaste = (txt) => { if (!/^MUYI-RN:/.test(txt || '')) return false; try { const rn = JSON.parse(txt.slice(8)); ingest({ rn }); return true; } catch { toast('붙여넣은 내용을 읽지 못했습니다 — 북마크를 다시 눌러 복사해주세요'); return true; } };
-    const pasteIn = el('input', { className: 'fi ca-paste', placeholder: '리뷰노트 북마크로 복사한 명단을 여기에 붙여넣기 (Ctrl+V)' });
+    const pasteIn = el('input', { className: 'fi ca-paste', placeholder: '리뷰노트 북마크 명단 붙여넣기 (Ctrl+V)' });
     pasteIn.addEventListener('paste', (e) => { if (takePaste(e.clipboardData.getData('text'))) { e.preventDefault(); pasteIn.value = ''; } });
     const onDocPaste = (e) => { if (!P.L.isConnected) { document.removeEventListener('paste', onDocPaste); return; } if (S.tab !== 'list' || e.target === pasteIn) return; if (takePaste(e.clipboardData?.getData('text'))) e.preventDefault(); };
     document.addEventListener('paste', onDocPaste);
@@ -930,20 +927,19 @@ textarea.ca-g.sm{min-height:100px}
       };
     }
     panels.list = el('div', { className: 'ca-panel' }, [
-      el('div', { className: 'ca-row' }, [lab('회차 명단', F.no), lab('모집 팀', F.teams), lab('리뷰 기간(주)', F.weeks), el('div', { className: 'ca-f grow' }, [drop])]),
-      el('div', { className: 'ca-rn' }, [el('span', { className: 'ca-rn-t', text: '또는 리뷰노트에서 바로' }), pasteIn, txtBtn, rnPick, rnHow]),
+      el('div', { className: 'ca-row' }, [lab('회차 명단', F.no), lab('모집 팀', F.teams), lab('리뷰 기간(주)', F.weeks), el('div', { className: 'ca-f grow' }, [el('span', { className: 'lbl', text: '명단 넣기' }), el('div', { className: 'ca-rn' }, [pasteIn, txtBtn, rnPick])])]),
       prog, status, listEmpty, tableWrap, txtWrap,
     ]);
     const saveBtn = el('button', { className: 'btn brand', type: 'button', text: '저장하고 점주 안내 ›', onclick: async () => {
       if (!S.rows.length) { toast('명단이 비어 있습니다'); return; }
       saveBtn.disabled = true; try { await saveRoster(); toast(`${co.name} ${S.roundNo ? S.roundNo + '회차 ' : ''}명단 저장`); go('owner'); } catch (e) { toast('저장 실패: ' + e.message); } saveBtn.disabled = false;
     } });
-    foots.list = [cnt, el('span', { className: 'sp' }), el('button', { className: 'btn', type: 'button', text: 'TXT 복사', onclick: () => S.rows.length ? copy(rosterTxt(), '명단') : toast('명단이 비어 있습니다') }), saveBtn];
+    foots.list = [cnt, rnHow, el('span', { className: 'sp' }), el('button', { className: 'btn', type: 'button', text: 'TXT 복사', onclick: () => S.rows.length ? copy(rosterTxt(), '명단') : toast('명단이 비어 있습니다') }), saveBtn];
 
     // ② 점주 안내 (멘트 + 함께 보낼 일정표·캘린더를 한 화면에)
     const ownerT = el('textarea', { className: 'fi ca-msg' });
     ownerT.oninput = () => { S.ownerEdited = true; };
-    const ownerHint = el('div', { className: 'ca-hint', text: '명단 탭에서 엑셀을 넣으면 블로거 명단이 이 멘트에 자동으로 들어갑니다.' });
+    const ownerHint = el('div', { className: 'ca-hint', text: '명단 탭에서 명단을 넣으면 블로거 명단이 이 멘트에 자동으로 들어갑니다.' });
     const phone = co.phone || co.store_phone;
     const thumb = imgEl('ca-thumb'); thumb.title = '누르면 복사'; thumb.onclick = copyImg;
     panels.owner = el('div', { className: 'ca-panel ca-two' }, [
