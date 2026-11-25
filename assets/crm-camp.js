@@ -254,6 +254,7 @@ textarea.ca-g.sm{min-height:100px}
 .fx-memo{min-height:60px!important}
 .fx-man{min-height:110px!important}
 .rt-pm{width:min(1100px,100%)!important}
+.rt-pm2{width:min(640px,100%)!important}
 .rt-in{min-height:420px!important;font:12px/1.5 ui-monospace,monospace}
 .rt-pv{display:flex;flex-direction:column;gap:6px;max-height:460px;overflow:auto}
 .rt-r{border:1px solid var(--line);border-radius:8px;padding:6px 10px}
@@ -569,8 +570,17 @@ textarea.ca-g.sm{min-height:100px}
           P.close(); open({ co, cycle: o.cycle_on, cfg, announce: due('발표'), deadline: due('마감'), rno: n, extra });
           return;
         }
+        // 예전 명단 텍스트로 넣은 같은 번호 회차(모집일 없음) → 이 회차 명단으로 불러오기. 재계약이 있으면 가장 최근 계약 것 (2026-11-25~)
+        if (!o) {
+          const { data: tx } = await sb.from('rounds').select('id,round_no,round_label,import_key,teams,cycle_on').eq('company_id', co.id).eq('round_no', n).is('cycle_on', null).like('import_key', `txt:${co.id}:%`).order('import_key', { ascending: false }).limit(1);
+          const t0 = tx?.[0];
+          if (t0 && t0.id !== round?.id) {
+            const { data: ro } = await sb.from('roster').select('*').eq('round_id', t0.id).order('created_at');
+            if ((ro || []).length && confirm(`${t0.round_label || n + '회차'} 명단(예전 텍스트, ${ro.length}명)이 있습니다.\n이 회차(모집 ${md(cycle)}) 명단으로 불러올까요?${S.rows.length ? `\n(지금 명단 ${S.rows.length}명은 이 명단으로 바뀝니다)` : ''}\n([저장]하면 이 회차에 연결됩니다 · 취소 = 회차 번호만 바꿈)`)) loadRound(t0, ro, 'txt');
+          }
+        }
       }
-      S.roundNo = n; rdBadge.replaceChildren(...rnoOpts()); F.no.replaceChildren(...rnoOpts());
+      S.roundNo = n; rdBadge.replaceChildren(...rnoOpts()); F.no.replaceChildren(...rlOpts());
       if (S.ownerEdited) ownerT.value = ownerT.value.replace(/\d+회차 마감일은/, `${mno()}회차 마감일은`);
       changed(); try { paintCheck(); } catch { /* 아직 탭 준비 전 */ }
       const lb = n ? String(n) : '-';
@@ -578,7 +588,7 @@ textarea.ca-g.sm{min-height:100px}
       const r1 = await (t ? sb.from('camp_tasks').update({ label: lb }).eq('id', t.id) : sb.from('camp_tasks').insert({ company_id: co.id, cycle_on: cycle, step: '모집', due_on: cycle, label: lb }));
       if (r1.error) { toast('회차 저장 실패: ' + r1.error.message); return; }
       lbQ.data = { label: lb };
-      if (n && round?.id) await sb.from('rounds').update({ round_no: n, round_label: lb }).eq('id', round.id);
+      if (n && round?.id && !moved) await sb.from('rounds').update({ round_no: n, round_label: lb }).eq('id', round.id); // 불러온 행은 [저장] 때 이 회차로 옮김
       if (n && (!ex.camp_round_cycle || ex.camp_round_cycle <= cycle)) { await sb.from('companies').update({ camp_round_done: n, camp_round_cycle: cycle }).eq('id', co.id); ex.camp_round_done = n; ex.camp_round_cycle = cycle; } // 다음 회차 자동 번호의 기준점
       window.CRM_CALENDAR?.refresh?.();
       toast(n ? `${n}회차로 저장 · 메시지는 ${mno()}회차` : '회차 없음');
@@ -605,7 +615,7 @@ textarea.ca-g.sm{min-height:100px}
     const gcalUrl = () => `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`[무이 체험단] ${co.name} 체험·리뷰 (마감 ${md(p.deadline)})`)}&dates=${p.reviewFrom.replace(/-/g, '')}/${addDays(p.deadline, 1).replace(/-/g, '')}&details=${encodeURIComponent([`${co.name} ${mno()}회차 체험단`, `· 체험+리뷰 기간: ${mdw(p.reviewFrom)} ~ ${mdw(p.reviewTo)}`, `· 리뷰 마감: ${mdw(p.deadline)} ♥`, `· 선정 블로거 ${live().length || S.teams}명`, '', '마감일에 무이가 등록 현황을 확인해 드립니다.'].join('\n'))}`;
 
     async function saveRoster() {
-      const row = { company_id: co.id, cycle_on: cycle, round_no: S.roundNo || null, round_label: S.roundNo ? String(S.roundNo) : null, teams: S.teams, review_weeks: S.weeks, recruit_on: cycle, deadline: p.deadline, state: '진행' };
+      const row = { company_id: co.id, cycle_on: cycle, round_no: S.roundNo || null, round_label: /재계약/.test(round?.round_label || '') && round?.round_no === S.roundNo ? round.round_label : S.roundNo ? String(S.roundNo) : null, teams: S.teams, review_weeks: S.weeks, recruit_on: cycle, deadline: p.deadline, state: '진행' };
       let r = round;
       if (moved && rd.data && rd.data.id !== r?.id) await sb.from('rounds').delete().eq('id', rd.data.id); // 이 회차의 빈 회차 행 → 불러온 북마크 명단으로 대체
       if (r) { const { data, error } = await sb.from('rounds').update(row).eq('id', r.id).select().single(); if (error) throw error; r = data; moved = null; } // cycle_on도 이 회차로 (북마크 명단 연결)
@@ -650,8 +660,33 @@ textarea.ca-g.sm{min-height:100px}
 
     // ① 명단
     const num = (v, min = 1) => Math.max(min, Number(v) || min);
-    const F = { no: el('select', { className: 'fi', title: '모집 달력과 같은 회차 · 메시지에는 +1' }, rnoOpts()), teams: el('input', { className: 'fi', type: 'number', min: 1, value: S.teams }), weeks: el('input', { className: 'fi', type: 'number', min: 1, value: S.weeks }) };
-    F.no.onchange = () => setRound(F.no.value);
+    // 명단 탭 '회차 명단' = 이 업체에 저장된 회차 명단 목록 (2026-11-25~): 고르면 그 회차 명단으로 이동
+    //  모집일 있는 회차 → 그 회차 상세 · 텍스트로 넣은 예전 회차(모집일 없음) → 이 회차로 불러오기([저장]하면 이 모집일에 연결). 회차 번호 지정은 우상단 회차
+    const RL = { list: [] };
+    const rlName = (r) => r.round_label && /재계약/.test(r.round_label) ? r.round_label : r.round_no ? `${r.round_no}회차` : '회차 없음';
+    const rlOpts = () => [el('option', { value: '', text: `이 회차${S.roundNo ? ' · ' + S.roundNo + '회차' : ''} (모집 ${md(cycle)}) · ${S.rows.length}명` }),
+      ...RL.list.filter((r) => r.id !== round?.id).map((r) => el('option', { value: r.id, text: `${rlName(r)} · ${r.cycle_on ? '모집 ' + md(r.cycle_on) : '예전 텍스트'} · ${r.n}명` }))];
+    const loadRL = async () => {
+      const { data: rs } = await sb.from('rounds').select('id,round_no,round_label,cycle_on,import_key,teams').eq('company_id', co.id).limit(300);
+      const ids = (rs || []).map((r) => r.id), cnt = new Map();
+      for (let i = 0; i < ids.length; i += 150) (((await sb.from('roster').select('round_id').in('round_id', ids.slice(i, i + 150)).limit(5000)).data) || []).forEach((x) => cnt.set(x.round_id, (cnt.get(x.round_id) || 0) + 1));
+      RL.list = (rs || []).filter((r) => cnt.get(r.id)).map((r) => ({ ...r, n: cnt.get(r.id) }))
+        .sort((a, b) => (a.cycle_on || b.cycle_on) ? String(b.cycle_on || '').localeCompare(String(a.cycle_on || '')) : String(b.import_key || '').localeCompare(String(a.import_key || '')));
+      F.no.replaceChildren(...rlOpts());
+    };
+    const F = { no: el('select', { className: 'fi', title: '이 업체에 저장된 회차 명단 — 고르면 그 회차 명단으로 이동 (회차 번호는 우상단에서)' }), teams: el('input', { className: 'fi', type: 'number', min: 1, value: S.teams }), weeks: el('input', { className: 'fi', type: 'number', min: 1, value: S.weeks }) };
+    F.no.onchange = async () => {
+      const r = RL.list.find((x) => x.id === F.no.value); if (!r) return;
+      if (r.cycle_on) { // 그 회차 상세로
+        const { data: ts } = await sb.from('camp_tasks').select('step,due_on').eq('company_id', co.id).eq('cycle_on', r.cycle_on).in('step', ['발표', '마감']);
+        const due = (st) => (ts || []).find((t) => t.step === st)?.due_on || undefined;
+        P.close(); open({ co, cycle: r.cycle_on, cfg, announce: due('발표'), deadline: due('마감'), rno: r.round_no || undefined, extra }); return;
+      }
+      const { data: ro } = await sb.from('roster').select('*').eq('round_id', r.id).order('created_at');
+      if (S.rows.length && !confirm(`${rlName(r)} 명단(예전 텍스트, ${(ro || []).length}명)을 이 회차(모집 ${md(cycle)})로 불러올까요?\n지금 명단 ${S.rows.length}명은 이 명단으로 바뀝니다. [저장]해야 연결됩니다.`)) { F.no.value = ''; return; }
+      loadRound(r, ro, 'txt'); F.no.replaceChildren(...rlOpts());
+    };
+    loadRL();
     F.teams.oninput = () => { S.teams = num(F.teams.value); changed(); }; F.weeks.oninput = () => { S.weeks = num(F.weeks.value); changed(); };
     const file = el('input', { type: 'file', accept: '.xlsx,.xls,.csv', hidden: true });
     const prog = el('div', { className: 'ca-prog', hidden: true }, el('i'));
@@ -721,6 +756,35 @@ textarea.ca-g.sm{min-height:100px}
     const onDocPaste = (e) => { if (!P.L.isConnected) { document.removeEventListener('paste', onDocPaste); return; } if (S.tab !== 'list' || e.target === pasteIn) return; if (takePaste(e.clipboardData?.getData('text'))) e.preventDefault(); };
     document.addEventListener('paste', onDocPaste);
     const rnHow = el('button', { className: 'btn sm ghost', type: 'button', text: '리뷰노트 북마크 설치', onclick: () => rnInstall() });
+    // 다른 회차 행(북마크 명단·텍스트로 넣은 예전 명단)을 이 회차로 불러오기 — [저장]하면 그 행이 이 모집일 회차가 됨
+    function loadRound(r, ro, from) {
+      round = r; moved = from; S.teams = r.teams || S.teams; F.teams.value = S.teams;
+      if (from === 'txt' && r.round_no && !S.roundNo) { S.roundNo = r.round_no; rdBadge.replaceChildren(...rnoOpts()); } // 예전 텍스트 회차 번호를 이 회차 번호로 (저장 때 모집 칩에도)
+      S.rows = (ro || []).map((x) => ({ id: x.id, nickname: x.nickname || '', name: x.name || '', phone: x.phone || '', blog: x.blog_url || '', post: x.post_url || '', note: x.note || '', grade: x.grade || '', visits: x.visits, msg: '', off: x.cancelled, done: !!x.done }));
+      S.saved = false; S.ownerEdited = false; paintRows(); paintSteps(); go('list');
+      if (from === 'txt') toast(`${r.round_label || r.round_no + '회차'} 명단 ${S.rows.length}명 불러옴 — [저장]하면 이 회차에 연결됩니다`);
+    }
+    // 명단 텍스트로 넣기 (2026-11-25~): 닉네임/이름/전화/블로그 줄. 업체 텍스트 파일 전체를 붙여넣으면 회차를 골라서
+    function txtIn() {
+      const ta = el('textarea', { className: 'fi ca-g rt-in', placeholder: '명단 텍스트 붙여넣기\n\n닉네임\n이름\n010-0000-0000\nhttps://blog.naver.com/아이디\n…\n\n(업체 파일 전체를 붙여넣으면 회차를 고를 수 있어요)' });
+      const sel = el('select', { className: 'fi', hidden: true }), info = el('div', { className: 'ca-hint' });
+      let R1 = [];
+      const parse = () => { const t = ta.value; const h = /(\d+)\s*회차/.test(t.split(/\n/).find((l) => l.trim()) || '') || t.split(/\n/).some((l) => /^\s*(재계약\s*)?\d+\s*회차\s*$/.test(l)); R1 = parseRosterText(h ? t : '1회차\n' + t).rounds;
+        sel.hidden = !h || R1.length < 2; const pre = sel.value;
+        sel.replaceChildren(...R1.map((r, i) => el('option', { value: i, text: `${r.label} · ${r.rows.length}명`, selected: pre ? String(i) === pre : r.no === S.roundNo && r === R1.filter((x) => x.no === S.roundNo).pop() })));
+        const r = R1[+sel.value || 0]; info.textContent = r ? `${r.rows.length}명 · ${r.rows.slice(0, 4).map((x) => x.nickname || x.name).join(', ')}${r.rows.length > 4 ? ' …' : ''}${r.rows.some((x) => !x.phone) ? ` · 전화 없는 ${r.rows.filter((x) => !x.phone).length}명` : ''}` : '닉네임 / 이름 / 전화 / 블로그 줄을 찾지 못했습니다'; };
+      ta.oninput = parse; sel.onchange = parse;
+      const ok = el('button', { className: 'btn primary', type: 'button', text: '이 명단으로 넣기', onclick: () => {
+        const r = R1[+sel.value || 0]; if (!r?.rows.length) { toast('명단을 찾지 못했습니다'); return; }
+        if (S.rows.length && !confirm(`지금 명단 ${S.rows.length}명을 텍스트 명단 ${r.rows.length}명으로 바꿀까요?`)) return;
+        S.rows = r.rows.map((x) => ({ nickname: x.nickname || '', name: x.name || '', phone: x.phone || '', blog: x.blog_url || '', post: x.post_url || '', note: '', grade: '', visits: null, msg: '', off: false, done: !!x.post_url }));
+        S.saved = false; S.ownerEdited = false; M.close(); paintRows(); paintSteps(); toast(`${S.rows.length}명 넣음 — [저장]을 눌러야 저장됩니다`);
+      } });
+      const M = layer([el('div', { className: 'pm-h' }, [el('h3', { text: `${co.name} · 명단 텍스트로 넣기` }), el('button', { className: 'icon-btn', type: 'button', text: '✕', onclick: () => M.close() })]),
+        el('div', { className: 'ca-body' }, [ta, sel, info]), el('div', { className: 'ca-foot' }, [el('span', { className: 'sp' }), ok])]);
+      M.L.firstChild.classList.add('rt-pm2'); ta.focus();
+    }
+    const txtBtn = el('button', { className: 'btn sm', type: 'button', text: '텍스트로 넣기', title: '닉네임/이름/전화/블로그 줄로 된 명단 텍스트 붙여넣기', onclick: txtIn });
     // 북마크로 가져온 명단이 다른 모집일 회차에 저장돼 있을 때: 직접 골라 이 회차로 불러오기 (저장하면 이 회차로 옮겨짐)
     const rnPick = el('button', { className: 'btn sm', type: 'button', hidden: true });
     async function rnNear() {
@@ -732,16 +796,14 @@ textarea.ca-g.sm{min-height:100px}
           el('div', { className: 'ca-body' }, [el('div', { className: 'ca-hint', text: `고른 명단을 이 회차(모집 ${md(cycle)})로 불러옵니다. [저장]하면 그 명단이 이 회차로 옮겨집니다.` }),
             el('div', { className: 'ca-pick' }, list.map((r) => el('button', { type: 'button', onclick: async () => {
               const { data: ro } = await sb.from('roster').select('*').eq('round_id', r.id).order('created_at');
-              round = r; moved = r.cycle_on; S.teams = r.teams || S.teams; F.teams.value = S.teams;
-              S.rows = (ro || []).map((x) => ({ id: x.id, nickname: x.nickname || '', name: x.name || '', phone: x.phone || '', blog: x.blog_url || '', post: x.post_url || '', note: x.note || '', grade: x.grade || '', visits: x.visits, msg: '', off: x.cancelled, done: !!x.done }));
-              S.saved = false; S.ownerEdited = false; M.close(); paintRows(); paintSteps(); rnPick.hidden = true;
+              loadRound(r, ro, r.cycle_on); M.close(); rnPick.hidden = true;
               toast(`모집 ${md(r.cycle_on)} 회차 북마크 명단 ${S.rows.length}명 불러옴 — 저장하면 이 회차로 옮겨집니다`);
             } }, [el('b', { text: `모집 ${mdw(r.cycle_on)}` }), el('span', { text: `${r.round_no ? r.round_no + '회차 · ' : ''}리뷰노트 캠페인 ${r.rn_campaign_id}` })])))])]);
       };
     }
     panels.list = el('div', { className: 'ca-panel' }, [
-      el('div', { className: 'ca-row' }, [lab('회차', F.no), lab('모집 팀', F.teams), lab('리뷰 기간(주)', F.weeks), el('div', { className: 'ca-f grow' }, [drop])]),
-      el('div', { className: 'ca-rn' }, [el('span', { className: 'ca-rn-t', text: '또는 리뷰노트에서 바로' }), pasteIn, rnPick, rnHow]),
+      el('div', { className: 'ca-row' }, [lab('회차 명단', F.no), lab('모집 팀', F.teams), lab('리뷰 기간(주)', F.weeks), el('div', { className: 'ca-f grow' }, [drop])]),
+      el('div', { className: 'ca-rn' }, [el('span', { className: 'ca-rn-t', text: '또는 리뷰노트에서 바로' }), pasteIn, txtBtn, rnPick, rnHow]),
       prog, status, listEmpty, tableWrap, txtWrap,
     ]);
     const saveBtn = el('button', { className: 'btn brand', type: 'button', text: '저장하고 점주 안내 ›', onclick: async () => {
