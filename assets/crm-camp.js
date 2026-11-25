@@ -43,6 +43,32 @@
         const nm = (t) => String(t || '').replace(/[^0-9A-Za-z가-힣]/g, '').toLowerCase();
         const kd = (v) => { if (/T\d{2}:\d{2}/.test(v)) { const d = new Date(v); if (!isNaN(d)) return new Date(d.getTime() + 9 * 3600e3).toISOString().slice(0, 10); } return v.slice(0, 10); };
         const dmap = (o, pre = '', out = {}, d = 0) => { if (o && typeof o === 'object' && d < 3) for (const [k, v] of Object.entries(o)) { if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v)) out[pre + k] = kd(v); else if (v && typeof v === 'object' && !Array.isArray(v)) dmap(v, pre + k + '.', out, d + 1); } return out; };
+        // 화면 표에서 선정 명단 읽기 (2026-11-25~): 리뷰노트 '선정자 목록' 주소가 막히거나(400 등) 비어 있을 때.
+        //  '체험단 진행 상세' 표(이름·연락처·계정URL·링크주소) — 표에 '선정하기/선정취소' 버튼이 있으면(모집 단계) '선정취소'가 붙은 줄 = 선정된 사람만
+        const domRows = () => {
+          const tx = (e) => (e ? e.innerText || e.textContent || '' : '').replace(/\s+/g, ' ').trim();
+          for (const t of document.querySelectorAll('table')) {
+            const hs = [...t.querySelectorAll('thead th, thead td')].map(tx); const H = hs.length ? hs : [...(t.querySelector('tr')?.children || [])].map(tx);
+            const ix = (re) => H.findIndex((h) => re.test(h));
+            const iName = ix(/^이름|성함|닉네임/), iPhone = ix(/연락처|전화/), iBlog = ix(/계정|URL|블로그/i), iPost = ix(/링크\s*주소|리뷰\s*링크|포스팅/), iAddr = ix(/주소/), iVisit = ix(/방문/), iGrade = ix(/등급/);
+            if (iName < 0 && iBlog < 0) continue;
+            const trs = [...t.querySelectorAll('tbody tr')].filter((tr) => tr.children.length >= 3);
+            const hasSel = trs.some((tr) => /선정(하기|취소)/.test(tx(tr)));
+            const out = [];
+            for (const tr of trs) {
+              if (hasSel && ![...tr.querySelectorAll('button,a,span')].some((b) => /선정\s*취소/.test(tx(b)))) continue; // 모집 단계: 선정된 사람만
+              const td = [...tr.children], cell = (i) => (i >= 0 ? td[i] : null);
+              const hrefs = [...tr.querySelectorAll('a[href]')].map((a) => a.href);
+              const blog = (cell(iBlog)?.querySelector('a[href]')?.href) || hrefs.find((h) => /blog\.naver\.com|instagram|youtube|tistory/.test(h) && !/\/\d{6,}|logNo=/.test(h)) || '';
+              const post = (cell(iPost)?.querySelector('a[href]')?.href) || hrefs.find((h) => /blog\.naver\.com\/[^/?#]+\/\d{6,}|logNo=\d+/.test(h)) || '';
+              const phone = tx(cell(iPhone)) || (tx(tr).match(/0\d{1,2}-?\d{3,4}-?\d{4}/) || [])[0] || '';
+              const r = { name: tx(cell(iName)), phone, blogUrl: blog, reviewUrl: post && post !== blog ? post : '', address: tx(cell(iAddr)), dailyVisit: tx(cell(iVisit)), grade: tx(cell(iGrade)), __dom: true };
+              if (r.name || r.phone || r.blogUrl) out.push(r);
+            }
+            if (out.length) return out;
+          }
+          return [];
+        };
         say('캠페인 찾는 중…');
         const all = [], errs = [];
         // ① 주소 숫자 = 캠페인 번호인 화면(/users/campaigns/completed/1081407 등, 리뷰노트 자체가 /api/campaign?id=N · /api/campaign/N/selectedApplies 호출) → 바로 사용
@@ -58,12 +84,16 @@
         if (!hit) hit = all.find((c) => nums.includes(c.id));
         if (!hit) { const pg = nm((document.title || '') + ' ' + (document.body.innerText || '').slice(0, 4000)); hit = all.filter((c) => nm(c.title).length >= 4 && pg.includes(nm(c.title))).sort((a, b) => nm(b.title).length - nm(a.title).length)[0]; }
         if (!hit && nums.length) for (const n0 of nums) { try { const rs = arr(await get('/api/campaign/' + n0 + '/selectedApplies')); if (rs.length) { hit = { id: n0, title: document.title, raw: {} }; break; } } catch (e) { if (/로그인/.test(e.message)) throw e; errs.push(n0 + ' ' + e.message); } }
+        if (!hit && nums.length && domRows().length) hit = { id: nums[0], title: document.querySelector('h1,h2,h3')?.innerText || document.title, raw: {} }; // 화면 표에 명단이 있으면 주소 번호로 진행
         if (!hit) {
           // 못 찾으면 최근 캠페인에서 고르기
           const recent = all.slice(0, 12);
           say('이 화면의 캠페인을 찾지 못했습니다. 아래에서 골라주세요.' + (errs.length ? `<br><small style="opacity:.7">${esc(errs.slice(0, 3).join(' · '))}</small>` : '') + '<div style="display:flex;flex-direction:column;gap:4px;margin-top:8px">' + recent.map((c, i) => `<button data-p="${i}" style="text-align:left;border:0;border-radius:6px;padding:6px 8px;cursor:pointer">${esc(c.title || '캠페인 ' + c.id)}</button>`).join('') + '</div>');
           hit = await new Promise((ok) => box.querySelectorAll('[data-p]').forEach((b) => b.onclick = () => ok(recent[+b.dataset.p])));
         }
+        // 선정인원 / 가능인원 : a/b — 아직 다 안 뽑았으면 한 번 확인
+        const selCnt = (document.body.innerText.match(/선정\s*인원\s*\/\s*가능\s*인원\s*[:：]?\s*(\d+)\s*\/\s*(\d+)/) || []);
+        if (selCnt[1] && +selCnt[1] < +selCnt[2] && !confirm(`아직 선정 중입니다 (선정 ${selCnt[1]} / 가능 ${selCnt[2]}).\n지금 선정된 ${selCnt[1]}명만 가져올까요?`)) { box.remove(); return; }
         say('선정 명단 가져오는 중…');
         const c0 = det0 ? null : await get('/api/campaign?id=' + hit.id).catch(() => null);
         const det = det0 || (c0 && (c0.data || c0.campaign || c0));
@@ -72,7 +102,8 @@
         for (const c of list) {
           say(`선정 명단 가져오는 중… ${++n}/${list.length}<br><small>${esc(c.title)}</small>`);
           try {
-            const rows = arr(await get('/api/campaign/' + c.id + '/selectedApplies'));
+            let rows = []; try { rows = arr(await get('/api/campaign/' + c.id + '/selectedApplies')); } catch (e) { if (/로그인/.test(e.message)) throw e; errs.push('선정자 목록 ' + e.message); }
+            if (!rows.length) { rows = domRows(); if (rows.length) errs.push(`화면 표에서 ${rows.length}명 읽음`); } // 주소가 막히면 화면 표에서
             // 취소한 블로거도 같이 (계약 종료 때 취소팀 계산용): 취소 목록 주소 후보를 차례로 시도, '취소/cancel' 상태인 행만 추가
             const keyOf = (r) => String(r.id || r.applyId || r.applicationId || JSON.stringify(r).slice(0, 160));
             const seen = new Set(rows.map(keyOf));
@@ -92,10 +123,16 @@
           const ok = res.filter((r) => r.status === 'saved' || r.status === 'updated').length, wait = res.filter((r) => r.status === 'confirm').length;
           say(`<div style="margin:6px 0 10px">${wait ? `회차를 확인하고 [저장]을 눌러주세요 · ` : ''}${ok}개 저장 · 전체 ${res.length}개</div>` + res.map((r, i) => { const [t, c] = LBL[r.status] || [r.status, '#fff'];
             return `<div style="padding:8px 0;border-top:1px solid rgba(255,255,255,.18)"><div><b style="color:${c}">${t}</b> ${esc(r.company || r.title)} <small style="opacity:.7">${r.count}명${r.cancelled ? ' · 취소 ' + r.cancelled : ''}${r.round_no ? ' · ' + r.round_no + '회차' : ''}</small></div>` + (r.applied ? `<div style="font-size:12px;opacity:.9">달력 반영: ${esc(r.applied)}</div>` : '')
-              + (r.status === 'confirm' ? `<div style="font-size:12px;opacity:.9;margin:2px 0 6px">${esc(r.msg || '')}${r.have && r.have.length ? `<br>명단 있는 회차: ${esc(r.have.join(', '))}` : ''}</div><div style="display:flex;gap:6px;align-items:center"><input data-n="${i}" type="number" min="1" value="${r.next || ''}" placeholder="회차" style="width:72px;height:30px;border:0;border-radius:6px;padding:0 8px;font:inherit;color:#111"> <span>회차로</span> <button data-s="${i}" style="border:0;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;background:#fff;color:#1E10C7">저장</button></div>`
+              + (r.status === 'confirm' ? `<div style="font-size:12px;opacity:.9;margin:2px 0 6px">${esc(r.msg || '')}${r.have && r.have.length ? `<br>명단 있는 회차: ${esc(r.have.join(', '))}` : ''}</div><div style="display:flex;gap:6px;align-items:center"><input data-n="${i}" type="number" min="1" value="${r.next || ''}" placeholder="회차" style="width:72px;height:30px;border:0;border-radius:6px;padding:0 8px;font:inherit;color:#111"> <span>회차로</span> <button data-s="${i}" style="border:0;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;background:#fff;color:#1E10C7">저장</button> <button data-c="${i}" style="border:1px solid rgba(255,255,255,.6);background:none;color:#fff;border-radius:6px;padding:5px 10px;cursor:pointer">업체 바꾸기</button></div>`
                 : r.link ? `<a href="${esc(r.link)}" target="_blank" style="color:#fff;font-weight:700">CRM에서 점주 안내 열기 ›</a>` : `<small style="opacity:.8">${esc(r.msg || '')}</small>`)
               + (r.status === 'pick' && r.candidates && r.candidates.length ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">' + r.candidates.map((cd) => `<button data-i="${i}" data-co="${esc(cd.id)}" style="border:0;border-radius:6px;padding:3px 8px;cursor:pointer">${esc(cd.name)}</button>`).join('') + '</div>' : '') + '</div>'; }).join(''));
           box.querySelectorAll('[data-co]').forEach((b) => b.onclick = async () => { const i = +b.dataset.i, cp = camps.find((c) => c.id === res[i].id); b.textContent = '확인 중…'; try { const [r] = await send([{ ...cp, company_id: b.dataset.co }], true); res[i] = r; } catch (e) { res[i] = { ...res[i], status: 'error', msg: e.message }; } paint(); });
+          // 업체가 틀렸을 때: 업체명을 입력 → 그 이름으로 다시 찾기(하나면 회차 확인, 여러 개면 고르기)
+          box.querySelectorAll('[data-c]').forEach((b) => b.onclick = async () => {
+            const i = +b.dataset.c, r0 = res[i], nm = (prompt('CRM 업체명 (일부만 입력해도 됨)', r0.company || '') || '').trim(); if (!nm) return;
+            const cp = camps.find((c) => c.id === r0.id); b.textContent = '찾는 중…';
+            try { const [r] = await send([{ ...cp, search: nm, company_id: undefined }], true); res[i] = r; } catch (e) { res[i] = { ...r0, status: 'error', msg: e.message }; } paint();
+          });
           // 회차 확인 → 입력한 회차로 저장 (명단이 이미 있는 회차면 한 번 더 물어봄)
           box.querySelectorAll('[data-s]').forEach((b) => b.onclick = async () => {
             const i = +b.dataset.s, r0 = res[i], n = Math.floor(Number(box.querySelector(`[data-n="${i}"]`).value));
