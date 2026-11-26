@@ -1,0 +1,20 @@
+# Supabase CLI 설정 (Edge Function 배포용). 프로젝트: pacyhanuwuizcxwoggen (홈페이지 + 문의함)
+project_id = "pacyhanuwuizcxwoggen"
+
+# verify_jwt=false 인 함수 (함수 안에서 직접 인증) — 배포 때 이 값이 적용되므로 대시보드와 같게 유지
+[functions.rn-import]
+verify_jwt = false
+[functions.contact]
+verify_jwt = false
+[functions.expo-gate]
+verify_jwt = false
+[functions.expo-copy]
+verify_jwt = false
+[functions.pw-reset-mail]
+verify_jwt = false
+[functions.retell-webhook]
+verify_jwt = false
+[functions.backup-export]
+verify_jwt = false
+[functions.notify-alert]
+verify_jwt = false
