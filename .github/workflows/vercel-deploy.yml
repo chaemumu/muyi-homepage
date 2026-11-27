@@ -21,7 +21,3 @@ jobs:
           vercel-args: '--prod'
           working-directory: .
 
-      # 배포 직후 바뀐 주소를 Bing·네이버에 알림 (ChatGPT 검색은 Bing 색인을 씀). 실패해도 배포는 성공으로 둠
-      - name: Notify IndexNow
-        continue-on-error: true
-        run: node scripts/indexnow.js

@@ -1,0 +1,25 @@
+name: IndexNow
+
+# 배포는 Vercel Git 연동이 함 (Auto Deploy 워크플로는 11/17 이후 실행 안 됨).
+# main에 페이지·sitemap이 바뀌면 Vercel 배포를 기다린 뒤 sitemap 주소 전체를 Bing·네이버에 알림 (ChatGPT 검색은 Bing 색인을 씀)
+on:
+  push:
+    branches: [main]
+    paths: ['*.html', 'sitemap.xml', 'llms.txt']
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for production deploy
+        run: |
+          for i in $(seq 1 20); do
+            sha=$(curl -s https://www.muyi.co.kr/sitemap.xml | sha1sum | cut -c1-40)
+            [ "$sha" = "$(sha1sum sitemap.xml | cut -c1-40)" ] && echo "deployed" && exit 0
+            sleep 30
+          done
+          echo "sitemap not updated after 10 min — pinging anyway"
+      - name: Notify IndexNow
+        run: node scripts/indexnow.js
