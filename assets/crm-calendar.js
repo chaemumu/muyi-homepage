@@ -397,7 +397,7 @@
     (tk.data || []).filter((t) => t.step === '2차마감' && !t.skipped && byId.has(t.company_id) && t.due_on >= from && t.due_on <= to && !skip.has(`${t.company_id}|${t.cycle_on}`))
       .forEach((t) => ev.push({ co: byId.get(t.company_id), cycle: t.cycle_on, step: '2차마감', due: t.due_on, task: t, rec: tasks.get(`${t.company_id}|${t.cycle_on}|모집`), done: !!t.done_at }));
     // 추가 명단 마감 (2026-11-26~): rounds state '추가' = 회차 없이 마지막 회차에 붙인 명단 · 마감일 = 북마크 일정 → 그날 '추가' 마감 칩 (누르면 그 회차 상세)
-    const { data: xr } = await sb.from('rounds').select('id,company_id,recruit_on,round_no,deadline,teams').eq('state', '추가').gte('deadline', from).lte('deadline', to).not('recruit_on', 'is', null).limit(500);
+    const { data: xr } = await sb.from('rounds').select('id,company_id,recruit_on,round_no,round_label,deadline,teams').eq('state', '추가').gte('deadline', from).lte('deadline', to).not('recruit_on', 'is', null).limit(500);
     (xr || []).filter((r) => byId.has(r.company_id)).forEach((r) => ev.push({ co: byId.get(r.company_id), cycle: r.recruit_on, step: '마감', due: r.deadline, task: null, rec: tasks.get(`${r.company_id}|${r.recruit_on}|모집`), done: false, ann: null, dl: r.deadline, extra: r }));
     // 2차마감에도 발표·마감 날짜를 붙여둠 (링크 확인·연장 안내용)
     ev.filter((e) => e.step === '2차마감').forEach((e) => { const d = ev.find((x) => x.step === '마감' && !x.extra && x.co.id === e.co.id && x.cycle === e.cycle); if (d) { e.ann = d.ann; e.dl = d.dl; } });
@@ -1090,7 +1090,7 @@
     const byDay = {}; shown.forEach((e) => { (byDay[e.due] = byDay[e.due] || []).push(e); });
     const chip = (e) => {
       const b = el('div', { className: 'cc' + (e.step === '모집' && !e.ann ? ' pend' : '') + (e.extra ? ' xtra' : ''), draggable: !e.extra });
-      if (e.extra) b.append(el('span', { className: 'cc-lb', text: '추가', title: `${e.extra.round_no}회차 추가 명단 마감` }));
+      if (e.extra) { const xn = /보충/.test(e.extra.round_label || '') ? '보충' : '추가'; b.append(el('span', { className: 'cc-lb', text: xn, title: `${e.extra.round_no}회차 ${xn} 명단 마감` })); }
       const phs = e.step === '모집' && e.task?.phase; // 모집 칩 앞: 회차 + 진행 상태 (예: 3모 · 12완)
       if (e.step !== '모집' && e.rno) b.append(el('span', { className: 'cc-lb' + (e.rnoAuto ? ' auto' : ''), text: String(e.rno), title: `${e.rno}회차${e.rnoAuto ? ' (자동)' : ''} — 모집 달력 회차와 같음` }));
       if (e.step === '모집' && (e.rno || phs || e.total)) b.append(el('span', { className: 'cc-lb' + (phs === '모' ? ' mo' : phs === '완' ? ' wan' : '') + (e.rnoAuto && !phs ? ' auto' : ''), text: `${e.rno || (e.total ? '–' : '')}${phs || ''}${e.total ? '/' + e.total : ''}`, title: `${e.rno ? e.rno + '회차' + (e.rnoAuto ? ' (자동)' : '') : ''}${phs ? ' · ' + (phs === '모' ? '모집 중' : '모집 완료') : ''}${e.total ? ` · 계약 ${e.total}회차` : ''}` }));
