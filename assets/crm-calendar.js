@@ -353,6 +353,13 @@
     return S.cfg;
   }
 
+  // 모집일 없는 추가·보충 명단의 회차 = 마감일 이전(그날 포함) 가장 최근 모집일 (매월 모집일 + 직접 넣은 모집, 지운 모집 제외) · 없으면 마감일
+  const extraCycle = (c, dl, tks) => {
+    const cs = new Set(tks.filter((t) => t.company_id === c.id && t.step === '모집' && !t.skipped).map((t) => t.cycle_on));
+    for (let i = 0; i < 3; i++) { const m = addMonth(monthOf(dl), -i), [y, mo] = m.split('-').map(Number), dim = new Date(y, mo, 0).getDate(); (c.recruit_days || []).forEach((x) => cs.add(`${m}-${pad(Math.min(Number(x) || 1, dim))}`)); }
+    const skip = new Set(tks.filter((t) => t.company_id === c.id && t.step === '모집' && t.skipped).map((t) => t.cycle_on));
+    return [...cs].filter((x) => x && x <= dl && !skip.has(x)).sort().pop() || dl;
+  };
   // ── 체험단 일정 만들기: [from, to] 사이에 날짜가 걸리는 단계 (모집·발표·마감은 모집일에서, 2차마감은 마감 인원 부족 시 저장된 행) ──
   async function campEvents(from, to) {
     const cfg = await loadCfg();
@@ -403,8 +410,10 @@
     (tk.data || []).filter((t) => t.step === '2차마감' && !t.skipped && byId.has(t.company_id) && t.due_on >= from && t.due_on <= to && !skip.has(`${t.company_id}|${t.cycle_on}`))
       .forEach((t) => ev.push({ co: byId.get(t.company_id), cycle: t.cycle_on, step: '2차마감', due: t.due_on, task: t, rec: tasks.get(`${t.company_id}|${t.cycle_on}|모집`), done: !!t.done_at }));
     // 추가 명단 마감 (2026-11-26~): rounds state '추가' = 회차 없이 마지막 회차에 붙인 명단 · 마감일 = 북마크 일정 → 그날 '추가' 마감 칩 (누르면 그 회차 상세)
-    const { data: xr } = await sb.from('rounds').select('id,company_id,recruit_on,round_no,round_label,deadline,teams').eq('state', '추가').gte('deadline', from).lte('deadline', to).not('recruit_on', 'is', null).limit(500);
-    (xr || []).filter((r) => byId.has(r.company_id)).forEach((r) => ev.push({ co: byId.get(r.company_id), cycle: r.recruit_on, step: '마감', due: r.deadline, task: null, rec: tasks.get(`${r.company_id}|${r.recruit_on}|모집`), done: false, ann: null, dl: r.deadline, extra: r }));
+    //  2026-11-27~ 붙인 회차가 텍스트 회차(모집일 없음)면 recruit_on이 비어 있음 → 마감일 이전 가장 최근 모집일로 묶어서 표시 (예전엔 빠져서 마감 달력에 안 보였음)
+    const { data: xr } = await sb.from('rounds').select('id,company_id,recruit_on,round_no,round_label,deadline,teams').eq('state', '추가').gte('deadline', from).lte('deadline', to).limit(500);
+    (xr || []).filter((r) => byId.has(r.company_id)).forEach((r) => { const cycle = r.recruit_on || extraCycle(byId.get(r.company_id), r.deadline, tk.data || []);
+      ev.push({ co: byId.get(r.company_id), cycle, step: '마감', due: r.deadline, task: null, rec: tasks.get(`${r.company_id}|${cycle}|모집`), done: false, ann: null, dl: r.deadline, extra: r }); });
     // 2차마감에도 발표·마감 날짜를 붙여둠 (링크 확인·연장 안내용)
     ev.filter((e) => e.step === '2차마감').forEach((e) => { const d = ev.find((x) => x.step === '마감' && !x.extra && x.co.id === e.co.id && x.cycle === e.cycle); if (d) { e.ann = d.ann; e.dl = d.dl; } });
     return { ev, noDays, cfg, pending };
@@ -1166,7 +1175,7 @@
     const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), expandBtn, setBtn, campBtn]);
     return [tools, await board, el('div', { className: 'stack' }, [el('div', { className: 'card cal-card' }, [monthBar(), grid]), list])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=29');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=30');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   const pickCamp = (evs, cfg, rn) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg, rn)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
