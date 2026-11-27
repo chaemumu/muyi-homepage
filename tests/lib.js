@@ -24,10 +24,11 @@ function serve() {
 }
 
 // data: 가짜 DB 픽스처 { 테이블: [행] } · device: Playwright 기기 이름(예: 'iPhone 13') 또는 viewport
-async function adminPage(browser, base, { data = {}, device, viewport = { width: 1280, height: 900 }, hash = '' } = {}) {
+async function adminPage(browser, base, { data = {}, device, viewport = { width: 1280, height: 900 }, hash = '', now } = {}) {
   const ctx = await browser.newContext(device ? { ...devices[device] } : { viewport });
   const page = await ctx.newPage();
   page.errors = [];
+  if (now) await page.clock.setFixedTime(new Date(now)); // 오늘 날짜 고정 (요일 규칙 테스트)
   page.on('pageerror', (e) => page.errors.push(e.message));
   await page.addInitScript((d) => { window.__SB_DATA = d; }, data);
   await page.route(/supabase-js/, (r) => r.fulfill({ contentType: 'application/javascript', body: STUB }));

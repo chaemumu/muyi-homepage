@@ -297,6 +297,8 @@
 .ca-extra{display:flex;gap:6px}
 .td-d{font-size:10.5px;font-weight:800;color:var(--t2);background:var(--muted);border-radius:5px;padding:1px 6px;margin-right:4px}
 .td-item.off-day{background:color-mix(in srgb,var(--c) 5%,var(--surface))}
+.td-h h3{white-space:nowrap}
+.td-from{min-width:0;font-size:11.5px;font-weight:700;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .td-span{font-size:12px;font-weight:700;color:var(--t3)}
 .td-mine{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:10px;border-radius:10px;background:var(--accent-50);color:var(--accent);font-weight:700;font-size:13px}
 .od-list{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 12px}
@@ -475,7 +477,7 @@
         `간격은 위 [⚙ 설정]에서 바꾸며, 바꾸면 이 설명도 같이 바뀝니다`,
       ]),
       sec('체험단 쓰는 법', [
-        '[오늘 업무] = 그날 할 일을 모집 · 발표 · 마감(2차마감 포함) 3열로. 다음 근무일 전까지 쉬는 날도 같이 (금요일 = 금·토·일, 연휴 전날 = 연휴 끝까지). 특별 휴무·공휴일 출근은 [⚙ 설정] → 휴무일 설정',
+        '[오늘 업무] = 그날 할 일을 모집 · 발표 · 마감(2차마감 포함) 3열로. 다음 근무일 전까지 쉬는 날도 같이 (금요일 = 금·토·일, 연휴 전날 = 연휴 끝까지). 마감·2차마감 칸은 전날 달력의 마감 업체 (그날 마감분은 다음 근무일에 처리 — 월요일 = 금·토·일, 연휴 다음날 = 연휴 전 근무일부터). 특별 휴무·공휴일 출근은 [⚙ 설정] → 휴무일 설정',
         '[모집·발표·마감·2차마감] = 그 단계만 한 달 달력과 아래 목록으로',
         '업체명을 누르면 상세: 모집 = 발표일 정하기·삭제(이번 회차만 / 매월 그 날짜 그만) · 발표/마감 = 명단·점주 안내·가이드·명단 체크리스트·재촉 문자 + 🔍 링크 확인 · +14 연장 · 2차마감 = 리뷰 수정 요청(회차·블로거·사유 → 문구·번호 복사)',
         '칸의 빈 곳을 한 번 누르면 그날 그 업무 완료 표시(단계 색 배경, 팀 전체 공유) · 다시 누르면 해제',
@@ -1047,7 +1049,10 @@
     const days = gridDays();
     const offd = await loadOffdays();
     const span = isToday ? spanDays(S.day, offd) : null; // 오늘 + 이어지는 휴무일 (금요일이면 금·토·일)
-    const [from, to] = isToday ? [S.day, span[span.length - 1]] : [days[0], days[41]];
+    const prevWork = () => { let x = addDays(S.day, -1); for (let i = 0; i < 12 && isOff(x, offd); i++) x = addDays(x, -1); return x; };
+    // 마감 · 2차마감은 전날 달력 몫을 오늘 처리: 이전 근무일 ~ 어제 (월요일 = 금·토·일, 연휴 다음날 = 연휴 전 근무일부터)
+    const dlSpan = isToday ? (() => { const out = []; for (let x = prevWork(); x < S.day; x = addDays(x, 1)) out.push(x); return out; })() : null;
+    const [from, to] = isToday ? [dlSpan[0] || S.day, span[span.length - 1]] : [days[0], days[41]];
     const [{ ev: all, noDays, cfg, pending: pendAll }, marks] = await Promise.all([campEvents(from, to), loadMarks('camp', from, to)]);
     await fillRounds(all);
     const board = holdBoard(await renewSoon(today), cfg);
@@ -1092,7 +1097,8 @@
 
     // ── 오늘 업무: 모집 | 발표 | 마감(2차마감 포함) 3열 ──
     if (isToday) {
-      const prevWork = () => { let x = addDays(S.day, -1); for (let i = 0; i < 12 && isOff(x, offd); i++) x = addDays(x, -1); return x; };
+      const isDl = (e) => e.step === '마감' || e.step === '2차마감';
+      const inDay = (e) => (isDl(e) ? dlSpan : span).includes(e.due);
       const nav = el('div', { className: 'td-nav' }, [
         el('button', { className: 'icon-btn', type: 'button', text: '‹', title: '이전 근무일', onclick: () => { S.day = isOff(S.day, offd) ? addDays(S.day, -1) : prevWork(); draw(); } }),
         el('b', { text: mdw(S.day) + (span.length > 1 ? ` ~ ${mdw(to)}` : '') + (S.day === today ? ' · 오늘' : '') }),
@@ -1101,18 +1107,19 @@
         S.day !== today ? el('button', { className: 'btn sm', type: 'button', text: '오늘', onclick: () => { S.day = today; draw(); } }) : null,
       ].filter(Boolean));
       const col = (step) => {
-        const list = ev.filter((e) => span.includes(e.due) && (step === '마감' ? e.step === '마감' || e.step === '2차마감' : e.step === step)).sort((a, b) => a.due.localeCompare(b.due) || (a.step === '2차마감') - (b.step === '2차마감') || byName(a, b));
-        const body = el('div', { className: 'td-body' }, list.map((e) => { const b = el('button', { type: 'button', className: 'td-item' + (e.due !== S.day ? ' off-day' : ''), title: '눌러서 상세 열기', onclick: () => openDetail(e, cfg) }, [el('b', {}, [span.length > 1 ? el('span', { className: 'td-d', text: mdw(e.due) }) : null, e.co.name].filter(Boolean)), e.step === '2차마감' ? el('span', { className: 'td-tag', text: '2차마감' }) : el('span'), el('small', { text: sub(e) })]); b.style.setProperty('--c', STEP_COLOR[e.step]); return b; }));
+        const dl = step === '마감', days = dl ? dlSpan : span;
+        const list = ev.filter((e) => inDay(e) && (dl ? isDl(e) : e.step === step)).sort((a, b) => a.due.localeCompare(b.due) || (a.step === '2차마감') - (b.step === '2차마감') || byName(a, b));
+        const body = el('div', { className: 'td-body' }, list.map((e) => { const b = el('button', { type: 'button', className: 'td-item' + (!dl && e.due !== S.day ? ' off-day' : ''), title: '눌러서 상세 열기', onclick: () => openDetail(e, cfg) }, [el('b', {}, [days.length > 1 ? el('span', { className: 'td-d', text: mdw(e.due) }) : null, e.co.name].filter(Boolean)), e.step === '2차마감' ? el('span', { className: 'td-tag', text: '2차마감' }) : el('span'), el('small', { text: sub(e) })]); b.style.setProperty('--c', STEP_COLOR[e.step]); return b; }));
         if (!list.length) body.append(el('div', { className: 'td-empty', text: '없음' }));
         markCell(body, { cal: 'camp', cat: step, day: S.day, color: STEP_COLOR[step], marks, add: (v) => addCamp(step, v, S.day) });
-        const card = el('div', { className: 'card td-col' }, [el('div', { className: 'td-h' }, [el('i'), el('h3', { text: step === '마감' ? '마감 · 2차마감' : step }), el('span', { className: 'n', text: list.length })]), body]);
+        const card = el('div', { className: 'card td-col' }, [el('div', { className: 'td-h' }, [el('i'), el('h3', { text: dl ? '마감 · 2차마감' : step }), dl && days.length ? el('span', { className: 'td-from', text: days.length > 1 ? `${md(days[0])}~${md(days[days.length - 1])}분` : `${mdw(days[0])}분`, title: '전날 달력의 마감 업체 (월요일 = 금·토·일)' }) : null, el('span', { className: 'n', text: list.length })]), body]);
         card.style.setProperty('--c', STEP_COLOR[step]);
         return card;
       };
       const tools = el('div', { className: 'cal-tools' }, [stepSeg, nav, el('span', { className: 'sp' }), setBtn, campBtn]);
-      const allN = all.filter((e) => span.includes(e.due)).length, myN = ev.filter((e) => span.includes(e.due)).length;
+      const allN = all.filter(inDay).length, myN = ev.filter(inDay).length;
       const mineNote = S.mine && allN > myN ? el('div', { className: 'td-mine' }, [`'내 담당만' 보는 중 — 이 기간 전체 ${allN}건 중 ${myN}건`, el('button', { className: 'btn sm', type: 'button', text: '전체 보기', onclick: () => { S.mine = false; try { localStorage.setItem('crm-cal-mine', '0'); } catch {} draw({ quiet: true }); } })]) : null;
-      return [tools, await board, mineNote, el('div', { className: 'hint', text: '업체명을 누르면 상세 · 다음 근무일 전까지 쉬는 날(주말·공휴일·설정한 휴무)도 같이 보임 · 칸 빈 곳 한 번 = 완료 표시 · 두 번 = 업체명을 적어 일정 추가 · 업체가 아닌 글자는 메모' }), el('div', { className: 'td-wrap' }, ['모집', '발표', '마감'].map(col))].filter(Boolean);
+      return [tools, await board, mineNote, el('div', { className: 'hint', text: '업체명을 누르면 상세 · 다음 근무일 전까지 쉬는 날(주말·공휴일·설정한 휴무)도 같이 보임 · 마감·2차마감은 전날 달력 업체(월요일 = 금·토·일) · 칸 빈 곳 한 번 = 완료 표시 · 두 번 = 업체명을 적어 일정 추가 · 업체가 아닌 글자는 메모' }), el('div', { className: 'td-wrap' }, ['모집', '발표', '마감'].map(col))].filter(Boolean);
     }
 
     // ── 단계 달력: 그 단계 업체만 · 업체명 누르면 상세 · 끌어서 날짜 변경 ──
