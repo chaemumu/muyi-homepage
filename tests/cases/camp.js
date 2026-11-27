@@ -74,4 +74,34 @@ module.exports = [
       assert.deepEqual(p.errors, []); await p.context().close();
     },
   },
+  {
+    name: '전체 회차 명단: 추가·보충 명단은 그 회차 아래 구분선 + "추가 명단 · 마감"',
+    async run({ browser, base }) {
+      const data = { ...DATA, rounds: [...DATA.rounds,
+        { id: 'x2', company_id: CO, round_no: 3, round_label: '3회차 보충', cycle_on: null, recruit_on: CYCLE, deadline: '2026-12-27', teams: 1, state: '추가', created_at: '2026-11-27' },
+        { id: 't1', company_id: CO, round_no: 2, round_label: '2회차', cycle_on: null, recruit_on: null, state: '완료', import_key: 'txt:c1:01:02' }],
+        roster: [...DATA.roster, { id: 'p4', round_id: 'x2', nickname: '보충D', name: '최라', phone: '010-7777-8888' }, { id: 'p5', round_id: 't1', nickname: '옛E', name: '정마', phone: '010-1212-3434' }] };
+      const p = await adminPage(browser, base, { data, hash: '#calendar' });
+      await openCamp(p, ARGS); await tab(p, '명단');
+      await p.locator('button', { hasText: '전체 회차 명단' }).first().click(); await p.waitForSelector('.ra-g');
+      const g = await p.$$eval('.ra-g', (gs) => gs.map((x) => ({ h: x.querySelector('.ra-h b').innerText, main: [...x.querySelectorAll(':scope > .ca-tbl .nick')].map((n) => n.innerText), xs: [...x.querySelectorAll('.ra-x')].map((r) => r.querySelector('.ra-xh').innerText.replace(/\n/g, ' ') + ' | ' + [...r.querySelectorAll('.nick')].map((n) => n.innerText).join(',')) })));
+      assert.equal(g.length, 2, JSON.stringify(g)); assert.equal(g[0].h, '3회차'); assert.deepEqual(g[0].main, ['블로거A', '블로거B']);
+      assert.match(g[0].xs[0], /^추가 명단 마감 12\/20.*1명.*\| 추가C$/); assert.match(g[0].xs[1], /^보충 명단 마감 12\/27.*\| 보충D$/);
+      assert.equal(g[1].h, '2회차'); assert.equal(g[1].xs.length, 0);
+      const bd = await p.$eval('.ra-x', (x) => getComputedStyle(x).borderTopStyle); assert.equal(bd, 'dashed');
+      assert.deepEqual(p.errors, []); await p.context().close();
+    },
+  },
+  {
+    name: '① 명단: 모집일 없는 회차에 붙은 추가 명단(recruit_on 없음)도 표시 + 블로거 표',
+    async run({ browser, base }) {
+      const data = { ...DATA, rounds: [DATA.rounds[0], { ...DATA.rounds[1], recruit_on: null }] };
+      const p = await adminPage(browser, base, { data, hash: '#calendar' });
+      await openCamp(p, ARGS); await tab(p, '명단');
+      await p.waitForSelector('.ca-xg');
+      const r = await p.$eval('.ca-xg', (x) => ({ h: x.querySelector('.ca-xr').innerText.replace(/\n/g, ' '), nick: [...x.querySelectorAll('.nick')].map((n) => n.innerText) }));
+      assert.match(r.h, /3회차 추가 명단/); assert.match(r.h, /마감 12\/20/); assert.deepEqual(r.nick, ['추가C']);
+      assert.deepEqual(p.errors, []); await p.context().close();
+    },
+  },
 ];

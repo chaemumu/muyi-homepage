@@ -320,7 +320,10 @@
 .ca-drop.mini span{display:none}
 .ca-det summary{cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);padding:4px 0}
 .ca-txtrow{display:flex;gap:10px;align-items:flex-start}.ca-txtrow[hidden]{display:none}.ca-txtrow>.btn{flex:none}.ca-txtrow>.ca-det{flex:1;min-width:0}
-.ca-xl{display:grid;gap:6px}.ca-xl[hidden]{display:none}.ca-xr{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:12px}.ca-xr b{font-size:13px}.ca-xr .sp{flex:1}
+.ca-xl{display:grid;gap:8px;margin-top:6px;padding-top:10px;border-top:2px dashed color-mix(in srgb,var(--accent) 45%,var(--line))}.ca-xl[hidden]{display:none}
+.ca-xg{border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:8px;overflow:hidden}.ca-xg.sup{border-color:color-mix(in srgb,#D9572B 45%,var(--line))}
+.ca-xr{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;padding:8px 10px;background:color-mix(in srgb,var(--accent) 7%,var(--surface));font-size:12px}.ca-xg.sup .ca-xr{background:color-mix(in srgb,#D9572B 8%,var(--surface))}.ca-xg.sup .ra-xt{background:#C2410C}.ca-xr .sp{flex:1}
+.ca-xg .ca-tbl{margin:0}.ca-xg .ca-tbl td{padding:5px 10px;font-size:12.5px}
 .ca-xf{display:grid;grid-template-columns:auto 1fr;gap:8px 10px;align-items:center}.ca-xf .lbl{font-size:12px;color:var(--t3)}
 textarea.ca-txt{width:100%;min-height:200px;margin-top:8px;font-family:inherit;font-size:12px;line-height:1.5;white-space:pre}
 .ca-two{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px;align-items:start}
@@ -381,6 +384,11 @@ textarea.ca-g.sm{min-height:100px}
 .ra-o .ra-h{background:color-mix(in srgb,#D9572B 10%,var(--surface-2))}.ra-co{font-weight:700;white-space:nowrap}
 .ra-h{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface-2);font-size:13px}.ra-h span{color:var(--t3);font-size:12px}.ra-h .btn{margin-left:auto}
 .ra-g .ca-tbl{margin:0}.ra-g .ca-tbl td{padding:6px 12px}
+.ra-x{border-top:2px dashed color-mix(in srgb,var(--accent) 45%,var(--line))}
+.ra-xh{display:flex;align-items:center;gap:10px;padding:7px 12px;background:color-mix(in srgb,var(--accent) 7%,var(--surface));font-size:12px}.ra-xh span{color:var(--t2,var(--t3))}.ra-xh .btn{margin-left:auto}
+.ra-xt{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--accent);color:#fff;font-size:12px;font-weight:800;white-space:nowrap}
+.ra-x.sup{border-top-color:color-mix(in srgb,#D9572B 55%,var(--line))}.ra-x.sup .ra-xh{background:color-mix(in srgb,#D9572B 8%,var(--surface))}.ra-x.sup .ra-xt{background:#C2410C}
+@media (max-width:600px){.ra-h,.ra-xh{flex-wrap:wrap;gap:4px 8px}}
 .rc-guide .gv{margin-top:12px;display:flex;flex-direction:column;gap:8px}
 .gv .ca-sec{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.gv .ca-sec .fi{width:auto;min-width:0;max-width:100%;height:32px}.gv-out{width:100%;box-sizing:border-box}.gv .sp{flex:1}
 .gv-out{height:280px;font-size:12.5px;background:var(--surface-2)}
@@ -544,12 +552,21 @@ textarea.ca-g.sm{min-height:100px}
   }
   // 전체 회차 명단: 이 업체 모든 회차(rounds) 명단 + 검색(닉네임·이름·전화·블로그)
   async function rosterAll(co, { cycle } = {}) {
-    const { data: rds0 } = await sb.from('rounds').select('id,cycle_on,round_no,round_label,import_key,rn_campaign_id').eq('company_id', co.id).order('cycle_on', { ascending: false, nullsFirst: false }).limit(200);
+    const { data: rds0 } = await sb.from('rounds').select('id,cycle_on,recruit_on,round_no,round_label,import_key,rn_campaign_id,state,deadline,created_at').eq('company_id', co.id).order('cycle_on', { ascending: false, nullsFirst: false }).limit(200);
+    // 추가·보충 명단(state '추가', 2026-11-27~): 따로 회차로 안 세우고 그 회차 명단 아래 구분선 + '추가 명단 · 마감 M/D'
+    const isX = (r) => r.state === '추가';
     // 모집일 있는 회차(최근 순) 다음에, 텍스트로 넣은 옛 회차(나중 계약·회차 순)
-    const rds = (rds0 || []).slice().sort((a, b) => (a.cycle_on || b.cycle_on) ? String(b.cycle_on || '').localeCompare(String(a.cycle_on || '')) : String(b.import_key || '').localeCompare(String(a.import_key || '')));
-    const ids = rds.map((r) => r.id);
+    const rds = (rds0 || []).filter((r) => !isX(r)).sort((a, b) => (a.cycle_on || b.cycle_on) ? String(b.cycle_on || '').localeCompare(String(a.cycle_on || '')) : String(b.import_key || '').localeCompare(String(a.import_key || '')));
+    const xrs = (rds0 || []).filter(isX).sort((a, b) => String(a.created_at || '').localeCompare(String(b.created_at || '')));
+    const ids = [...rds, ...xrs].map((r) => r.id);
     const ros = ids.length ? ((await sb.from('roster').select('round_id,nickname,name,phone,blog_url,post_url,cancelled,done').in('round_id', ids).order('created_at').limit(3000)).data || []) : [];
-    const groups = rds.map((r) => ({ r, rows: ros.filter((x) => x.round_id === r.id) })).filter((g) => g.rows.length);
+    const rowsOf = (r) => ros.filter((x) => x.round_id === r.id);
+    // 추가 명단의 부모 = 같은 회차 번호 + 모집일(recruit_on) 회차 → 없으면 같은 회차 번호 → 없으면 따로 한 묶음
+    const parentOf = (x) => rds.find((r) => r.round_no === x.round_no && r.cycle_on && r.cycle_on === x.recruit_on) || rds.find((r) => r.round_no && r.round_no === x.round_no && r.cycle_on) || null;
+    const xsOf = new Map(); const orphans = [];
+    xrs.forEach((x) => { if (!rowsOf(x).length) return; const pr = parentOf(x); if (pr) { if (!xsOf.has(pr.id)) xsOf.set(pr.id, []); xsOf.get(pr.id).push(x); } else orphans.push(x); });
+    const groups = [...rds.map((r) => ({ r, rows: rowsOf(r), xs: (xsOf.get(r.id) || []).map((x) => ({ x, rows: rowsOf(x) })) })), ...orphans.map((x) => ({ r: x, rows: [], xs: [{ x, rows: rowsOf(x) }], orphan: true }))].filter((g) => g.rows.length || g.xs.length);
+    const xName = (x) => /보충/.test(x.round_label || '') ? '보충' : '추가';
     // 같은 브랜드 다른 지점 명단 (2026-11-25~): 검색 시 같이 보여주고, 이 업체 블로거 옆에 '다른 지점 N'
     const others = await brandOthers(co).catch(() => []);
     const digits = (v) => String(v || '').replace(/\D/g, '');
@@ -564,15 +581,23 @@ textarea.ca-g.sm{min-height:100px}
     const nrm = (v) => String(v || '').toLowerCase().replace(/[\s-]/g, '');
     const paint = () => {
       const k = nrm(q.value); let n = 0;
+      const hit = (rs) => rs.filter((x) => !k || [x.nickname, x.name, x.phone, x.blog_url].some((v) => nrm(v).includes(k)));
+      const tbl = (rows) => el('table', { className: 'ca-tbl' }, el('tbody', {}, rows.map((x) => el('tr', { className: x.cancelled ? 'off' : '' }, [el('td', { className: 'nick' }, [x.nickname || '', oBadge(x)].filter(Boolean)), el('td', { text: x.name || '' }), el('td', { className: 'cphone', text: x.phone || '' }),
+        el('td', {}, x.blog_url ? el('a', { href: x.blog_url, target: '_blank', rel: 'noopener', text: blogId(x.blog_url) || '블로그' }) : ''), el('td', {}, x.post_url ? el('a', { href: x.post_url, target: '_blank', rel: 'noopener', text: '글 보기' }) : x.cancelled ? '취소' : (x.done ? '완료' : ''))]))));
       box.replaceChildren(...groups.map((g) => {
-        const rows = g.rows.filter((x) => !k || [x.nickname, x.name, x.phone, x.blog_url].some((v) => nrm(v).includes(k)));
-        n += rows.length; if (!rows.length) return null;
-        return el('div', { className: 'ra-g' + (g.r.cycle_on === cycle ? ' cur' : '') }, [
-          el('div', { className: 'ra-h' }, [el('b', { text: g.r.round_label && /재계약|회차|^\d+-\d+$/.test(g.r.round_label) ? g.r.round_label : g.r.round_no ? `${g.r.round_no}회차` : '회차 없음' }), el('span', { text: `${g.r.cycle_on ? '모집 ' + md(g.r.cycle_on) : '모집일 없음'} · ${g.rows.filter((x) => !x.cancelled).length}명${g.r.cycle_on === cycle ? ' · 지금 연 회차' : ''}` }),
-            el('button', { className: 'btn sm ghost', type: 'button', text: '번호 복사', onclick: () => copy(rows.filter((x) => !x.cancelled && x.phone).map((x) => x.phone).join(', '), `${g.r.round_no || ''}회차 번호`) })]),
-          el('table', { className: 'ca-tbl' }, el('tbody', {}, rows.map((x) => el('tr', { className: x.cancelled ? 'off' : '' }, [el('td', { className: 'nick' }, [x.nickname || '', oBadge(x)].filter(Boolean)), el('td', { text: x.name || '' }), el('td', { className: 'cphone', text: x.phone || '' }),
-            el('td', {}, x.blog_url ? el('a', { href: x.blog_url, target: '_blank', rel: 'noopener', text: blogId(x.blog_url) || '블로그' }) : ''), el('td', {}, x.post_url ? el('a', { href: x.post_url, target: '_blank', rel: 'noopener', text: '글 보기' }) : x.cancelled ? '취소' : (x.done ? '완료' : ''))])))),
-        ]);
+        const rows = hit(g.rows), xs = g.xs.map((e) => ({ ...e, hit: hit(e.rows) })).filter((e) => e.hit.length);
+        n += rows.length + xs.reduce((a, e) => a + e.hit.length, 0); if (!rows.length && !xs.length) return null;
+        // 추가·보충 명단: 구분선 + '추가 명단 · 마감 M/D' (마감일이 회차와 달라서 따로 표시)
+        const xBlocks = xs.map((e) => { const XN = xName(e.x); return el('div', { className: 'ra-x' + (XN === '보충' ? ' sup' : '') }, [
+          el('div', { className: 'ra-xh' }, [el('b', { className: 'ra-xt', text: `${XN} 명단` }), el('span', { text: `마감 ${e.x.deadline ? mdw(e.x.deadline) : '—'} · ${e.rows.filter((x) => !x.cancelled).length}명${e.x.rn_campaign_id ? ' · 북마크' : ''}` }),
+            el('button', { className: 'btn sm ghost', type: 'button', text: '번호 복사', onclick: () => copy(e.hit.filter((x) => !x.cancelled && x.phone).map((x) => x.phone).join(', '), `${e.x.round_no || ''}회차 ${XN} 명단 번호`) })]),
+          tbl(e.hit)]); });
+        const r = g.r, title = g.orphan ? (r.round_no ? `${r.round_no}회차` : '회차 없음') : r.round_label && /재계약|회차|^\d+-\d+$/.test(r.round_label) ? r.round_label : r.round_no ? `${r.round_no}회차` : '회차 없음';
+        return el('div', { className: 'ra-g' + (r.cycle_on && r.cycle_on === cycle ? ' cur' : '') }, [
+          el('div', { className: 'ra-h' }, [el('b', { text: title }), el('span', { text: g.orphan ? '추가·보충 명단만 있음' : `${r.cycle_on ? '모집 ' + md(r.cycle_on) : '모집일 없음'} · ${g.rows.filter((x) => !x.cancelled).length}명${g.xs.length ? ` + ${g.xs.map((e) => xName(e.x) + ' ' + e.rows.filter((x) => !x.cancelled).length).join(' · ')}명` : ''}${r.cycle_on && r.cycle_on === cycle ? ' · 지금 연 회차' : ''}${r.deadline ? ' · 마감 ' + md(r.deadline) : ''}` }),
+            g.orphan ? null : el('button', { className: 'btn sm ghost', type: 'button', text: '번호 복사', onclick: () => copy(rows.filter((x) => !x.cancelled && x.phone).map((x) => x.phone).join(', '), `${r.round_no || ''}회차 번호`) })].filter(Boolean)),
+          rows.length ? tbl(rows) : null, ...xBlocks,
+        ].filter(Boolean));
       }).filter(Boolean));
       const oRows = k ? others.filter((x) => [x.nickname, x.name, x.phone, x.blog_url].some((v) => nrm(v).includes(k))) : [];
       if (oRows.length) box.append(el('div', { className: 'ra-g ra-o' }, [
@@ -581,7 +606,7 @@ textarea.ca-g.sm{min-height:100px}
           el('td', {}, x.blog_url ? el('a', { href: x.blog_url, target: '_blank', rel: 'noopener', text: blogId(x.blog_url) || '블로그' }) : x.cancelled ? '취소' : '')])))),
       ]));
       if (!box.childElementCount) box.append(empty('idea', groups.length ? '검색 결과가 없어요' : '저장된 명단이 없어요', groups.length ? '' : '발표 상세 ① 명단에서 저장하면 회차별로 쌓입니다.'));
-      cnt.textContent = `${groups.length}개 회차 · ${k ? '검색 ' + n + '명' + (oRows.length ? ` + 다른 지점 ${oRows.length}명` : '') : '전체 ' + ros.length + '명'}`;
+      cnt.textContent = `${groups.filter((g) => !g.orphan).length}개 회차 · ${k ? '검색 ' + n + '명' + (oRows.length ? ` + 다른 지점 ${oRows.length}명` : '') : '전체 ' + ros.length + '명'}`;
     };
     q.oninput = paint;
     const txtBtn = el('button', { className: 'btn sm', type: 'button', text: '명단 텍스트 넣기', title: '예전 명단 텍스트(회차별)를 붙여넣어 한 번에 저장', onclick: () => { L.close(); rosterText(co, { cycle }); } });
@@ -749,7 +774,7 @@ textarea.ca-g.sm{min-height:100px}
     const [ros, exQ, lbQ] = await Promise.all([
       round ? sb.from('roster').select('*').eq('round_id', round.id).order('created_at').then((r) => r.data || []) : Promise.resolve([]),
       sb.from('companies').select('address,camp_round_done,camp_round_cycle,camp_info,phone,store_phone').eq('id', co.id).maybeSingle(),
-      sb.from('camp_tasks').select('label').eq('company_id', co.id).eq('cycle_on', cycle).eq('step', '모집').maybeSingle(),
+      sb.from('camp_tasks').select('label,target').eq('company_id', co.id).eq('cycle_on', cycle).eq('step', '모집').maybeSingle(),
     ]);
     const lbNo = /^\d+$/.test(lbQ.data?.label || '') ? +lbQ.data.label : null;
     const ex = exQ.data || {};
@@ -759,7 +784,7 @@ textarea.ca-g.sm{min-height:100px}
     // 지점 특이사항: 이름을 붙여 여러 개 (guidelines.fields.title). 이름별 최신이 현재 내용
     const notes = new Map(); (gl.data || []).forEach((g) => { const t = g.fields?.title || '기본'; if (!notes.has(t)) notes.set(t, g); });
     const S = {
-      roundNo: roundNo0, teams: round?.teams || co.camp_teams || 10, weeks: round?.review_weeks || 4,
+      roundNo: roundNo0, teams: round?.teams || lbQ.data?.target || co.camp_teams || 10, // 모집 팝업 '모집 팀'(camp_tasks 모집 target) weeks: round?.review_weeks || 4,
       rows: ros.map((r) => ({ id: r.id, nickname: r.nickname || '', name: r.name || '', phone: r.phone || '', blog: r.blog_url || '', post: r.post_url || '', note: r.note || '', grade: r.grade || '', visits: r.visits, msg: '', off: r.cancelled, done: !!r.done })),
       tab: ros.length ? 'owner' : 'list', saved: !!ros.length, ownerEdited: false, imgDirty: true, dup: new Map(),
       storeTitle: (gl.data?.[0]?.fields?.title) || '기본', storeGuide: gl.data?.[0]?.body || '', brandGuide: typeof gb.data?.value === 'string' ? gb.data.value : '',
@@ -992,15 +1017,19 @@ textarea.ca-g.sm{min-height:100px}
     };
     const xList = el('div', { className: 'ca-xl', hidden: true });
     async function loadExtras() {
-      const { data } = await sb.from('rounds').select('id,round_no,round_label,deadline,teams,rn_campaign_id,created_at').eq('company_id', co.id).eq('state', '추가').eq('recruit_on', cycle).order('created_at');
-      const xs = data || []; xList.hidden = !xs.length; if (!xs.length) { xList.replaceChildren(); return; }
+      // 붙인 회차가 텍스트 회차(모집일 없음)라 recruit_on이 비어 있는 추가·보충 명단도: 마감일이 이 모집일 ~ +45일이면 이 회차에 표시 (2026-11-27~)
+      const { data } = await sb.from('rounds').select('id,recruit_on,round_no,round_label,deadline,teams,rn_campaign_id,created_at').eq('company_id', co.id).eq('state', '추가').order('created_at');
+      const xs = (data || []).filter((x) => x.recruit_on ? x.recruit_on === cycle : !!x.deadline && x.deadline >= cycle && x.deadline < addDays(cycle, 45)); xList.hidden = !xs.length; if (!xs.length) { xList.replaceChildren(); return; }
       const ros = (await sb.from('roster').select('round_id,nickname,name,phone,blog_url,cancelled').in('round_id', xs.map((x) => x.id)).order('created_at')).data || [];
       xList.replaceChildren(el('b', { text: xs.some((x) => /보충/.test(x.round_label || '')) ? '추가 · 보충 명단' : '추가 명단' }), ...xs.map((x) => {
         const XN = /보충/.test(x.round_label || '') ? '보충' : '추가', rs = ros.filter((r) => r.round_id === x.id), t = rs.flatMap((r) => [(r.nickname || r.name) + (r.cancelled ? ' (취소)' : ''), r.name, r.phone, r.blog_url, '']).join('\n').trimEnd();
-        return el('div', { className: 'ca-xr' }, [el('b', { text: `${x.round_no}회차 ${XN}` }), el('span', { text: `마감 ${x.deadline ? mdw(x.deadline) : '—'} · ${rs.length}명${x.rn_campaign_id ? ' · 북마크' : ''}` }), el('span', { className: 'sp' }),
+        // 명단도 바로 보이게: 머리(구분선 + 'N회차 추가 명단 · 마감') 아래 블로거 표 (2026-11-27~)
+        const tb = rs.length ? el('table', { className: 'ca-tbl' }, el('tbody', {}, rs.map((r) => el('tr', { className: r.cancelled ? 'off' : '' }, [el('td', { className: 'nick', text: r.nickname || '' }), el('td', { text: r.name || '' }), el('td', { className: 'cphone', text: r.phone || '' }),
+          el('td', {}, r.blog_url ? el('a', { href: r.blog_url, target: '_blank', rel: 'noopener', text: blogId(r.blog_url) || '블로그' }) : ''), el('td', { text: r.cancelled ? '취소' : '' })])))) : null;
+        return el('div', { className: 'ca-xg' + (XN === '보충' ? ' sup' : '') }, [el('div', { className: 'ca-xr' }, [el('b', { className: 'ra-xt', text: `${x.round_no}회차 ${XN} 명단` }), el('span', { text: `마감 ${x.deadline ? mdw(x.deadline) : '—'} · ${rs.filter((r) => !r.cancelled).length}명${x.rn_campaign_id ? ' · 북마크' : ''}` }), el('span', { className: 'sp' }),
           el('button', { className: 'btn sm ghost', type: 'button', text: 'TXT 복사', onclick: () => copy(t, XN + ' 명단') }),
           el('button', { className: 'btn sm ghost', type: 'button', text: '번호 복사', onclick: () => copy(rs.filter((r) => !r.cancelled && r.phone).map((r) => r.phone).join(', '), XN + ' 명단 번호') }),
-          el('button', { className: 'btn sm ghost', type: 'button', text: '삭제', onclick: async () => { if (!confirm(`${x.round_no}회차 ${XN} 명단 ${rs.length}명을 삭제할까요?`)) return; const { error } = await sb.from('rounds').delete().eq('id', x.id); if (error) { toast('삭제 실패: ' + error.message); return; } toast(XN + ' 명단 삭제'); loadExtras(); loadRL(); } })]);
+          el('button', { className: 'btn sm ghost', type: 'button', text: '삭제', onclick: async () => { if (!confirm(`${x.round_no}회차 ${XN} 명단 ${rs.length}명을 삭제할까요?`)) return; const { error } = await sb.from('rounds').delete().eq('id', x.id); if (error) { toast('삭제 실패: ' + error.message); return; } toast(XN + ' 명단 삭제'); loadExtras(); loadRL(); } })]), tb].filter(Boolean));
       }));
     }
     function extraIn() {
@@ -1022,7 +1051,7 @@ textarea.ca-g.sm{min-height:100px}
         if (!dl.value) { toast('마감일을 넣어주세요 (북마크 일정의 마감일)'); dl.focus(); return; }
         ok.disabled = true;
         try {
-          const { data: r, error } = await sb.from('rounds').insert({ company_id: co.id, cycle_on: null, recruit_on: base.cycle_on || null, round_no: base.round_no, round_label: `${base.round_no}회차 추가`, state: '추가', teams: rows.length, deadline: dl.value, import_key: `add:${co.id}:${Date.now()}`, memo: '추가 명단 (명단 탭)' }).select('id').single();
+          const { data: r, error } = await sb.from('rounds').insert({ company_id: co.id, cycle_on: null, recruit_on: base.cycle_on || cycle, round_no: base.round_no, round_label: `${base.round_no}회차 추가`, state: '추가', teams: rows.length, deadline: dl.value, import_key: `add:${co.id}:${Date.now()}`, memo: '추가 명단 (명단 탭)' }).select('id').single();
           if (error) throw error;
           const ids = [...new Set(rows.filter((x) => !x.nickname).map((x) => blogId(x.blog_url)).filter(Boolean))];
           if (ids.length) { const nk = await sb.functions.invoke('camp-assist', { body: { action: 'nick', ids } }); if (!nk.error) rows.forEach((x) => { const id = blogId(x.blog_url); if (!x.nickname && id && nk.data.nick[id]) x.nickname = nk.data.nick[id]; }); }
