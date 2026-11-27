@@ -904,6 +904,14 @@
       if (error) { toast('저장 실패: ' + error.message); return; }
       e.co.camp_round_total = v; e.total = v || null; e.perm = v === 0; e.totalAuto = false; [...tSel.options].forEach((o) => { o.text = o.text.replace(' ·자동', ''); }); P.mark(); toast(`${e.co.name} 계약 ${v === 0 ? '영구' : v ? v + '회차' : '자동'}`);
     };
+    // 모집 팀 수 (이번 회차): camp_tasks 모집 target · 그 회차 rounds.teams도 같이 (명단 탭 '모집 팀') · 비우면 업체 기본(camp_teams)
+    const nT = e.task?.target ?? null;
+    const mSel = el('select', { className: 'fi rc-sel rc-teams', title: '이번 회차 모집 팀 수' }, [el('option', { value: '', text: e.co.camp_teams ? `${e.co.camp_teams}팀 ·기본` : '모집 팀 —' }), ...Array.from({ length: Math.max(30, nT || 0) }, (_, i) => el('option', { value: String(i + 1), text: `${i + 1}팀 모집`, selected: nT === i + 1 }))]);
+    mSel.onchange = async () => {
+      const v = mSel.value ? +mSel.value : null;
+      if (!(await save({ target: v }, v ? `${v}팀 모집` : '모집 팀 기본'))) return;
+      if (v) await sb.from('rounds').update({ teams: v }).eq('company_id', e.co.id).eq('cycle_on', e.cycle);
+    };
     const ph = el('div', { className: 'rc-seg', role: 'group' });
     const paintPh = () => ph.replaceChildren(...[['모', '모집 중'], ['완', '모집 완료']].map(([k, t]) => el('button', { type: 'button', className: (k === '모' ? 'mo' : 'wan') + (e.task?.phase === k ? ' on' : ''), title: t + ' · 다시 누르면 해제', onclick: async () => { const v = e.task?.phase === k ? null : k; if (await save({ phase: v }, v ? t : '진행 해제')) { e.rnoAuto = false; [...rSel.options].forEach((o) => { o.text = o.text.replace(' ·자동', ''); }); paintPh(); } } }, [k, el('span', { text: t })])));
     paintPh();
@@ -934,7 +942,7 @@
     };
     const gBox = el('div', { className: 'rc-guide' });
     const P = popup(`${e.co.name} · ${mdw(e.due)} 모집`, [
-      el('div', { className: 'rc-row' }, [rSel, el('span', { className: 'rc-slash', text: '/' }), tSel, ph, pre]), gBox,
+      el('div', { className: 'rc-row' }, [rSel, el('span', { className: 'rc-slash', text: '/' }), tSel, mSel, ph, pre]), gBox,
     ], [
       el('button', { className: 'btn sm ghost', type: 'button', text: '⚙ 매월 모집일', onclick: () => { P.close(); editDays(e.co); } }),
       el('button', { className: 'btn sm ghost rc-del', type: 'button', text: '삭제', onclick: () => delRecruit(e, P) }),
@@ -1221,7 +1229,7 @@
     const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), expandBtn, setBtn, campBtn]);
     return [tools, await board, el('div', { className: 'stack' }, [el('div', { className: 'card cal-card' }, [monthBar(), grid]), list])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=30');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=31');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   const pickCamp = (evs, cfg, rn) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg, rn)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {

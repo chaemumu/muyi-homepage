@@ -78,6 +78,9 @@ module.exports = [
       assert.ok(w2.some((x) => x.filt.id === 'c' && /11\/18 선재계약 \+10회/.test(x.payload.camp_memo || '')));
       assert.equal(await p.$('.rc-ack'), null);
       assert.equal(await p.textContent('.rc-pre'), '선재계약 +10');
+      await p.selectOption('.rc-teams', '5'); await p.waitForTimeout(300);
+      assert.ok((await writes(p, 'camp_tasks')).some((x) => x.payload.company_id === 'c' && x.payload.step === '모집' && x.payload.target === 5), '모집 팀 수 저장');
+      assert.ok((await writes(p, 'rounds')).some((x) => x.payload.teams === 5 && x.filt.company_id === 'c'));
       assert.deepEqual(p.errors, []); await p.context().close();
     },
   },
