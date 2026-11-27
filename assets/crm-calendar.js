@@ -193,7 +193,9 @@
 .rc-pb.mo.on{border-color:var(--accent);background:var(--accent-50);color:var(--accent)}.rc-pb.mo.on b{background:var(--accent);color:#fff}
 .rc-pb.wan.on{border-color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--surface));color:var(--green)}.rc-pb.wan.on b{background:var(--green);color:#fff}
 .cc-lb.auto{box-shadow:0 0 0 1px var(--line);color:var(--t3);background:transparent}
-.hb-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.hb-wrap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.hb-rt{grid-column:2;font-size:11px;font-weight:800;color:#fff;background:#DC2626;border-radius:4px;padding:0 5px;line-height:16px}
+.hb-foot{margin-top:auto;padding:8px 14px;border-top:1px solid var(--line-2);font-size:12px;color:var(--t3)}
 .hb{display:flex;flex-direction:column;min-width:0}
 .hb-h{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line)}
 .hb-h i{width:9px;height:9px;border-radius:3px;background:var(--c)}
@@ -354,7 +356,7 @@
     const cfg = await loadCfg();
     const maxOff = Math.max(cfg.off.발표 || 0, (cfg.off.마감 || 0) + (cfg.off['2차마감'] || 0), 0);
     const [co, tk] = await Promise.all([
-      sb.from('companies').select('id,name,brand,recruit_days,camp_teams,camp_round_done,camp_round_cycle,camp_round_total,camp_renew_ack,camp_renew_added,phone,store_phone,rep_name,sales_owner,manager_owner,sales_owner_name,manager_owner_name,service_type').eq('stage', '결제').eq('run_status', '진행 중').limit(2000),
+      sb.from('companies').select('id,name,brand,recruit_days,camp_teams,camp_round_done,camp_round_cycle,camp_round_total,camp_renew_ack,phone,store_phone,rep_name,sales_owner,manager_owner,sales_owner_name,manager_owner_name,service_type').eq('stage', '결제').eq('run_status', '진행 중').limit(2000),
       sb.from('camp_tasks').select('*').gte('cycle_on', addDays(from, -maxOff - 31)).lte('cycle_on', to).limit(5000),
     ]);
     const tasks = new Map((tk.data || []).map((t) => [`${t.company_id}|${t.cycle_on}|${t.step}`, t]));
@@ -961,34 +963,35 @@
   }
 
   // 재계약 임박 (2026-11-27~): 계약 회차 − 진행 회차 ≤ 1 → 모집 칩 회차 빨간색 · 모집 팝업 [확인 완료]로 끔(companies.camp_renew_ack = 그 계약 회차)
-  //  해당 지점은 재계약 칸(camp_holds renew)에 자동으로 한 번 넣음(companies.camp_renew_added = 그 계약 회차 — 칸에서 빼도 다시 안 들어감, 계약 회차가 바뀌면 다시 대상)
+  //  해당 지점은 재계약 · 홀딩 칸 가운데 '재계약 조율 중' 칸에 표시 (저장 안 함, 확인 완료하면 빠짐)
   const renewNear = (e) => e.step === '모집' && !!e.rno && !!e.total && e.total - e.rno <= 1;
   const renewRed = (e) => renewNear(e) && e.co.camp_renew_ack !== e.total;
-  async function autoRenew(evs, today) {
-    const pick = new Map();
-    evs.filter((e) => renewNear(e) && monthOf(e.due) <= monthOf(today) && e.co.camp_renew_added !== e.total).forEach((e) => { const p = pick.get(e.co.id); if (!p || e.rno > p.rno) pick.set(e.co.id, e); });
-    if (!pick.size) return;
-    const { data: ex, error } = await sb.from('camp_holds').select('company_id').in('company_id', [...pick.keys()]);
-    if (error) return;
-    const has = new Set((ex || []).map((x) => x.company_id)), add = [...pick.values()].filter((e) => !has.has(e.co.id));
-    if (add.length) {
-      const { error: e1 } = await sb.from('camp_holds').insert(add.map((e, i) => ({ kind: 'renew', name: e.co.name, company_id: e.co.id, note: `${e.rno}/${e.total}회차 · 자동`, sort: 900 + i, created_by: me })));
-      if (e1) { toast('재계약 칸 자동 추가 실패: ' + e1.message); return; }
-      toast(`재계약 칸에 자동 추가: ${add.map((e) => e.co.name).join(', ')}`);
-    }
-    for (const e of pick.values()) { await sb.from('companies').update({ camp_renew_added: e.total }).eq('id', e.co.id); e.co.camp_renew_added = e.total; }
+  // 재계약 조율 중 칸: 업체마다 오늘까지 가장 최근 모집 회차 기준 (오늘 업무·다른 달을 봐도 같은 목록)
+  async function renewSoon(today) {
+    const { ev } = await campEvents(addDays(today, -62), today);
+    const rec = ev.filter((e) => e.step === '모집'); await fillRounds(rec);
+    const last = new Map(); rec.forEach((e) => { const l = last.get(e.co.id); if (!l || e.cycle > l.cycle) last.set(e.co.id, e); });
+    return [...last.values()].filter(renewRed).sort((a, b) => (a.total - a.rno) - (b.total - b.rno) || a.co.name.localeCompare(b.co.name));
   }
 
   // ── 모집 보류 지점: 재계약 · 홀딩 두 칸 (camp_holds, 팀 공유). 업체명 + 메모(예: 3완/3회차 · 10월에 재개) ──
   const HB = [['renew', '재계약', '#16A34A', '재계약 대기 · 회차 다 쓴 지점'], ['hold', '홀딩 · 모집 보류', '#D97706', '잠시 멈춘 지점 · 재개 시점 메모']];
   // 데이터를 먼저 받아 그린 뒤 돌려준다 (늦게 채워지며 달력이 아래로 밀리는 현상 방지)
-  async function holdBoard() {
+  async function holdBoard(soon = [], cfg) {
     const wrap = el('div', { className: 'hb-wrap' });
     const load = async () => {
       const { data, error } = await sb.from('camp_holds').select('*').order('sort').order('created_at').limit(500);
       if (error) { wrap.replaceChildren(el('div', { className: 'hint', text: '모집 보류 지점을 불러오지 못했습니다: ' + error.message })); return; }
       suggestList();
-      wrap.replaceChildren(...HB.map(([k, title, c, ph]) => {
+      const soonCard = el('div', { className: 'card hb hb-soon' }, [
+        el('div', { className: 'hb-h' }, [el('i'), el('h3', { text: '재계약 조율 중' }), el('span', { className: 'n', text: soon.length })]),
+        el('div', { className: 'hb-list' }, soon.length ? soon.map((e) => el('div', { className: 'hb-row', title: '눌러서 모집 팝업 — [확인 완료]로 빼기', onclick: () => openDetail(e, cfg) }, [
+          el('b', { text: e.co.name }), el('span', { className: 'hb-rt', text: `${e.rno}/${e.total}` }),
+          el('small', { text: `${md(e.cycle)} 모집 · 남은 ${Math.max(0, e.total - e.rno)}회차 · ${e.co.manager_owner_name || e.co.sales_owner_name || '미배정'}` })])) : [el('div', { className: 'hb-empty', text: '계약 회차가 1회 이하 남은 지점이 없습니다' })]),
+        el('div', { className: 'hb-foot', text: '계약 회차 − 진행 회차 ≤ 1 · 모집 팝업 [확인 완료]로 빼기' }),
+      ]);
+      soonCard.style.setProperty('--c', '#DC2626');
+      const cards = HB.map(([k, title, c, ph]) => {
         const list = (data || []).filter((x) => x.kind === k);
         const nm = el('input', { className: 'fi nm', placeholder: '업체명', autocomplete: 'off' }); nm.setAttribute('list', 'cal-sugg');
         const nt = el('input', { className: 'fi', placeholder: '메모 (예: 3완/3회차 · 10월에 재개)' });
@@ -1008,7 +1011,8 @@
         ]);
         card.style.setProperty('--c', c);
         return card;
-      }));
+      });
+      wrap.replaceChildren(cards[0], soonCard, cards[1]);
     };
     await load();
     return wrap;
@@ -1046,8 +1050,7 @@
     const [from, to] = isToday ? [S.day, span[span.length - 1]] : [days[0], days[41]];
     const [{ ev: all, noDays, cfg, pending: pendAll }, marks] = await Promise.all([campEvents(from, to), loadMarks('camp', from, to)]);
     await fillRounds(all);
-    await autoRenew(all, today);
-    const board = holdBoard();
+    const board = holdBoard(await renewSoon(today), cfg);
     const ev = S.mine ? all.filter((e) => isMine(e.co)) : all;
     const pending = S.mine ? pendAll.filter((e) => isMine(e.co)) : pendAll;
     const who = (e) => e.co.manager_owner_name || e.co.sales_owner_name || '미배정';
