@@ -20,6 +20,20 @@ module.exports = [
     },
   },
   {
+    name: "마감 탭: 모집일 없는 회차에 붙은 추가·보충 명단(recruit_on 없음)도 마감일에 칩",
+    async run({ browser, base }) {
+      const p = await adminPage(browser, base, { hash: '#calendar', data: {
+        companies: [{ id: 'c1', name: '텍스트 지점', stage: '결제', run_status: '진행 중', recruit_days: [5] }],
+        rounds: [{ id: 'x1', company_id: 'c1', recruit_on: null, cycle_on: null, round_no: 7, round_label: '7회차 보충', deadline: ym + '21', teams: 2, state: '추가' }],
+      } });
+      await p.waitForTimeout(1200);
+      await p.locator('button', { hasText: /^마감/ }).first().click(); await p.waitForTimeout(1200);
+      const d = await p.$$eval('.cal-day', (ds) => ds.filter((x) => x.querySelector('.cc.xtra')).map((x) => x.dataset.d + ':' + x.innerText.replace(/\n/g, ' ')));
+      assert.equal(d.length, 1, JSON.stringify(d)); assert.match(d[0], new RegExp('^' + ym + '21:.*보충.*텍스트 지점'));
+      assert.deepEqual(p.errors, []); await p.context().close();
+    },
+  },
+  {
     name: '모집 탭: 계약 회차 − 진행 회차 ≤ 1 → 회차 빨간색 · 재계약 임박 칸 · [확인 완료]로 끄기',
     async run({ browser, base }) {
       const co = (id, name, extra) => ({ id, name, stage: '결제', run_status: '진행 중', service_type: '체험단 패키지', recruit_days: [5], camp_round_total: 10, ...extra });
