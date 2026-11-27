@@ -12,7 +12,7 @@ import Anthropic from 'npm:@anthropic-ai/sdk';
 //   ① 엔진별 속도 `ai_vis_config.pace.<engine> = {conc, gap_ms}` — Gemini 기본 1개씩 6.5초 간격(무료 분당 한도 안)
 //   ② 429면 API가 알려 준 대기 시간(최대 60초)만큼 쉬고 한 번 다시
 //   ③ 결제·인증 문제(OpenAI 크레딧 없음, 401/403, 처음 3개 연속 한도 초과)면 그 엔진은 건너뜀 — 실패 20건을 쌓지 않고 지난 결과 유지
-//   ④ 실행 시간이 길면(110초) 남은 질문을 자기 자신에게 넘겨 이어서 실행 (Free 플랜 백그라운드 150초 제한)
+//   ④ 실행 시간이 길면(110초) 남은 질문을 자기 자신에게 넘겨 이어서 실행 (Free 플랜 백그라운드 150초 제한) — 질문·모델 스냅샷을 같이 넘김
 const KW = 'https://api.kakaowork.com/v1';
 const ADMIN_URL = 'https://www.muyi.co.kr/admin#ai';
 const SYSTEM = '한국에서 사업을 하는 사용자의 질문에 답하세요. 필요하면 웹 검색을 쓰고, 업체를 추천할 때는 실제 업체명을 번호 목록으로 알려주세요.';
@@ -134,24 +134,25 @@ async function clearFailedWeek(sb: any, week: string, engine: string) {
 }
 
 // 남은 질문을 새 요청으로 넘김 (같은 인증 키로 자기 자신 호출)
-async function handOff(sb: any, engine: string, offset: number, week: string) {
+// 질문·모델은 처음 실행 때 읽은 그대로 넘김 (도중에 설정을 고쳐도 순서가 어긋나지 않게)
+async function handOff(sb: any, engine: string, offset: number, week: string, snap: { qs: { g: string; q: string }[]; model: string }) {
   const { data } = await sb.from('ai_vis_secret').select('value').eq('key', 'cron').maybeSingle();
   const anon = Deno.env.get('SUPABASE_ANON_KEY') || '';
   const r = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/ai-visibility`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${anon}`, 'x-ai-vis-key': data?.value || '' },
-    body: JSON.stringify({ engine, offset, week }),
+    body: JSON.stringify({ engine, offset, week, ...snap }),
   }).catch((e) => ({ status: 0, e }));
   console.log('AI_VIS_HANDOFF', engine, offset, (r as any).status);
 }
 
-async function run(sb: any, engine: string, offset = 0, weekIn?: string) {
+async function run(sb: any, engine: string, offset = 0, weekIn?: string, snap?: { qs?: any; model?: string }) {
   const started = Date.now(); const deadline = started + BUDGET_MS;
   const { data: rows } = await sb.from('crm_settings').select('key,value').in('key', ['ai_vis_questions', 'ai_vis_config']);
   const cfg = Object.fromEntries((rows || []).map((r: any) => [r.key, r.value]));
-  const qs: { g: string; q: string }[] = cfg.ai_vis_questions || [];
+  const qs: { g: string; q: string }[] = Array.isArray(snap?.qs) ? snap!.qs : (cfg.ai_vis_questions || []);
   const conf = cfg.ai_vis_config || {};
-  const model = conf.models?.[engine];
+  const model = (typeof snap?.model === 'string' && snap.model) || conf.models?.[engine];
   const re = new RegExp(conf.brand || '무이(?!자)|MUYI|muyi\\.co\\.kr', 'i');
   const week = weekIn || mondayKst();
   const pace = { conc: Math.max(1, Math.min(20, Number(conf.concurrency) || 10)), gap_ms: 0, ...(PACE_DEFAULT[engine] || {}), ...(conf.pace?.[engine] || {}) };
@@ -168,7 +169,7 @@ async function run(sb: any, engine: string, offset = 0, weekIn?: string) {
   };
 
   for (let i = offset; i < qs.length; i += conc) {
-    if (i > offset && Date.now() + gap > deadline) { await handOff(sb, engine, i, week); break; }
+    if (i > offset && Date.now() + gap > deadline) { await handOff(sb, engine, i, week, { qs, model }); break; }
     const t0 = Date.now();
     const part = qs.slice(i, i + conc);
     let fatal = null as ApiErr | null;
@@ -266,6 +267,7 @@ Deno.serve(async (req) => {
   const offset = Math.max(0, Number(body.offset) || 0); // 이어서 실행(handOff)일 때만
   const week = /^\d{4}-\d{2}-\d{2}$/.test(String(body.week || '')) ? body.week : undefined;
   // @ts-ignore EdgeRuntime: 응답 먼저 보내고 백그라운드 실행
-  EdgeRuntime.waitUntil(Promise.all(todo.map((e) => run(sb, e, offset, week))));
+  const snap = offset > 0 ? { qs: body.qs, model: body.model } : undefined; // 이어서 실행일 때만 넘겨받은 스냅샷 사용
+  EdgeRuntime.waitUntil(Promise.all(todo.map((e) => run(sb, e, offset, week, snap))));
   return json({ started: todo, skipped, offset }, 202);
 });
