@@ -88,13 +88,31 @@ module.exports = [
     },
   },
   {
+    name: 'local-business #studio: Service JSON-LD · 썸네일 눌러 재생 · [촬영 상담] → 폼 + 문의 내용',
+    run: async ({ browser, base }) => {
+      const page = await open(browser, base, 'local-business.html', { hash: '#studio' });
+      const svc = await page.evaluate(() => [...document.querySelectorAll('script[type="application/ld+json"]')].map((s) => JSON.parse(s.textContent)).find((d) => d['@id'] && d['@id'].endsWith('#studio')));
+      assert.ok(svc, 'Service #studio');
+      assert.equal(svc.brand.name, '무이 스튜디오');
+      assert.equal(svc.offers[0].priceSpecification.minPrice, 200000);
+      await page.route(/assets\/video\/.*\.mp4/, (r) => r.fulfill({ status: 200, contentType: 'video/mp4', body: '' }));
+      await page.click('#studio .st-reel[data-v="kkoyo"]');
+      assert.equal(await page.locator('#studio .st-reel[data-v="kkoyo"] video').count(), 1, '그 자리에서 영상');
+      await page.click('#studio .st-cta');
+      await page.waitForFunction(() => { const r = document.getElementById('cta').getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; }, null, { timeout: 4000 });
+      assert.match(await page.inputValue('#f-msg'), /무이 스튜디오/);
+      assert.ok(fs.readFileSync(path.join(ROOT, 'llms.txt'), 'utf8').includes('/local-business#studio'));
+      assert.deepEqual(page.errors, []);
+      await page.context().close();
+    },
+  },
+  {
     name: '모바일(375px): 두 페이지 가로 넘침 없음',
     run: async ({ browser, base }) => {
       for (const f of ['local-business.html', 'shortform-marketing.html']) {
         const page = await open(browser, base, f, { viewport: { width: 375, height: 800 } });
         const over = await page.evaluate(() => {
-          const s = document.querySelector('#guide, #cost');
-          return Math.max(...[...s.querySelectorAll('*')].map((e) => e.getBoundingClientRect().right)) - window.innerWidth;
+          return Math.max(...[...document.querySelectorAll('#guide *, #studio *, #cost *')].map((e) => e.getBoundingClientRect().right)) - window.innerWidth;
         });
         assert.ok(over <= 1, `${f} 섹션 가로 넘침 ${over}px`);
         await page.context().close();
