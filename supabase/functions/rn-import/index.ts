@@ -14,6 +14,7 @@ import Anthropic from "npm:@anthropic-ai/sdk@0.68";
 //   ② extra:true = 추가 명단 — 회차를 새로 만들지 않고 명단 있는 마지막 회차(last)에 붙임: rounds 행 state '추가'(cycle_on 없음 · recruit_on = 그 회차 모집일 · round_no = last · deadline = 북마크 일정 마감일)
 //      달력은 그 마감일에 '추가' 마감 칩으로 표시(crm-calendar campEvents)
 // v9(2026-11-27): 북마크 버전(bm) — 새 북마크는 bm:9를 보냄. bm 없는 예전 북마크(회차 입력칸, '추가 명단 생성' 없음)면 결과 msg 앞에 '다시 설치' 안내
+// v10(2026-11-27): sup:true(extra와 함께) = 보충 명단 — 추가 명단과 같은 저장(state '추가', 회차 안 늘림)인데 이름 'N회차 보충', 마감일이 없으면 그 회차 마감일. 취소 상태 글자 넓힘(취소·포기·cancel·drop·withdraw·give up). bm<10이면 다시 설치 안내
 // 같은 캠페인은 rounds.rn_campaign_id로 한 번만: 인원이 같으면 건너뜀(same), 바뀌었으면 글 링크를 지키며 갱신(updated).
 const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "content-type", "Access-Control-Allow-Methods": "POST, OPTIONS" };
 const json = (b: unknown, status = 200) => new Response(JSON.stringify(b), { status, headers: { ...cors, "Content-Type": "application/json" } });
@@ -40,7 +41,7 @@ function mapRow(r: any) {
   const msg = f.filter(([k]) => /message|msg|comment|content|reason|introduce|신청/i.test(k)).map(([, v]) => v).sort((a, b) => b.length - a.length)[0] || "";
   // 취소: 상태 칸(status·state·상태)에 '취소/cancel' 또는 북마크가 취소 목록에서 가져온 표시(__cancel)
   const st = f.filter(([k]) => /status|state|상태/i.test(k)).map(([, v]) => v).join(' ');
-  const cancelled = !!r.__cancel || /취소|cancel/i.test(st);
+  const cancelled = !!r.__cancel || /취소|포기|cancel|drop|withdraw|give_?up/i.test(st);
   return { cancelled, blog, name, phone: fmtPhone(phone), msg, grade: by(/grade|level|rank|등급/i), visits: Number(by(/visit|daily|today|방문/i).replace(/[^\d]/g, "")) || null, area: by(/address|addr|area|주소/i), nickname: by(/nick/i), post: by(/review.*url|post.*url|reviewUrl|postUrl/i, (v) => /^https?:/.test(v)) };
 }
 async function nick(id: string) {
@@ -165,20 +166,20 @@ Deno.serve(async (req) => {
       const rows = (Array.isArray(cp.rows) ? cp.rows : []).slice(0, 100).map(mapRow).filter((r: any) => r.name || r.blog || r.phone);
       const out: any = { id: rid, title, count: rows.length };
       const D = pickDates(cp.dates || {});
-      const extra = !!cp.extra;
+      const sup = !!cp.sup, extra = !!cp.extra || sup, XN = sup ? "보충" : "추가";
       const wantNo = Number(cp.round_no) > 0 ? Math.floor(Number(cp.round_no)) : null;
       console.log("RN_DATES", rid, JSON.stringify(cp.dates || {}).slice(0, 600), JSON.stringify(D));
       if (!rid || !rows.length) { results.push({ ...out, status: "empty", msg: "선정 명단이 비어 있음" }); continue; }
       // 이미 저장한 캠페인?
-      let { data: prev } = await sb.from("rounds").select("id,company_id,cycle_on,round_no,state,recruit_on").eq("rn_campaign_id", rid).maybeSingle();
+      let { data: prev } = await sb.from("rounds").select("id,company_id,cycle_on,round_no,round_label,state,recruit_on").eq("rn_campaign_id", rid).maybeSingle();
       // v8: 이미 저장한 캠페인도 항상 회차를 다시 물어봄 (지금 저장된 회차를 기본값으로)
       const otherCo = !!prev && (!!cp.search || (!!cp.company_id && String(cp.company_id) !== prev.company_id)); // 업체 바꾸기 → 새로 찾기 (저장 때 예전 저장분에서 옮김)
       if (prev && preview && !otherCo) {
         const pco = (cos || []).find((c: any) => c.id === prev!.company_id) || (await sb.from("companies").select("id,name").eq("id", prev.company_id).single()).data;
         const nx = await nextOf({ id: prev.company_id }, prev.id);
-        const isX = prev.state === "추가";
-        results.push({ ...out, status: "confirm", company: pco?.name, company_id: prev.company_id, saved_no: prev.round_no, saved_extra: isX, next: isX ? null : prev.round_no, last: nx.last, have: nx.have,
-          msg: `이미 ${prev.round_no ? prev.round_no + "회차" : "회차 없음"}${isX ? " 추가 명단" : ""}으로 저장됨 — 같은 회차로 저장하면 갱신, 다른 회차를 고르면 옮김` });
+        const isX = prev.state === "추가", isS = isX && /보충/.test(prev.round_label || "");
+        results.push({ ...out, status: "confirm", company: pco?.name, company_id: prev.company_id, saved_no: prev.round_no, saved_extra: isX, saved_sup: isS, next: isX ? null : prev.round_no, last: nx.last, have: nx.have,
+          msg: `이미 ${prev.round_no ? prev.round_no + "회차" : "회차 없음"}${isX ? (isS ? " 보충 명단" : " 추가 명단") : ""}으로 저장됨 — 같은 회차로 저장하면 갱신, 다른 회차를 고르면 옮김` });
         continue;
       }
       let moveFrom: any = null;
@@ -196,10 +197,10 @@ Deno.serve(async (req) => {
         if (prev.state === "추가") {
           await enrich(co, rows);
           const old = (await sb.from("roster").select("name,phone,post_url,cancelled").eq("round_id", prev.id)).data || [];
-          if (D.dl) await sb.from("rounds").update({ deadline: D.dl, teams: rows.length }).eq("id", prev.id);
+          await sb.from("rounds").update({ ...(D.dl ? { deadline: D.dl } : {}), teams: rows.length, round_label: `${prev.round_no}회차 ${XN}` }).eq("id", prev.id);
           const ins = await putRoster(prev.id, rows, old);
           if (ins.error) { results.push({ ...out, status: "error", company: co?.name, msg: "명단 저장 실패: " + ins.error.message }); continue; }
-          results.push({ ...out, cancelled: rows.filter((r: any) => r.cancelled).length, status: "updated", company: co?.name, round_no: prev.round_no, extra: true, deadline: D.dl, msg: `${prev.round_no}회차 추가 명단 갱신`, link: prev.recruit_on ? linkOf(prev.company_id, prev.recruit_on) : null });
+          results.push({ ...out, cancelled: rows.filter((r: any) => r.cancelled).length, status: "updated", company: co?.name, round_no: prev.round_no, extra: true, sup, deadline: D.dl, msg: `${prev.round_no}회차 ${XN} 명단 갱신`, link: prev.recruit_on ? linkOf(prev.company_id, prev.recruit_on) : null });
           continue;
         }
         const { count } = await sb.from("roster").select("id", { count: "exact", head: true }).eq("round_id", prev.id);
@@ -229,18 +230,22 @@ Deno.serve(async (req) => {
         // v8 추가 명단: 새 회차 없이 명단 있는 마지막 회차에 붙임 · 마감일 = 북마크 일정
         if (extra) {
           const nx = await nextOf(co, moveFrom?.id);
-          if (!nx.last) { results.push({ ...out, status: "error", company: co.name, msg: "명단 있는 회차가 없어 추가 명단을 붙일 수 없습니다 — 회차를 골라 저장하세요" }); continue; }
-          if (!D.dl) { results.push({ ...out, status: "error", company: co.name, msg: "북마크 일정에서 마감일을 찾지 못했습니다 — 리뷰노트 [일정 확인]에 마감일이 있는지 확인" }); continue; }
-          const { data: par } = await sb.from("rounds").select("id,cycle_on").eq("company_id", co.id).eq("round_no", nx.last).neq("state", "추가").order("cycle_on", { ascending: false, nullsFirst: false }).limit(1);
+          if (!nx.last) { results.push({ ...out, status: "error", company: co.name, msg: `명단 있는 회차가 없어 ${XN} 명단을 붙일 수 없습니다 — 회차를 골라 저장하세요` }); continue; }
+          if (!D.dl && !sup) { results.push({ ...out, status: "error", company: co.name, msg: "북마크 일정에서 마감일을 찾지 못했습니다 — 리뷰노트 [일정 확인]에 마감일이 있는지 확인" }); continue; }
+          const { data: par } = await sb.from("rounds").select("id,cycle_on,deadline").eq("company_id", co.id).eq("round_no", nx.last).neq("state", "추가").order("cycle_on", { ascending: false, nullsFirst: false }).limit(1);
           const pCycle = par?.[0]?.cycle_on || null;
+          // 보충 명단: 마감일이 없으면 그 회차 마감일(모집 회차 camp_tasks 마감 → 텍스트 회차 deadline)
+          let dl: string | null = D.dl;
+          if (!dl && pCycle) dl = (await sb.from("camp_tasks").select("due_on").eq("company_id", co.id).eq("cycle_on", pCycle).eq("step", "마감").maybeSingle()).data?.due_on || null;
+          if (!dl) dl = par?.[0]?.deadline || null;
           await enrich(co, rows);
           await releaseMove(); // 예전 저장분 연결을 먼저 풀어 rn_campaign_id가 한 행에만
-          const ins0 = await sb.from("rounds").insert({ company_id: co.id, cycle_on: null, recruit_on: pCycle, round_no: nx.last, round_label: `${nx.last}회차 추가`, state: "추가", teams: rows.length, deadline: D.dl, rn_campaign_id: rid, import_key: `add:${co.id}:${rid}`, memo: "추가 명단 (북마크)" }).select("id").single();
-          if (ins0.error) { results.push({ ...out, status: "error", company: co.name, msg: "추가 명단 저장 실패: " + ins0.error.message }); continue; }
+          const ins0 = await sb.from("rounds").insert({ company_id: co.id, cycle_on: null, recruit_on: pCycle, round_no: nx.last, round_label: `${nx.last}회차 ${XN}`, state: "추가", teams: rows.length, deadline: dl, rn_campaign_id: rid, import_key: `add:${co.id}:${rid}`, memo: `${XN} 명단 (북마크)` }).select("id").single();
+          if (ins0.error) { results.push({ ...out, status: "error", company: co.name, msg: `${XN} 명단 저장 실패: ` + ins0.error.message }); continue; }
           const ins = await putRoster(ins0.data.id, rows, moveOld);
           if (ins.error) { results.push({ ...out, status: "error", company: co.name, msg: "명단 저장 실패: " + ins.error.message }); continue; }
-          await sb.from("company_events").insert({ company_id: co.id, actor: k.user_id, kind: "system", body: `리뷰노트 추가 명단 ${rows.length}명 저장 (북마크 · ${nx.last}회차에 추가 · 마감 ${D.dl.slice(5)})` });
-          results.push({ ...out, cancelled: rows.filter((r: any) => r.cancelled).length, status: "saved", company: co.name, round_no: nx.last, extra: true, deadline: D.dl, applied: `추가 마감 ${+D.dl.slice(5, 7)}/${+D.dl.slice(8)}`, link: pCycle ? linkOf(co.id, pCycle) : null, msg: pCycle ? "" : `${nx.last}회차 추가 명단 저장 (모집일 없는 회차 — 전체 회차 명단에서 확인)` });
+          await sb.from("company_events").insert({ company_id: co.id, actor: k.user_id, kind: "system", body: `리뷰노트 ${XN} 명단 ${rows.length}명 저장 (북마크 · ${nx.last}회차에 ${XN}${dl ? " · 마감 " + dl.slice(5) : ""})` });
+          results.push({ ...out, cancelled: rows.filter((r: any) => r.cancelled).length, status: "saved", company: co.name, round_no: nx.last, extra: true, sup, deadline: dl, applied: dl ? `${XN} 마감 ${+dl.slice(5, 7)}/${+dl.slice(8)}` : "", link: pCycle ? linkOf(co.id, pCycle) : null, msg: pCycle ? "" : `${nx.last}회차 ${XN} 명단 저장 (모집일 없는 회차 — 전체 회차 명단에서 확인)` });
           continue;
         }
         if (wantNo) { const fc = await cycleForNo(co, wantNo, D); cycle = fc.cycle; if (cycle && fc.byDate) { const { data: tm } = await sb.from("camp_tasks").select("cycle_on").eq("company_id", co.id).eq("cycle_on", cycle).eq("step", "모집").maybeSingle(); if (!tm) await sb.from("camp_tasks").upsert({ company_id: co.id, cycle_on: cycle, step: "모집", due_on: cycle, skipped: false }, { onConflict: "company_id,cycle_on,step" }); } }
@@ -283,7 +288,7 @@ Deno.serve(async (req) => {
       results.push({ ...out, cancelled: rows.filter((r: any) => r.cancelled).length, status: prev || moveFrom ? "updated" : "saved", company: co.name + (roundNo ? "" : " · 회차 직접 입력"), round_no: roundNo, cycle, announce: ann, deadline, applied: applied.join(" · "), nick: rows.filter((r: any) => r.nickname).length, notes: rows.filter((r: any) => r.note).length, link: linkOf(co.id, cycle!) });
     }
     // v9: 예전 북마크(bm 없음)는 회차 드롭다운·'＋ 추가 명단 생성'이 없음 → 결과마다 다시 설치 안내 (예전 북마크도 msg는 그대로 보여 줌)
-    if (!(Number(body.bm) >= 9)) results.forEach((r) => { r.msg = "⚠ 예전 북마크입니다 — CRM 체험단 명단 탭 [리뷰노트 북마크 설치]로 다시 설치하면 '＋ 추가 명단 생성'이 나옵니다. " + (r.msg || ""); });
+    if (!(Number(body.bm) >= 10)) results.forEach((r) => { r.msg = "⚠ 예전 북마크입니다 — CRM 체험단 명단 탭 [리뷰노트 북마크 설치]로 다시 설치하면 '＋ 보충 명단'·취소 인원 가져오기가 됩니다. " + (r.msg || ""); });
     console.log("RN_IMPORT", admin.name, results.map((r) => `${r.id}:${r.status}`).join(" "));
     return json({ by: admin.name, results });
   } catch (e) {
