@@ -24,6 +24,17 @@
 - [메인 (기업·브랜드용)](https://www.muyi.co.kr/): 회사 소개, 전체 서비스, 문의 폼
 - [음식점·매장 숏폼 마케팅](https://www.muyi.co.kr/shortform-marketing): 릴스·쇼츠 기획·촬영·운영과 네이버 플레이스 연결 서비스 소개, 자주 묻는 질문
 - [마케팅 사례](https://www.muyi.co.kr/case-studies): SPC·CJ프레시웨이·COEX 등 7개 프로젝트의 과제·실행·채널
+- [업종별 마케팅 가이드](https://www.muyi.co.kr/local-business#guide): 소상공인 페이지 안의 업종별 섹션. 업종마다 무엇부터 해야 하는지, 진행 순서, 비용, 자주 묻는 질문
+  - [음식점·식당](https://www.muyi.co.kr/local-business#guide-restaurant) · [카페](https://www.muyi.co.kr/local-business#guide-cafe) · [미용실·네일](https://www.muyi.co.kr/local-business#guide-hair-salon) · [병원·한의원](https://www.muyi.co.kr/local-business#guide-clinic)
+  - [필라테스](https://www.muyi.co.kr/local-business#guide-pilates) · [학원](https://www.muyi.co.kr/local-business#guide-academy) · [프랜차이즈 매장](https://www.muyi.co.kr/local-business#guide-franchise) · [네이버 플레이스 상위노출](https://www.muyi.co.kr/local-business#guide-naver-place)
+- [숏폼 제작 비용](https://www.muyi.co.kr/shortform-marketing#cost): 매장 릴스·쇼츠 제작 단가, 비용을 정하는 요소, 맡기기 전 체크리스트
+
+## 비용
+
+- 무료 진단: 0원, 계약 의무 없음
+- 숏폼(릴스·쇼츠·틱톡) 제작: 20만 원부터. 무이 스튜디오 방문 촬영·편집, 편집본과 촬영 원본 제공
+- 매체 광고비: 업종·상권에 따라 대부분 월 10만 원대부터 (네이버·구글·메타에 직접 집행되는 금액)
+- 대행 수수료: 진단 후 채널·운영 범위에 따라 안내. 최소 계약 기간을 강요하지 않고 3개월 단위로 성과 점검
 
 
 ## 무료 매장 진단 (핵심 서비스)
