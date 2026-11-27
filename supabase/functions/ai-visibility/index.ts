@@ -266,8 +266,8 @@ Deno.serve(async (req) => {
   if (!todo.length) return json({ error: 'no engine to run', skipped }, 400);
   const offset = Math.max(0, Number(body.offset) || 0); // 이어서 실행(handOff)일 때만
   const week = /^\d{4}-\d{2}-\d{2}$/.test(String(body.week || '')) ? body.week : undefined;
-  // @ts-ignore EdgeRuntime: 응답 먼저 보내고 백그라운드 실행
   const snap = offset > 0 ? { qs: body.qs, model: body.model } : undefined; // 이어서 실행일 때만 넘겨받은 스냅샷 사용
+  // @ts-ignore EdgeRuntime: 응답 먼저 보내고 백그라운드 실행
   EdgeRuntime.waitUntil(Promise.all(todo.map((e) => run(sb, e, offset, week, snap))));
   return json({ started: todo, skipped, offset }, 202);
 });
