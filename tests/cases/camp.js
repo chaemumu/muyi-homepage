@@ -63,4 +63,15 @@ module.exports = [
       assert.deepEqual(p.errors, []); await p.context().close();
     },
   },
+  {
+    name: "④ 가이드: 지점 특이사항이 있어도 '~확인 사항' 머리 없음",
+    async run({ browser, base }) {
+      const data = { ...DATA, guidelines: [{ company_id: CO, kind: '체험단', body: '주차 가능, 월요일 휴무', fields: { title: '기본' }, created_at: '2026-11-26' }] };
+      const p = await adminPage(browser, base, { data, hash: '#calendar' });
+      await openCamp(p, ARGS); await tab(p, '블로거 가이드');
+      const msg = await p.locator('.ca-panel:not([hidden]) textarea.ca-msg').inputValue();
+      assert.match(msg, /주차 가능, 월요일 휴무/); assert.doesNotMatch(msg, /확인 사항/);
+      assert.deepEqual(p.errors, []); await p.context().close();
+    },
+  },
 ];
