@@ -226,6 +226,8 @@
 .ca-sname{width:auto!important;max-width:200px;height:28px;font-size:12px}
 .ca-info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.ca-info .wide{grid-column:span 2}
 @media (max-width:720px){.ca-info{grid-template-columns:1fr}.ca-info .wide{grid-column:auto}}
+/* 모바일(≤720px): 긴 업체명·머리 버튼이 가로로 넘치지 않게 — 1줄 업체명+✕, 2줄 회차·버튼 */
+@media (max-width:720px){.ca-head{padding:12px 14px}.ca-title{flex-wrap:wrap;gap:8px}.ca-title h3{flex:1 1 calc(100% - 48px);min-width:0;font-size:16px;overflow-wrap:anywhere}.ca-title>*{order:2;flex:none}.ca-title>h3{order:0}.ca-title>.icon-btn{order:1}.ca-extra{display:flex;flex-wrap:wrap;gap:6px;min-width:0}.ca-steps{padding:0 8px}.memo-side{min-width:0}.memo-side .ca-sec .ca-when{white-space:normal;overflow-wrap:anywhere}.ca-foot{flex-wrap:wrap;padding:10px 14px}}
 .ca-head{display:grid;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line)}
 .ca-title{display:flex;align-items:center;gap:10px}
 .ca-title h3{font-size:18px;font-weight:800;letter-spacing:-.02em;margin-right:auto}

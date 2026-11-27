@@ -26,6 +26,7 @@
 .cal-seg{display:inline-flex;gap:2px;padding:3px;background:var(--muted);border-radius:10px}
 .cal-seg button{height:32px;padding:0 14px;border:0;border-radius:8px;background:none;font-weight:600;font-size:13px;color:var(--t2)}
 .cal-seg button.on{background:var(--surface);color:var(--t1);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+@media (max-width:720px){.cal-seg{display:flex;flex-wrap:wrap;max-width:100%}.cal-seg button{white-space:nowrap;padding:0 10px}}
 .cal-month{display:inline-flex;align-items:center;gap:4px;margin-left:auto}
 .cal-mbar{position:sticky;top:56px;z-index:4;display:flex;align-items:center;justify-content:center;gap:6px;height:44px;background:var(--surface);border-bottom:1px solid var(--line);border-radius:var(--r-lg) var(--r-lg) 0 0}
 .cal-mbar b{min-width:100px;text-align:center;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
@@ -1129,7 +1130,7 @@
     const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), expandBtn, setBtn, campBtn]);
     return [tools, await board, el('div', { className: 'stack' }, [el('div', { className: 'card cal-card' }, [monthBar(), grid]), list])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=29');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=30');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   const pickCamp = (evs, cfg, rn) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg, rn)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
