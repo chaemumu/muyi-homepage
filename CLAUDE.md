@@ -177,6 +177,68 @@ UX:
 
 ---
 
+## 사이트 취지 · 성장 규칙 (2026-11-27)
+
+> 무이 홈페이지 = **완성도 높은 마케팅 회사 사이트 + 광고 랜딩 + AI/검색 노출 자산.**
+> 판단 기준: ① 더 많은 타겟에 도달하는가 ② 방문자가 문의로 전환되는가 ③ 검색·AI가 '무이'를 인용하는가.
+
+### 페이지 지도 (`vercel.json` cleanUrls 대체 = rewrites)
+| 경로 | 타겟 | 색인 |
+|---|---|---|
+| `/` index | 전체·브랜드 | index |
+| `/local-business` | 소상공인(구글·메타 광고 랜딩) | index |
+| `/shortform-marketing` | 숏폼 제작 의뢰 | index |
+| `/b2b-marketing` | 기업 | index |
+| `/case-studies` | 사례(신뢰) | index |
+| `/public-sector` · `/brochure` · `/expo-event` · `/brand` · `/admin` | 준비 중·내부 | noindex |
+- 새 페이지 = 단일 HTML(빌드 없음) + `vercel.json` rewrite/redirect(.html → 깔끔한 주소) + sitemap + llms.txt 링크까지 한 번에
+- DEV RULE의 'index.html 단일 파일'은 "페이지마다 단일 HTML, 외부 빌드·프레임워크 없음"으로 적용
+- 개발용 폴더(`awesome-design-md-main`, `playwright-mcp`, `todo.md` 등)는 `.vercelignore`에 넣어 사이트 공개 방지
+
+### 섹션 구조 (모든 랜딩 공통)
+Hero(한 줄 가치 + CTA) → 신뢰(숫자·로고·후기) → 서비스(흐름) → 사례(전/후 수치) → CTA(폼)
+- 첫 화면에 CTA 1개 이상, 섹션마다 하단 CTA, 모바일은 하단 고정 CTA
+- 수치는 실제 데이터만(출처·기간 명시). 지어낸 숫자·후기 금지
+
+### SEO · GEO · AEO 체크리스트 (페이지 추가·수정 때마다)
+- [ ] `<title>`(32자 내, 핵심어 앞) · `meta description`(80~120자) · `canonical`(www, 깔끔한 주소) · `robots`
+- [ ] OG/Twitter(이미지 1200×630 `assets/og/`) · `lang="ko"` · h1 1개 · 이미지 `alt`·`width/height`
+- [ ] JSON-LD: Organization/LocalBusiness·WebPage·Service·FAQPage·BreadcrumbList, `@id`로 서로 연결(사이트 공통 `#org`)
+- [ ] FAQ = 실제 검색 질문형("~비용 얼마", "~어디가 좋아") + 첫 문장에 바로 답(AEO). 화면 FAQ와 JSON-LD 내용 일치
+- [ ] 회사 정체성 문장 고정: "무이(MUYI, 무이코퍼레이션)" — 비슷한 이름(mwicorp 등)과 섞이지 않게 정식 명칭·주소·사업자 정보 일관
+- [ ] `sitemap.xml` lastmod를 수정한 날짜로 갱신, noindex 페이지는 sitemap에서 빼기
+- [ ] `llms.txt` = 회사 요약·서비스·페이지 링크·FAQ 요약 최신화 · `robots.txt` AI 크롤러 허용 유지(차단 금지)
+- [ ] 배포 후 IndexNow(Bing·네이버) 전송 + 서치어드바이저·서치콘솔 확인
+- [ ] AI 노출은 문의함 'AI 노출'(`ai-visibility`, 매주 월) 결과로 판단 → 0인 질문에 맞는 페이지·FAQ 보강
+- 확장 우선순위: 업종별 랜딩(카페·미용실·병원·필라테스/학원·프랜차이즈·플레이스) · 숏폼 비용 가이드 · 사례 성과 수치
+
+### 광고 랜딩 규칙
+- UTM(`utm_source/medium/campaign/term/content`)·`gclid`·`fbclid`는 첫 방문에 저장 → 폼 전송에 같이 보냄(local-business 방식 재사용)
+- 전환: GA4 `G-GMHE5GQDBV` · 구글 광고 `AW-11170573795/eEDoCKW5_rkdEOPbxc4p` · 메타 픽셀 + CAPI(`contact` 함수, 같은 `event_id`로 중복 제거)
+- 전환은 **폼 성공 응답 후에만** 발화(클릭·제출 시점 금지)
+- 광고 랜딩은 이탈 링크 최소화(상단 메뉴 축소), 폼 필드 최소(이름·연락처·문의), 로딩·성공·실패 재시도 UX
+- 폼은 `fetch('/functions/v1/contact')` 유지(장애 감지 조건) — 아래 '장애 감지' 참고
+
+### 품질 · 디테일 점검 (PR 전 필수)
+- [ ] 모바일 360px·태블릿·데스크톱: 가로 스크롤 없음, 글자 잘림·겹침 없음, 터치 영역 44px
+- [ ] 성능: LCP 이미지 `fetchpriority="high"`·나머지 `loading="lazy"`, webp, 폰트 `display=swap`, Three.js는 화면 밖에서 정지
+- [ ] `prefers-reduced-motion`이면 큰 애니메이션 끔 · 콘솔 오류 0 · 깨진 링크·404 이미지 0
+- [ ] 폼: 성공·실패·중복 클릭·빈 값·전화번호 형식 확인, 전환 태그 1회만 발화
+- [ ] 접근성: 대비(본문 4.5:1), 버튼에 이름, 키보드 포커스 보임
+- [ ] `node tests/run.js` 통과 (관련 파일만이면 `node tests/run.js <이름>`)
+
+### 작업 규칙
+- 요청한 부분만 수정, 구조 유지. 무관한 리팩터링 금지
+- 외부 라이브러리 추가 금지(Three.js r128·GSAP 3.12.2 외). 완성된 동작 코드만(임시·가짜 기능 금지)
+- 토큰 절약: 큰 HTML은 `grep -n`으로 위치 찾고 필요한 범위만 읽기, 같은 테스트 반복 실행 금지
+- 수정 결과는 "도달·전환·인용" 중 무엇이 좋아지는지 한 줄로 보고
+
+### 현재 알려진 이슈 (2026-11-27 점검)
+- IndexNow 미구현 · noindex 페이지 4개(brand·expo-event·admin·navercf…)는 description 없음(색인 안 돼 영향 없음)
+- 2026-11-27 정리: sitemap lastmod를 실제 수정일로 갱신, 개발용 폴더 `.vercelignore` 추가
+
+---
+
 ## 운영 · 연동 (실제 구성 — 2026-11-12 기준)
 
 > **영업 관리는 문의함(`/admin`) 하나로 한다.** 예전 MUYI CRM(`chaemumu/muyi-crm`, Supabase `npkpxlbcwmwlxqauevyv`)은
