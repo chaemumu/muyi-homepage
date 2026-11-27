@@ -1,0 +1,38 @@
+{
+  "assets/crm-accounts.js": {
+    "v": 3,
+    "hash": "1c069e21754d0a15"
+  },
+  "assets/crm-ai.js": {
+    "v": 1,
+    "hash": "d52436b42f4610cb"
+  },
+  "assets/crm-calendar.js": {
+    "v": 48,
+    "hash": "12b74b0cc2def466"
+  },
+  "assets/crm-camp.js": {
+    "v": 32,
+    "hash": "775fc8683c0c4fe0"
+  },
+  "assets/crm-companies.js": {
+    "v": 11,
+    "hash": "a5a28cb5ec9bade1"
+  },
+  "assets/crm-import.js": {
+    "v": 3,
+    "hash": "0b9ced6bc71725e6"
+  },
+  "assets/crm-settle.js": {
+    "v": 5,
+    "hash": "23d7413856692201"
+  },
+  "assets/crm-sms.js": {
+    "v": 4,
+    "hash": "dd96fdf94d6a5982"
+  },
+  "assets/muyi-monitor.js": {
+    "v": 2,
+    "hash": "369400b2a2b0b652"
+  }
+}

@@ -2,3 +2,12 @@
 supabase
 tests
 scripts
+# 내부 문서·개발 파일 (2026-11-27: 사이트에서 그대로 열리던 것 차단 — 직원 이름·정산 비율·함수 구조 노출)
+CLAUDE.md
+README.md
+todo.md
+_server.js
+backup
+awesome-design-md-main
+playwright-mcp
+.github

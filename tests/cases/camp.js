@@ -104,4 +104,16 @@ module.exports = [
       assert.deepEqual(p.errors, []); await p.context().close();
     },
   },
+  {
+    name: '회차 명단: 1,000명 넘는 회차도 인원 전부 셈 (1,000줄씩 이어 읽기)',
+    async run({ browser, base }) {
+      const big = Array.from({ length: 1200 }, (_, i) => ({ id: 'b' + i, round_id: 'r0', nickname: 'N' + i }));
+      const data = { ...DATA, rounds: [...DATA.rounds, { id: 'r0', company_id: CO, round_no: 2, round_label: '2', cycle_on: '2026-10-10', recruit_on: '2026-10-10', state: '완료', import_key: null }], roster: [...DATA.roster, ...big] };
+      const p = await adminPage(browser, base, { data, hash: '#calendar' });
+      await openCamp(p, ARGS); await tab(p, '명단'); await p.waitForTimeout(500);
+      const opts = await p.$$eval('select.fi option', (os) => os.map((o) => o.textContent));
+      assert.ok(opts.some((t) => /^2회차 .*1200명/.test(t)), JSON.stringify(opts.filter((t) => /^2회차/.test(t))));
+      assert.deepEqual(p.errors, []); await p.context().close();
+    },
+  },
 ];
