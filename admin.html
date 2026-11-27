@@ -668,7 +668,7 @@ async function start() {
     return;
   }
   me = session.user.id;
-  sb.rpc('is_master').then(({ data }) => { $('navImport').hidden = !data; $('navSettle').hidden = !data; $('navAccounts').hidden = !data; if (data) refreshSettleBadge(); });
+  sb.rpc('is_master').then(({ data }) => { isMaster = !!data; $('navImport').hidden = !data; $('navSettle').hidden = !data; $('navAccounts').hidden = !data; if (data) { refreshSettleBadge(); const h = location.hash.slice(1); if (MASTER_PAGES.includes(h) && page !== h) showPage(h, { push: false }); } });
   $('meEmail').textContent = session.user.email;
   $('login').hidden = true; $('app').hidden = false;
   const hadLead = !!deepLead;
@@ -1264,8 +1264,12 @@ setInterval(() => { if (me && !$('navSettle').hidden && document.visibilityState
 // ── 화면 이동 = 주소(#today · #inbox · #leads · #clients · #co-업체ID). 새로고침·뒤로가기·링크 공유가 그대로 동작 ──
 const PAGES = ['today', 'inbox', 'calendar', 'leads', 'clients', 'perf', 'ai', 'settle', 'import', 'accounts'];
 let page = 'today';
+// 마스터 전용 화면(정산·가져오기·계정 관리): 메뉴만 숨기면 주소(#settle 등)로 열 수 있었음 → 마스터 확인 전엔 오늘 할 일로 (확인되면 그 화면으로 다시 이동)
+const MASTER_PAGES = ['settle', 'import', 'accounts'];
+let isMaster = false;
 function showPage(p, { push = true } = {}) {
   if (!PAGES.includes(p)) p = 'today';
+  if (MASTER_PAGES.includes(p) && !isMaster) { p = 'today'; push = false; }
   if (window.CRM_COMPANIES?.guard && !window.CRM_COMPANIES.guard()) return;
   page = p;
   if (push && location.hash !== '#' + p) history.pushState(null, '', '#' + p);

@@ -6,6 +6,7 @@
 (function () {
   window.__writes = [];
   const DATA = () => window.__SB_DATA || {};
+  window.__SB_RPC = (window.__SB_DATA || {}).__rpc;
   let nid = 0;
   const MAX_ROWS = 1000;
   function q(table) {
@@ -46,7 +47,7 @@
     createClient() {
       return {
         auth: { getSession: async () => ({ data: { session } }), getUser: async () => ({ data: { user } }), onAuthStateChange() { return { data: { subscription: { unsubscribe() {} } } }; }, signOut: async () => ({}), signInWithPassword: async () => ({}) },
-        rpc: (n) => Promise.resolve({ data: /^is_/.test(n) ? true : [], error: null }), // is_admin · is_master = true
+        rpc: (n) => Promise.resolve({ data: (window.__SB_RPC || {})[n] ?? (/^is_/.test(n) ? true : []), error: null }), // is_admin · is_master = true (__SB_DATA.__rpc로 바꿀 수 있음)
         from: (t) => q(t),
         functions: { invoke: async (n, o) => { (window.__fn = window.__fn || []).push({ n, body: o && o.body }); return { data: { nick: {}, notes: {}, posts: {} }, error: null }; } },
         storage: { from: () => q('__storage') },
