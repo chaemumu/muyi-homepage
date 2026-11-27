@@ -15,6 +15,8 @@ import Anthropic from "npm:@anthropic-ai/sdk@0.68";
 //      달력은 그 마감일에 '추가' 마감 칩으로 표시(crm-calendar campEvents)
 // v9(2026-11-27): 북마크 버전(bm) — 새 북마크는 bm:9를 보냄. bm 없는 예전 북마크(회차 입력칸, '추가 명단 생성' 없음)면 결과 msg 앞에 '다시 설치' 안내
 // v10(2026-11-27): sup:true(extra와 함께) = 보충 명단 — 추가 명단과 같은 저장(state '추가', 회차 안 늘림)인데 이름 'N회차 보충', 마감일이 없으면 그 회차 마감일. 취소 상태 글자 넓힘(취소·포기·cancel·drop·withdraw·give up). bm<10이면 다시 설치 안내
+// v11(2026-11-27): 회차 자동 +1 — 확인 창 기본값 = max(명단 있는 마지막 회차 + 1, 모집 달력 최근 회차(완료·명단 있으면 +1)), 상한 없음.
+//   새 명단 저장 = 그 모집 회차 label = 회차 · phase '모'(모집 중). 고른 모집 회차가 이미 다른 번호면 덮지 않고 다음 회차로. 회차 번호 규칙은 달력 fillRounds와 같게(지난 모집 label 기준점 · 직접 추가 회차 포함)
 // 같은 캠페인은 rounds.rn_campaign_id로 한 번만: 인원이 같으면 건너뜀(same), 바뀌었으면 글 링크를 지키며 갱신(updated).
 const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "content-type", "Access-Control-Allow-Methods": "POST, OPTIONS" };
 const json = (b: unknown, status = 200) => new Response(JSON.stringify(b), { status, headers: { ...cors, "Content-Type": "application/json" } });
@@ -110,18 +112,37 @@ Deno.serve(async (req) => {
       const cand = [...cyclesIn(co, addDays(rs, -12), addDays(rs, 12)), ...(tk || []).filter((t: any) => !t.skipped).map((t: any) => t.cycle_on)].filter((c) => !skip.has(c));
       return cand.sort((a, b) => dd(a, rs) - dd(b, rs))[0] || null;
     };
-    // 회차 번호 = 모집 달력과 같은 규칙: 모집 label > 이 회차 rounds > 지난 명단 회차 + 그 뒤 모집 수 > 끝난 회차 기준점 + 그 뒤 모집 수
+    // 회차 번호 = 모집 달력과 같은 규칙(crm-calendar fillRounds): 모집 label > 이 회차 rounds > 지난 기준점(모집 label·명단 회차) + 그 뒤 모집 수 > 끝난 회차 기준점 + 그 뒤 모집 수
+    //  v11: 지난 모집 label도 기준점 · 직접 추가한 모집 회차도 모집 수에 (달력과 같은 번호)
+    const recTasks = async (co: any) => ((await sb.from("camp_tasks").select("cycle_on,label,phase,skipped").eq("company_id", co.id).eq("step", "모집").limit(2000)).data || []) as any[];
+    const isRegular = (co: any, c: string) => (co.recruit_days || []).map(Number).filter(Boolean).some((d: number) => { const [y, m] = c.split("-").map(Number); return Math.min(d, new Date(Date.UTC(y, m, 0)).getUTCDate()) === +c.slice(8); });
     const roundOf = async (co: any, cycle: string, cur: any, byDate = false) => {
-      const { data: t } = await sb.from("camp_tasks").select("label").eq("company_id", co.id).eq("cycle_on", cycle).eq("step", "모집").maybeSingle();
+      const tk = await recTasks(co);
+      const t = tk.find((x) => x.cycle_on === cycle);
       if (t?.label === "-") return null;
       if (/^\d+$/.test(t?.label || "")) return +t!.label;
       if (cur?.round_no) return cur.round_no;
       if (byDate) return null; // 모집일 규칙 밖 회차 = 자동 번호 없음 → 직접 입력
       const { data: pr } = await sb.from("rounds").select("round_no,cycle_on").eq("company_id", co.id).lt("cycle_on", cycle).not("round_no", "is", null).order("cycle_on", { ascending: false }).limit(1);
-      const n = (a: string) => cyclesIn(co, addDays(a, 1), cycle).length;
-      if (pr?.[0]) return pr[0].round_no + Math.max(1, n(pr[0].cycle_on));
+      const lb = tk.filter((x) => !x.skipped && x.cycle_on < cycle && /^\d+$/.test(x.label || "")).sort((a, b) => b.cycle_on.localeCompare(a.cycle_on))[0];
+      const anchor = lb && (!pr?.[0] || lb.cycle_on >= pr[0].cycle_on) ? { round_no: +lb.label, cycle_on: lb.cycle_on } : pr?.[0];
+      const adhoc = tk.filter((x) => !x.skipped && !isRegular(co, x.cycle_on)).map((x) => x.cycle_on);
+      const n = (a: string) => new Set([...cyclesIn(co, addDays(a, 1), cycle), ...adhoc.filter((c) => c > a && c <= cycle)]).size;
+      if (anchor) return anchor.round_no + Math.max(1, n(anchor.cycle_on));
       if (co.camp_round_done != null && co.camp_round_cycle && co.camp_round_cycle <= cycle) return co.camp_round_done + n(co.camp_round_cycle);
       return null;
+    };
+    // 모집 달력 기준 다음 회차 (v11): 오늘(+3일)까지 가장 최근 모집 회차의 번호 — 그 회차가 '완'(모집 완료)이거나 명단이 있으면 +1, 아니면 그 회차
+    const calNext = async (co: any) => {
+      const tk = await recTasks(co), skip = new Set(tk.filter((x) => x.skipped).map((x) => x.cycle_on)), lim = addDays(today, 3);
+      const cands = [...cyclesIn(co, addDays(today, -62), lim), ...tk.filter((x) => !x.skipped && x.cycle_on <= lim && x.cycle_on >= addDays(today, -62)).map((x) => x.cycle_on)].filter((c) => !skip.has(c)).sort();
+      const L = cands[cands.length - 1]; if (!L) return null;
+      const no = await roundOf(co, L, null); if (!no) return null;
+      const t = tk.find((x) => x.cycle_on === L);
+      const { data: r } = await sb.from("rounds").select("id").eq("company_id", co.id).eq("cycle_on", L).neq("state", "추가").limit(1);
+      const has = r?.[0] ? ((await sb.from("roster").select("id", { count: "exact", head: true }).eq("round_id", r[0].id)).count || 0) > 0 : false;
+      const done = t?.phase === "완" || has;
+      return { cycle: L, no, phase: t?.phase || null, next: done ? no + 1 : no };
     };
 
     // 명단 없는 다음 회차: 이 업체 회차 중 명단이 있는 것(모집일 회차 + 마지막 계약 텍스트 회차)의 가장 큰 번호 + 1
@@ -142,9 +163,27 @@ Deno.serve(async (req) => {
       if (r1?.[0]?.cycle_on) return { cycle: r1[0].cycle_on, byDate: false };
       const { data: t1 } = await sb.from("camp_tasks").select("cycle_on").eq("company_id", co.id).eq("step", "모집").eq("label", String(n)).order("cycle_on", { ascending: false }).limit(1);
       if (t1?.[0]?.cycle_on) return { cycle: t1[0].cycle_on, byDate: false };
+      const cn = await calNext(co); // 모집 달력 최근 회차가 바로 그 번호(아직 명단 없음·완료 아님)면 거기
+      if (cn && cn.no === n && cn.next === n) return { cycle: cn.cycle, byDate: false };
       let c = D.rs ? await nearCycle(co, D.rs) : null, bd = false;
       if (!c && D.rs) { c = D.rs; bd = true; }
       if (!c) c = lastCycle(co);
+      // v11: 고른 모집 회차가 이미 다른 회차 번호(모집 label 또는 명단 있는 회차)면 덮어쓰지 않고 다음 회차로
+      //  → 캠페인 모집 시작일(그 회차 뒤일 때) > 그 뒤 첫 매월 모집일(60일 안) > 오늘 (직접 추가 회차)
+      const taken = async (x: string) => {
+        const { data: t } = await sb.from("camp_tasks").select("label,skipped").eq("company_id", co.id).eq("cycle_on", x).eq("step", "모집").maybeSingle();
+        if (t?.skipped) return true;
+        if (/^\d+$/.test(t?.label || "") && +t!.label !== n) return true;
+        const { data: r } = await sb.from("rounds").select("id,round_no").eq("company_id", co.id).eq("cycle_on", x).neq("state", "추가").limit(1);
+        if (!r?.[0] || r[0].round_no === n) return false;
+        return ((await sb.from("roster").select("id", { count: "exact", head: true }).eq("round_id", r[0].id)).count || 0) > 0;
+      };
+      if (c && await taken(c)) {
+        const occ = c; c = null; bd = false;
+        if (D.rs && D.rs > occ && !(await taken(D.rs))) { c = D.rs; bd = !isRegular(co, D.rs); }
+        if (!c) for (const x of cyclesIn(co, addDays(occ, 1), addDays(occ, 60))) if (!(await taken(x))) { c = x; break; }
+        if (!c) { c = today > occ ? today : addDays(occ, 1); bd = true; }
+      }
       return { cycle: c, byDate: bd };
     };
     // 닉네임 · AI 특이사항
@@ -226,7 +265,14 @@ Deno.serve(async (req) => {
           else { results.push({ ...out, status: "pick", msg: ranked.length ? "어느 업체인지 골라주세요" : "제목과 맞는 업체가 없습니다 (CRM 등록·모집일 확인)", candidates: (top.length ? top : ranked).slice(0, 6).map((x: any) => ({ id: x.c.id, name: x.c.name })) }); continue; }
         }
         if (!co) { results.push({ ...out, status: "pick", msg: "업체를 찾지 못했습니다", candidates: [] }); continue; }
-        if (preview) { const nx = await nextOf(co); results.push({ ...out, status: "confirm", company: co.name, company_id: co.id, next: nx.next, last: nx.last, have: nx.have, msg: nx.last ? `명단 있는 마지막 회차 ${nx.last}회차 → 다음 ${nx.next}회차` : "명단 있는 회차 없음 — 회차를 입력하세요" }); continue; }
+        if (preview) {
+          // v11: 기본 회차 = 명단 있는 마지막 회차 + 1 과 모집 달력 최근 회차(완료·명단 있으면 +1) 중 큰 값 — 상한 없음
+          const nx = await nextOf(co), cn = await calNext(co);
+          const next = Math.max(nx.next || 0, cn?.next || 0) || null;
+          const calMsg = cn ? `모집 달력 ${cn.no}회차${cn.phase === "완" ? "(완료)" : cn.phase === "모" ? "(모집 중)" : ""}` : "";
+          const msg = next ? `${[nx.last ? `명단 있는 마지막 ${nx.last}회차` : "", calMsg].filter(Boolean).join(" · ")} → 이번 ${next}회차 (저장하면 모집 달력 ${next}회차 · 모집 중으로)` : "명단 있는 회차 없음 — 회차를 입력하세요";
+          results.push({ ...out, status: "confirm", company: co.name, company_id: co.id, next, last: nx.last, have: nx.have, cal: cn, msg }); continue;
+        }
         // v8 추가 명단: 새 회차 없이 명단 있는 마지막 회차에 붙임 · 마감일 = 북마크 일정
         if (extra) {
           const nx = await nextOf(co, moveFrom?.id);
@@ -275,7 +321,15 @@ Deno.serve(async (req) => {
       // 회차 저장
       const forcedNo = !prev && wantNo ? wantNo : null;
       const roundNo = forcedNo || await roundOf(co, cycle!, round, byDate);
-      if (forcedNo) { const { data: tl } = await sb.from("camp_tasks").select("id").eq("company_id", co.id).eq("cycle_on", cycle).eq("step", "모집").maybeSingle(); if (tl) await sb.from("camp_tasks").update({ label: String(forcedNo) }).eq("id", tl.id); else await sb.from("camp_tasks").insert({ company_id: co.id, cycle_on: cycle, step: "모집", due_on: cycle, label: String(forcedNo) }); } // 모집 달력 회차도 그 번호로
+      // 모집 달력 회차도 그 번호로 + v11: 새 명단이 들어온 회차 = '모'(모집 중) — 예전 회차가 '완'이어도 다음 회차는 모집 중으로 바뀜
+      //  (같은 캠페인 갱신(prev)은 진행 상태를 건드리지 않음. 이 회차가 이미 같은 번호로 '완'이면 그대로)
+      if (forcedNo || (!prev && roundNo)) {
+        const { data: tl } = await sb.from("camp_tasks").select("id,label,phase").eq("company_id", co.id).eq("cycle_on", cycle).eq("step", "모집").maybeSingle();
+        const lb = forcedNo ? String(forcedNo) : tl?.label || String(roundNo);
+        const ph = tl?.phase === "완" && tl?.label === lb ? "완" : "모";
+        if (tl) await sb.from("camp_tasks").update({ label: lb, phase: ph }).eq("id", tl.id); else await sb.from("camp_tasks").insert({ company_id: co.id, cycle_on: cycle, step: "모집", due_on: cycle, label: lb, phase: ph });
+        if (ph === "모") applied.push(`모집 달력 ${lb}회차 · 모집 중`);
+      }
       const rowR = { company_id: co.id, cycle_on: cycle, round_no: roundNo, round_label: roundNo ? String(roundNo) : null, teams: co.camp_teams || rows.length, recruit_on: cycle, deadline, state: "진행", rn_campaign_id: rid };
       await releaseMove(); // 예전 저장분(다른 회차)에서 캠페인 연결을 먼저 풀어야 rn_campaign_id 중복 없이 저장됨
       const saved = round ? (await sb.from("rounds").update(rowR).eq("id", round.id).select("id").single()) : (await sb.from("rounds").insert(rowR).select("id").single());

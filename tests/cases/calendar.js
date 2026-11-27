@@ -139,4 +139,19 @@ module.exports = [
       assert.deepEqual(p.errors, []); await p.context().close();
     },
   },
+  {
+    name: '회차 연동: 화면 밖 지난 모집 회차 label이 기준점 → 이번 달 모집·마감 칩 같은 번호',
+    async run({ browser, base }) {
+      const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 2); const old = d.toISOString().slice(0, 8) + '05';
+      const p = await adminPage(browser, base, { hash: '#calendar', data: {
+        companies: [{ id: 'c1', name: '연동 지점', stage: '결제', run_status: '진행 중', service_type: '체험단 패키지', recruit_days: [5] }],
+        camp_tasks: [{ company_id: 'c1', cycle_on: old, step: '모집', due_on: old, label: '12', phase: '완' }],
+      } });
+      await p.waitForTimeout(1200);
+      await p.locator('.cal-seg button', { hasText: /^모집/ }).first().click(); await p.waitForTimeout(1500);
+      const chips = await p.$$eval('.cc', (cs) => cs.map((c) => c.innerText.replace(/\n/g, ' ')));
+      assert.ok(chips.some((t) => /연동 지점/.test(t) && /\b14\b/.test(t)), '이번 달 모집 = 12 + 2 = 14: ' + JSON.stringify(chips));
+      assert.deepEqual(p.errors, []); await p.context().close();
+    },
+  },
 ];
