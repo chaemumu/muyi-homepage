@@ -270,7 +270,7 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 .todo-row .due.over{color:var(--red)}
 .todo-row .btn{height:28px;justify-content:center}
 .todo-empty{padding:16px;color:var(--t3);font-size:13px;text-align:center}
-@media (max-width:900px){.todo-row{grid-template-columns:1fr auto;row-gap:4px}.todo-row .memo{grid-column:1/-1}.todo-row>:nth-child(4),.todo-row .btn{display:none}}
+@media (max-width:900px){.todo-row{grid-template-columns:minmax(0,1fr) auto;row-gap:4px}.todo-row .memo{grid-column:1/-1}.todo-row>:nth-child(4),.todo-row .btn{display:none}}
 
 /* 광고 성과 */
 .seg-tabs{display:inline-flex;background:var(--muted);border-radius:var(--r);padding:2px;gap:2px}
@@ -291,7 +291,7 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
 .tbl.perf td{font-variant-numeric:tabular-nums}
 .tbl.perf tr.camp td{font-weight:600;color:var(--t1);background:var(--surface-2)}
 .tbl.perf tr.ad td:first-child{padding-left:32px}
-.stack{display:grid;gap:12px}
+.stack{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
 
 .toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,8px);background:var(--t1);color:var(--surface);padding:8px 14px;border-radius:var(--r);font-weight:500;opacity:0;transition:all .2s;pointer-events:none;z-index:2000;box-shadow:var(--sh-pop)}
 .toast.show{opacity:1;transform:translate(-50%,0)}
@@ -318,7 +318,9 @@ select.fi{appearance:none;padding-right:28px;background:var(--surface) url("data
   .pg{padding:12px 16px 32px}
   .add-form,.panel{grid-template-columns:1fr}
   .panel-r{position:static}
-  .kpi-row{grid-template-columns:1fr 1fr}
+  .kpi-row,.kpi-row.five{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpi{min-width:0;padding:12px}
+  .kpi-sub{overflow-wrap:anywhere}
   .alert{margin-left:0}
 }
 
@@ -1273,10 +1275,10 @@ function showPage(p, { push = true } = {}) {
   PAGES.forEach((k) => { $('pg-' + k).hidden = k !== p; });
   if (p === 'leads' || p === 'clients') {
     const go = () => window.CRM_COMPANIES.mount($('pg-' + p), p);
-    if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=11'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
+    if (window.CRM_COMPANIES) go(); else { const x = document.createElement('script'); x.src = '/assets/crm-companies.js?v=12'; x.onload = go; x.onerror = () => toast('업체 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
   }
   if (p === 'today') renderToday();
-  if (p === 'calendar') loadScript('/assets/crm-calendar.js?v=42').then(() => window.CRM_CALENDAR.mount($('calBody'))).catch(() => toast('캘린더를 불러오지 못했습니다'));
+  if (p === 'calendar') loadScript('/assets/crm-calendar.js?v=43').then(() => window.CRM_CALENDAR.mount($('calBody'))).catch(() => toast('캘린더를 불러오지 못했습니다'));
   if (p === 'settle') {
     const go = () => window.CRM_SETTLE.mount($('settleBody'));
     if (window.CRM_SETTLE) go(); else { $('settleBody').replaceChildren(el('div', { className: 'hint', text: '불러오는 중…' })); const x = document.createElement('script'); x.src = '/assets/crm-settle.js?v=5'; x.onload = go; x.onerror = () => toast('정산 화면을 불러오지 못했습니다'); document.head.appendChild(x); }
@@ -1353,7 +1355,7 @@ async function loadTodayCompanies() {
     };
     // 체험단 일정(오늘 + 밀린 것)과 실행 소진·수량 입력 알림은 캘린더 모듈이 계산
     try {
-      await loadScript('/assets/crm-calendar.js?v=42');
+      await loadScript('/assets/crm-calendar.js?v=43');
       const [camp, ex] = await Promise.all([window.CRM_CALENDAR.todayCamp(), window.CRM_CALENDAR.execAlerts()]);
       todayCo.recruit = camp.ev.sort((a, b) => a.due.localeCompare(b.due)).map((e) => ({ co: e.co, e, toggle: camp.toggle }));
       todayCo.exec = ex;

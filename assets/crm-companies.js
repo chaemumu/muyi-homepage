@@ -253,6 +253,14 @@ tbody.busy{opacity:.45;transition:opacity .12s;pointer-events:none}
   .co-seg .seg-b{flex:1;justify-content:center;padding:0 8px}
   .nv-row{grid-template-columns:18px 60px 1fr}
   .nv-row .old,.nv-row>span:nth-child(4){display:none}
+  /* 업체 상세 머리: 업체명 1줄 전체 + 버튼 다음 줄, 탭·단축키는 줄바꿈 없이 */
+  .dr-h{padding:12px 14px 0}
+  .dr-top{flex-wrap:wrap}
+  .dr-top h2{flex:1 1 calc(100% - 48px);min-width:0;overflow-wrap:anywhere}
+  .dr-top>*{order:2}.dr-top>h2{order:0}.dr-top>.icon-btn{order:1}
+  .dr-tabs{overflow-x:auto;scrollbar-width:none}
+  .dr-tabs button{flex:none;white-space:nowrap}
+  .dr-keys{display:none}
 }
 `;
     document.head.appendChild(st);
