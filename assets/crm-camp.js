@@ -749,7 +749,7 @@ textarea.ca-g.sm{min-height:100px}
     const [ros, exQ, lbQ] = await Promise.all([
       round ? sb.from('roster').select('*').eq('round_id', round.id).order('created_at').then((r) => r.data || []) : Promise.resolve([]),
       sb.from('companies').select('address,camp_round_done,camp_round_cycle,camp_info,phone,store_phone').eq('id', co.id).maybeSingle(),
-      sb.from('camp_tasks').select('label').eq('company_id', co.id).eq('cycle_on', cycle).eq('step', '모집').maybeSingle(),
+      sb.from('camp_tasks').select('label,target').eq('company_id', co.id).eq('cycle_on', cycle).eq('step', '모집').maybeSingle(),
     ]);
     const lbNo = /^\d+$/.test(lbQ.data?.label || '') ? +lbQ.data.label : null;
     const ex = exQ.data || {};
@@ -759,7 +759,7 @@ textarea.ca-g.sm{min-height:100px}
     // 지점 특이사항: 이름을 붙여 여러 개 (guidelines.fields.title). 이름별 최신이 현재 내용
     const notes = new Map(); (gl.data || []).forEach((g) => { const t = g.fields?.title || '기본'; if (!notes.has(t)) notes.set(t, g); });
     const S = {
-      roundNo: roundNo0, teams: round?.teams || co.camp_teams || 10, weeks: round?.review_weeks || 4,
+      roundNo: roundNo0, teams: round?.teams || lbQ.data?.target || co.camp_teams || 10, // 모집 팝업 '모집 팀'(camp_tasks 모집 target) weeks: round?.review_weeks || 4,
       rows: ros.map((r) => ({ id: r.id, nickname: r.nickname || '', name: r.name || '', phone: r.phone || '', blog: r.blog_url || '', post: r.post_url || '', note: r.note || '', grade: r.grade || '', visits: r.visits, msg: '', off: r.cancelled, done: !!r.done })),
       tab: ros.length ? 'owner' : 'list', saved: !!ros.length, ownerEdited: false, imgDirty: true, dup: new Map(),
       storeTitle: (gl.data?.[0]?.fields?.title) || '기본', storeGuide: gl.data?.[0]?.body || '', brandGuide: typeof gb.data?.value === 'string' ? gb.data.value : '',

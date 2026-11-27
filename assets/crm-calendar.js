@@ -175,6 +175,7 @@
 .cc-lb.wan{background:var(--green);color:#fff;box-shadow:none}
 .cc-lb.renew,.cc-lb.renew.auto{background:#DC2626;color:#fff;box-shadow:none}
 .btn.rc-ack{background:#DC2626;border-color:#DC2626;color:#fff}
+.btn.rc-pre{height:36px}.btn.rc-pre.on{background:#ECFDF5;border-color:#16A34A;color:#15803D;font-weight:700}
 .rc-lb{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.rc-lb .fi{width:auto;min-width:130px}
 .rc-ph{display:flex;gap:6px}
 .rc-pm{width:min(600px,100%)!important}
@@ -358,7 +359,7 @@
     const cfg = await loadCfg();
     const maxOff = Math.max(cfg.off.발표 || 0, (cfg.off.마감 || 0) + (cfg.off['2차마감'] || 0), 0);
     const [co, tk] = await Promise.all([
-      sb.from('companies').select('id,name,brand,recruit_days,camp_teams,camp_round_done,camp_round_cycle,camp_round_total,camp_renew_ack,phone,store_phone,rep_name,sales_owner,manager_owner,sales_owner_name,manager_owner_name,service_type').eq('stage', '결제').eq('run_status', '진행 중').limit(2000),
+      sb.from('companies').select('id,name,brand,recruit_days,camp_teams,camp_round_done,camp_round_cycle,camp_round_total,camp_renew_ack,camp_renew_next,camp_renew_next_on,phone,store_phone,rep_name,sales_owner,manager_owner,sales_owner_name,manager_owner_name,service_type').eq('stage', '결제').eq('run_status', '진행 중').limit(2000),
       sb.from('camp_tasks').select('*').gte('cycle_on', addDays(from, -maxOff - 31)).lte('cycle_on', to).limit(5000),
     ]);
     const tasks = new Map((tk.data || []).map((t) => [`${t.company_id}|${t.cycle_on}|${t.step}`, t]));
@@ -895,19 +896,53 @@
       if (n) await sb.from('rounds').update({ round_no: n, round_label: v }).eq('company_id', e.co.id).eq('cycle_on', e.cycle);
       e.rno = n; e.rnoAuto = false; [...rSel.options].forEach((o) => { o.text = o.text.replace(' ·자동', ''); });
     };
-    const tSel = el('select', { className: 'fi rc-sel', title: '계약 회차 (업체 공통 · 비우면 계약 기간으로 자동)' }, opts(Math.max(36, e.total || 0), e.total, e.totalAuto, '회 계약', '계약 —'));
+    const tSel = el('select', { className: 'fi rc-sel', title: '계약 회차 (업체 공통 · 비우면 계약 기간으로 자동 · 영구 = 회차 계속, 재계약 임박 없음)' }, opts(Math.max(36, e.total || 0), e.total, e.totalAuto, '회 계약', '계약 —'));
+    tSel.append(el('option', { value: '0', text: '영구 (회차 계속)', selected: e.co.camp_round_total === 0 }));
     tSel.onchange = async () => {
       const v = tSel.value ? +tSel.value : null;
       const { error } = await sb.from('companies').update({ camp_round_total: v }).eq('id', e.co.id);
       if (error) { toast('저장 실패: ' + error.message); return; }
-      e.co.camp_round_total = v; e.total = v; e.totalAuto = false; [...tSel.options].forEach((o) => { o.text = o.text.replace(' ·자동', ''); }); P.mark(); toast(`${e.co.name} 계약 ${v ? v + '회차' : '자동'}`);
+      e.co.camp_round_total = v; e.total = v || null; e.perm = v === 0; e.totalAuto = false; [...tSel.options].forEach((o) => { o.text = o.text.replace(' ·자동', ''); }); P.mark(); toast(`${e.co.name} 계약 ${v === 0 ? '영구' : v ? v + '회차' : '자동'}`);
+    };
+    // 모집 팀 수 (이번 회차): camp_tasks 모집 target · 그 회차 rounds.teams도 같이 (명단 탭 '모집 팀') · 비우면 업체 기본(camp_teams)
+    const nT = e.task?.target ?? null;
+    const mSel = el('select', { className: 'fi rc-sel rc-teams', title: '이번 회차 모집 팀 수' }, [el('option', { value: '', text: e.co.camp_teams ? `${e.co.camp_teams}팀 ·기본` : '모집 팀 —' }), ...Array.from({ length: Math.max(30, nT || 0) }, (_, i) => el('option', { value: String(i + 1), text: `${i + 1}팀 모집`, selected: nT === i + 1 }))]);
+    mSel.onchange = async () => {
+      const v = mSel.value ? +mSel.value : null;
+      if (!(await save({ target: v }, v ? `${v}팀 모집` : '모집 팀 기본'))) return;
+      if (v) await sb.from('rounds').update({ teams: v }).eq('company_id', e.co.id).eq('cycle_on', e.cycle);
     };
     const ph = el('div', { className: 'rc-seg', role: 'group' });
     const paintPh = () => ph.replaceChildren(...[['모', '모집 중'], ['완', '모집 완료']].map(([k, t]) => el('button', { type: 'button', className: (k === '모' ? 'mo' : 'wan') + (e.task?.phase === k ? ' on' : ''), title: t + ' · 다시 누르면 해제', onclick: async () => { const v = e.task?.phase === k ? null : k; if (await save({ phase: v }, v ? t : '진행 해제')) { e.rnoAuto = false; [...rSel.options].forEach((o) => { o.text = o.text.replace(' ·자동', ''); }); paintPh(); } } }, [k, el('span', { text: t })])));
     paintPh();
+    // 선재계약: 다음 계약 회차 + 계약일 → 지금 계약 회차를 다 쓰면 자동 갱신 (applyPreRenew)
+    const pre = el('button', { className: 'btn sm rc-pre', type: 'button' });
+    const paintPre = () => { const q = preQ(e.co); pre.classList.toggle('on', !!q); pre.textContent = q ? `선재계약 +${q}` : '선재계약'; pre.title = q ? `${e.co.camp_renew_next_on ? md(e.co.camp_renew_next_on) + ' 계약 · ' : ''}지금 계약 회차를 다 쓰면 ${q}회 계약 1회차로 자동 갱신 · 눌러서 수정·삭제` : '재계약 임박 전에 미리 재계약한 경우 — 다음 계약 회차 등록'; };
+    paintPre();
+    pre.onclick = () => {
+      const q0 = preQ(e.co);
+      const n = el('select', { className: 'fi rc-sel' }, Array.from({ length: 36 }, (_, i) => el('option', { value: String(i + 1), text: `${i + 1}회 계약`, selected: (q0 || (e.renewed ? 0 : e.total) || 10) === i + 1 })));
+      const d = el('input', { className: 'fi', type: 'date', value: e.co.camp_renew_next_on || todayKst() });
+      const put = async (q, on) => {
+        const patch = { camp_renew_next: q, camp_renew_next_on: q ? on || todayKst() : null };
+        const { error } = await sb.from('companies').update(patch).eq('id', e.co.id);
+        if (error) { toast('저장 실패: ' + error.message); return; }
+        [e.co, ...(S.coAll || []).filter((c) => c.id === e.co.id && c !== e.co)].forEach((c) => Object.assign(c, patch));
+        await addMemo(e.co, q ? `${md(patch.camp_renew_next_on)} 선재계약 +${q}회` : `${md(todayKst())} 선재계약 취소`, P.layer.querySelector('.memo-ta'));
+        if (q) P.layer.querySelector('.rc-ack')?.remove();
+        paintPre(); P.mark(); D.close(); toast(`${e.co.name} ${q ? `선재계약 +${q}회차` : '선재계약 삭제'}`);
+      };
+      const D = popup(`${e.co.name} · 선재계약`, [
+        el('div', { className: 'hint', text: `지금 계약 ${e.renewed ? '' : (e.total ? e.total + '회차 중 ' : '')}${e.rno ? e.rno + '회차' : ''} 진행 중. 다음 계약을 미리 등록하면 빨간 표시·재계약 임박에서 빠지고, 지금 계약 회차를 다 쓰면 다음 모집부터 1회차로 자동 갱신됩니다.` }),
+        el('div', { className: 'rc-row' }, [n, d]),
+      ], [el('button', { className: 'btn ghost', type: 'button', text: '취소', onclick: () => D.close() }),
+        q0 ? el('button', { className: 'btn ghost rc-del', type: 'button', text: '선재계약 삭제', onclick: () => put(null) }) : null,
+        el('span', { className: 'sp' }),
+        el('button', { className: 'btn primary', type: 'button', text: '저장', onclick: () => put(+n.value, d.value) })].filter(Boolean));
+    };
     const gBox = el('div', { className: 'rc-guide' });
     const P = popup(`${e.co.name} · ${mdw(e.due)} 모집`, [
-      el('div', { className: 'rc-row' }, [rSel, el('span', { className: 'rc-slash', text: '/' }), tSel, ph]), gBox,
+      el('div', { className: 'rc-row' }, [rSel, el('span', { className: 'rc-slash', text: '/' }), tSel, mSel, ph, pre]), gBox,
     ], [
       el('button', { className: 'btn sm ghost', type: 'button', text: '⚙ 매월 모집일', onclick: () => { P.close(); editDays(e.co); } }),
       el('button', { className: 'btn sm ghost rc-del', type: 'button', text: '삭제', onclick: () => delRecruit(e, P) }),
@@ -943,11 +978,8 @@
     // 계약 회차: 업체에 직접 정한 값 > 최근 계약 기간(개월 + 연장) × 매월 모집 횟수
     const cts = []; for (let i = 0; i < ids.length; i += 150) { const { data } = await sb.from('contracts').select('company_id,paid_at,period_months,extension_text').in('company_id', ids.slice(i, i + 150)); cts.push(...(data || [])); }
     const lastCt = new Map(); cts.filter((c) => Number(c.period_months) > 0).forEach((c) => { const l = lastCt.get(c.company_id); if (!l || String(c.paid_at || '') > String(l.paid_at || '')) lastCt.set(c.company_id, c); });
-    rec.forEach((e) => {
-      if (e.co.camp_round_total) { e.total = e.co.camp_round_total; e.totalAuto = false; return; }
-      const c = lastCt.get(e.co.id), ext = Number(String(c?.extension_text || '').match(/\d+/)?.[0] || 0);
-      e.total = c ? Math.round((Number(c.period_months) + ext) * Math.max(1, (e.co.recruit_days || []).length)) : null; e.totalAuto = !!e.total;
-    });
+    const totalOf = (co) => { if (co.camp_round_total === 0) return [null, false]; if (co.camp_round_total) return [co.camp_round_total, false]; const c = lastCt.get(co.id), ext = Number(String(c?.extension_text || '').match(/\d+/)?.[0] || 0); const t = c ? Math.round((Number(c.period_months) + ext) * Math.max(1, (co.recruit_days || []).length)) : null; return [t, !!t]; };
+    rec.forEach((e) => { [e.total, e.totalAuto] = totalOf(e.co); e.perm = e.co.camp_round_total === 0; }); // 영구 지점 = 계약 회차 없음 → 재계약 임박 대상 아님
     evs.forEach((e) => {
       const lb = recLabel(e);
       if (lb === '-') { e.rno = null; e.rnoAuto = false; e.rnoNone = true; return; }
@@ -962,11 +994,42 @@
       else e.rno = null;
       e.rnoAuto = !!e.rno;
     });
+    await applyPreRenew(evs, totalOf);
+  }
+  // 선재계약 (2026-11-27~): companies.camp_renew_next(다음 계약 회차) · camp_renew_next_on(계약일)
+  //  있으면 빨간 표시·'재계약 임박' 칸에서 빠짐. 지금 계약 회차를 넘는 회차부터 새 계약 1회차로 보여 주고(재계약 = 1회차부터)
+  //  그 첫 회차 모집일이 오늘 이하가 되면 자동 갱신: 그 모집 label = 새 회차 · camp_round_total = 다음 계약 · 선재계약 비움 · 업체 메모에 기록
+  const preQ = (co) => Number(co?.camp_renew_next) > 0 ? Number(co.camp_renew_next) : 0;
+  async function applyPreRenew(evs, totalOf) {
+    const today = todayKst(), first = new Map();
+    evs.forEach((e) => {
+      const q = preQ(e.co); if (!q || !e.rno) return;
+      const [t] = totalOf(e.co); if (!t || e.rno <= t) return;
+      e.rno -= t; e.renewed = true; if (e.step === '모집') { e.total = q; e.totalAuto = false; }
+      if (e.step === '모집' && e.cycle <= today) { const f = first.get(e.co.id); if (!f || e.cycle < f.cycle) first.set(e.co.id, e); }
+    });
+    for (const e of first.values()) {
+      const co = e.co, q = preQ(co), on = co.camp_renew_next_on;
+      const { data: tk, error } = await sb.from('camp_tasks').upsert({ company_id: co.id, cycle_on: e.cycle, step: '모집', due_on: e.task?.due_on || e.due || e.cycle, label: String(e.rno), phase: e.task?.phase ?? null }, { onConflict: 'company_id,cycle_on,step' }).select().single();
+      if (error) continue;
+      e.task = tk; await sb.from('rounds').update({ round_no: e.rno, round_label: String(e.rno) }).eq('company_id', co.id).eq('cycle_on', e.cycle);
+      const patch = { camp_round_total: q, camp_renew_next: null, camp_renew_next_on: null, camp_renew_ack: null };
+      if (!(await sb.from('companies').update(patch).eq('id', co.id)).error) {
+        [co, ...(S.coAll || []).filter((c) => c.id === co.id && c !== co)].forEach((c) => Object.assign(c, patch));
+        await addMemo(co, `${md(e.cycle)} 선재계약 적용 → ${e.rno}/${q}회차${on ? ` (${md(on)} 계약)` : ''}`);
+      }
+    }
+  }
+  async function addMemo(co, line, ta) {
+    const { data } = await sb.from('companies').select('camp_memo').eq('id', co.id).maybeSingle();
+    const v = [String(data?.camp_memo || '').trim(), line].filter(Boolean).join('\n');
+    await sb.from('companies').update({ camp_memo: v, camp_memo_at: new Date().toISOString(), camp_memo_by: me }).eq('id', co.id);
+    if (ta) ta.value = v;
   }
 
   // 재계약 임박 (2026-11-27~): 계약 회차 − 진행 회차 ≤ 1 → 모집 칩 회차 빨간색 · 모집 팝업 [확인 완료]로 끔(companies.camp_renew_ack = 그 계약 회차)
   //  해당 지점은 재계약 · 홀딩 칸 가운데 '재계약 임박' 칸에 표시 (저장 안 함, 확인 완료하면 빠짐)
-  const renewNear = (e) => e.step === '모집' && !!e.rno && !!e.total && e.total - e.rno <= 1;
+  const renewNear = (e) => e.step === '모집' && !!e.rno && !!e.total && e.total - e.rno <= 1 && (e.renewed || !preQ(e.co)); // 선재계약 있으면 표시 안 함
   const renewRed = (e) => renewNear(e) && e.co.camp_renew_ack !== e.total;
   // 재계약 임박 칸: 업체마다 오늘까지 가장 최근 모집 회차 기준 (오늘 업무·다른 달을 봐도 같은 목록)
   async function renewSoon(today) {
@@ -1130,7 +1193,7 @@
       if (e.extra) { const xn = /보충/.test(e.extra.round_label || '') ? '보충' : '추가'; b.append(el('span', { className: 'cc-lb', text: xn, title: `${e.extra.round_no}회차 ${xn} 명단 마감` })); }
       const phs = e.step === '모집' && e.task?.phase; // 모집 칩 앞: 회차 + 진행 상태 (예: 3모 · 12완)
       if (e.step !== '모집' && e.rno) b.append(el('span', { className: 'cc-lb' + (e.rnoAuto ? ' auto' : ''), text: String(e.rno), title: `${e.rno}회차${e.rnoAuto ? ' (자동)' : ''} — 모집 달력 회차와 같음` }));
-      if (e.step === '모집' && (e.rno || phs || e.total)) b.append(el('span', { className: 'cc-lb' + (renewRed(e) ? ' renew' : phs === '모' ? ' mo' : phs === '완' ? ' wan' : '') + (e.rnoAuto && !phs ? ' auto' : ''), text: `${e.rno || (e.total ? '–' : '')}${phs || ''}${e.total ? '/' + e.total : ''}`, title: `${e.rno ? e.rno + '회차' + (e.rnoAuto ? ' (자동)' : '') : ''}${phs ? ' · ' + (phs === '모' ? '모집 중' : '모집 완료') : ''}${e.total ? ` · 계약 ${e.total}회차` : ''}${renewRed(e) ? ' · 재계약 임박 (팝업 [확인 완료]로 끄기)' : ''}` }));
+      if (e.step === '모집' && (e.rno || phs || e.total)) b.append(el('span', { className: 'cc-lb' + (renewRed(e) ? ' renew' : phs === '모' ? ' mo' : phs === '완' ? ' wan' : '') + (e.rnoAuto && !phs ? ' auto' : ''), text: `${e.rno || (e.total ? '–' : '')}${phs || ''}${e.total ? '/' + e.total : ''}${preQ(e.co) && !e.renewed ? '+' + preQ(e.co) : ''}`, title: `${e.rno ? e.rno + '회차' + (e.rnoAuto ? ' (자동)' : '') : ''}${phs ? ' · ' + (phs === '모' ? '모집 중' : '모집 완료') : ''}${e.total ? ` · 계약 ${e.total}회차` : e.perm ? ' · 영구 (회차 계속)' : ''}${preQ(e.co) && !e.renewed ? ` · 선재계약 +${preQ(e.co)}회차` : e.renewed && preQ(e.co) ? ' · 선재계약 새 계약' : ''}${renewRed(e) ? ' · 재계약 임박 (팝업 [확인 완료]로 끄기)' : ''}` }));
       b.append(el('button', { type: 'button', className: 'cc-n', text: e.co.name, title: `${e.step} · ${e.co.name}\n${sub(e)}\n누르면 상세 · 끌어서 날짜 변경`, onclick: (x) => { x.stopPropagation(); openDetail(e, cfg); } }));
       if (!e.extra) b.addEventListener('dragstart', (x) => { x.stopPropagation(); startDrag(x, { kind: 'camp', e, label: e.co.name }, b.closest('.pm-layer')); b.classList.add('dragging'); }); // 추가 명단 마감은 끌어 옮기지 않음(회차 마감이 움직이지 않게)
       b.addEventListener('dragend', () => { b.classList.remove('dragging'); endDrag(b.closest('.pm-layer')); });
@@ -1166,7 +1229,7 @@
     const tools = el('div', { className: 'cal-tools' }, [stepSeg, el('span', { className: 'sp' }), expandBtn, setBtn, campBtn]);
     return [tools, await board, el('div', { className: 'stack' }, [el('div', { className: 'card cal-card' }, [monthBar(), grid]), list])];
   }
-  const campLib = () => loadScript('/assets/crm-camp.js?v=30');
+  const campLib = () => loadScript('/assets/crm-camp.js?v=31');
   const openCamp = (a) => campLib().then(() => window.CRM_CAMP.open(a)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   const pickCamp = (evs, cfg, rn) => campLib().then(() => window.CRM_CAMP.pick(evs, cfg, rn)).catch((e) => toast('발표 도우미를 불러오지 못했습니다: ' + e.message));
   function settingsCard(cfg) {
