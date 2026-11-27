@@ -191,6 +191,8 @@ UX:
 
 ### 페이지
 - 문의 폼이 있는 페이지: `index.html`, `b2b-marketing.html`, `public-sector.html`, `consult.html`, `expo-event.html`, `local-business.html`, `shortform-marketing.html`(숏폼 제작 의뢰, source `shortform-order`)
+- 업종별 마케팅 가이드 `/marketing`(목록) + `/marketing/{restaurant,cafe,hair-salon,clinic,pilates,academy,franchise,naver-place,shortform-cost}` (2026-11-27~, GEO·AEO용 — ai-visibility '추천' 질문 대응): **생성 파일**. 내용은 `scripts/guides-data.js`, 틀은 `scripts/build-guides.js` → `node scripts/build-guides.js`(sitemap 구간도 갱신). 공통 `assets/guide.css`·`guide.js`(고치면 ASSET_V 올림). 폼 = contact, source `local-business-diagnosis`(숏폼 비용은 `shortform-order`), 메시지 앞 `[업종 가이드: 업종]`, 구글 광고 리드 전환 발화. 공개된 사실·가격만 쓸 것(지어낸 수치 금지)
+- IndexNow: 루트 `<키>.txt` + `scripts/indexnow.js` — `vercel-deploy.yml`이 배포 직후 sitemap 주소 전체를 Bing·네이버에 알림
 - 구글 광고 리드 전환: `AW-11170573795/eEDoCKW5_rkdEOPbxc4p` (전환 액션 '홈페이지 무료진단 문의 (소상공인)') — local-business·shortform 폼 성공 시 발화, `transaction_id` = 폼 event_id
 - 위 페이지 수정 시 `<head>`의 `/assets/muyi-monitor.js?v=N` 태그 유지 (수정하면 `v` 값 올리기 — `/assets`는 1년 캐시, 현재 v=2)
 - `admin.html` = 문의함: 목록·상태·담당자·다음 연락일·상담 기록(채팅)·**사업자등록증**·광고 성과·CSV

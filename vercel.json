@@ -13,7 +13,9 @@
     { "source": "/brochure.html", "destination": "/brochure", "permanent": true },
     { "source": "/case-studies.html", "destination": "/case-studies", "permanent": true },
     { "source": "/expo-event.html", "destination": "/expo-event", "permanent": true },
-    { "source": "/shortform-marketing.html", "destination": "/shortform-marketing", "permanent": true }
+    { "source": "/shortform-marketing.html", "destination": "/shortform-marketing", "permanent": true },
+    { "source": "/marketing/index", "destination": "/marketing", "permanent": true },
+    { "source": "/marketing/:slug.html", "destination": "/marketing/:slug", "permanent": true }
   ],
   "rewrites": [
     { "source": "/local-business", "destination": "/local-business.html" },
@@ -23,12 +25,18 @@
     { "source": "/case-studies", "destination": "/case-studies.html" },
     { "source": "/expo-event", "destination": "/expo-event.html" },
     { "source": "/shortform-marketing", "destination": "/shortform-marketing.html" },
+    { "source": "/marketing", "destination": "/marketing/index.html" },
+    { "source": "/marketing/:slug", "destination": "/marketing/:slug.html" },
     { "source": "/admin", "destination": "/admin.html" }
   ],
   "headers": [
     {
       "source": "/assets/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/ace61e5e306f8e6e6b984537014c306c.txt",
+      "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }]
     },
     {
       "source": "/llms.txt",
