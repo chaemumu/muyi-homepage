@@ -173,6 +173,8 @@
 .cc-lb{flex:none;margin-left:4px;padding:0 5px;height:15px;line-height:15px;border-radius:4px;font-size:10px;font-weight:800;background:var(--surface);color:var(--t1);box-shadow:0 0 0 1px var(--line)}
 .cc-lb.mo{background:var(--accent);color:#fff;box-shadow:none}
 .cc-lb.wan{background:var(--green);color:#fff;box-shadow:none}
+.cc-lb.renew,.cc-lb.renew.auto{background:#DC2626;color:#fff;box-shadow:none}
+.btn.rc-ack{background:#DC2626;border-color:#DC2626;color:#fff}
 .rc-lb{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.rc-lb .fi{width:auto;min-width:130px}
 .rc-ph{display:flex;gap:6px}
 .rc-pm{width:min(600px,100%)!important}
@@ -352,7 +354,7 @@
     const cfg = await loadCfg();
     const maxOff = Math.max(cfg.off.발표 || 0, (cfg.off.마감 || 0) + (cfg.off['2차마감'] || 0), 0);
     const [co, tk] = await Promise.all([
-      sb.from('companies').select('id,name,brand,recruit_days,camp_teams,camp_round_done,camp_round_cycle,camp_round_total,phone,store_phone,rep_name,sales_owner,manager_owner,sales_owner_name,manager_owner_name,service_type').eq('stage', '결제').eq('run_status', '진행 중').limit(2000),
+      sb.from('companies').select('id,name,brand,recruit_days,camp_teams,camp_round_done,camp_round_cycle,camp_round_total,camp_renew_ack,camp_renew_added,phone,store_phone,rep_name,sales_owner,manager_owner,sales_owner_name,manager_owner_name,service_type').eq('stage', '결제').eq('run_status', '진행 중').limit(2000),
       sb.from('camp_tasks').select('*').gte('cycle_on', addDays(from, -maxOff - 31)).lte('cycle_on', to).limit(5000),
     ]);
     const tasks = new Map((tk.data || []).map((t) => [`${t.company_id}|${t.cycle_on}|${t.step}`, t]));
@@ -911,7 +913,12 @@
     P.layer.querySelector('.pm').classList.add('rc-pm');
     P.layer.querySelector('.pm-f').classList.add('rc-f');
     // 블로거 가이드 보기(읽기 전용, 버전 선택) + 업체 메모
-    campLib().then(async () => { gBox.append(await window.CRM_CAMP.guideView(e.co)); window.CRM_CAMP.memoSide(P.layer, e.co); }).catch(() => {});
+    const ack = renewRed(e) ? el('button', { className: 'btn sm rc-ack', type: 'button', text: '확인 완료', title: `계약 ${e.total}회차 중 ${e.rno}회차 — 재계약 확인했으면 눌러서 빨간 표시 끄기`, onclick: async () => {
+      const { error } = await sb.from('companies').update({ camp_renew_ack: e.total }).eq('id', e.co.id);
+      if (error) { toast('저장 실패: ' + error.message); return; }
+      e.co.camp_renew_ack = e.total; (S.coAll || []).forEach((c) => { if (c.id === e.co.id) c.camp_renew_ack = e.total; }); ack.dataset.gone = '1'; ack.remove(); P.mark(); toast(`${e.co.name} 재계약 확인 완료`);
+    } }) : null;
+    campLib().then(async () => { gBox.append(await window.CRM_CAMP.guideView(e.co, { before: ack })); window.CRM_CAMP.memoSide(P.layer, e.co); }).catch(() => {});
   }
   // 회차 (모든 단계 통일 — 모집·발표·마감·2차마감 칩이 같은 번호, 상세 우상단도 같은 번호, 메시지는 +1)
   //  저장된 회차(모집 label, '-' = 회차 없음) > 이 회차 명단(rounds) > 지난 기준점 + 그 뒤 모집 수 > 끝난 회차(camp_round_done @ camp_round_cycle) + 그 뒤 모집 수
@@ -951,6 +958,25 @@
       else e.rno = null;
       e.rnoAuto = !!e.rno;
     });
+  }
+
+  // 재계약 임박 (2026-11-27~): 계약 회차 − 진행 회차 ≤ 1 → 모집 칩 회차 빨간색 · 모집 팝업 [확인 완료]로 끔(companies.camp_renew_ack = 그 계약 회차)
+  //  해당 지점은 재계약 칸(camp_holds renew)에 자동으로 한 번 넣음(companies.camp_renew_added = 그 계약 회차 — 칸에서 빼도 다시 안 들어감, 계약 회차가 바뀌면 다시 대상)
+  const renewNear = (e) => e.step === '모집' && !!e.rno && !!e.total && e.total - e.rno <= 1;
+  const renewRed = (e) => renewNear(e) && e.co.camp_renew_ack !== e.total;
+  async function autoRenew(evs, today) {
+    const pick = new Map();
+    evs.filter((e) => renewNear(e) && monthOf(e.due) <= monthOf(today) && e.co.camp_renew_added !== e.total).forEach((e) => { const p = pick.get(e.co.id); if (!p || e.rno > p.rno) pick.set(e.co.id, e); });
+    if (!pick.size) return;
+    const { data: ex, error } = await sb.from('camp_holds').select('company_id').in('company_id', [...pick.keys()]);
+    if (error) return;
+    const has = new Set((ex || []).map((x) => x.company_id)), add = [...pick.values()].filter((e) => !has.has(e.co.id));
+    if (add.length) {
+      const { error: e1 } = await sb.from('camp_holds').insert(add.map((e, i) => ({ kind: 'renew', name: e.co.name, company_id: e.co.id, note: `${e.rno}/${e.total}회차 · 자동`, sort: 900 + i, created_by: me })));
+      if (e1) { toast('재계약 칸 자동 추가 실패: ' + e1.message); return; }
+      toast(`재계약 칸에 자동 추가: ${add.map((e) => e.co.name).join(', ')}`);
+    }
+    for (const e of pick.values()) { await sb.from('companies').update({ camp_renew_added: e.total }).eq('id', e.co.id); e.co.camp_renew_added = e.total; }
   }
 
   // ── 모집 보류 지점: 재계약 · 홀딩 두 칸 (camp_holds, 팀 공유). 업체명 + 메모(예: 3완/3회차 · 10월에 재개) ──
@@ -1019,8 +1045,9 @@
     const span = isToday ? spanDays(S.day, offd) : null; // 오늘 + 이어지는 휴무일 (금요일이면 금·토·일)
     const [from, to] = isToday ? [S.day, span[span.length - 1]] : [days[0], days[41]];
     const [{ ev: all, noDays, cfg, pending: pendAll }, marks] = await Promise.all([campEvents(from, to), loadMarks('camp', from, to)]);
-    const board = holdBoard(); // 일정과 같이 불러옴
     await fillRounds(all);
+    await autoRenew(all, today);
+    const board = holdBoard();
     const ev = S.mine ? all.filter((e) => isMine(e.co)) : all;
     const pending = S.mine ? pendAll.filter((e) => isMine(e.co)) : pendAll;
     const who = (e) => e.co.manager_owner_name || e.co.sales_owner_name || '미배정';
@@ -1093,7 +1120,7 @@
       if (e.extra) b.append(el('span', { className: 'cc-lb', text: '추가', title: `${e.extra.round_no}회차 추가 명단 마감` }));
       const phs = e.step === '모집' && e.task?.phase; // 모집 칩 앞: 회차 + 진행 상태 (예: 3모 · 12완)
       if (e.step !== '모집' && e.rno) b.append(el('span', { className: 'cc-lb' + (e.rnoAuto ? ' auto' : ''), text: String(e.rno), title: `${e.rno}회차${e.rnoAuto ? ' (자동)' : ''} — 모집 달력 회차와 같음` }));
-      if (e.step === '모집' && (e.rno || phs || e.total)) b.append(el('span', { className: 'cc-lb' + (phs === '모' ? ' mo' : phs === '완' ? ' wan' : '') + (e.rnoAuto && !phs ? ' auto' : ''), text: `${e.rno || (e.total ? '–' : '')}${phs || ''}${e.total ? '/' + e.total : ''}`, title: `${e.rno ? e.rno + '회차' + (e.rnoAuto ? ' (자동)' : '') : ''}${phs ? ' · ' + (phs === '모' ? '모집 중' : '모집 완료') : ''}${e.total ? ` · 계약 ${e.total}회차` : ''}` }));
+      if (e.step === '모집' && (e.rno || phs || e.total)) b.append(el('span', { className: 'cc-lb' + (renewRed(e) ? ' renew' : phs === '모' ? ' mo' : phs === '완' ? ' wan' : '') + (e.rnoAuto && !phs ? ' auto' : ''), text: `${e.rno || (e.total ? '–' : '')}${phs || ''}${e.total ? '/' + e.total : ''}`, title: `${e.rno ? e.rno + '회차' + (e.rnoAuto ? ' (자동)' : '') : ''}${phs ? ' · ' + (phs === '모' ? '모집 중' : '모집 완료') : ''}${e.total ? ` · 계약 ${e.total}회차` : ''}${renewRed(e) ? ' · 재계약 임박 (팝업 [확인 완료]로 끄기)' : ''}` }));
       b.append(el('button', { type: 'button', className: 'cc-n', text: e.co.name, title: `${e.step} · ${e.co.name}\n${sub(e)}\n누르면 상세 · 끌어서 날짜 변경`, onclick: (x) => { x.stopPropagation(); openDetail(e, cfg); } }));
       if (!e.extra) b.addEventListener('dragstart', (x) => { x.stopPropagation(); startDrag(x, { kind: 'camp', e, label: e.co.name }, b.closest('.pm-layer')); b.classList.add('dragging'); }); // 추가 명단 마감은 끌어 옮기지 않음(회차 마감이 움직이지 않게)
       b.addEventListener('dragend', () => { b.classList.remove('dragging'); endDrag(b.closest('.pm-layer')); });
