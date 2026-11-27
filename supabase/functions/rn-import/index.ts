@@ -1,6 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import Anthropic from "npm:@anthropic-ai/sdk@0.68";
+import "./rounds.js"; // 회차 번호 규칙 = assets/crm-rounds.js 복사본 (scripts/sync-rounds.js) → globalThis.CRM_ROUNDS
+const R = (globalThis as any).CRM_ROUNDS;
 
 // 리뷰노트 북마크 → 선정 명단을 CRM에 바로 저장 (rounds + roster).
 // 인증: 북마크에 든 개인 키(rn_keys.key_hash = sha256) — verify_jwt=false, 함수가 직접 확인. 리뷰노트 계정은 받지 않는다.
@@ -115,7 +117,7 @@ Deno.serve(async (req) => {
     // 회차 번호 = 모집 달력과 같은 규칙(crm-calendar fillRounds): 모집 label > 이 회차 rounds > 지난 기준점(모집 label·명단 회차) + 그 뒤 모집 수 > 끝난 회차 기준점 + 그 뒤 모집 수
     //  v11: 지난 모집 label도 기준점 · 직접 추가한 모집 회차도 모집 수에 (달력과 같은 번호)
     const recTasks = async (co: any) => ((await sb.from("camp_tasks").select("cycle_on,label,phase,skipped").eq("company_id", co.id).eq("step", "모집").limit(2000)).data || []) as any[];
-    const isRegular = (co: any, c: string) => (co.recruit_days || []).map(Number).filter(Boolean).some((d: number) => { const [y, m] = c.split("-").map(Number); return Math.min(d, new Date(Date.UTC(y, m, 0)).getUTCDate()) === +c.slice(8); });
+    const isRegular = (co: any, c: string): boolean => R.isRegular(co, c);
     const roundOf = async (co: any, cycle: string, cur: any, byDate = false) => {
       const tk = await recTasks(co);
       const t = tk.find((x) => x.cycle_on === cycle);
@@ -124,13 +126,9 @@ Deno.serve(async (req) => {
       if (cur?.round_no) return cur.round_no;
       if (byDate) return null; // 모집일 규칙 밖 회차 = 자동 번호 없음 → 직접 입력
       const { data: pr } = await sb.from("rounds").select("round_no,cycle_on").eq("company_id", co.id).lt("cycle_on", cycle).not("round_no", "is", null).order("cycle_on", { ascending: false }).limit(1);
-      const lb = tk.filter((x) => !x.skipped && x.cycle_on < cycle && /^\d+$/.test(x.label || "")).sort((a, b) => b.cycle_on.localeCompare(a.cycle_on))[0];
-      const anchor = lb && (!pr?.[0] || lb.cycle_on >= pr[0].cycle_on) ? { round_no: +lb.label, cycle_on: lb.cycle_on } : pr?.[0];
-      const adhoc = tk.filter((x) => !x.skipped && !isRegular(co, x.cycle_on)).map((x) => x.cycle_on);
-      const n = (a: string) => new Set([...cyclesIn(co, addDays(a, 1), cycle), ...adhoc.filter((c) => c > a && c <= cycle)]).size;
-      if (anchor) return anchor.round_no + Math.max(1, n(anchor.cycle_on));
-      if (co.camp_round_done != null && co.camp_round_cycle && co.camp_round_cycle <= cycle) return co.camp_round_done + n(co.camp_round_cycle);
-      return null;
+      const anchors = [...(pr || []), ...tk.filter((x) => !x.skipped && /^\d+$/.test(x.label || "")).map((x) => ({ cycle_on: x.cycle_on, round_no: +x.label, lb: true }))];
+      const extra = tk.filter((x) => !x.skipped && !isRegular(co, x.cycle_on)).map((x) => x.cycle_on);
+      return R.roundNo({ co, cycle, anchors, extra }).no; // 달력 fillRounds와 같은 함수 (assets/crm-rounds.js)
     };
     // 모집 달력 기준 다음 회차 (v11): 오늘(+3일)까지 가장 최근 모집 회차의 번호 — 그 회차가 '완'(모집 완료)이거나 명단이 있으면 +1, 아니면 그 회차
     const calNext = async (co: any) => {

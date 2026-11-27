@@ -567,5 +567,5 @@
     return { rows, warn, sheets };
   }
 
-  window.CRM_SETTLE = { mount };
+  window.CRM_SETTLE = { mount, calc: { incentive, tax33 } }; // calc = 테스트용 (tests/cases/settle.js)
 })();

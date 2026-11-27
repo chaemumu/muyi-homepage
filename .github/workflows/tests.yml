@@ -1,0 +1,26 @@
+name: CRM tests
+
+# PR·main 푸시마다 node tests/run.js (가짜 Supabase + Playwright, 실제 DB·함수는 안 건드림)
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Playwright 설치
+        run: |
+          npm install --no-save --no-package-lock playwright@1.63.0
+          npx playwright install --with-deps chromium
+      - name: 문법 확인
+        run: for f in assets/*.js scripts/*.js tests/*.js tests/cases/*.js; do node --check "$f"; done
+      - name: 테스트
+        run: node tests/run.js
