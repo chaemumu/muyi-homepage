@@ -8,8 +8,8 @@
     "hash": "d52436b42f4610cb"
   },
   "assets/crm-calendar.js": {
-    "v": 48,
-    "hash": "12b74b0cc2def466"
+    "v": 49,
+    "hash": "0fd1cc6fb16e7c73"
   },
   "assets/crm-camp.js": {
     "v": 32,
@@ -23,9 +23,13 @@
     "v": 3,
     "hash": "0b9ced6bc71725e6"
   },
+  "assets/crm-rounds.js": {
+    "v": 1,
+    "hash": "12e7c966f541b042"
+  },
   "assets/crm-settle.js": {
-    "v": 5,
-    "hash": "23d7413856692201"
+    "v": 6,
+    "hash": "bc307884e31431a1"
   },
   "assets/crm-sms.js": {
     "v": 4,

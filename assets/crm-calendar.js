@@ -972,13 +972,9 @@
   // 회차 (모든 단계 통일 — 모집·발표·마감·2차마감 칩이 같은 번호, 상세 우상단도 같은 번호, 메시지는 +1)
   //  저장된 회차(모집 label, '-' = 회차 없음) > 이 회차 명단(rounds) > 지난 기준점 + 그 뒤 모집 수 > 끝난 회차(camp_round_done @ camp_round_cycle) + 그 뒤 모집 수
   const recLabel = (e) => String((e.step === '모집' ? e.task : e.rec)?.label || '');
-  function cyclesIn(co, a, b) { // co의 매월 모집일 회차 중 (a, b]
-    const out = new Set(), days = (co.recruit_days || []).map(Number).filter(Boolean); if (!days.length || !a) return out;
-    for (let m = monthOf(a); m <= monthOf(b); m = addMonth(m, 1)) { const dim = new Date(+m.slice(0, 4), +m.slice(5), 0).getDate(); days.forEach((d) => { const c = `${m}-${pad(Math.min(d, dim))}`; if (c > a && c <= b) out.add(c); }); }
-    return out;
-  }
   async function fillRounds(evs) {
     if (!evs.length) return;
+    await loadScript('/assets/crm-rounds.js?v=1');
     const rec = evs.filter((e) => e.step === '모집');
     const ids = [...new Set(evs.map((e) => e.co.id))];
     const rows = []; for (let i = 0; i < ids.length; i += 150) { const { data } = await sb.from('rounds').select('company_id,cycle_on,round_no').in('company_id', ids.slice(i, i + 150)); rows.push(...(data || []).filter((r) => r.round_no != null && r.cycle_on)); }
@@ -986,7 +982,7 @@
     //  → 발표·마감·2차마감 달력, 오늘 업무, 상세(바깥 링크)도 모집 달력과 같은 기준점·같은 모집 수로 계산 (2026-11-27)
     const mt = []; for (let i = 0; i < ids.length; i += 150) { const { data } = await sb.from('camp_tasks').select('company_id,cycle_on,label,skipped').eq('step', '모집').in('company_id', ids.slice(i, i + 150)).limit(5000); mt.push(...(data || [])); }
     const coBy = new Map(evs.map((e) => [e.co.id, e.co]));
-    const regular = (co, c) => (co.recruit_days || []).map(Number).filter(Boolean).some((d) => { const dim = new Date(+c.slice(0, 4), +c.slice(5, 7), 0).getDate(); return Math.min(d, dim) === +c.slice(8); });
+    const regular = window.CRM_ROUNDS.isRegular;
     const labeled = new Set();
     mt.filter((t) => !t.skipped && /^\d+$/.test(t.label || '')).forEach((t) => { labeled.add(`${t.company_id}|${t.cycle_on}`); rows.push({ company_id: t.company_id, cycle_on: t.cycle_on, round_no: +t.label, lb: true }); });
     evs.forEach((e) => { if (/^\d+$/.test(recLabel(e)) && !labeled.has(`${e.co.id}|${e.cycle}`)) rows.push({ company_id: e.co.id, cycle_on: e.cycle, round_no: +recLabel(e), lb: true }); }); // 직접 정한 회차도 기준점 (명단보다 우선)
@@ -999,19 +995,10 @@
     const lastCt = new Map(); cts.filter((c) => Number(c.period_months) > 0).forEach((c) => { const l = lastCt.get(c.company_id); if (!l || String(c.paid_at || '') > String(l.paid_at || '')) lastCt.set(c.company_id, c); });
     const totalOf = (co) => { if (co.camp_round_total === 0) return [null, false]; if (co.camp_round_total) return [co.camp_round_total, false]; const c = lastCt.get(co.id), ext = Number(String(c?.extension_text || '').match(/\d+/)?.[0] || 0); const t = c ? Math.round((Number(c.period_months) + ext) * Math.max(1, (co.recruit_days || []).length)) : null; return [t, !!t]; };
     rec.forEach((e) => { [e.total, e.totalAuto] = totalOf(e.co); e.perm = e.co.camp_round_total === 0; }); // 영구 지점 = 계약 회차 없음 → 재계약 임박 대상 아님
-    evs.forEach((e) => {
-      const lb = recLabel(e);
-      if (lb === '-') { e.rno = null; e.rnoAuto = false; e.rnoNone = true; return; }
-      if (/^\d+$/.test(lb)) { e.rno = +lb; e.rnoAuto = false; return; }
-      const rs = by.get(e.co.id) || [], ex = rs.find((r) => r.cycle_on === e.cycle);
-      if (ex) { e.rno = ex.round_no; e.rnoAuto = false; return; }
-      const after = (c0) => new Set([...cyclesIn(e.co, c0, e.cycle), ...[...(cyc.get(e.co.id) || [])].filter((c) => c > c0 && c <= e.cycle)]).size;
-      const prev = rs.filter((r) => r.cycle_on < e.cycle).sort((a, b) => b.cycle_on.localeCompare(a.cycle_on))[0];
-      if (prev) e.rno = prev.round_no + Math.max(1, after(prev.cycle_on));
-      else if (e.co.camp_round_done != null && e.co.camp_round_cycle && e.co.camp_round_cycle <= e.cycle) e.rno = e.co.camp_round_done + after(e.co.camp_round_cycle);
-      else if (e.co.camp_round_done != null) e.rno = e.co.camp_round_done + Math.max(1, [...(cyc.get(e.co.id) || [])].filter((c) => c <= e.cycle).length);
-      else e.rno = null;
-      e.rnoAuto = !!e.rno;
+    evs.forEach((e) => { // 회차 규칙 = assets/crm-rounds.js (rn-import와 같은 파일)
+      const rs = by.get(e.co.id) || [], seen = cyc.get(e.co.id) || new Set();
+      const r = window.CRM_ROUNDS.roundNo({ co: e.co, cycle: e.cycle, label: recLabel(e), own: rs.find((x) => x.cycle_on === e.cycle)?.round_no, anchors: rs, extra: [...seen], seen });
+      e.rno = r.no; e.rnoAuto = r.auto; if (r.none) e.rnoNone = true;
     });
     await applyPreRenew(evs, totalOf);
   }
