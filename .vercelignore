@@ -1,0 +1,4 @@
+# 배포 제외 (개발용 — 사이트에 공개되면 안 됨)
+supabase
+tests
+scripts
