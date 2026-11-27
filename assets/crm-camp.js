@@ -17,6 +17,10 @@
   const kstShort = (t) => { const d = new Date(new Date(t).getTime() + 9 * 3600e3), y = d.getUTCFullYear(); return `${y !== new Date().getFullYear() ? y + '. ' : ''}${d.getUTCMonth() + 1}/${d.getUTCDate()} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`; };
   const kmd = (s) => `${+s.slice(5, 7)}월 ${+s.slice(8)}일`;
   const blogId = (u) => { const m = String(u || '').match(/blog\.naver\.com\/([A-Za-z0-9_-]+)/); return m ? m[1] : null; };
+  // Supabase는 한 번에 최대 1,000줄 → 끝까지 1,000줄씩 이어 읽기 (mk = 새 쿼리를 만드는 함수, order로 순서 고정)
+  const PAGE = 1000;
+  const fetchAll = async (mk) => { const out = []; for (let from = 0; ; from += PAGE) { const { data, error } = await mk().range(from, from + PAGE - 1); if (error || !data) return out; out.push(...data); if (data.length < PAGE) return out; } };
+  const fetchIn = async (ids, mk) => { const out = []; for (let i = 0; i < ids.length; i += 150) out.push(...await fetchAll(() => mk(ids.slice(i, i + 150)))); return out; };
   const brandOf = (co) => (co.brand || String(co.name || '').split(/\s+/)[0] || '').trim();
   const loadLib = (src) => new Promise((ok, ng) => { if (window.XLSX) return ok(); const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => ng(new Error('엑셀 라이브러리를 불러오지 못했습니다')); document.head.appendChild(s); });
   const copy = async (text, what) => { try { await navigator.clipboard.writeText(text); toast(`${what} 복사됨`); } catch { toast('복사 실패 — 직접 선택해서 복사하세요'); } };
@@ -696,7 +700,7 @@ textarea.ca-g.sm{min-height:100px}
   }
   // 예전 명단 텍스트 넣기 — 업체 고르기 (계약 업체 전체, 종료 포함): 넣은 회차 수 표시
   async function txtPick() {
-    const [{ data: cos }, { data: rk }] = await Promise.all([sb.from('companies').select('id,name,brand,run_status').eq('stage', '결제').order('name').limit(3000), sb.from('rounds').select('company_id').like('import_key', 'txt:%').limit(5000)]);
+    const [{ data: cos }, { data: rk }] = await Promise.all([sb.from('companies').select('id,name,brand,run_status').eq('stage', '결제').order('name').limit(3000), fetchAll(() => sb.from('rounds').select('company_id').like('import_key', 'txt:%').order('id')).then((data) => ({ data }))]);
     const done = new Map(); (rk || []).forEach((r) => done.set(r.company_id, (done.get(r.company_id) || 0) + 1));
     const q = el('input', { className: 'fi', type: 'search', placeholder: '업체명 검색' }), box = el('div', { className: 'ca-pick' });
     const paint = () => { const k = q.value.trim(); box.replaceChildren(...(cos || []).filter((c) => !k || c.name.includes(k)).slice(0, 80).map((c) => el('button', { type: 'button', onclick: () => { P.close(); rosterText(c); } }, [el('b', { text: c.name }), el('span', { text: ` ${c.run_status || ''}${done.get(c.id) ? ' · 텍스트 ' + done.get(c.id) + '개 회차 넣음' : ''}` })]))); };
@@ -742,9 +746,9 @@ textarea.ca-g.sm{min-height:100px}
     const { data: cos } = await sb.from('companies').select('id,name,brand').eq('stage', '결제').limit(3000);
     const mine = (cos || []).filter((c) => c.id !== co.id && brandOf(c) === br);
     const cIds = mine.map((c) => c.id); if (!cIds.length) return [];
-    const rds = []; for (let i = 0; i < cIds.length; i += 150) rds.push(...(((await sb.from('rounds').select('id,company_id,round_no,round_label,cycle_on').in('company_id', cIds.slice(i, i + 150))).data) || []));
+    const rds = await fetchIn(cIds, (ids) => sb.from('rounds').select('id,company_id,round_no,round_label,cycle_on').in('company_id', ids).order('id'));
     const rIds = rds.map((r) => r.id); if (!rIds.length) return [];
-    const ros = []; for (let i = 0; i < rIds.length; i += 150) ros.push(...(((await sb.from('roster').select('round_id,nickname,name,phone,blog_url,cancelled').in('round_id', rIds.slice(i, i + 150)).limit(5000)).data) || []));
+    const ros = await fetchIn(rIds, (ids) => sb.from('roster').select('round_id,nickname,name,phone,blog_url,cancelled').in('round_id', ids).order('id'));
     const rBy = new Map(rds.map((r) => [r.id, r])), cBy = new Map(mine.map((c) => [c.id, c]));
     return ros.map((x) => { const r = rBy.get(x.round_id) || {}; const lb = r.round_label && /재계약|회차|^\d+-\d+$/.test(r.round_label) ? r.round_label : r.round_no ? `${r.round_no}회차` : ''; return { ...x, co: cBy.get(r.company_id)?.name || '', round: lb, cycle_on: r.cycle_on }; });
   }
@@ -754,9 +758,9 @@ textarea.ca-g.sm{min-height:100px}
     const { data: cos } = await sb.from('companies').select('id,name,brand').eq('stage', '결제').limit(3000);
     const mine = (cos || []).filter((c) => brandOf(c) === br);
     const cIds = mine.map((c) => c.id); if (!cIds.length) return new Map();
-    const rds = []; for (let i = 0; i < cIds.length; i += 150) rds.push(...(((await sb.from('rounds').select('id,company_id,round_no,cycle_on').in('company_id', cIds.slice(i, i + 150))).data) || []));
+    const rds = await fetchIn(cIds, (ids) => sb.from('rounds').select('id,company_id,round_no,cycle_on').in('company_id', ids).order('id'));
     const rIds = rds.filter((r) => r.id !== exceptRound).map((r) => r.id); if (!rIds.length) return new Map();
-    const ros = []; for (let i = 0; i < rIds.length; i += 150) ros.push(...(((await sb.from('roster').select('round_id,blog_url').in('round_id', rIds.slice(i, i + 150)).limit(5000)).data) || []));
+    const ros = await fetchIn(rIds, (ids) => sb.from('roster').select('round_id,blog_url').in('round_id', ids).order('id'));
     const rBy = new Map(rds.map((r) => [r.id, r])), cBy = new Map(mine.map((c) => [c.id, c])), out = new Map();
     ros.forEach((x) => { const id = blogId(x.blog_url); if (!id) return; const r = rBy.get(x.round_id); if (!out.has(id)) out.set(id, []); out.get(id).push({ name: cBy.get(r.company_id)?.name || '', round_no: r.round_no, cycle_on: r.cycle_on }); });
     return out;
@@ -920,7 +924,7 @@ textarea.ca-g.sm{min-height:100px}
       RL.rs = rs || []; RL.cnt = new Map(); RL.cyc = new Map();
       (tk || []).forEach((t) => { if (/^\d+$/.test(t.label) && t.cycle_on !== cycle) { const n = +t.label; if (!RL.cyc.has(n) || t.cycle_on > RL.cyc.get(n)) RL.cyc.set(n, t.cycle_on); } });
       const ids = RL.rs.map((r) => r.id);
-      for (let i = 0; i < ids.length; i += 150) (((await sb.from('roster').select('round_id').in('round_id', ids.slice(i, i + 150)).limit(5000)).data) || []).forEach((x) => RL.cnt.set(x.round_id, (RL.cnt.get(x.round_id) || 0) + 1));
+      (await fetchIn(ids, (part) => sb.from('roster').select('round_id').in('round_id', part).order('id'))).forEach((x) => RL.cnt.set(x.round_id, (RL.cnt.get(x.round_id) || 0) + 1));
       F.no.replaceChildren(...rlOpts());
     }
     const F = { no: el('select', { className: 'fi', title: '회차를 고르면 그 회차 명단으로 이동 (회차 번호 지정은 우상단)' }), teams: el('input', { className: 'fi', type: 'number', min: 1, value: S.teams }), weeks: el('input', { className: 'fi', type: 'number', min: 1, value: S.weeks }) };
