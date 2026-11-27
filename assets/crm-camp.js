@@ -45,6 +45,7 @@
         const dmap = (o, pre = '', out = {}, d = 0) => { if (o && typeof o === 'object' && d < 3) for (const [k, v] of Object.entries(o)) { if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v)) out[pre + k] = kd(v); else if (v && typeof v === 'object' && !Array.isArray(v)) dmap(v, pre + k + '.', out, d + 1); } return out; };
         // 화면 표에서 선정 명단 읽기 (2026-11-25~): 리뷰노트 '선정자 목록' 주소가 막히거나(400 등) 비어 있을 때.
         //  '체험단 진행 상세' 표(이름·연락처·계정URL·링크주소) — 표에 '선정하기/선정취소' 버튼이 있으면(모집 단계) '선정취소'가 붙은 줄 = 선정된 사람만
+        const CXL = /취소|포기|cancel|drop|withdraw|give_?up/i; // 취소 상태 글자
         const domRows = () => {
           const tx = (e) => (e ? e.innerText || e.textContent || '' : '').replace(/\s+/g, ' ').trim();
           for (const t of document.querySelectorAll('table')) {
@@ -56,13 +57,15 @@
             const hasSel = trs.some((tr) => /선정(하기|취소)/.test(tx(tr)));
             const out = [];
             for (const tr of trs) {
-              if (hasSel && ![...tr.querySelectorAll('button,a,span')].some((b) => /선정\s*취소/.test(tx(b)))) continue; // 모집 단계: 선정된 사람만
               const td = [...tr.children], cell = (i) => (i >= 0 ? td[i] : null);
+              // 취소한 사람(2026-11-27~): 버튼이 아닌 칸에 '취소/포기' 상태 글자가 있으면 명단에 남기고 취소로 표시
+              const off = td.some((c) => !c.querySelector('button') && CXL.test(tx(c)) && tx(c).length <= 12);
+              if (!off && hasSel && ![...tr.querySelectorAll('button,a,span')].some((b) => /선정\s*취소/.test(tx(b)))) continue; // 모집 단계: 선정된 사람만
               const hrefs = [...tr.querySelectorAll('a[href]')].map((a) => a.href);
               const blog = (cell(iBlog)?.querySelector('a[href]')?.href) || hrefs.find((h) => /blog\.naver\.com|instagram|youtube|tistory/.test(h) && !/\/\d{6,}|logNo=/.test(h)) || '';
               const post = (cell(iPost)?.querySelector('a[href]')?.href) || hrefs.find((h) => /blog\.naver\.com\/[^/?#]+\/\d{6,}|logNo=\d+/.test(h)) || '';
               const phone = tx(cell(iPhone)) || (tx(tr).match(/0\d{1,2}-?\d{3,4}-?\d{4}/) || [])[0] || '';
-              const r = { name: tx(cell(iName)), phone, blogUrl: blog, reviewUrl: post && post !== blog ? post : '', address: tx(cell(iAddr)), dailyVisit: tx(cell(iVisit)), grade: tx(cell(iGrade)), __dom: true };
+              const r = { name: tx(cell(iName)), phone, blogUrl: blog, reviewUrl: post && post !== blog ? post : '', address: tx(cell(iAddr)), dailyVisit: tx(cell(iVisit)), grade: tx(cell(iGrade)), __dom: true, ...(off ? { __cancel: true } : {}) };
               if (r.name || r.phone || r.blogUrl) out.push(r);
             }
             if (out.length) return out;
@@ -141,26 +144,34 @@
             // 취소한 블로거도 같이 (계약 종료 때 취소팀 계산용): 취소 목록 주소 후보를 차례로 시도, '취소/cancel' 상태인 행만 추가
             const keyOf = (r) => String(r.id || r.applyId || r.applicationId || JSON.stringify(r).slice(0, 160));
             const seen = new Set(rows.map(keyOf));
-            for (const u of ['cancelApplies', 'canceledApplies', 'cancelledApplies', 'applies?status=CANCEL', 'applies?status=CANCELED']) {
-              try { arr(await get('/api/campaign/' + c.id + '/' + u)).filter((r) => /취소|cancel/i.test(JSON.stringify(r))).forEach((r) => { const k = keyOf(r); if (!seen.has(k)) { seen.add(k); rows.push({ ...r, __cancel: true }); } }); } catch (e) { if (/로그인/.test(e.message)) throw e; }
+            //  2026-11-27~: 리뷰노트 화면이 이미 불러온 이 캠페인 주소(취소자 탭을 열었으면 그 목록)도 시도 + 상태 칸이 취소·포기인 행만
+            const isCx = (r) => Object.entries(r || {}).some(([k, v]) => /status|state|상태/i.test(k) && CXL.test(String(v))) || /"(?:status|state)[^"]*":"[^"]*(?:CANCEL|취소|포기|DROP|GIVE)/i.test(JSON.stringify(r));
+            const seenUrl = performance.getEntriesByType('resource').map((x) => x.name).filter((u) => u.includes('/api/') && u.includes(String(c.id)) && !/selectedApplies|\.(js|css|png|jpe?g|webp|svg)(\?|$)/i.test(u)).map((u) => u.replace(location.origin, ''));
+            let nCx = 0;
+            for (const u of [...new Set([...['cancelApplies', 'canceledApplies', 'cancelledApplies', 'applies?status=CANCEL', 'applies?status=CANCELED', 'applies'].map((x) => '/api/campaign/' + c.id + '/' + x), ...seenUrl])].slice(0, 14)) {
+              try { arr(await get(u)).filter(isCx).forEach((r) => { const k = keyOf(r); if (!seen.has(k)) { seen.add(k); rows.push({ ...r, __cancel: true }); nCx++; } }); } catch (e) { if (/로그인/.test(e.message)) throw e; }
             }
-            if (rows.length) camps.push({ ...c, rows });
+            nCx += rows.filter((r) => r.__dom && r.__cancel).length;
+            if (!nCx) errs.push('취소 인원 못 찾음');
+            if (rows.length) camps.push({ ...c, rows, nCx });
           } catch (e) { if (/로그인/.test(e.message)) throw e; errs.push('명단 ' + e.message); }
         }
         if (!camps.length) { say('이 캠페인에 선정된 블로거가 없습니다.' + (errs.length ? `<br><small style="opacity:.7">${esc(errs.slice(0, 3).join(' · '))}</small>` : '')); return; }
-        const send = async (cs, preview) => { const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: KEY, bm: 9, campaigns: cs, preview: !!preview }) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'CRM 응답 ' + r.status); return j.results || []; };
+        const send = async (cs, preview) => { const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: KEY, bm: 10, campaigns: cs, preview: !!preview }) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'CRM 응답 ' + r.status); return j.results || []; };
         // 2026-11-25~: 먼저 업체와 '명단 없는 다음 회차'만 확인(preview) → 회차를 입력·확인해야 저장 (잘못 누름 방지)
         say(`CRM에서 업체·회차 확인 중… (${camps.length}개 캠페인)`);
         let res = await send(camps, true);
         const LBL = { saved: ['저장', '#7CF2B0'], updated: ['갱신', '#7CF2B0'], same: ['이미 저장', '#cfd2ff'], pick: ['업체 선택', '#FFD27A'], confirm: ['회차 확인', '#FFD27A'], no_cycle: ['모집일 없음', '#FFB4B4'], conflict: ['확인 필요', '#FFB4B4'], empty: ['명단 없음', '#cfd2ff'], error: ['실패', '#FFB4B4'] };
         // 회차 드롭다운 (2026-11-26~): 1 ~ 최대 회차 + 맨 아래 '추가 명단 생성'(새 회차 없이 명단 있는 마지막 회차에 붙임 · 마감일 = 이 일정)
-        const rOpts = (r) => { const def = r.saved_extra ? 'extra' : String(r.next || ''), max = Math.max(20, (r.next || 0) + 5, r.saved_no || 0, ...(r.have || []));
+        // 2026-11-27~ '＋ 보충 명단' = 추가 명단과 같이 회차는 안 늘리고 마지막 회차에 명단만 붙임(이름 'N회차 보충', 마감일 없으면 그 회차 마감)
+        const rOpts = (r) => { const def = r.saved_extra ? (r.saved_sup ? 'sup' : 'extra') : String(r.next || ''), max = Math.max(20, (r.next || 0) + 5, r.saved_no || 0, ...(r.have || []));
           return `<option value="" ${def ? '' : 'selected'}>회차 선택</option>` + Array.from({ length: max }, (_, k) => k + 1).map((n) => `<option value="${n}" ${String(n) === def ? 'selected' : ''}>${n}회차${(r.have || []).includes(n) ? ' · 명단 있음' : ''}${n === r.saved_no && !r.saved_extra ? ' · 지금 저장' : ''}</option>`).join('')
-            + `<option value="extra" ${def === 'extra' ? 'selected' : ''}${r.last ? '' : ' disabled'}>＋ 추가 명단 생성${r.last ? ` (${r.last}회차에 추가)` : ' (명단 있는 회차 없음)'}</option>`; };
+            + `<option value="extra" ${def === 'extra' ? 'selected' : ''}${r.last ? '' : ' disabled'}>＋ 추가 명단 생성${r.last ? ` (${r.last}회차에 추가)` : ' (명단 있는 회차 없음)'}</option>`
+            + `<option value="sup" ${def === 'sup' ? 'selected' : ''}${r.last ? '' : ' disabled'}>＋ 보충 명단${r.last ? ` (${r.last}회차에 보충)` : ' (명단 있는 회차 없음)'}</option>`; };
         const paint = () => {
           const ok = res.filter((r) => r.status === 'saved' || r.status === 'updated').length, wait = res.filter((r) => r.status === 'confirm').length;
           say(`<div style="margin:6px 0 10px">${wait ? `회차를 확인하고 [저장]을 눌러주세요 · ` : ''}${ok}개 저장 · 전체 ${res.length}개</div>` + res.map((r, i) => { const [t, c] = LBL[r.status] || [r.status, '#fff'];
-            return `<div style="padding:8px 0;border-top:1px solid rgba(255,255,255,.18)"><div><b style="color:${c}">${t}</b> ${esc(r.company || r.title)} <small style="opacity:.7">${r.count}명${r.cancelled ? ' · 취소 ' + r.cancelled : ''}${r.round_no ? ' · ' + r.round_no + '회차' + (r.extra ? ' 추가 명단' : '') : ''}</small></div>` + (r.applied ? `<div style="font-size:12px;opacity:.9">달력 반영: ${esc(r.applied)}</div>` : '') + (r.status === 'confirm' && camps[0]?.dates?.reviewEndAt ? `<div style="font-size:12px;opacity:.9">마감일 ${esc(camps[0].dates.reviewEndAt)}${camps[0].sched ? ' (일정 확인 창)' : ' (캠페인 정보)'}</div>` : '')
+            return `<div style="padding:8px 0;border-top:1px solid rgba(255,255,255,.18)"><div><b style="color:${c}">${t}</b> ${esc(r.company || r.title)} <small style="opacity:.7">${r.count}명${r.cancelled ? ' · 취소 ' + r.cancelled : ''}${r.round_no ? ' · ' + r.round_no + '회차' + (r.extra ? (r.sup ? ' 보충 명단' : ' 추가 명단') : '') : ''}</small></div>` + (r.applied ? `<div style="font-size:12px;opacity:.9">달력 반영: ${esc(r.applied)}</div>` : '') + (r.status === 'confirm' ? `<div style="font-size:12px;opacity:.9">취소 ${(camps.find((c) => c.id === r.id) || camps[0])?.nCx ? (camps.find((c) => c.id === r.id) || camps[0]).nCx + '명 같이 저장(명단에 취소로 표시)' : '인원을 리뷰노트에서 못 찾음 — 리뷰노트 취소자 목록을 한 번 연 뒤 다시 누르면 같이 가져옵니다'}</div>` : '') + (r.status === 'confirm' && camps[0]?.dates?.reviewEndAt ? `<div style="font-size:12px;opacity:.9">마감일 ${esc(camps[0].dates.reviewEndAt)}${camps[0].sched ? ' (일정 확인 창)' : ' (캠페인 정보)'}</div>` : '')
               + (r.status === 'confirm' ? `<div style="font-size:12px;opacity:.9;margin:2px 0 6px">${esc(r.msg || '')}${r.have && r.have.length ? `<br>명단 있는 회차: ${esc(r.have.join(', '))}` : ''}</div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><select data-n="${i}" style="height:30px;border:0;border-radius:6px;padding:0 6px;font:inherit;color:#111;max-width:200px">${rOpts(r)}</select> <span>(으)로</span> <button data-s="${i}" style="border:0;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;background:#fff;color:#1E10C7">저장</button> <button data-c="${i}" style="border:1px solid rgba(255,255,255,.6);background:none;color:#fff;border-radius:6px;padding:5px 10px;cursor:pointer">업체 바꾸기</button></div>`
                 : r.link ? `<a href="${esc(r.link)}" target="_blank" style="color:#fff;font-weight:700">CRM에서 점주 안내 열기 ›</a>` : `<small style="opacity:.8">${esc(r.msg || '')}</small>`)
               + (r.status === 'pick' && r.candidates && r.candidates.length ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">' + r.candidates.map((cd) => `<button data-i="${i}" data-co="${esc(cd.id)}" style="border:0;border-radius:6px;padding:3px 8px;cursor:pointer">${esc(cd.name)}</button>`).join('') + '</div>' : '') + '</div>'; }).join(''));
@@ -173,14 +184,14 @@
           });
           // 회차 확인 → 입력한 회차로 저장 (명단이 이미 있는 회차면 한 번 더 물어봄)
           box.querySelectorAll('[data-s]').forEach((b) => b.onclick = async () => {
-            const i = +b.dataset.s, r0 = res[i], v = box.querySelector(`[data-n="${i}"]`).value, x = v === 'extra', n = x ? 0 : Math.floor(Number(v));
+            const i = +b.dataset.s, r0 = res[i], v = box.querySelector(`[data-n="${i}"]`).value, sup = v === 'sup', x = v === 'extra' || sup, n = x ? 0 : Math.floor(Number(v)), XN = sup ? '보충 명단' : '추가 명단';
             if (!x && !(n > 0)) { alert('저장할 회차를 골라주세요'); return; }
             const dl = camps[0]?.dates?.reviewEndAt;
-            if (x && !dl) { alert('이 캠페인 일정에서 마감일을 찾지 못해 추가 명단을 만들 수 없습니다.\n리뷰노트 [일정 확인]에 마감일이 있는지 확인해주세요.'); return; }
-            const moveNote = r0.saved_no != null || r0.saved_extra ? ((x ? r0.saved_extra : !r0.saved_extra && n === r0.saved_no) ? '\n(지금 저장된 명단을 갱신합니다)' : `\n※ 지금 저장된 명단은 ${x ? '추가 명단' : '이 회차'}으로 옮겨집니다`) : '';
-            if (!confirm(x ? `${r0.company} ${r0.last}회차에 추가 명단으로 저장할까요?\n· 새 회차는 만들지 않습니다\n· 마감일 ${dl} (이 일정 기준)${moveNote}` : `${r0.company} ${n}회차로 저장할까요?${(r0.have || []).includes(n) && n !== r0.saved_no ? `\n※ ${n}회차에는 이미 명단이 있습니다` : ''}${moveNote}`)) return;
+            if (x && !sup && !dl) { alert('이 캠페인 일정에서 마감일을 찾지 못해 추가 명단을 만들 수 없습니다.\n리뷰노트 [일정 확인]에 마감일이 있는지 확인해주세요.'); return; }
+            const moveNote = r0.saved_no != null || r0.saved_extra ? ((x ? r0.saved_extra : !r0.saved_extra && n === r0.saved_no) ? '\n(지금 저장된 명단을 갱신합니다)' : `\n※ 지금 저장된 명단은 ${x ? XN : '이 회차'}으로 옮겨집니다`) : '';
+            if (!confirm(x ? `${r0.company} ${r0.last}회차에 ${XN}으로 저장할까요?\n· 새 회차는 만들지 않습니다\n· 마감일 ${dl || `없음 (${r0.last}회차 마감일 사용)`}${dl ? ' (이 일정 기준)' : ''}${moveNote}` : `${r0.company} ${n}회차로 저장할까요?${(r0.have || []).includes(n) && n !== r0.saved_no ? `\n※ ${n}회차에는 이미 명단이 있습니다` : ''}${moveNote}`)) return;
             const cp = camps.find((c) => c.id === r0.id); b.textContent = '저장 중…'; b.disabled = true;
-            try { const [r] = await send([{ ...cp, company_id: r0.company_id, ...(x ? { extra: true } : { round_no: n }) }]); res[i] = r; } catch (e) { res[i] = { ...r0, status: 'error', msg: e.message }; } paint();
+            try { const [r] = await send([{ ...cp, company_id: r0.company_id, ...(x ? { extra: true, ...(sup ? { sup: true } : {}) } : { round_no: n }) }]); res[i] = r; } catch (e) { res[i] = { ...r0, status: 'error', msg: e.message }; } paint();
           });
         };
         paint();
@@ -211,7 +222,7 @@
       const msg = f.filter(([k]) => /message|msg|comment|content|reason|introduce|신청/i.test(k)).map(([, v]) => v).sort((a, b) => b.length - a.length)[0] || '';
       const grade = by(/grade|level|rank|등급/i);
       const visits = Number(by(/visit|daily|today|방문/i).replace(/[^\d]/g, '')) || null;
-      const off = !!r.__cancel || /취소|cancel/i.test(f.filter(([k]) => /status|state|상태/i.test(k)).map(([, v]) => v).join(' '));
+      const off = !!r.__cancel || /취소|포기|cancel|drop|withdraw|give_?up/i.test(f.filter(([k]) => /status|state|상태/i.test(k)).map(([, v]) => v).join(' '));
       return { blog, name, phone: window.fmtPhone ? window.fmtPhone(phone) || '' : phone, msg, grade, visits, area: by(/address|addr|area|주소/i), score: by(/score|점수/i), nickname: by(/nick/i), note: '', post: by(/review.*url|post.*url|reviewUrl|postUrl/i, (v) => /^https?:/.test(v)), off };
     }).filter((r) => r.name || r.blog || r.phone);
   }
@@ -981,15 +992,15 @@ textarea.ca-g.sm{min-height:100px}
     };
     const xList = el('div', { className: 'ca-xl', hidden: true });
     async function loadExtras() {
-      const { data } = await sb.from('rounds').select('id,round_no,deadline,teams,rn_campaign_id,created_at').eq('company_id', co.id).eq('state', '추가').eq('recruit_on', cycle).order('created_at');
+      const { data } = await sb.from('rounds').select('id,round_no,round_label,deadline,teams,rn_campaign_id,created_at').eq('company_id', co.id).eq('state', '추가').eq('recruit_on', cycle).order('created_at');
       const xs = data || []; xList.hidden = !xs.length; if (!xs.length) { xList.replaceChildren(); return; }
       const ros = (await sb.from('roster').select('round_id,nickname,name,phone,blog_url,cancelled').in('round_id', xs.map((x) => x.id)).order('created_at')).data || [];
-      xList.replaceChildren(el('b', { text: '추가 명단' }), ...xs.map((x) => {
-        const rs = ros.filter((r) => r.round_id === x.id), t = rs.flatMap((r) => [(r.nickname || r.name) + (r.cancelled ? ' (취소)' : ''), r.name, r.phone, r.blog_url, '']).join('\n').trimEnd();
-        return el('div', { className: 'ca-xr' }, [el('b', { text: `${x.round_no}회차 추가` }), el('span', { text: `마감 ${x.deadline ? mdw(x.deadline) : '—'} · ${rs.length}명${x.rn_campaign_id ? ' · 북마크' : ''}` }), el('span', { className: 'sp' }),
-          el('button', { className: 'btn sm ghost', type: 'button', text: 'TXT 복사', onclick: () => copy(t, '추가 명단') }),
-          el('button', { className: 'btn sm ghost', type: 'button', text: '번호 복사', onclick: () => copy(rs.filter((r) => !r.cancelled && r.phone).map((r) => r.phone).join(', '), '추가 명단 번호') }),
-          el('button', { className: 'btn sm ghost', type: 'button', text: '삭제', onclick: async () => { if (!confirm(`${x.round_no}회차 추가 명단 ${rs.length}명을 삭제할까요?`)) return; const { error } = await sb.from('rounds').delete().eq('id', x.id); if (error) { toast('삭제 실패: ' + error.message); return; } toast('추가 명단 삭제'); loadExtras(); loadRL(); } })]);
+      xList.replaceChildren(el('b', { text: xs.some((x) => /보충/.test(x.round_label || '')) ? '추가 · 보충 명단' : '추가 명단' }), ...xs.map((x) => {
+        const XN = /보충/.test(x.round_label || '') ? '보충' : '추가', rs = ros.filter((r) => r.round_id === x.id), t = rs.flatMap((r) => [(r.nickname || r.name) + (r.cancelled ? ' (취소)' : ''), r.name, r.phone, r.blog_url, '']).join('\n').trimEnd();
+        return el('div', { className: 'ca-xr' }, [el('b', { text: `${x.round_no}회차 ${XN}` }), el('span', { text: `마감 ${x.deadline ? mdw(x.deadline) : '—'} · ${rs.length}명${x.rn_campaign_id ? ' · 북마크' : ''}` }), el('span', { className: 'sp' }),
+          el('button', { className: 'btn sm ghost', type: 'button', text: 'TXT 복사', onclick: () => copy(t, XN + ' 명단') }),
+          el('button', { className: 'btn sm ghost', type: 'button', text: '번호 복사', onclick: () => copy(rs.filter((r) => !r.cancelled && r.phone).map((r) => r.phone).join(', '), XN + ' 명단 번호') }),
+          el('button', { className: 'btn sm ghost', type: 'button', text: '삭제', onclick: async () => { if (!confirm(`${x.round_no}회차 ${XN} 명단 ${rs.length}명을 삭제할까요?`)) return; const { error } = await sb.from('rounds').delete().eq('id', x.id); if (error) { toast('삭제 실패: ' + error.message); return; } toast(XN + ' 명단 삭제'); loadExtras(); loadRL(); } })]);
       }));
     }
     function extraIn() {
