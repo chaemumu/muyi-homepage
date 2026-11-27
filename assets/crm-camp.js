@@ -148,7 +148,7 @@
           } catch (e) { if (/로그인/.test(e.message)) throw e; errs.push('명단 ' + e.message); }
         }
         if (!camps.length) { say('이 캠페인에 선정된 블로거가 없습니다.' + (errs.length ? `<br><small style="opacity:.7">${esc(errs.slice(0, 3).join(' · '))}</small>` : '')); return; }
-        const send = async (cs, preview) => { const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: KEY, campaigns: cs, preview: !!preview }) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'CRM 응답 ' + r.status); return j.results || []; };
+        const send = async (cs, preview) => { const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: KEY, bm: 9, campaigns: cs, preview: !!preview }) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'CRM 응답 ' + r.status); return j.results || []; };
         // 2026-11-25~: 먼저 업체와 '명단 없는 다음 회차'만 확인(preview) → 회차를 입력·확인해야 저장 (잘못 누름 방지)
         say(`CRM에서 업체·회차 확인 중… (${camps.length}개 캠페인)`);
         let res = await send(camps, true);
