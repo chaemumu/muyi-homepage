@@ -270,6 +270,7 @@ UX:
 ### 개발 도구 (2026-11-26~)
 - **테스트**: `node tests/run.js` (전체 약 10초) · `node tests/run.js camp` (파일 이름 일부만). 가짜 Supabase(`tests/sb-stub.js`: `window.__SB_DATA` 픽스처, 쓰기는 `window.__writes`에만 기록 — 실제 DB 안 건드림) + Playwright. 북마크는 가짜 리뷰노트 화면·가짜 rn-import로 확인. 새 기능은 `tests/cases/*.js`에 테스트를 같이 추가
 - **Edge Function 소스** = `supabase/functions/<이름>/` (verify_jwt는 `supabase/config.toml`). `scripts/fn.sh pull [이름…]` 배포본 내려받기 · `scripts/fn.sh deploy 이름` 저장소 파일로 배포 · `scripts/fn.sh diff 이름` 비교. 필요: Supabase 개인 액세스 토큰(`sbp_…`, 클라우드 세션은 환경 MUYI-CRM의 네트워크 비밀로 프록시가 넣어 줌). 함수를 고치기 전에 저장소에 없으면 먼저 pull
+- `.vercelignore`: `supabase/`·`tests/`·`scripts/`는 사이트에 올리지 않음(함수 소스·테스트 공개 방지). 새 개발용 폴더도 여기에 추가
 - 클라우드 환경 **MUYI-CRM**: `pacyhanuwuizcxwoggen.supabase.co` 허용(실제 함수 호출 확인용) + api.supabase.com 토큰
 
 ### 장애 감지 (제거·우회 금지)
