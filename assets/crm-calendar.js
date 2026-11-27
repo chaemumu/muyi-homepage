@@ -937,9 +937,18 @@
     const rec = evs.filter((e) => e.step === '모집');
     const ids = [...new Set(evs.map((e) => e.co.id))];
     const rows = []; for (let i = 0; i < ids.length; i += 150) { const { data } = await sb.from('rounds').select('company_id,cycle_on,round_no').in('company_id', ids.slice(i, i + 150)); rows.push(...(data || []).filter((r) => r.round_no != null && r.cycle_on)); }
-    evs.forEach((e) => { if (/^\d+$/.test(recLabel(e))) rows.push({ company_id: e.co.id, cycle_on: e.cycle, round_no: +recLabel(e), lb: true }); }); // 직접 정한 회차도 기준점 (명단보다 우선)
+    // 모집 달력에서 직접 정한 회차(label)·직접 추가한 회차는 화면에 보이는 칩만이 아니라 업체 전체에서 가져옴
+    //  → 발표·마감·2차마감 달력, 오늘 업무, 상세(바깥 링크)도 모집 달력과 같은 기준점·같은 모집 수로 계산 (2026-11-27)
+    const mt = []; for (let i = 0; i < ids.length; i += 150) { const { data } = await sb.from('camp_tasks').select('company_id,cycle_on,label,skipped').eq('step', '모집').in('company_id', ids.slice(i, i + 150)).limit(5000); mt.push(...(data || [])); }
+    const coBy = new Map(evs.map((e) => [e.co.id, e.co]));
+    const regular = (co, c) => (co.recruit_days || []).map(Number).filter(Boolean).some((d) => { const dim = new Date(+c.slice(0, 4), +c.slice(5, 7), 0).getDate(); return Math.min(d, dim) === +c.slice(8); });
+    const labeled = new Set();
+    mt.filter((t) => !t.skipped && /^\d+$/.test(t.label || '')).forEach((t) => { labeled.add(`${t.company_id}|${t.cycle_on}`); rows.push({ company_id: t.company_id, cycle_on: t.cycle_on, round_no: +t.label, lb: true }); });
+    evs.forEach((e) => { if (/^\d+$/.test(recLabel(e)) && !labeled.has(`${e.co.id}|${e.cycle}`)) rows.push({ company_id: e.co.id, cycle_on: e.cycle, round_no: +recLabel(e), lb: true }); }); // 직접 정한 회차도 기준점 (명단보다 우선)
     const by = new Map(); rows.forEach((r) => { if (!by.has(r.company_id)) by.set(r.company_id, []); by.get(r.company_id).push(r); });
+    by.forEach((rs) => rs.sort((a, b) => (b.lb ? 1 : 0) - (a.lb ? 1 : 0))); // 같은 모집일이면 label이 명단보다 우선
     const cyc = new Map(); evs.forEach((e) => { if (!cyc.has(e.co.id)) cyc.set(e.co.id, new Set()); cyc.get(e.co.id).add(e.cycle); });
+    mt.filter((t) => !t.skipped && coBy.has(t.company_id) && !regular(coBy.get(t.company_id), t.cycle_on)).forEach((t) => { if (!cyc.has(t.company_id)) cyc.set(t.company_id, new Set()); cyc.get(t.company_id).add(t.cycle_on); }); // 직접 추가한 모집 회차도 모집 수에
     // 계약 회차: 업체에 직접 정한 값 > 최근 계약 기간(개월 + 연장) × 매월 모집 횟수
     const cts = []; for (let i = 0; i < ids.length; i += 150) { const { data } = await sb.from('contracts').select('company_id,paid_at,period_months,extension_text').in('company_id', ids.slice(i, i + 150)); cts.push(...(data || [])); }
     const lastCt = new Map(); cts.filter((c) => Number(c.period_months) > 0).forEach((c) => { const l = lastCt.get(c.company_id); if (!l || String(c.paid_at || '') > String(l.paid_at || '')) lastCt.set(c.company_id, c); });
