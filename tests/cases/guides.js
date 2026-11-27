@@ -1,113 +1,102 @@
-// 업종별 마케팅 가이드(/marketing/*): 구조화 데이터 · 폼 접수(가짜 contact) · 모바일 레이아웃
+// 업종별 가이드(local-business #guide) · 숏폼 비용(shortform-marketing #cost): 구조화 데이터 · 탭 · 폼 연결 · 모바일
 const assert = require('node:assert');
+const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { PAGES, COST } = require('../../scripts/guides-data');
+const { PAGES } = require('../../scripts/guides-data');
 
 const ROOT = path.resolve(__dirname, '../..');
-const SLUGS = ['index', ...PAGES.map((p) => p.slug), COST.slug];
 
-async function open(browser, base, slug, { viewport = { width: 1280, height: 900 }, contact } = {}) {
+async function open(browser, base, file, { viewport = { width: 1280, height: 900 }, hash = '' } = {}) {
   const ctx = await browser.newContext({ viewport });
   const page = await ctx.newPage();
   page.errors = [];
-  page.posts = [];
   page.on('pageerror', (e) => page.errors.push(e.message));
-  await page.route(/googletagmanager|fonts\.(googleapis|gstatic)|connect\.facebook/, (r) => r.fulfill({ status: 200, body: '' }));
-  await page.route(/supabase\.co\//, (r) => {
-    const req = r.request();
-    if (req.method() === 'POST' && /functions\/v1\/contact/.test(req.url())) page.posts.push(JSON.parse(req.postData()));
-    return r.fulfill({ status: contact || 200, contentType: 'application/json', body: '{"ok":true}' });
-  });
-  await page.goto(`${base}/marketing/${slug}.html`);
+  await page.route(/googletagmanager|fonts\.(googleapis|gstatic)|connect\.facebook|cdn\.jsdelivr|cdnjs/, (r) => r.fulfill({ status: 200, body: '' }));
+  await page.route(/supabase\.co\//, (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' }));
+  await page.goto(`${base}/${file}${hash}`);
   return page;
 }
+const faqNames = (page) => page.evaluate(() => {
+  const g = [...document.querySelectorAll('script[type="application/ld+json"]')].flatMap((s) => { const d = JSON.parse(s.textContent); return d['@graph'] || [d]; });
+  return g.find((n) => n['@type'] === 'FAQPage').mainEntity.map((q) => q.name);
+});
 
 module.exports = [
   {
-    name: '모든 가이드 페이지: JSON-LD 파싱 · FAQ 화면과 일치 · canonical · sitemap 등록',
+    name: '생성 스크립트: 다시 돌려도 결과가 같음',
+    run: async () => {
+      const files = ['local-business.html', 'shortform-marketing.html'].map((f) => path.join(ROOT, f));
+      const before = files.map((f) => fs.readFileSync(f, 'utf8'));
+      execFileSync('node', [path.join(ROOT, 'scripts/build-guides.js')]);
+      files.forEach((f, i) => assert.equal(fs.readFileSync(f, 'utf8'), before[i], `${path.basename(f)} 바뀜 — build-guides.js 를 돌리고 커밋할 것`));
+    },
+  },
+  {
+    name: 'local-business: 업종 탭 8개 · FAQPage = 화면 질문(중복 없음) · llms.txt 주소',
     run: async ({ browser, base }) => {
-      const sitemap = fs.readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8');
+      const page = await open(browser, base, 'local-business.html');
+      const info = await page.evaluate(() => ({
+        tabs: [...document.querySelectorAll('#guide [data-g]')].map((b) => b.dataset.g),
+        panels: [...document.querySelectorAll('#guide .gd-p')].map((p) => p.id),
+        visible: [...document.querySelectorAll('.faq-q')].map((b) => b.textContent.trim()),
+      }));
+      assert.deepEqual(info.tabs, PAGES.map((p) => p.slug));
+      assert.deepEqual(info.panels, PAGES.map((p) => 'guide-' + p.slug));
+      const names = await faqNames(page);
+      assert.equal(new Set(names).size, names.length, 'FAQPage 질문 중복');
+      assert.equal(new Set(info.visible).size, info.visible.length, '화면 질문 중복');
+      assert.deepEqual([...names].sort(), [...info.visible].sort(), 'FAQPage = 화면 FAQ');
       const llms = fs.readFileSync(path.join(ROOT, 'llms.txt'), 'utf8');
-      for (const slug of SLUGS) {
-        const page = await open(browser, base, slug);
-        const url = `https://www.muyi.co.kr/marketing${slug === 'index' ? '' : '/' + slug}`;
-        const info = await page.evaluate(() => ({
-          ld: [...document.querySelectorAll('script[type="application/ld+json"]')].map((s) => JSON.parse(s.textContent)),
-          canonical: document.querySelector('link[rel=canonical]').href,
-          faqs: [...document.querySelectorAll('.faq-q')].map((b) => b.textContent),
-          h1: document.querySelectorAll('h1').length,
-          form: !!document.getElementById('form'),
-          monitor: !!document.querySelector('script[src^="/assets/muyi-monitor.js"]'),
-        }));
-        assert.equal(info.canonical, url, `${slug} canonical`);
-        assert.equal(info.h1, 1, `${slug} h1 하나`);
-        assert.ok(info.form, `${slug} 폼 있음`);
-        assert.ok(info.monitor, `${slug} 장애 감시 스크립트`);
-        const graph = info.ld[0]['@graph'];
-        assert.ok(graph.some((n) => n['@id'] === 'https://www.muyi.co.kr/#organization'), `${slug} 조직 엔티티 연결`);
-        const faq = graph.find((n) => n['@type'] === 'FAQPage');
-        if (slug !== 'index') assert.deepEqual(faq.mainEntity.map((q) => q.name), info.faqs, `${slug} FAQ 구조화 데이터 = 화면`);
-        assert.ok(sitemap.includes(`<loc>${url}</loc>`), `${slug} sitemap`);
-        if (slug !== 'index') assert.ok(llms.includes(url), `${slug} llms.txt`);
-        assert.deepEqual(page.errors, [], `${slug} 스크립트 오류`);
-        await page.context().close();
-      }
-    },
-  },
-  {
-    name: '업종 폼: 필수값 확인 → contact 로 업종·출처와 함께 전송 → 성공 안내',
-    run: async ({ browser, base }) => {
-      const page = await open(browser, base, 'cafe');
-      await page.fill('#f-store', '테스트카페');
-      await page.fill('#f-phone', '01012345678');
-      await page.check('#f-agree');
-      await page.click('#sbtn');
-      assert.match(await page.textContent('#fst'), /문의 내용/);
-      assert.equal(page.posts.length, 0, '문의 내용 없으면 안 보냄');
-      assert.equal(await page.inputValue('#f-phone'), '010-1234-5678', '전화번호 자동 하이픈');
-      await page.fill('#f-msg', '플레이스 순위 고민');
-      await page.click('#sbtn');
-      await page.waitForFunction(() => /접수됐습니다/.test(document.getElementById('fst').textContent));
-      assert.equal(page.posts.length, 1);
-      const b = page.posts[0];
-      assert.equal(b.source, 'local-business-diagnosis');
-      assert.equal(b.industry, '카페');
-      assert.equal(b.phone, '010-1234-5678');
-      assert.match(b.message, /^\[업종 가이드: 카페·디저트\] 플레이스 순위 고민$/);
-      assert.match(b.event_id, /^mg-/);
-      assert.equal(await page.inputValue('#f-store'), '', '성공 후 비움');
+      PAGES.forEach((p) => assert.ok(llms.includes(`/local-business#guide-${p.slug}`), `llms.txt ${p.slug}`));
+      assert.deepEqual(page.errors, []);
       await page.context().close();
     },
   },
   {
-    name: '숏폼 비용 폼은 shortform-order 로 · 서버 실패 시 재시도 안내',
+    name: '탭 전환 · #guide-clinic 주소로 바로 열림 · [무료 진단 신청] → 폼 + 업종 선택',
     run: async ({ browser, base }) => {
-      const page = await open(browser, base, 'shortform-cost', { contact: 500 });
-      await page.fill('#f-store', '테스트식당');
-      await page.fill('#f-phone', '010-2222-3333');
-      await page.fill('#f-msg', '릴스 3편');
-      await page.check('#f-agree');
-      await page.click('#sbtn');
-      await page.waitForFunction(() => /실패/.test(document.getElementById('fst').textContent));
-      assert.equal(page.posts[0].source, 'shortform-order');
-      assert.equal(page.posts[0].industry, '숏폼 제작');
-      assert.equal(await page.isDisabled('#sbtn'), false, '버튼 다시 누를 수 있음');
-      assert.equal(await page.inputValue('#f-store'), '테스트식당', '실패 시 입력 유지');
+      const page = await open(browser, base, 'local-business.html', { hash: '#guide-clinic' });
+      assert.ok(await page.isVisible('#guide-clinic'), '주소로 연 업종이 보임');
+      assert.ok(!(await page.isVisible('#guide-restaurant')), '다른 업종은 숨김');
+      await page.click('#gdt-cafe');
+      assert.ok(await page.isVisible('#guide-cafe'));
+      assert.ok(!(await page.isVisible('#guide-clinic')));
+      assert.equal(new URL(page.url()).hash, '#guide-cafe', '주소 갱신');
+      await page.click('#guide-cafe .gd-cta');
+      await page.waitForFunction(() => document.getElementById('f-industry').value === '음식점·카페');
+      assert.equal(await page.locator('#bizGrid .biz-b.sel[data-biz="음식점·카페"]').count(), 1, '업종 버튼 선택됨');
+      await page.waitForFunction(() => { const r = document.getElementById('cta').getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; }, null, { timeout: 4000 }); // 폼 구간으로 이동
+      await page.click('#guide-cafe .faq-q');
+      assert.equal(await page.getAttribute('#guide-cafe .faq-q', 'aria-expanded'), 'true', '업종 FAQ 열림');
+      assert.deepEqual(page.errors, []);
       await page.context().close();
     },
   },
   {
-    name: '모바일(375px): 가로 스크롤 없음 · FAQ 열림',
+    name: 'shortform-marketing: 비용 섹션 · FAQPage = 화면 질문',
     run: async ({ browser, base }) => {
-      for (const slug of ['clinic', 'shortform-cost', 'index']) {
-        const page = await open(browser, base, slug, { viewport: { width: 375, height: 800 } });
-        const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-        assert.ok(over <= 0, `${slug} 가로 넘침 ${over}px`);
-        if (slug !== 'index') {
-          await page.click('.faq-q');
-          assert.equal(await page.getAttribute('.faq-q', 'aria-expanded'), 'true');
-        }
+      const page = await open(browser, base, 'shortform-marketing.html');
+      assert.ok(await page.isVisible('#cost table.pt'));
+      assert.match(await page.textContent('#cost'), /20만 원부터/);
+      const visible = await page.$$eval('.faq-q', (bs) => bs.map((b) => b.textContent.trim()));
+      const names = await faqNames(page);
+      assert.equal(new Set(visible).size, visible.length, '화면 질문 중복');
+      assert.deepEqual([...names].sort(), [...visible].sort(), 'FAQPage = 화면 FAQ');
+      assert.deepEqual(page.errors, []);
+      await page.context().close();
+    },
+  },
+  {
+    name: '모바일(375px): 두 페이지 가로 넘침 없음',
+    run: async ({ browser, base }) => {
+      for (const f of ['local-business.html', 'shortform-marketing.html']) {
+        const page = await open(browser, base, f, { viewport: { width: 375, height: 800 } });
+        const over = await page.evaluate(() => {
+          const s = document.querySelector('#guide, #cost');
+          return Math.max(...[...s.querySelectorAll('*')].map((e) => e.getBoundingClientRect().right)) - window.innerWidth;
+        });
+        assert.ok(over <= 1, `${f} 섹션 가로 넘침 ${over}px`);
         await page.context().close();
       }
     },
