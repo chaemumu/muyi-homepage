@@ -20,7 +20,7 @@ module.exports = [
     },
   },
   {
-    name: '모집 탭: 계약 회차 − 진행 회차 ≤ 1 → 회차 빨간색 · 재계약 조율 중 칸 · [확인 완료]로 끄기',
+    name: '모집 탭: 계약 회차 − 진행 회차 ≤ 1 → 회차 빨간색 · 재계약 임박 칸 · [확인 완료]로 끄기',
     async run({ browser, base }) {
       const co = (id, name, extra) => ({ id, name, stage: '결제', run_status: '진행 중', service_type: '체험단 패키지', recruit_days: [5], camp_round_total: 10, ...extra });
       const p = await adminPage(browser, base, { hash: '#calendar', data: {
@@ -33,7 +33,7 @@ module.exports = [
       const f = (n) => lb.find((c) => c.t.includes(n));
       assert.equal(f('임박 지점')?.red, true, JSON.stringify(lb)); assert.equal(f('여유 지점')?.red, false); assert.equal(f('확인한 지점')?.red, false);
       const soon = await p.$$eval('.hb-wrap > .card', (cs) => cs.map((c) => c.querySelector('h3').innerText + ':' + [...c.querySelectorAll('.hb-row b')].map((b) => b.innerText).join(',')));
-      assert.deepEqual(soon, ['재계약:', '재계약 조율 중:임박 지점', '홀딩 · 모집 보류:']);
+      assert.deepEqual(soon, ['재계약:', '재계약 임박:임박 지점', '홀딩 · 모집 보류:']);
       assert.equal((await writes(p, 'camp_holds')).length, 0, '재계약 칸에 자동으로 넣지 않음');
       await p.locator('.cc', { hasText: '임박 지점' }).locator('.cc-n').first().click();
       await p.waitForSelector('.rc-ack');

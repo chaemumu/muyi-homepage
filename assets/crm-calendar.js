@@ -963,10 +963,10 @@
   }
 
   // 재계약 임박 (2026-11-27~): 계약 회차 − 진행 회차 ≤ 1 → 모집 칩 회차 빨간색 · 모집 팝업 [확인 완료]로 끔(companies.camp_renew_ack = 그 계약 회차)
-  //  해당 지점은 재계약 · 홀딩 칸 가운데 '재계약 조율 중' 칸에 표시 (저장 안 함, 확인 완료하면 빠짐)
+  //  해당 지점은 재계약 · 홀딩 칸 가운데 '재계약 임박' 칸에 표시 (저장 안 함, 확인 완료하면 빠짐)
   const renewNear = (e) => e.step === '모집' && !!e.rno && !!e.total && e.total - e.rno <= 1;
   const renewRed = (e) => renewNear(e) && e.co.camp_renew_ack !== e.total;
-  // 재계약 조율 중 칸: 업체마다 오늘까지 가장 최근 모집 회차 기준 (오늘 업무·다른 달을 봐도 같은 목록)
+  // 재계약 임박 칸: 업체마다 오늘까지 가장 최근 모집 회차 기준 (오늘 업무·다른 달을 봐도 같은 목록)
   async function renewSoon(today) {
     const { ev } = await campEvents(addDays(today, -62), today);
     const rec = ev.filter((e) => e.step === '모집'); await fillRounds(rec);
@@ -984,7 +984,7 @@
       if (error) { wrap.replaceChildren(el('div', { className: 'hint', text: '모집 보류 지점을 불러오지 못했습니다: ' + error.message })); return; }
       suggestList();
       const soonCard = el('div', { className: 'card hb hb-soon' }, [
-        el('div', { className: 'hb-h' }, [el('i'), el('h3', { text: '재계약 조율 중' }), el('span', { className: 'n', text: soon.length })]),
+        el('div', { className: 'hb-h' }, [el('i'), el('h3', { text: '재계약 임박' }), el('span', { className: 'n', text: soon.length })]),
         el('div', { className: 'hb-list' }, soon.length ? soon.map((e) => el('div', { className: 'hb-row', title: '눌러서 모집 팝업 — [확인 완료]로 빼기', onclick: () => openDetail(e, cfg) }, [
           el('b', { text: e.co.name }), el('span', { className: 'hb-rt', text: `${e.rno}/${e.total}` }),
           el('small', { text: `${md(e.cycle)} 모집 · 남은 ${Math.max(0, e.total - e.rno)}회차 · ${e.co.manager_owner_name || e.co.sales_owner_name || '미배정'}` })])) : [el('div', { className: 'hb-empty', text: '계약 회차가 1회 이하 남은 지점이 없습니다' })]),
