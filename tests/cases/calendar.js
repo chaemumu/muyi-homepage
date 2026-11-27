@@ -52,7 +52,7 @@ module.exports = [
       await p.locator('.cc', { hasText: '임박 지점' }).locator('.cc-n').first().click();
       await p.waitForSelector('.rc-ack');
       const order = await p.$$eval('.gv .ca-sec button', (bs) => bs.map((b) => b.innerText));
-      assert.deepEqual(order.slice(-2), ['확인 완료', '가이드 복사']);
+      assert.deepEqual(order.slice(-3), ['확인 완료', '선재계약', '가이드 복사']);
       await p.click('.rc-ack'); await p.waitForTimeout(400);
       assert.ok((await writes(p, 'companies')).some((w) => w.op === 'update' && w.payload.camp_renew_ack === 10 && w.filt.id === 'c1'));
       assert.equal(await p.$('.rc-ack'), null);

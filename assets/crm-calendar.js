@@ -175,7 +175,7 @@
 .cc-lb.wan{background:var(--green);color:#fff;box-shadow:none}
 .cc-lb.renew,.cc-lb.renew.auto{background:#DC2626;color:#fff;box-shadow:none}
 .btn.rc-ack{background:#DC2626;border-color:#DC2626;color:#fff}
-.btn.rc-pre{height:36px}.btn.rc-pre.on{background:#ECFDF5;border-color:#16A34A;color:#15803D;font-weight:700}
+.rc-acts{display:contents}@media (min-width:641px){.rc-guide .gv .ca-sec{flex-wrap:nowrap}.rc-guide .gv .ca-sec select.fi{flex:1 1 0;min-width:80px;width:0}.rc-guide .gv .ca-sec .sp{flex:0}.rc-guide .gv .ca-sec .btn,.rc-guide .gv .ca-sec b{flex:none;white-space:nowrap}}.btn.rc-pre.on{background:#ECFDF5;border-color:#16A34A;color:#15803D;font-weight:700}
 .rc-lb{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.rc-lb .fi{width:auto;min-width:130px}
 .rc-ph{display:flex;gap:6px}
 .rc-pm{width:min(600px,100%)!important}
@@ -951,7 +951,7 @@
     };
     const gBox = el('div', { className: 'rc-guide' });
     const P = popup(`${e.co.name} · ${mdw(e.due)} 모집`, [
-      el('div', { className: 'rc-row' }, [rSel, el('span', { className: 'rc-slash', text: '/' }), tSel, mSel, ph, pre]), gBox,
+      el('div', { className: 'rc-row' }, [rSel, el('span', { className: 'rc-slash', text: '/' }), tSel, mSel, ph]), gBox,
     ], [
       el('button', { className: 'btn sm ghost', type: 'button', text: '⚙ 매월 모집일', onclick: () => { P.close(); editDays(e.co); } }),
       el('button', { className: 'btn sm ghost rc-del', type: 'button', text: '삭제', onclick: () => delRecruit(e, P) }),
@@ -966,7 +966,8 @@
       if (error) { toast('저장 실패: ' + error.message); return; }
       e.co.camp_renew_ack = e.total; (S.coAll || []).forEach((c) => { if (c.id === e.co.id) c.camp_renew_ack = e.total; }); ack.dataset.gone = '1'; ack.remove(); P.mark(); toast(`${e.co.name} 재계약 확인 완료`);
     } }) : null;
-    campLib().then(async () => { gBox.append(await window.CRM_CAMP.guideView(e.co, { before: ack })); window.CRM_CAMP.memoSide(P.layer, e.co); }).catch(() => {});
+    // 가이드 머리 오른쪽: [확인 완료] [선재계약] [가이드 복사]
+    campLib().then(async () => { gBox.append(await window.CRM_CAMP.guideView(e.co, { before: el('span', { className: 'rc-acts' }, [ack, pre].filter(Boolean)) })); window.CRM_CAMP.memoSide(P.layer, e.co); }).catch(() => {});
   }
   // 회차 (모든 단계 통일 — 모집·발표·마감·2차마감 칩이 같은 번호, 상세 우상단도 같은 번호, 메시지는 +1)
   //  저장된 회차(모집 label, '-' = 회차 없음) > 이 회차 명단(rounds) > 지난 기준점 + 그 뒤 모집 수 > 끝난 회차(camp_round_done @ camp_round_cycle) + 그 뒤 모집 수
