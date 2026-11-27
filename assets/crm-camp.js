@@ -473,7 +473,7 @@ textarea.ca-g.sm{min-height:100px}
   }
   // 모집 팝업용 가이드 보기: 저장된 버전을 고르면 그 버전 가이드 전체 + 드롭다운 '＋ 가이드 추가' (2026-11-25~)
   //  추가 = 발표 상세 ④ [버전 저장]과 같은 형식(guidelines 체험단 행: body=지점 특이사항, fields={title, price, must, opt, brand}) → 발표 상세 ④ 버전 목록에 그대로 나옴
-  async function guideView(co) {
+  async function guideView(co, opt = {}) {
     const box = el('div', { className: 'gv' });
     const load = async (pick) => {
       const [gl, gb, ex] = await Promise.all([
@@ -519,7 +519,7 @@ textarea.ca-g.sm{min-height:100px}
         E.L.firstChild.classList.add('gv-pm'); f.title.focus();
       };
       paint();
-      box.replaceChildren(el('div', { className: 'ca-sec' }, [el('b', { text: '블로거 가이드' }), sel, el('span', { className: 'sp' }), el('button', { className: 'btn sm', type: 'button', text: '가이드 복사', onclick: () => copy(out.value, '가이드') })]), out);
+      box.replaceChildren(el('div', { className: 'ca-sec' }, [el('b', { text: '블로거 가이드' }), sel, el('span', { className: 'sp' }), opt.before && !opt.before.dataset.gone ? opt.before : null, el('button', { className: 'btn sm', type: 'button', text: '가이드 복사', onclick: () => copy(out.value, '가이드') })].filter(Boolean)), out);
     };
     await load();
     return box;
