@@ -191,7 +191,7 @@ UX:
 
 ### 페이지
 - 문의 폼이 있는 페이지: `index.html`, `b2b-marketing.html`, `public-sector.html`, `consult.html`, `expo-event.html`, `local-business.html`, `shortform-marketing.html`(숏폼 제작 의뢰, source `shortform-order`)
-- 업종별 가이드(2026-11-27~, GEO·AEO용 — ai-visibility '추천' 질문 대응): `local-business` `#guide` 섹션(업종 탭, 주소 `#guide-<slug>`: restaurant·cafe·hair-salon·clinic·pilates·academy·franchise·naver-place) + `shortform-marketing` `#cost`(숏폼 제작 비용). **생성 구간**(`<!-- guide:… -->`): 내용은 `scripts/guides-data.js` → `node scripts/build-guides.js`(구간·FAQPage JSON-LD의 `#faq-g-` 질문만 다시 씀, 이미 있는 질문은 건너뜀). [무료 진단 신청] = 그 페이지 폼으로 이동 + 업종 버튼 선택. 공개된 사실·가격만 쓸 것(지어낸 수치 금지)
+- 업종별 가이드(2026-11-27~, GEO·AEO용 — ai-visibility '추천' 질문 대응): `local-business` `#guide` 섹션(업종 탭, 주소 `#guide-<slug>`: restaurant·cafe·hair-salon·clinic·pilates·academy·franchise·naver-place) + `local-business` `#studio`(무이 스튜디오 영상 촬영: 촬영 종류·시작가·영상·FAQ + Service JSON-LD, 2026-11-27~, 내용 `STUDIO`) + `shortform-marketing` `#cost`(숏폼 제작 비용). 가격은 시작가만 공개(숏폼 20만 · 브랜드 필름 40만 · 광고 60만 · 행사 35만 원부터 — 뒤 셋은 크몽 최저 시작가 기준), 나머지는 '상담 후 안내'. **생성 구간**(`<!-- guide:… -->`): 내용은 `scripts/guides-data.js` → `node scripts/build-guides.js`(구간·FAQPage JSON-LD의 `#faq-g-` 질문만 다시 씀, 이미 있는 질문은 건너뜀). [무료 진단 신청] = 그 페이지 폼으로 이동 + 업종 버튼 선택. 공개된 사실·가격만 쓸 것(지어낸 수치 금지)
 - IndexNow: 루트 `<키>.txt` + `scripts/indexnow.js` — `.github/workflows/indexnow.yml`이 main 푸시(페이지·sitemap·llms.txt) 후 운영 배포를 기다렸다가 sitemap 주소 전체를 Bing·네이버에 알림 (Actions에서 수동 실행도 가능)
 - 구글 광고 리드 전환: `AW-11170573795/eEDoCKW5_rkdEOPbxc4p` (전환 액션 '홈페이지 무료진단 문의 (소상공인)') — local-business·shortform 폼 성공 시 발화, `transaction_id` = 폼 event_id
 - 위 페이지 수정 시 `<head>`의 `/assets/muyi-monitor.js?v=N` 태그 유지 (수정하면 `v` 값 올리기 — `/assets`는 1년 캐시, 현재 v=2)

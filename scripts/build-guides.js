@@ -1,11 +1,12 @@
 // 업종별 가이드 섹션 생성: node scripts/build-guides.js
 // 입력 scripts/guides-data.js → 두 페이지의 표시 구간만 다시 씀 (몇 번을 돌려도 결과 같음)
 //   local-business.html      : <!-- guide:css --> · <!-- guide:section --> (#guide, 업종 탭 #guide-<slug>) · <!-- guide:js -->
-//                              + FAQPage JSON-LD 끝에 업종 질문 추가 (@id …#faq-g-<slug>-<n>, 이미 있는 질문은 건너뜀)
+//                              · <!-- guide:studio --> (#studio, 무이 스튜디오 영상 촬영 + Service JSON-LD)
+//                              + FAQPage JSON-LD 끝에 업종·스튜디오 질문 추가 (@id …#faq-g-<slug>-<n>, 이미 있는 질문은 건너뜀)
 //   shortform-marketing.html : <!-- guide:css --> · <!-- guide:section --> (#cost, 숏폼 제작 비용) + FAQPage 에 비용 질문 추가
 const fs = require('fs');
 const path = require('path');
-const { CASES, PAGES, COST } = require('./guides-data');
+const { CASES, PAGES, COST, STUDIO } = require('./guides-data');
 
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://www.muyi.co.kr';
@@ -71,7 +72,32 @@ const LB_CSS = `<style>
 .gd-cta{margin-top:1.6rem}
 @media (max-width:760px){.gd-steps{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:420px){.gd-steps{grid-template-columns:1fr}}
-.lp-only #guide{display:none!important}
+.lp-only #guide,.lp-only #studio{display:none!important}
+/* 무이 스튜디오 (#studio) */
+.st-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(1.6rem,4vw,3.2rem);align-items:start}
+.st-facts{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);margin:1.6rem 0}
+.st-facts div{padding:1rem .6rem 1rem 0;border-bottom:1px solid var(--line)}
+.st-facts b{display:block;font-size:clamp(1.5rem,3.2vw,2.1rem);font-weight:900;letter-spacing:-.03em;color:var(--text);line-height:1.1}
+.st-facts b small{font-size:.5em;font-weight:800;color:var(--brand);margin-left:.1em}
+.st-facts span{font-size:.8rem;color:var(--text-sub)}
+.st-kinds{list-style:none;border-top:1px solid var(--line);margin-bottom:1.2rem}
+.st-kinds li{display:grid;grid-template-columns:1fr auto;gap:.2rem 1rem;padding:.95rem 0;border-bottom:1px solid var(--line);transition:padding-left var(--dur) var(--ease)}
+.st-kinds li:hover{padding-left:.5rem}
+.st-kinds b{color:var(--text);font-size:.98rem}
+.st-kinds em{font-style:normal;font-weight:800;color:var(--brand);white-space:nowrap}
+.st-kinds span{grid-column:1/-1;font-size:.86rem;color:var(--text-sub);word-break:keep-all}
+.st-reels{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem}
+.st-reel{position:relative;aspect-ratio:9/16;border-radius:1.2rem;overflow:hidden;background:#000;border:0;padding:0;cursor:pointer;transition:transform var(--dur) var(--ease),box-shadow var(--dur) var(--ease)}
+.st-reel:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.st-reel img,.st-reel video{width:100%;height:100%;object-fit:cover;display:block}
+.st-reel span{position:absolute;left:.7rem;right:.7rem;bottom:.7rem;color:#fff;font-size:.82rem;font-weight:700;text-align:left;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.st-reel i{position:absolute;top:50%;left:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(0,0,0,.45);backdrop-filter:blur(4px)}
+.st-reel i::after{content:'';position:absolute;left:19px;top:15px;border-left:14px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent}
+.st-reel.play i,.st-reel.play span{display:none}
+.st-ctas{display:flex;flex-wrap:wrap;justify-content:center;gap:.6rem;margin-top:1.4rem}
+#studio .faq-l{margin-top:1.4rem}
+@media (max-width:900px){.st-grid{grid-template-columns:1fr}.st-reels{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:560px){.st-facts{grid-template-columns:repeat(2,1fr)}.st-reels{grid-template-columns:repeat(2,1fr)}}
 </style>`;
 
 let LB_HAVE = new Set(), SF_HAVE = new Set();
@@ -126,8 +152,71 @@ const LB_JS = `<script>
     var b=a.dataset.biz&&document.querySelector('#bizGrid .biz-b[data-biz="'+a.dataset.biz+'"]');
     if(b&&!b.classList.contains('sel'))b.click();
   });});
+  /* 무이 스튜디오: 썸네일 누르면 그 자리에서 재생(영상은 누를 때만 받음) · [촬영 상담] = 폼으로 이동 + 문의 내용 채움 */
+  document.querySelectorAll('#studio .st-reel').forEach(function(b){b.addEventListener('click',function(){
+    if(b.classList.contains('play'))return;
+    var v=document.createElement('video');v.src='/assets/video/'+b.dataset.v+'.mp4';v.poster=b.querySelector('img').src;
+    v.controls=true;v.playsInline=true;v.autoplay=true;b.classList.add('play');b.replaceChild(v,b.querySelector('img'));v.play().catch(function(){});
+  });});
+  var sc=document.querySelector('#studio .st-cta');
+  if(sc)sc.addEventListener('click',function(e){
+    var cta=document.getElementById('cta');if(!cta)return;
+    e.preventDefault();cta.scrollIntoView({behavior:'smooth'});
+    var m=document.getElementById('f-msg');if(m&&!m.value.trim())m.value='무이 스튜디오 영상 촬영 문의';
+  });
 })();
 </script>`;
+
+// ───────── local-business: 무이 스튜디오 섹션 ─────────
+const LB_STUDIO = () => `<!-- ═══════════ S05-C. 무이 스튜디오 (영상 촬영, #studio) ═══════════ -->
+<section id="studio" class="sec">
+  <script type="application/ld+json">${ld({
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    '@id': `${SITE}/local-business#studio`,
+    name: '무이 스튜디오 매장 영상 촬영',
+    serviceType: '매장 홍보 영상·숏폼 촬영 및 편집',
+    brand: { '@type': 'Brand', '@id': `${SITE}/#studio-brand`, name: '무이 스튜디오', alternateName: 'MUYI studio' },
+    provider: { '@id': `${SITE}/#organization` },
+    areaServed: { '@type': 'Country', name: '대한민국' },
+    description: STUDIO.answer,
+    offers: STUDIO.kinds.map(([name, price, desc]) => {
+      const won = price.match(/^(\d+)만 원부터$/);
+      return { '@type': 'Offer', name, description: desc, priceCurrency: 'KRW', ...(won ? { priceSpecification: { '@type': 'PriceSpecification', minPrice: +won[1] * 10000, priceCurrency: 'KRW' } } : {}), url: `${SITE}/local-business#studio` };
+    }),
+    subjectOf: STUDIO.reels.map(([f]) => ({ '@id': `${SITE}/shortform-marketing#video-${f}` })),
+  })}</script>
+  <div class="wrap">
+    <div class="sec-head mid rise">
+      <span class="eyebrow dsp">MUYI studio</span>
+      <h2 class="sec-h2 dsp">가게 영상, 무이 스튜디오가 직접 찍습니다</h2>
+      <p class="sec-p">찍는 팀과 마케팅하는 팀이 같아야 영상이 방문으로 이어집니다.</p>
+    </div>
+    <div class="st-grid">
+      <div class="rise">
+        <h3 class="gd-q">${esc(STUDIO.q)}</h3>
+        <p class="gd-a"><b>짧은 답</b>${esc(STUDIO.answer)}</p>
+        <div class="st-facts">${STUDIO.facts.map(([n, u, t]) => `<div><b>${esc(n)}${u ? `<small>${esc(u)}</small>` : ''}</b><span>${esc(t)}</span></div>`).join('')}</div>
+        <ul class="st-kinds">
+${STUDIO.kinds.map(([n, p, t]) => `          <li><b>${esc(n)}</b><em>${esc(p)}</em><span>${esc(t)}</span></li>`).join('\n')}
+        </ul>
+        <p class="gd-meta">${esc(STUDIO.proof)}</p>
+      </div>
+      <div class="rise">
+        <div class="st-reels">
+${STUDIO.reels.map(([f, n]) => `          <button class="st-reel" type="button" data-v="${f}" aria-label="${esc(n)} 숏폼 재생"><img src="/assets/video/thumb/${f}.jpg" alt="${esc(n)} 숏폼 — 무이 스튜디오 직접 촬영" loading="lazy" decoding="async"><i></i><span>${esc(n)}</span></button>`).join('\n')}
+        </div>
+      </div>
+    </div>
+    <div class="faq-l rise">
+${STUDIO.faq.filter(([q]) => !LB_HAVE.has(q)).map(([q, a]) => `      <div class="faq-i"><button class="faq-q" type="button" aria-expanded="false">${esc(q)}<span class="faq-ic"></span></button><div class="faq-a"><div class="faq-a-in">${esc(a)}</div></div></div>`).join('\n')}
+    </div>
+    <div class="st-ctas rise">
+      <a class="btn btn-primary st-cta" href="#cta">영상 촬영 상담 받기<svg class="btn-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+      <a class="btn btn-ghost" href="/shortform-marketing">촬영 영상 더 보기</a>
+    </div>
+  </div>
+</section>`;
 
 // ───────── shortform-marketing: 숏폼 제작 비용 섹션 ─────────
 const SF_CSS = `<style>
@@ -184,8 +273,12 @@ let lb = fs.readFileSync(lbPath, 'utf8');
 LB_HAVE = baseFaq(lb, `${SITE}/local-business#faq`);
 lb = block(lb, 'css', LB_CSS, '</head>', 'before');
 lb = block(lb, 'section', LB_SECTION(), '<!-- ═══════════ S06. 실증', 'before');
+lb = block(lb, 'studio', LB_STUDIO(), '<!-- ═══════════ S06. 실증', 'before');
 lb = block(lb, 'js', LB_JS, '</body>', 'before');
-const lbFaq = addFaq(lb, `${SITE}/local-business#faq`, PAGES.flatMap((p) => p.faq.map(([q, a], n) => question(`${SITE}/local-business#faq-g-${p.slug}-${n + 1}`, q, a))));
+const lbFaq = addFaq(lb, `${SITE}/local-business#faq`, [
+  ...PAGES.flatMap((p) => p.faq.map(([q, a], n) => question(`${SITE}/local-business#faq-g-${p.slug}-${n + 1}`, q, a))),
+  ...STUDIO.faq.map(([q, a], n) => question(`${SITE}/local-business#faq-g-studio-${n + 1}`, q, a)),
+]);
 fs.writeFileSync(lbPath, lbFaq.html);
 
 const sfPath = path.join(ROOT, 'shortform-marketing.html');
@@ -196,4 +289,4 @@ sf = block(sf, 'section', SF_SECTION(), '<section id="order">', 'before');
 const sfFaq = addFaq(sf, `${SITE}/shortform-marketing#faq`, COST.faq.map(([q, a], n) => question(`${SITE}/shortform-marketing#faq-g-cost-${n + 1}`, q, a)));
 fs.writeFileSync(sfPath, sfFaq.html);
 
-console.log(`local-business: 업종 ${PAGES.length}개 · FAQ +${lbFaq.added} / shortform-marketing: 비용 섹션 · FAQ +${sfFaq.added}`);
+console.log(`local-business: 업종 ${PAGES.length}개 · 스튜디오 · FAQ +${lbFaq.added} / shortform-marketing: 비용 섹션 · FAQ +${sfFaq.added}`);

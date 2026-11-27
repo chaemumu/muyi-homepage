@@ -231,7 +231,11 @@
         {"@type":"Question","@id":"https://www.muyi.co.kr/local-business#faq-g-naver-place-2","name":"플레이스 관리 비용은 얼마인가요?","acceptedAnswer":{"@type":"Answer","text":"진단은 무료입니다. 정비 범위와 광고 여부에 따라 달라 진단 후 안내하며, 매체 광고비는 대부분 월 10만 원대부터 시작할 수 있습니다."}},
         {"@type":"Question","@id":"https://www.muyi.co.kr/local-business#faq-g-naver-place-3","name":"리뷰는 어떻게 늘리나요?","acceptedAnswer":{"@type":"Answer","text":"실제 방문 손님에게 리뷰를 요청하는 흐름과 체험단을 함께 씁니다. 리뷰 조작은 하지 않습니다."}},
         {"@type":"Question","@id":"https://www.muyi.co.kr/local-business#faq-g-naver-place-4","name":"어떤 업종이 되나요?","acceptedAnswer":{"@type":"Answer","text":"음식점·카페, 미용·뷰티, 병의원, 피트니스, 학원, 반려동물, 자동차정비 등 플레이스로 손님을 받는 오프라인 매장 전반입니다."}},
-        {"@type":"Question","@id":"https://www.muyi.co.kr/local-business#faq-g-naver-place-5","name":"진단 결과는 무엇을 받나요?","acceptedAnswer":{"@type":"Answer","text":"광고비 누수 리포트, 우리 동네 경쟁사 3곳 분석, 30일 실행 체크리스트 3가지를 드립니다. 계약하지 않아도 리포트는 그대로 드립니다."}}
+        {"@type":"Question","@id":"https://www.muyi.co.kr/local-business#faq-g-naver-place-5","name":"진단 결과는 무엇을 받나요?","acceptedAnswer":{"@type":"Answer","text":"광고비 누수 리포트, 우리 동네 경쟁사 3곳 분석, 30일 실행 체크리스트 3가지를 드립니다. 계약하지 않아도 리포트는 그대로 드립니다."}},
+        {"@type":"Question","@id":"https://www.muyi.co.kr/local-business#faq-g-studio-1","name":"무이 스튜디오는 어떤 곳인가요?","acceptedAnswer":{"@type":"Answer","text":"무이 스튜디오(MUYI studio)는 마케팅 회사 MUYI(주식회사 무이코퍼레이션)의 영상 촬영 브랜드입니다. 음식점·카페·주점 등 매장 300곳 이상을 직접 촬영했고, 촬영한 영상을 숏폼 운영·네이버 플레이스·광고까지 한 팀이 연결합니다."}},
+        {"@type":"Question","@id":"https://www.muyi.co.kr/local-business#faq-g-studio-2","name":"가게 홍보 영상만 따로 맡길 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"됩니다. 매장 숏폼은 단건 20만 원부터 제작만 맡길 수 있고, 업로드·광고·플레이스 연결은 필요할 때 더하면 됩니다."}},
+        {"@type":"Question","@id":"https://www.muyi.co.kr/local-business#faq-g-studio-3","name":"브랜드 필름·광고·행사 영상 촬영 비용은 얼마인가요?","acceptedAnswer":{"@type":"Answer","text":"시작가 기준으로 브랜드 필름 40만 원부터, 광고 영상 60만 원부터, 행사 스케치 영상 35만 원부터, 매장 숏폼 20만 원부터입니다. 영상 길이, 촬영 일수, 출연자·장소, 편집 범위에 따라 달라져 상담 후 정확한 금액을 안내합니다."}},
+        {"@type":"Question","@id":"https://www.muyi.co.kr/local-business#faq-g-studio-4","name":"영상 촬영 상담은 어떻게 받나요?","acceptedAnswer":{"@type":"Answer","text":"이 페이지 아래 무료 진단 신청에서 연락처를 남기시면 영업일 기준 24시간 안에 연락드립니다. 촬영 문의라고 적어 주시면 촬영 담당이 연락합니다."}}
       ]
     }
   ]
@@ -1147,7 +1151,32 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
 .gd-cta{margin-top:1.6rem}
 @media (max-width:760px){.gd-steps{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:420px){.gd-steps{grid-template-columns:1fr}}
-.lp-only #guide{display:none!important}
+.lp-only #guide,.lp-only #studio{display:none!important}
+/* 무이 스튜디오 (#studio) */
+.st-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(1.6rem,4vw,3.2rem);align-items:start}
+.st-facts{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);margin:1.6rem 0}
+.st-facts div{padding:1rem .6rem 1rem 0;border-bottom:1px solid var(--line)}
+.st-facts b{display:block;font-size:clamp(1.5rem,3.2vw,2.1rem);font-weight:900;letter-spacing:-.03em;color:var(--text);line-height:1.1}
+.st-facts b small{font-size:.5em;font-weight:800;color:var(--brand);margin-left:.1em}
+.st-facts span{font-size:.8rem;color:var(--text-sub)}
+.st-kinds{list-style:none;border-top:1px solid var(--line);margin-bottom:1.2rem}
+.st-kinds li{display:grid;grid-template-columns:1fr auto;gap:.2rem 1rem;padding:.95rem 0;border-bottom:1px solid var(--line);transition:padding-left var(--dur) var(--ease)}
+.st-kinds li:hover{padding-left:.5rem}
+.st-kinds b{color:var(--text);font-size:.98rem}
+.st-kinds em{font-style:normal;font-weight:800;color:var(--brand);white-space:nowrap}
+.st-kinds span{grid-column:1/-1;font-size:.86rem;color:var(--text-sub);word-break:keep-all}
+.st-reels{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem}
+.st-reel{position:relative;aspect-ratio:9/16;border-radius:1.2rem;overflow:hidden;background:#000;border:0;padding:0;cursor:pointer;transition:transform var(--dur) var(--ease),box-shadow var(--dur) var(--ease)}
+.st-reel:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.st-reel img,.st-reel video{width:100%;height:100%;object-fit:cover;display:block}
+.st-reel span{position:absolute;left:.7rem;right:.7rem;bottom:.7rem;color:#fff;font-size:.82rem;font-weight:700;text-align:left;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.st-reel i{position:absolute;top:50%;left:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(0,0,0,.45);backdrop-filter:blur(4px)}
+.st-reel i::after{content:'';position:absolute;left:19px;top:15px;border-left:14px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent}
+.st-reel.play i,.st-reel.play span{display:none}
+.st-ctas{display:flex;flex-wrap:wrap;justify-content:center;gap:.6rem;margin-top:1.4rem}
+#studio .faq-l{margin-top:1.4rem}
+@media (max-width:900px){.st-grid{grid-template-columns:1fr}.st-reels{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:560px){.st-facts{grid-template-columns:repeat(2,1fr)}.st-reels{grid-template-columns:repeat(2,1fr)}}
 </style>
 <!-- guide:css:end -->
 </head>
@@ -1600,6 +1629,53 @@ section.sec{padding:clamp(4rem,9vw,7.5rem) var(--pad)}
   </div>
 </section>
 <!-- guide:section:end -->
+<!-- guide:studio:start (scripts/build-guides.js 가 생성 — 직접 수정 금지) -->
+<!-- ═══════════ S05-C. 무이 스튜디오 (영상 촬영, #studio) ═══════════ -->
+<section id="studio" class="sec">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","@id":"https://www.muyi.co.kr/local-business#studio","name":"무이 스튜디오 매장 영상 촬영","serviceType":"매장 홍보 영상·숏폼 촬영 및 편집","brand":{"@type":"Brand","@id":"https://www.muyi.co.kr/#studio-brand","name":"무이 스튜디오","alternateName":"MUYI studio"},"provider":{"@id":"https://www.muyi.co.kr/#organization"},"areaServed":{"@type":"Country","name":"대한민국"},"description":"가게 영상은 찍는 팀과 마케팅하는 팀이 같아야 영상이 방문으로 이어집니다. 무이 스튜디오(MUYI studio)는 무이코퍼레이션의 영상 촬영 브랜드로, 매장에 직접 방문해 촬영·편집하고(외주 아님) 그 영상을 릴스·쇼츠·틱톡과 네이버 플레이스까지 연결합니다. 매장 숏폼 제작은 20만 원부터이며, 편집본과 촬영 원본을 모두 드립니다.","offers":[{"@type":"Offer","name":"매장 숏폼 촬영·편집","description":"기획 + 방문 촬영 + 편집. 릴스·쇼츠·틱톡 세로형(9:16)","priceCurrency":"KRW","priceSpecification":{"@type":"PriceSpecification","minPrice":200000,"priceCurrency":"KRW"},"url":"https://www.muyi.co.kr/local-business#studio"},{"@type":"Offer","name":"브랜드 필름","description":"매장·브랜드 이야기를 담은 가로형 영상. 길이·촬영 일수에 따라 달라짐","priceCurrency":"KRW","priceSpecification":{"@type":"PriceSpecification","minPrice":400000,"priceCurrency":"KRW"},"url":"https://www.muyi.co.kr/local-business#studio"},{"@type":"Offer","name":"광고 영상","description":"SNS·유튜브 광고용 영상. 기획·촬영·편집, 매체 규격별 편집","priceCurrency":"KRW","priceSpecification":{"@type":"PriceSpecification","minPrice":600000,"priceCurrency":"KRW"},"url":"https://www.muyi.co.kr/local-business#studio"},{"@type":"Offer","name":"행사 스케치 영상","description":"행사·박람회·오픈 현장 촬영과 하이라이트 편집","priceCurrency":"KRW","priceSpecification":{"@type":"PriceSpecification","minPrice":350000,"priceCurrency":"KRW"},"url":"https://www.muyi.co.kr/local-business#studio"},{"@type":"Offer","name":"촬영 소스 편집","description":"사장님이 찍어둔 영상으로 기획·편집만 진행","priceCurrency":"KRW","url":"https://www.muyi.co.kr/local-business#studio"},{"@type":"Offer","name":"월 정기 제작·운영","description":"월 편수·촬영 횟수 + 업로드·계정 관리","priceCurrency":"KRW","url":"https://www.muyi.co.kr/local-business#studio"}],"subjectOf":[{"@id":"https://www.muyi.co.kr/shortform-marketing#video-kkoyo"},{"@id":"https://www.muyi.co.kr/shortform-marketing#video-coffeehouse"},{"@id":"https://www.muyi.co.kr/shortform-marketing#video-bandeut"},{"@id":"https://www.muyi.co.kr/shortform-marketing#video-tteokbokki"}]}</script>
+  <div class="wrap">
+    <div class="sec-head mid rise">
+      <span class="eyebrow dsp">MUYI studio</span>
+      <h2 class="sec-h2 dsp">가게 영상, 무이 스튜디오가 직접 찍습니다</h2>
+      <p class="sec-p">찍는 팀과 마케팅하는 팀이 같아야 영상이 방문으로 이어집니다.</p>
+    </div>
+    <div class="st-grid">
+      <div class="rise">
+        <h3 class="gd-q">가게 홍보 영상 촬영은 어디에 맡겨야 하나요?</h3>
+        <p class="gd-a"><b>짧은 답</b>가게 영상은 찍는 팀과 마케팅하는 팀이 같아야 영상이 방문으로 이어집니다. 무이 스튜디오(MUYI studio)는 무이코퍼레이션의 영상 촬영 브랜드로, 매장에 직접 방문해 촬영·편집하고(외주 아님) 그 영상을 릴스·쇼츠·틱톡과 네이버 플레이스까지 연결합니다. 매장 숏폼 제작은 20만 원부터이며, 편집본과 촬영 원본을 모두 드립니다.</p>
+        <div class="st-facts"><div><b>300<small>건+</small></b><span>매장 직접 촬영</span></div><div><b>20<small>만 원~</small></b><span>숏폼 제작 단건</span></div><div><b>9:16</b><span>릴스·쇼츠·틱톡 규격</span></div><div><b>원본</b><span>편집본 + 촬영 원본 제공</span></div></div>
+        <ul class="st-kinds">
+          <li><b>매장 숏폼 촬영·편집</b><em>20만 원부터</em><span>기획 + 방문 촬영 + 편집. 릴스·쇼츠·틱톡 세로형(9:16)</span></li>
+          <li><b>브랜드 필름</b><em>40만 원부터</em><span>매장·브랜드 이야기를 담은 가로형 영상. 길이·촬영 일수에 따라 달라짐</span></li>
+          <li><b>광고 영상</b><em>60만 원부터</em><span>SNS·유튜브 광고용 영상. 기획·촬영·편집, 매체 규격별 편집</span></li>
+          <li><b>행사 스케치 영상</b><em>35만 원부터</em><span>행사·박람회·오픈 현장 촬영과 하이라이트 편집</span></li>
+          <li><b>촬영 소스 편집</b><em>상담 후 안내</em><span>사장님이 찍어둔 영상으로 기획·편집만 진행</span></li>
+          <li><b>월 정기 제작·운영</b><em>상담 후 안내</em><span>월 편수·촬영 횟수 + 업로드·계정 관리</span></li>
+        </ul>
+        <p class="gd-meta">비디오물제작업 신고 사업자. 중소벤처기업부 옴부즈만 숏폼 콘텐츠 제작(2026), CJ프레시웨이 행담도 휴게소 릴스 운영. 촬영 매장 예시: 심돈, 꽃돼지식당, 명륜진사갈비, 명월회관, 커피하우스178, 반듯한잔 등.</p>
+      </div>
+      <div class="rise">
+        <div class="st-reels">
+          <button class="st-reel" type="button" data-v="kkoyo" aria-label="꼬요식당 숏폼 재생"><img src="/assets/video/thumb/kkoyo.jpg" alt="꼬요식당 숏폼 — 무이 스튜디오 직접 촬영" loading="lazy" decoding="async"><i></i><span>꼬요식당</span></button>
+          <button class="st-reel" type="button" data-v="coffeehouse" aria-label="커피하우스178 숏폼 재생"><img src="/assets/video/thumb/coffeehouse.jpg" alt="커피하우스178 숏폼 — 무이 스튜디오 직접 촬영" loading="lazy" decoding="async"><i></i><span>커피하우스178</span></button>
+          <button class="st-reel" type="button" data-v="bandeut" aria-label="반듯한잔 숏폼 재생"><img src="/assets/video/thumb/bandeut.jpg" alt="반듯한잔 숏폼 — 무이 스튜디오 직접 촬영" loading="lazy" decoding="async"><i></i><span>반듯한잔</span></button>
+          <button class="st-reel" type="button" data-v="tteokbokki" aria-label="즉석떡볶이 맛집 숏폼 재생"><img src="/assets/video/thumb/tteokbokki.jpg" alt="즉석떡볶이 맛집 숏폼 — 무이 스튜디오 직접 촬영" loading="lazy" decoding="async"><i></i><span>즉석떡볶이 맛집</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="faq-l rise">
+      <div class="faq-i"><button class="faq-q" type="button" aria-expanded="false">무이 스튜디오는 어떤 곳인가요?<span class="faq-ic"></span></button><div class="faq-a"><div class="faq-a-in">무이 스튜디오(MUYI studio)는 마케팅 회사 MUYI(주식회사 무이코퍼레이션)의 영상 촬영 브랜드입니다. 음식점·카페·주점 등 매장 300곳 이상을 직접 촬영했고, 촬영한 영상을 숏폼 운영·네이버 플레이스·광고까지 한 팀이 연결합니다.</div></div></div>
+      <div class="faq-i"><button class="faq-q" type="button" aria-expanded="false">가게 홍보 영상만 따로 맡길 수 있나요?<span class="faq-ic"></span></button><div class="faq-a"><div class="faq-a-in">됩니다. 매장 숏폼은 단건 20만 원부터 제작만 맡길 수 있고, 업로드·광고·플레이스 연결은 필요할 때 더하면 됩니다.</div></div></div>
+      <div class="faq-i"><button class="faq-q" type="button" aria-expanded="false">브랜드 필름·광고·행사 영상 촬영 비용은 얼마인가요?<span class="faq-ic"></span></button><div class="faq-a"><div class="faq-a-in">시작가 기준으로 브랜드 필름 40만 원부터, 광고 영상 60만 원부터, 행사 스케치 영상 35만 원부터, 매장 숏폼 20만 원부터입니다. 영상 길이, 촬영 일수, 출연자·장소, 편집 범위에 따라 달라져 상담 후 정확한 금액을 안내합니다.</div></div></div>
+      <div class="faq-i"><button class="faq-q" type="button" aria-expanded="false">영상 촬영 상담은 어떻게 받나요?<span class="faq-ic"></span></button><div class="faq-a"><div class="faq-a-in">이 페이지 아래 무료 진단 신청에서 연락처를 남기시면 영업일 기준 24시간 안에 연락드립니다. 촬영 문의라고 적어 주시면 촬영 담당이 연락합니다.</div></div></div>
+    </div>
+    <div class="st-ctas rise">
+      <a class="btn btn-primary st-cta" href="#cta">영상 촬영 상담 받기<svg class="btn-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+      <a class="btn btn-ghost" href="/shortform-marketing">촬영 영상 더 보기</a>
+    </div>
+  </div>
+</section>
+<!-- guide:studio:end -->
 <!-- ═══════════ S06. 실증 — 후기·성과 통합 (탭 전환, 후기 기본) ═══════════ -->
 <section id="proof" class="sec">
   <div class="wrap">
@@ -2685,6 +2761,18 @@ onScroll();
     var b=a.dataset.biz&&document.querySelector('#bizGrid .biz-b[data-biz="'+a.dataset.biz+'"]');
     if(b&&!b.classList.contains('sel'))b.click();
   });});
+  /* 무이 스튜디오: 썸네일 누르면 그 자리에서 재생(영상은 누를 때만 받음) · [촬영 상담] = 폼으로 이동 + 문의 내용 채움 */
+  document.querySelectorAll('#studio .st-reel').forEach(function(b){b.addEventListener('click',function(){
+    if(b.classList.contains('play'))return;
+    var v=document.createElement('video');v.src='/assets/video/'+b.dataset.v+'.mp4';v.poster=b.querySelector('img').src;
+    v.controls=true;v.playsInline=true;v.autoplay=true;b.classList.add('play');b.replaceChild(v,b.querySelector('img'));v.play().catch(function(){});
+  });});
+  var sc=document.querySelector('#studio .st-cta');
+  if(sc)sc.addEventListener('click',function(e){
+    var cta=document.getElementById('cta');if(!cta)return;
+    e.preventDefault();cta.scrollIntoView({behavior:'smooth'});
+    var m=document.getElementById('f-msg');if(m&&!m.value.trim())m.value='무이 스튜디오 영상 촬영 문의';
+  });
 })();
 </script>
 <!-- guide:js:end -->
