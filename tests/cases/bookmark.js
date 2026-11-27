@@ -53,7 +53,7 @@ module.exports = [
       await page.click('#muyi-rn [data-s]'); await page.waitForTimeout(600);
       assert.match(dialogs[0] || '', /3회차에 추가 명단으로 저장할까요/); assert.match(dialogs[0], /마감일 2026-12-24/);
       const save = sent.find((s) => !s.preview); assert.ok(save, '저장 요청');
-      assert.equal(save.campaigns[0].extra, true); assert.equal(save.campaigns[0].company_id, 'c1'); assert.equal(save.campaigns[0].dates.reviewEndAt, '2026-12-24');
+      assert.equal(save.campaigns[0].extra, true); assert.equal(save.campaigns[0].company_id, 'c1'); assert.equal(save.campaigns[0].dates.reviewEndAt, '2026-12-24'); assert.ok(sent.every((s) => s.bm === 9), '북마크 버전 bm:9 (rn-import v9 예전 북마크 안내 기준)');
       assert.match(await page.innerText('#muyi-rn'), /3회차 추가 명단/);
       assert.deepEqual(page.errors, []); await page.context().close();
     },

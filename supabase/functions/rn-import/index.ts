@@ -13,6 +13,7 @@ import Anthropic from "npm:@anthropic-ai/sdk@0.68";
 // v8(2026-11-26): ① 이미 저장한 캠페인도 preview면 항상 회차 확인(confirm, 지금 저장된 회차를 기본값). 다른 회차(또는 추가 명단)를 고르면 예전 저장분에서 옮김
 //   ② extra:true = 추가 명단 — 회차를 새로 만들지 않고 명단 있는 마지막 회차(last)에 붙임: rounds 행 state '추가'(cycle_on 없음 · recruit_on = 그 회차 모집일 · round_no = last · deadline = 북마크 일정 마감일)
 //      달력은 그 마감일에 '추가' 마감 칩으로 표시(crm-calendar campEvents)
+// v9(2026-11-27): 북마크 버전(bm) — 새 북마크는 bm:9를 보냄. bm 없는 예전 북마크(회차 입력칸, '추가 명단 생성' 없음)면 결과 msg 앞에 '다시 설치' 안내
 // 같은 캠페인은 rounds.rn_campaign_id로 한 번만: 인원이 같으면 건너뜀(same), 바뀌었으면 글 링크를 지키며 갱신(updated).
 const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "content-type", "Access-Control-Allow-Methods": "POST, OPTIONS" };
 const json = (b: unknown, status = 200) => new Response(JSON.stringify(b), { status, headers: { ...cors, "Content-Type": "application/json" } });
@@ -281,6 +282,8 @@ Deno.serve(async (req) => {
       await sb.from("company_events").insert({ company_id: co.id, actor: k.user_id, kind: "system", body: `리뷰노트 명단 ${rows.length}명 ${prev ? "갱신" : moveFrom ? "옮겨 저장" : "저장"} (북마크 · ${roundNo ? roundNo + "회차 · " : ""}발표 ${ann.slice(5)}${applied.length ? " · 달력 " + applied.join(", ") : ""})` });
       results.push({ ...out, cancelled: rows.filter((r: any) => r.cancelled).length, status: prev || moveFrom ? "updated" : "saved", company: co.name + (roundNo ? "" : " · 회차 직접 입력"), round_no: roundNo, cycle, announce: ann, deadline, applied: applied.join(" · "), nick: rows.filter((r: any) => r.nickname).length, notes: rows.filter((r: any) => r.note).length, link: linkOf(co.id, cycle!) });
     }
+    // v9: 예전 북마크(bm 없음)는 회차 드롭다운·'＋ 추가 명단 생성'이 없음 → 결과마다 다시 설치 안내 (예전 북마크도 msg는 그대로 보여 줌)
+    if (!(Number(body.bm) >= 9)) results.forEach((r) => { r.msg = "⚠ 예전 북마크입니다 — CRM 체험단 명단 탭 [리뷰노트 북마크 설치]로 다시 설치하면 '＋ 추가 명단 생성'이 나옵니다. " + (r.msg || ""); });
     console.log("RN_IMPORT", admin.name, results.map((r) => `${r.id}:${r.status}`).join(" "));
     return json({ by: admin.name, results });
   } catch (e) {
